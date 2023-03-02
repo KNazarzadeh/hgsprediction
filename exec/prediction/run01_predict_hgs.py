@@ -10,9 +10,9 @@ Motor is Handgrip strength (1 phase).
 """
 
 import pandas as pd
-from hgsprediction.load_data import load_data
-from hgsprediction.calculate_new_columns import calculate_new_columns
-from hgsprediction.input_arguments import input_arguments
+from hgsprediction.input_arguments import parse_args
+from hgsprediction.load_data import load_original_data_per_session
+from hgsprediction.preprocess import PreprocessData
 
 
 from ptpython.repl import embed
@@ -60,7 +60,14 @@ print("============================================")
 
 ###############################################################################
 # Read CSV file from Juseless
-data_loaded = load_data_per_session(motor, population, mri_status, session=0)
+###############################################################################
+# Read CSV file from Juseless
+data_loaded = load_original_data_per_session(motor, population, mri_status, session=0)
+
+data_hgs = check_hgs_availability_per_session(data_loaded, session=0)
+
+extract_features = ExtractFeatures(data_hgs, motor, population)
+extracted_data = extract_features.extract_features()
 
 
 

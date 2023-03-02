@@ -5,8 +5,6 @@
 
 import os
 import pandas as pd
-import io
-
 
 ###############################################################################
 # Load original data from the the original folder
@@ -54,7 +52,52 @@ def load_original_data(motor, population, mri_status):
 
 ###############################################################################
 # Load specific data for specific session
-def load_data_per_session(motor, population, mri_status, session):
+def load_original_data_per_session(motor, population, mri_status, session):
+    """
+    load data from the relative csv file.
+
+    Parameters
+    ----------
+    motor : str
+     Name of the motor which to be analyse.
+    population: str
+        Name of the population which to  to be analyse
+    mri_status: str
+        MRI status which data to be  to be analyse.
+
+    Returns
+    -------
+    pandas.DataFrame
+        DataFrame of data specified.
+    """
+    folder_path = os.path.join(
+        "/data",
+        "project",
+        "stroke_ukb",
+        "knazarzadeh",
+        "GIT_repositories",
+        "motor_ukb",
+        "data_ukb",
+        f"data_{motor}",
+        population,
+        "original_data",
+        f"{mri_status}_{population}",
+        "original_data_per_sessions",
+    )
+    
+    file_path = os.path.join(
+        folder_path,
+        f"{mri_status}_{population}_original_data_session_{session}.csv")
+
+    data = pd.read_csv(file_path, sep=',')
+    
+    # Focus on Session/Instance 0 only
+    # data = data[data.columns[~data.columns.str.contains("-1.*|-2.*|-3.*")]]
+
+    return data
+###############################################################################
+# Load specific data for specific session
+def load_hgs_availability_data_per_session(motor, population, mri_status, session):
     """
     load data from the relative csv file.
 
