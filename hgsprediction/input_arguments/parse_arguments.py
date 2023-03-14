@@ -48,6 +48,7 @@ def validate_args(args):
         "cognitive+gender",
         "bodysize+cognitive",
         "bodysize+cognitive+gender",
+        "all",
     ]
     
     available_target = [
@@ -104,6 +105,7 @@ def validate_args(args):
         print("Invalid Confound Status!")
         print("please choose Confound status from the binary list:\n",
               available_confound)
+
 ###############################################################################
 # Parse, add and return the arguments.
 def parse_args():
@@ -170,6 +172,18 @@ def parse_args():
                         # choices=[0,
                         #         1,],
                         help="Confound status (int).")
+    # Add Repeat numbers:
+    parser.add_argument("repeat_number",
+                        type=int,
+                        # choices=[0,
+                        #         1,],
+                        help="Repeat Number (int).")
+    # Add Fold numbers:
+    parser.add_argument("fold_number",
+                        type=int,
+                        # choices=[0,
+                        #         1,],
+                        help="Fold Number (int).")
     
     # Parse the argument
     args = parser.parse_args()

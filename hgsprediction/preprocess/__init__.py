@@ -1,1 +1,2 @@
-from hgsprediction.preprocess import 
+from .preprocess_healthy_data import preprocess_healthy_data
+from .preprocess_healthy_data import PreprocessHealthyData

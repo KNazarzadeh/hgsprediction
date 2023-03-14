@@ -1,1 +1,1 @@
-from .input_arguments import validate_args, parse_args
+from .parse_arguments import validate_args, parse_args
