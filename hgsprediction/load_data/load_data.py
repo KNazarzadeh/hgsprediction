@@ -44,9 +44,7 @@ def load_original_data(motor, population, mri_status):
         folder_path,
         f"{mri_status}_{population}.csv")
     
-    data = pd.read_csv(file_path, sep=',', index_col=False)
-        
-    # data.to_csv(file_path, sep=',', index=False)
+    data = pd.read_csv(file_path, sep=',')
 
     return data
 

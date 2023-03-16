@@ -13,7 +13,7 @@ import pandas as pd
 
 
 ###############################################################################
-class PreprocessHealthyData:
+class PreprocessHealthy:
     def __init__(
         self,
         df: pd.DataFrame,

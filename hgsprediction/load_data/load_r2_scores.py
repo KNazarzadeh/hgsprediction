@@ -1,5 +1,7 @@
 #!/home/knazarzadeh/miniconda3/envs/disorderspredwp3/bin/python3
-
+"""
+Load R2 scores from csv files.
+"""
 import os
 import pandas as pd
 

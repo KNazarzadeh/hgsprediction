@@ -1,2 +1,1 @@
-from .preprocess_healthy_data import preprocess_healthy_data
-from .preprocess_healthy_data import PreprocessHealthyData
+from .preprocess_healthy import PreprocessHealthy
