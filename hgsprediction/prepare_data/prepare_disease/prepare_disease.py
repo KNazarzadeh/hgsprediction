@@ -218,6 +218,41 @@ class PrepareDisease:
         return longitudinal_df
 
 ###############################################################################
+    # def check_hgs_availability_per_session(self, df, session):
+    #     """ Check availability of Handgrip_strength on sessions level.
+    #         Create a list of different sessions dataframes for HGS.
+
+    #     Parameters
+    #     ----------
+    #     dataframe : pandas.DataFrame
+    #         DataFrame of data specified.
+
+    #     Returns
+    #     --------
+    #     pandas.DataFrame
+    #         DataFrame of data specified.
+
+    #     dfs_List : List of dataframes
+    #         List of dataframes based on sessions of HGS.
+
+    #     """
+    #     # Handgrip strength info
+    #     # for Left and Right Hands
+    #     hgs_left = "46"  # Handgrip_strength_(left)
+    #     hgs_right = "47"  # Handgrip_strength_(right)
+    #     # Create an empty list of dataframes for output
+    #     # It will contain 4 dataframe for 4 sessions
+
+    #     # Check non-Zero and non_NaN Handgrip strength
+    #     # for Left and Right Hands
+    #     dataframe_tmp = dataframe[
+    #         ((~dataframe[f'{hgs_left}-{session}.0'].isna()) &
+    #             (dataframe[f'{hgs_left}-{session}.0'] !=  0)) 
+    #         & ((~dataframe[f'{hgs_right}-{session}.0'].isna()) &
+    #             (dataframe[f'{hgs_right}-{session}.0'] !=  0))].reset_index()
+
+    #     return dataframe_tmp
+
 ###############################################################################
 ###############################################################################
 ###############################################################################

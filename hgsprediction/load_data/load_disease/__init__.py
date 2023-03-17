@@ -1,0 +1,1 @@
+from .load_disease import load_prepared_data
