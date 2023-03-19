@@ -1,8 +1,8 @@
-#!/home/knazarzadeh/miniconda3/envs/disorderspredwp3/bin/python3
+#!/usr/bin/env Disorderspredwp3
 
 """
-Preprocess data, Calculate and Add new columns
-based on corresponding Field-IDs, conditions to data
+Preprocess data, Calculate and Add new columns based on corresponding Field-IDs,
+conditions to data
 
 # Author:  Kimia Nazarzadeh <k.nazarzadeh@fz-juelich.de>
 
@@ -11,9 +11,10 @@ based on corresponding Field-IDs, conditions to data
 import numpy as np
 import pandas as pd
 
+from ptpython.repl import embed
 
 ###############################################################################
-class PreprocessHealthy:
+class PreprocessData:
     def __init__(
         self,
         df: pd.DataFrame,
@@ -26,10 +27,9 @@ class PreprocessHealthy:
         df : dataframe
             The dataframe that desired to analysis
         """
-
         self.df = df
         self.session = session
-
+        
 ###############################################################################
     def validate_handgrips(
         self,
@@ -60,7 +60,7 @@ class PreprocessHealthy:
         # Exclude all subjects who had Dominant HGS < 4:
         # The condition is applied to "dominant_hgs" columns
         # And then reset_index the new dataframe:
-        df = df[df.loc[:, f"dominant_hgs-{session}.0"] >= 4].reset_index()
+        df = df[df.loc[:, f"dominant_hgs-{session}.0"] >=4].reset_index()
 
         return df
 
@@ -124,13 +124,13 @@ class PreprocessHealthy:
         # Find handedness equal to 3, -3 or NaN:
         index = np.where(
             (df.loc[:, f"1707-{session}.0"] == 3.0) |
-            (df.loc[:, f"1707-{session}.0"] == -3.0) |
+            (df.loc[:, f"1707-{session}.0"] == -3.0)|
             (df.loc[:, f"1707-{session}.0"].isna()))[0]
         # Add and new column "dominant_hgs"
-        # And assign Highest HGS value among Right and Left HGS:
+        # And assign Highest HGS value among Right and Left HGS:        
         df.loc[index, f"dominant_hgs-{session}.0"] = \
             df.loc[:, [f"46-{session}.0", f"47-{session}.0"]].max(axis=1)
-
+            
         return df
 
 ###############################################################################
@@ -182,7 +182,7 @@ class PreprocessHealthy:
         # Find handedness equal to 2:
         index = np.where(df.loc[:, f"1707-{session}.0"] == 2.0)[0]
         # Add and new column "nondominant_hgs"
-        # And assign Right hand HGS value:
+        # And assign Right hand HGS value:        
         df.loc[index, f"nondominant_hgs-{session}.0"] = \
             df.loc[:, f"47-{session}.0"]
         # ------------------------------------
@@ -197,12 +197,12 @@ class PreprocessHealthy:
             (df.loc[:, f"1707-{session}.0"] == -3.0) |
             (df.loc[:, f"1707-{session}.0"].isna()))[0]
         # Add and new column "nondominant_hgs"
-        # And assign Lowest HGS value among Right and Left HGS:
+        # And assign Lowest HGS value among Right and Left HGS:    
         df.loc[index, f"nondominant_hgs-{session}.0"] = \
             df.loc[:, [f"46-{session}.0", f"47-{session}.0"]].min(axis=1)
-
+    
         return df
-
+    
 ###############################################################################
     def calculate_waist_to_hip_ratio(
         self,
@@ -226,7 +226,7 @@ class PreprocessHealthy:
         assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
         assert isinstance(session, int), "session must be a int!"
         # ------------------------------------
-        # Add new column "waist_to_hip_ratio" by the following process:
+        # Add new column "waist_to_hip_ratio" by the following process: 
         # Waist circumference field-ID: 48
         # Hip circumference field-ID: 49
         # Calculating Waist/Hip
@@ -260,7 +260,7 @@ class PreprocessHealthy:
         assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
         assert isinstance(session, int), "session must be a int!"
         # ------------------------------------
-        # Add new column "hgs(L+R)" by the following process:
+        # Add new column "hgs(L+R)" by the following process: 
         # hgs_left field-ID: 46
         # hgs_right field-ID: 47
         # sum of Handgrips (Left + Right)
@@ -293,7 +293,7 @@ class PreprocessHealthy:
         assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
         assert isinstance(session, int), "session must be a int!"
         # ------------------------------------
-        # Add new column "hgs(L-R)" by the following process:
+        # Add new column "hgs(L-R)" by the following process: 
         # hgs_left field-ID: 46
         # hgs_right field-ID: 47
         # Subtraction of Handgrips (Left - Right)
@@ -410,15 +410,15 @@ class PreprocessHealthy:
                     '2020',     # Data-Coding: 100349
                     '2030',     # Data-Coding: 100349
         ]
-        # Add corresponding intences/session that we are lookin for
+        # Add corresponding intences/session that we are lookin for 
         # to the list of fields:
         neuroticism_fields = [s + f"-{session}.0" for s in neuroticism_fields]
         # ------------------------------------
-        # Add new column "neuroticism_score" by the following process:
+        # Add new column "neuroticism_score" by the following process: 
         # Find core_fields answered greather than 0.0
         # And Calculate Sum with min_count parameter=9:
         # df.where is replacing all negative values with NaN
-        # min_count=9, means calculate Sum if
+        # min_count=9, means calculate Sum if 
         # at leaset 9 of the fields are answered:
         df.loc[:, "neuroticism_score"] = \
             df.where(df.loc[:, neuroticism_fields] >= 0.0).sum(axis=1, min_count=9)
@@ -459,24 +459,24 @@ class PreprocessHealthy:
         #           4	Nearly every day
         # ------------------------------------
         #  ------- Depression Fields:
-        # Recent feelings of inadequacy
-        # '20507',  Data-Coding 504
-        # trouble concentrating on things
-        # '20508',  Data-Coding 504
-        # Recent feelings of depression
-        # '20510',
-        # Recent poor appetite or overeating
-        # '20511',  Data-Coding 504
-        # Recent thoughts of suicide or self-harm
-        # '20513',  Data-Coding 504
-        # Recent lack of interest or pleasure in doing things
-        # '20514',  Data-Coding 504
-        # Trouble falling or staying asleep, or sleeping too much
-        # '20517',  Data-Coding 504
-        # Recent changes in speed/amount of moving or speaking
-        # '20518',  Data-Coding 504
-        # Recent feelings of tiredness or low energy
-        # '20519',  Data-Coding 504
+            # Recent feelings of inadequacy
+            # '20507',  Data-Coding 504
+            # trouble concentrating on things
+            # '20508',  Data-Coding 504
+            # Recent feelings of depression
+            # '20510',
+            # Recent poor appetite or overeating
+            # '20511',  Data-Coding 504
+            # Recent thoughts of suicide or self-harm
+            # '20513',  Data-Coding 504
+            # Recent lack of interest or pleasure in doing things
+            # '20514',  Data-Coding 504
+            # Trouble falling or staying asleep, or sleeping too much
+            # '20517',  Data-Coding 504
+            # Recent changes in speed/amount of moving or speaking
+            # '20518',  Data-Coding 504
+            # Recent feelings of tiredness or low energy
+            # '20519',  Data-Coding 504
         # -----------------------------------------------------------
         depression_fields = [
             '20507',    # Data-Coding 504
@@ -489,15 +489,15 @@ class PreprocessHealthy:
             '20518',    # Data-Coding 504
             '20519',    # Data-Coding 504
         ]
-        # Add corresponding intences/session that we are lookin for
+        # Add corresponding intences/session that we are lookin for 
         # to the list of fields:
         depression_fields = [s + f"-{session}.0" for s in depression_fields]
         # ------------------------------------
-        # Add new column "depression_score" by the following process:
+        # Add new column "depression_score" by the following process: 
         # Find core_fields answered greather than 0.0
         # And Calculate Sum with min_count parameter=1:
         # df.where is replacing all negative values with NaN
-        # min_count=1, means calculate Sum if
+        # min_count=1, means calculate Sum if 
         # at leaset 1 of the fields are answered:
         df.loc[:, "depression_score"] = df.where(
             df[depression_fields] > 0.0).sum(axis=1, min_count=1)
@@ -524,7 +524,7 @@ class PreprocessHealthy:
         """
         # Assign corresponding session number from the Class:
         session = self.session
-        # Ensuring that the input data is of the expected type
+
         assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
         assert isinstance(session, int), "session must be a int!"
         # -----------------------------------------------------------
@@ -562,15 +562,15 @@ class PreprocessHealthy:
             '20516',    # Data-Coding: 504
             '20520',    # Data-Coding: 504
         ]
-        # Add corresponding intences/session that we are lookin for
+        # Add corresponding intences/session that we are lookin for 
         # to the list of fields:
         anxiety_fields = [s + f"-{session}.0" for s in anxiety_fields]
         # ------------------------------------
-        # Add new column "anxiety_score" by the following process:
+        # Add new column "anxiety_score" by the following process: 
         # Find core_fields answered greather than 0.0
         # And Calculate Sum with min_count parameter=1:
         # df.where is replacing all negative values with NaN
-        # min_count=1, means calculate Sum if
+        # min_count=1, means calculate Sum if 
         # at leaset 1 of the fields are answered:
         df.loc[:, "anxiety_score"] = \
             df.where(df[anxiety_fields] > 0.0).sum(axis=1, min_count=1)
@@ -659,7 +659,7 @@ class PreprocessHealthy:
             '20536',    # Data-Coding 507
         ]
 
-        # Add corresponding intences/session that we are lookin for
+        # Add corresponding intences/session that we are lookin for 
         # to the list of fields:
         cidi_core_fields = [s + f"-{session}.0" for s in cidi_core_fields]
         cidi_noncore_fields = [s +
@@ -678,7 +678,7 @@ class PreprocessHealthy:
         # Find core_fields answered eaual or greather than 0.0
         # And Calculate Sum with min_count parameter=1:
         # df.where is replacing all negative values with NaN
-        # min_count=1, means calculate Sum if
+        # min_count=1, means calculate Sum if 
         # at leaset 1 of the fields are answered:
         core_score = df.where(
             df[cidi_core_fields] >= 0.0).sum(axis=1, min_count=1)
@@ -688,7 +688,7 @@ class PreprocessHealthy:
         # Find Non-core_fields answered equal or greather than 0.0
         # And Calculate Sum with min_count parameter=4:
         # df.where is replacing all negative values with NaN
-        # min_count=4, means calculate Sum if
+        # min_count=4, means calculate Sum if 
         # at leaset 4 of the fields are answered:
         noncore_score = df.where(
             df[cidi_noncore_fields] >= 0.0).sum(axis=1, min_count=4)
@@ -706,12 +706,12 @@ class PreprocessHealthy:
         cidi_score.loc[index] = np.NaN
         # ------------------------------------
         # Notice:
-        # All Non-Core questions asked only when
+        # All Non-Core questions asked only when 
         # one of the Core was answered 'yes'.
-        # So for those subjects that answered
+        # So for those subjects that answered 
         # both Core questions as no (i.e. 0.0) we use cidi score 0.
         # ------------------------------------
-        # Add new column "CIDI_score" by
+        # Add new column "CIDI_score" by 
         # assigning cidi main score calculated above:
         df.loc[:, "CIDI_score"] = cidi_score
 
@@ -740,7 +740,7 @@ class PreprocessHealthy:
 
         assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
         assert isinstance(session, int), "session must be a int!"
-
+        
         # ------- Qualification -------
         # '6138', Qualifications
         # Data-coding: 100305
@@ -758,12 +758,12 @@ class PreprocessHealthy:
             # Find College or University degree
             # And Replace with '1.0' value
             index_college = np.where(
-                df.loc[:, f"6138-{session}.{i}"] == 1.0)[0]
+                df.loc[:,f"6138-{session}.{i}"] == 1.0)[0]
             df.loc[index_college, f"6138-{session}.{i}"] = 1.0
             # Find No College or University degree
             # And Replace with '0.0' value:
             index_no_college = np.where(
-                df.loc[:, f"6138-{session}.{i}"].isin([2.0,
+                df.loc[:,f"6138-{session}.{i}"].isin([2.0,
                                                       3.0,
                                                       4.0,
                                                       5.0,
@@ -773,7 +773,7 @@ class PreprocessHealthy:
             # Find No answered
             # And Replace with 'NaN' value:
             index_no_answer = np.where(
-                df.loc[:, f"6138-{session}.{i}"] == -3.0)[0]
+                df.loc[:,f"6138-{session}.{i}"] == -3.0)[0]
             df.loc[index_no_answer, f"6138-{session}.{i}"] = np.NaN
         # Calculate Maximum Qualification
         max_qualification = \
@@ -790,7 +790,7 @@ class PreprocessHealthy:
         df,
     ):
         """Preprocess Behavioural Phenotypes
-
+      
         Parameters
         ----------
         df : dataframe
@@ -799,10 +799,10 @@ class PreprocessHealthy:
         Return
         ----------
         df : dataframe
-        """
+        """  
         # Assign corresponding session number from the Class:
         session = self.session
-
+        
         assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
         assert isinstance(session, int), "session must be a int!"
         # -----------------------------------------------------------
@@ -815,14 +815,14 @@ class PreprocessHealthy:
         # '20023', Mean time to correctly identify matches
         # -----------------------------------------------
         # -------  Pairs matching task -------
-        #  A value of 0 indicates the participant made no mistakes.
+        #  A value of 0 indicates the participant made no mistakes. 
         # '399',  # Number of incorrect matches in round
         # -----------------------------------------------
         # -------  Trail making task -------
         # cognitive in clinic
         # Data-Coding: 1990
         #           0 --> Trail not completed
-        # '6348',  # Duration to complete numeric path (trail #1)
+        # '6348',  # Duration to complete numeric path (trail #1) 
         # '6350',  # Duration to complete alphanumeric path (trail #2)
         # ------------------------------------
         # cognitive online --> No data-Coding
@@ -850,20 +850,20 @@ class PreprocessHealthy:
         # I used '20195' and '20159' in place of '6348' and '6350'
         # Because '23323' and '23324' tasks taken only for MRI visits(instance 2&3)
         # And non-MRI healthy data don't contain this task.
-
+        
         #######################################################
         # -------  Numeric memory task -------
         # '4282',  # Maximum digits remembered correctly
         # Data-Coding: 100696
         #           -1 --> Abandoned
         # ------------------------------------
-        # Longest number correctly recalled during the numeric memory test.
-        # A value of -1 is recorded if the participant chose to abandon
+        # Longest number correctly recalled during the numeric memory test. 
+        # A value of -1 is recorded if the participant chose to abandon 
         # the test before completing the first round. So, Replace (-1) with NaN
         # ------------------------------------
-        df.loc[:, f"4282-{session}.0"] = \
-            df.loc[:, f"4282-{session}.0"].replace(-1, np.NaN)
-
+        df.loc[:,f"4282-{session}.0"] = \
+            df.loc[:,f"4282-{session}.0"].replace(-1, np.NaN)
+        
         #######################################################
         # -------  Pairs matching task ---------
         # cognitive in clinic
@@ -871,12 +871,12 @@ class PreprocessHealthy:
         # Data-Coding: 402
         #           0 --> represents "Test not completed".
         # ------------------------------------
-        # Defined-instances run from 0 to 3,
+        # Defined-instances run from 0 to 3, 
         # Task ran 3 run on each instances:
         for i in range(1, 4):
-            df.loc[:, f"400-{session}.{i}"] = \
-                df.loc[:, f"400-{session}.{i}"].replace(0, np.NaN)
-
+            df.loc[:,f"400-{session}.{i}"] = \
+                df.loc[:,f"400-{session}.{i}"].replace(0, np.NaN)
+                
         #######################################################
         # ------- Prospective memory result -------
         # '20018',  # Prospective memory result
@@ -891,14 +891,14 @@ class PreprocessHealthy:
         #              main/association_grip_strength_behavior.m
         # Because:
         # this field condenses the results of the prospective memory test into 3 groups.
-        # It does not distinguish between people who, at the first attempt,
-        # followed the on-screen instruction (thereby giving an incorrect result) and
-        # people who remembered to ignore the instruction
-        # but did not correctly recall what to do instead.
+        # It does not distinguish between people who, at the first attempt, 
+        # followed the on-screen instruction (thereby giving an incorrect result) and 
+        # people who remembered to ignore the instruction 
+        # but did not correctly recall what to do instead. 
         # ------------------------------------
         df.loc[:, f"20018-{session}.0"] = \
             df.loc[:, f"20018-{session}.0"].replace(2, 0)
-
+        
         #######################################################
         # ------- Life satisfaction -------
         # Data-Coding: 100478
@@ -935,7 +935,7 @@ class PreprocessHealthy:
         df.loc[index, f"4526-{session}.0"] = np.NaN
         # ------------------------------------
         # Replace Family relationship satisfaction less than 0
-        # with NaN based on Data-Coding 100478
+        # with NaN based on Data-Coding 100478    
         index = np.where(df.loc[:, f"4559-{session}.0"] < 0)[0]
         df.loc[index, f"4559-{session}.0"] = np.NaN
         # ------------------------------------
@@ -943,24 +943,25 @@ class PreprocessHealthy:
         # Replace Work/job satisfaction less than 0 and more than 6
         # with NaN based on Data-Coding 100479
         index = np.where(
-            (df.loc[:, f"4537-{session}.0"] < 0) | (df.loc[:, f"4537-{session}.0"] > 6))[0]
+            (df.loc[:, f"4537-{session}.0"] < 0) | \
+                (df.loc[:, f"4537-{session}.0"] > 6))[0]
         df.loc[index, f"4537-{session}.0"] = np.NaN
         # ------------------------------------
         # Replace Health satisfaction less than 0
-        # with NaN based on Data-Coding 100478
+        # with NaN based on Data-Coding 100478    
         index = np.where(df.loc[:, f"4548-{session}.0"] < 0)[0]
         df.loc[index, f"4548-{session}.0"] = np.NaN
         # ------------------------------------
         # Replace Friendships satisfaction less than 0
-        # with NaN based on Data-Coding 100478
+        # with NaN based on Data-Coding 100478    
         index = np.where(df.loc[:, f"4570-{session}.0"] < 0)[0]
         df.loc[index, f"4570-{session}.0"] = np.NaN
         # ------------------------------------
         # Replace Financial situation satisfaction less than 0
-        # with NaN based on Data-Coding 100478
+        # with NaN based on Data-Coding 100478    
         index = np.where(df.loc[:, f"4581-{session}.0"] < 0)[0]
         df.loc[index, f"4581-{session}.0"] = np.NaN
-
+        
         #######################################################
         # ------- Subjective well-being -------
         # Data-Coding: 537
@@ -982,25 +983,25 @@ class PreprocessHealthy:
         #           4	Very much
         #           5	An extreme amount
         # ------------------------------------
-        # '20458',  # General happiness --> Data-Coding 537.
+        # '20458',  # General happiness --> Data-Coding 537. 
         # '20459',  # General happiness with own health --> Data-Coding 537.
         # '20460',  # Belief that own life is meaningful --> Data-Coding 538
         # ------------------------------------
         # Replace General happiness less than 0
-        # with NaN based on Data-Coding 537
+        # with NaN based on Data-Coding 537    
         index = np.where(df.loc[:, f"20458-{session}.0"] < 0)[0]
         df.loc[index, f"20458-{session}.0"] = np.NaN
         # ------------------------------------
         # Replace General happiness with own health less than 0
-        # with NaN based on Data-Coding 537
+        # with NaN based on Data-Coding 537    
         index = np.where(df.loc[:, f"20459-{session}.0"] < 0)[0]
         df.loc[index, f"20459-{session}.0"] = np.NaN
         # ------------------------------------
         # Replace Belief that own life is meaningful less than 0
-        # with NaN based on Data-Coding 538
+        # with NaN based on Data-Coding 538   
         index = np.where(df.loc[:, f"20460-{session}.0"] < 0)[0]
         df.loc[index, f"20460-{session}.0"] = np.NaN
 
         #######################################################
-
+        
         return df
