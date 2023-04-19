@@ -90,6 +90,7 @@ data_original = load_original_data(motor, population, mri_status)
 prepare_data = PrepareDisease(data_original)
 df_available_disease_dates = prepare_data.remove_missing_disease_dates(data_original, population)
 df_available_hgs = prepare_data.remove_missing_hgs(df_available_disease_dates)
+
 df_followup_days = prepare_data.define_followup_days(df_available_hgs, population)
 pre_disease_df = prepare_data.extract_pre_disease(df_followup_days)
 post_disease_df = prepare_data.extract_post_disease(df_followup_days)
@@ -138,6 +139,8 @@ summary_data.loc['longitudinal_disease_both_gender']['length_of_data'] = len(lon
 summary_data.loc['longitudinal_disease_female']['length_of_data'] = len(longitudinal_df[longitudinal_df['31-0.0']==0.0])
 summary_data.loc['longitudinal_disease_male']['length_of_data'] = len(longitudinal_df[longitudinal_df['31-0.0']==1.0])
 
+print("===== Done! =====")
+embed(globals(), locals())
 save_prepared_disease_data(df_available_disease_dates, "available_disease_dates", motor, population, mri_status)
 save_prepared_disease_data(df_available_hgs, "available_hgs", motor, population, mri_status)
 save_prepared_disease_data(pre_disease_df, "pre_disease", motor, population, mri_status)
