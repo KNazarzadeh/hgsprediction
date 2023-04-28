@@ -42,19 +42,19 @@ def validate_args(args):
     ]
     
     available_feature = [
-        "bodysize",
-        "bodysize+gender",
-        "cognitive",
-        "cognitive+gender",
-        "bodysize+cognitive",
-        "bodysize+cognitive+gender",
+        "anthropometric",
+        "anthropometric+gender",
+        "behavioural",
+        "behavioural+gender",
+        "anthropometric+behavioural",
+        "anthropometric+behavioural+gender",
         "all",
     ]
     
     available_target = [
         "L+R",
-        "dominant_hgs",
-        "nondominant_hgs",
+        "dominant",
+        "nondominant",
     ]
     
     available_confound = [
@@ -138,19 +138,19 @@ def parse_args():
     # Add Features type argument:
     parser.add_argument("feature_type",
                         type=str.lower,
-                        # choices=["bodysize",
-                        #         "bodysize+gender",
-                        #         "cognitive",
-                        #         "cognitive+gender",
-                        #         "bodysize+cognitive",
-                        #         "bodysize+cognitive+gender",],
+                        # choices=["anthropometric",
+                        # "anthropometric+gender",
+                        # "behavioural",
+                        # "behavioural+gender",
+                        # "anthropometric+behavioural",
+                        # "anthropometric+behavioural+gender",],
                         help="Features type (str).")
     # Add Target argument:
     parser.add_argument("target",
                         type=str,
                         # choices=["L+R",
-                        #         "dominant_hgs",
-                        #         "nondominant_hgs",],
+                        #         "dominant",
+                        #         "nondominant",],
                         help="Confound status (int).")
     # Add Gender argument:
     parser.add_argument("gender",
