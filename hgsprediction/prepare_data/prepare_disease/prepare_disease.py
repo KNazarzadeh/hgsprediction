@@ -11,7 +11,7 @@ from ptpython.repl import embed
 
 ###############################################################################
 class PrepareDisease:
-    def __init__(self, df):
+    def __init__(self, df, population):
         """
         Parameters
         ----------
@@ -19,12 +19,13 @@ class PrepareDisease:
             The dataframe that desired to analysis.
         """
         self.df = df
+        self.population = population
 
 ###############################################################################
-    def remove_missing_disease_dates(self, df, population):
+    def remove_missing_disease_dates(self, df):
         """ Drop all subjects who has no date of disease and
             all dates of 1900-01-01 epresents "Date is unknown".
-
+            
         Parameters
         ----------
         df : pandas.DataFrame
@@ -37,6 +38,13 @@ class PrepareDisease:
         df : pandas.DataFrame
             DataFrame of data specified.   
         """
+        # Date of the earliest reported stroke for a participant.
+        # The source of this report is given in Field 42007.
+        # Coding 272:
+        #           1900-01-01 represents "Date is unknown"
+
+        population = self.population
+        
         if population == "stroke":
             df = df[(~df['42006-0.0'].isna()) &
                                   (df['42006-0.0'] != "1900-01-01")]
@@ -84,7 +92,7 @@ class PrepareDisease:
 
         # Drop the duplicated subjects
         # based on 'eid' column (subject ID)
-        df_output = df_output.drop_duplicates(subset=['eid']).reset_index()
+        df_output = df_output[~df_output.index.duplicated(keep='first')]
 
         return df_output
 
@@ -113,7 +121,7 @@ class PrepareDisease:
         return days
     
 ###############################################################################
-    def define_followup_days(self, df, population):
+    def define_followup_days(self, df):
         """Calcuate the days differences between
             the Attendance date (the visit in clinic) and the Onset date of disease.
             
@@ -129,6 +137,8 @@ class PrepareDisease:
         df : pandas.DataFrame
             DataFrame of data specified.
         """
+        population = self.population
+
         sessions = 4
         
         if population == "stroke":
@@ -139,6 +149,110 @@ class PrepareDisease:
         for ses in range(0, sessions):
             attendance = df[f'53-{ses}.0']
             df[f'followup_days-{ses}.0'] = self.date_difference(attendance, onset)
+
+        return df
+
+###############################################################################
+    def define_stroke_type(self,df):
+
+        stroke_subtypes = [
+            '42008-0.0',	# Date of ischaemic stroke
+            '42010-0.0',	# Date of intracerebral haemorrhage
+            '42012-0.0',	# Date of subarachnoid haemorrhage
+        ]
+        df_subtype = df[stroke_subtypes]
+        # Convert the columns to datetime
+        df_subtype = df_subtype.apply(pd.to_datetime)
+
+        # Find the earliest date on each row
+        df['earliest_subtype'] = df_subtype.min(axis=1)
+        df['stroke_subtype_field'] = df_subtype.idxmin(axis=1)
+        
+        df.loc[df[df['stroke_subtype_field']=="42008-0.0"].index, 'stroke_subtype'] = "ischaemic"
+        df.loc[df[df['stroke_subtype_field']=="420010-0.0"].index, 'stroke_subtype'] = "intracerebral haemorrhage"
+        df.loc[df[df['stroke_subtype_field']=="420012-0.0"].index, 'stroke_subtype'] = "subarachnoid haemorrhage"
+
+        return df
+
+###############################################################################
+    def define_pre_post_longitudinal(self, df):
+        
+        
+        filter_col = [col for col in df if col.startswith('followup_days')]
+        post_df = df[df[filter_col].min(axis=1)>=0]
+        df.loc[post_df.index,"stroke_cohort"] = "post-stroke"
+        df.loc[post_df.index,"num_post_sessions"] =  post_df[post_df[filter_col]>=0].count(axis=1)
+        df.loc[post_df.index,"num_pre_sessions"] = 0
+              
+        
+        pre_df = df[df[filter_col].max(axis=1) < 0]
+        df.loc[pre_df.index,"stroke_cohort"] = "pre-stroke"
+        df.loc[pre_df.index,"num_pre_sessions"] = pre_df[pre_df[filter_col]<0].count(axis=1)
+        df.loc[pre_df.index,"num_post_sessions"] = 0
+
+        # To union the two post and pre DataFrames together:
+        pre_post_df = pd.concat([pre_df, post_df])
+        # The intersection between pre and post dataframes of disease
+        # will be the longitudinal dataframe.
+        longitudinal_df = df[~df.index.isin(pre_post_df.index)]
+        df.loc[longitudinal_df.index,"num_pre_sessions"] = longitudinal_df[longitudinal_df[filter_col]<0].count(axis=1)
+        df.loc[longitudinal_df.index,"num_post_sessions"] = longitudinal_df[longitudinal_df[filter_col]>=0].count(axis=1)
+        df.loc[longitudinal_df.index,"stroke_cohort"] = "longitudinal_stroke"
+        
+        
+        return df
+    
+###############################################################################
+    # Function to get column names with first to fourth sorted values
+    def get_sorted_columns(df, filter_col):
+        for i in range(0, len(df[filter_col])):
+            sorted_values = df[filter_col].iloc[i].sort_values()
+            
+            if sorted_values[0] != np.NaN:
+                if sorted_values[0] >= 0: 
+                    df.loc[sorted_values.name, 'first_post_session'] = sorted_values.index[0]
+                    df.loc[sorted_values.name, 'first_pre_session'] = np.NaN
+                elif sorted_values[0] < 0:
+                    df.loc[sorted_values.name, 'first_pre_session'] = sorted_values.index[0]
+                    df.loc[sorted_values.name, 'first_post_session'] = np.NaN
+            else:
+                df.loc[sorted_values.name, 'first_post_session'] = np.NaN
+                df.loc[sorted_values.name, 'first_pre_session'] = np.NaN
+                
+            
+            if sorted_values[1] != np.NaN:
+                if sorted_values[0] >= 0: 
+                    df.loc[sorted_values.name, 'second_post_session'] = sorted_values.index[1]
+                    df.loc[sorted_values.name, 'second_pre_session'] = np.NaN
+                elif sorted_values[0] < 0:
+                    df.loc[sorted_values.name, 'second_pre_session'] = sorted_values.index[1]
+                    df.loc[sorted_values.name, 'second_post_session'] = np.NaN
+            else:
+                df.iloc[sorted_values.name, 'second_post_session'] = np.NaN
+                df.iloc[sorted_values.name, 'second_pre_session'] = np.NaN
+
+            if sorted_values[2] != np.NaN:
+                if sorted_values[0] >= 0: 
+                    df.loc[sorted_values.name, 'third_post_session'] = sorted_values.index[2]
+                    df.loc[sorted_values.name, 'third_pre_session'] = np.NaN
+                elif sorted_values[0] < 0:
+                    df.loc[sorted_values.name, 'third_pre_session'] = sorted_values.index[2]
+                    df.loc[sorted_values.name, 'third_post_session'] = np.NaN    
+            else:
+                df.loc[sorted_values.name, 'third_post_session'] = np.NaN
+                df.loc[sorted_values.name, 'third_pre_session'] = np.NaN
+
+            if sorted_values[3] != np.NaN:
+                if sorted_values[0] >= 0:
+                    df.loc[sorted_values.name, 'forth_post_session'] = sorted_values.index[3]
+                    df.loc[sorted_values.name, 'forth_pre_session'] = np.NaN
+                elif sorted_values[0] < 0:
+                    df.loc[sorted_values.name, 'forth_pre_session'] = sorted_values.index[3]
+                    df.loc[sorted_values.name, 'forth_post_session'] = np.NaN
+            else:
+                df.loc[sorted_values.name, 'forth_post_session'] = np.NaN
+                df.loc[sorted_values.name, 'forth_pre_session'] = np.NaN
+
 
         return df
     
@@ -158,13 +272,9 @@ class PrepareDisease:
         df : pandas.DataFrame
             DataFrame of data specified.
         """
-        
-        filter_col = [col for col in df if col.startswith('followup_days')]
-        index = np.where(df[filter_col].min(axis=1) >= 0)[0]
-        
-        df = df.loc[index, :]
+        post_df = df[df['stroke_cohort']=='post-stroke']    
 
-        return df
+        return post_df
 
 ###############################################################################
     def extract_pre_disease(self, df):
@@ -183,12 +293,13 @@ class PrepareDisease:
             DataFrame of data specified.
         """
         
-        filter_col = [col for col in df if col.startswith('followup_days')]
-        index = np.where(df[filter_col].max(axis=1) < 0)[0]
+        # filter_col = [col for col in df if col.startswith('followup_days')]
+        # index = np.where(df[filter_col].max(axis=1) < 0)[0]
+        # df = df.loc[index, :]
         
-        df = df.loc[index, :]
-
-        return df
+        pre_df = df[df['stroke_cohort']=='pre-stroke']
+        
+        return pre_df
 
 ###############################################################################
     def extract_longitudinal_disease(self, df):
@@ -205,56 +316,20 @@ class PrepareDisease:
             DataFrame of data specified.
         """
 
-        post_df = self.extract_post_disease(df)
-        pre_df = self.extract_pre_disease(df)
-        # To union the two post and pre DataFrames together:
-        pre_post_df = pd.concat([pre_df, post_df])
+        # post_df = self.extract_post_disease(df)
+        # pre_df = self.extract_pre_disease(df)
+        # # To union the two post and pre DataFrames together:
+        # pre_post_df = pd.concat([pre_df, post_df])
         
-        # The intersection between pre and post dataframes of disease
-        # will be the longitudinal dataframe.
-        index = df.index.symmetric_difference(pre_post_df.index)
-        longitudinal_df = df.loc[index, :]
-
+        # # The intersection between pre and post dataframes of disease
+        # # will be the longitudinal dataframe.
+        # index = df.index.symmetric_difference(pre_post_df.index)
+        # longitudinal_df = df.loc[index, :]
+        
+        longitudinal_df = df[df['stroke_cohort']=='longitudinal_stroke']
+        
         return longitudinal_df
 
-###############################################################################
-    # def check_hgs_availability_per_session(self, df, session):
-    #     """ Check availability of Handgrip_strength on sessions level.
-    #         Create a list of different sessions dataframes for HGS.
-
-    #     Parameters
-    #     ----------
-    #     dataframe : pandas.DataFrame
-    #         DataFrame of data specified.
-
-    #     Returns
-    #     --------
-    #     pandas.DataFrame
-    #         DataFrame of data specified.
-
-    #     dfs_List : List of dataframes
-    #         List of dataframes based on sessions of HGS.
-
-    #     """
-    #     # Handgrip strength info
-    #     # for Left and Right Hands
-    #     hgs_left = "46"  # Handgrip_strength_(left)
-    #     hgs_right = "47"  # Handgrip_strength_(right)
-    #     # Create an empty list of dataframes for output
-    #     # It will contain 4 dataframe for 4 sessions
-
-    #     # Check non-Zero and non_NaN Handgrip strength
-    #     # for Left and Right Hands
-    #     dataframe_tmp = dataframe[
-    #         ((~dataframe[f'{hgs_left}-{session}.0'].isna()) &
-    #             (dataframe[f'{hgs_left}-{session}.0'] !=  0)) 
-    #         & ((~dataframe[f'{hgs_right}-{session}.0'].isna()) &
-    #             (dataframe[f'{hgs_right}-{session}.0'] !=  0))].reset_index()
-
-    #     return dataframe_tmp
-
-###############################################################################
-###############################################################################
 ###############################################################################
     def disease_subsets(self, dataframe, population):
         
@@ -297,7 +372,6 @@ class PrepareDisease:
         return dataframe
 
 ###############################################################################
-    
     def howmany_sessions(
         self,
         dataframe,
@@ -339,6 +413,7 @@ class PrepareDisease:
         dataframe = dataframe.dropna(subset = ['first_prior_hgs_L', 'first_prior_hgs_R'])
 
         return dataframe
+
 ###############################################################################
     def first_visit_poststroke(
         self,
@@ -391,78 +466,6 @@ class PrepareDisease:
             dataframe.loc[dataframe['first_prior_session'] == ses, 'first_prior_hgs_R'] = dataframe[f'47-{ses}.0']
         
         dataframe = dataframe.dropna(subset = ['first_prior_hgs_L', 'first_prior_hgs_R'])
-
-
-#         #-----------------------
-        # session_days = pd.DataFrame(dataframe, columns=total_days_col)
-
-        # # mask = session_days.all(i >= 30 for i in session_days)
-        # for ses in range(1, num_session):
-        #     #matching_days = session_days.loc[session_days[f'total_days_ses-{ses}.0'] == dataframe['first_visit_days']]
-        #     mask = session_days.apply(lambda x: x.isin(x.nsmallest(ses)), axis=1)
-
-        #     # prior_first_visit = session_days[mask].where(session_days>=0).min(axis = 1)
-        #     prior_first_visit = session_days[mask].where(session_days<0).max(axis = 1)
-
-        #     # prior_first_visit = session_days[mask].where(session_days>=0).idxmin(axis=1)
-        #     prior_first_session = session_days[mask].where(session_days<0).idxmax(axis=1)
-
-        #     dataframe['prior_first_visit'] = prior_first_visit
-        #     dataframe['prior_first_session'] = prior_first_session
-        #     dataframe['prior_first_session'] = dataframe['prior_first_session'].replace(to_replace=total_days_col, value=[0, 1, 2, 3])
-        
-        #     dataframe.loc[dataframe['prior_first_session']==dataframe['first_visit_session'], 'prior_first_visit'] = np.nan
-        #     dataframe.loc[dataframe['prior_first_session']==dataframe['first_visit_session'], 'prior_first_session'] = np.nan
-
-        # for ses in range(0, num_session):
-        #     min_ses_subs = dataframe.loc[dataframe['prior_first_session'] == ses, 'eid']
-        #     dataframe.loc[dataframe['prior_first_session'] == ses, 'prior_first_visit_hgs_L'] = dataframe[f'Hand_grip_strength_(left)-{ses}.0']
-        #     dataframe.loc[dataframe['prior_first_session'] == ses, 'prior_first_visit_hgs_R'] = dataframe[f'47-{ses}.0']
-
-        
-#         #-----------------------
-#         session_days = pd.DataFrame(dataframe, columns=total_days_col)
-#         session_days = session_days.where(session_days[total_days_col] >=0)
-
-#         mask = session_days.apply(lambda x: x.isin(x.nsmallest(2)), axis=1)
-#         second_visit_days = session_days[mask].max(axis=1)
-#         second_visit_session = session_days[mask].idxmax(axis=1)
-
-
-#         dataframe['second_visit_days'] = second_visit_days
-#         dataframe['second_visit_session'] = second_visit_session
-#         dataframe['second_visit_session'] = dataframe['second_visit_session'].replace(to_replace=total_days_col, value=[0, 1, 2, 3])
-
-
-#         dataframe.loc[(dataframe['second_visit_session']==dataframe['first_visit_session']), 'second_visit_days'] = np.nan
-#         dataframe.loc[(dataframe['second_visit_session']==dataframe['first_visit_session']), 'second_visit_session'] = np.nan
-
-#         for ses in range(0, num_session):
-#             min_ses_subs = dataframe.loc[dataframe['second_visit_session'] == ses, 'eid']
-#             dataframe.loc[dataframe['second_visit_session'] == ses, 'second_visit_hgs_L'] = dataframe[f'Hand_grip_strength_(left)-{ses}.0']
-#             dataframe.loc[dataframe['second_visit_session'] == ses, 'second_visit_hgs_R'] = dataframe[f'47-{ses}.0']
-
-# #-----------------------
-#         session_days = pd.DataFrame(dataframe, columns=total_days_col)
-#         session_days = session_days.where(session_days[total_days_col] >=0)
-
-#         mask = session_days.apply(lambda x: x.isin(x.nsmallest(3)), axis=1)
-#         third_visit_days = session_days[mask].max(axis=1)
-#         third_visit_session = session_days[mask].idxmax(axis=1)
-
-
-#         dataframe['third_visit_days'] = third_visit_days
-#         dataframe['third_visit_session'] = third_visit_session
-#         dataframe['third_visit_session'] = dataframe['third_visit_session'].replace(to_replace=total_days_col, value=[0, 1, 2, 3])
-
-
-#         dataframe.loc[(dataframe['third_visit_session']==dataframe['first_visit_session']) | (dataframe['third_visit_session']==dataframe['second_visit_session']), 'third_visit_days'] = np.nan
-#         dataframe.loc[(dataframe['third_visit_session']==dataframe['first_visit_session']) | (dataframe['third_visit_session']==dataframe['second_visit_session']), 'third_visit_session'] = np.nan
-
-#         for ses in range(0, num_session):
-#             min_ses_subs = dataframe.loc[dataframe['third_visit_session'] == ses, 'eid']
-#             dataframe.loc[dataframe['third_visit_session'] == ses, 'third_visit_hgs_L'] = dataframe[f'Hand_grip_strength_(left)-{ses}.0']
-#             dataframe.loc[dataframe['third_visit_session'] == ses, 'third_visit_hgs_R'] = dataframe[f'Hand_grip_strength_(right)-{ses}.0']
 
         return dataframe
 

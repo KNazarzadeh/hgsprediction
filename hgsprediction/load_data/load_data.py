@@ -58,7 +58,6 @@ def load_hgs_data_per_session(motor, population, mri_status, session):
     return data
 
 ###############################################################################
-###############################################################################
 # Load original data from the the original folder
 # which fetched from UK Biobank data
 def load_original_data(motor, population, mri_status):
@@ -75,7 +74,7 @@ def load_original_data(motor, population, mri_status):
 
     Returns
     -------
-    pandas.DataFrame
+    df : pandas.DataFrame
         DataFrame of data specified.
     """
     folder_path = os.path.join(
@@ -96,9 +95,11 @@ def load_original_data(motor, population, mri_status):
         folder_path,
         f"{mri_status}_{population}.csv")
     
-    data = pd.read_csv(file_path, sep=',')
-
-    return data
+    df = pd.read_csv(file_path, sep=',')
+    df = df.set_index("eid")
+    df.index.names = ["SubjectID"]
+  
+    return df
 
 ###############################################################################
 # Load specific data for specific session
@@ -140,7 +141,8 @@ def load_original_data_per_session(motor, population, mri_status, session):
         f"{mri_status}_{population}_original_data_session_{session}.csv")
 
     data = pd.read_csv(file_path, sep=',')
-    
+    df = df.set_index("eid")
+    df = df.index.names = ["subject_ID"]
     # Focus on Session/Instance 0 only
     # data = data[data.columns[~data.columns.str.contains("-1.*|-2.*|-3.*")]]
 
@@ -212,8 +214,8 @@ def load_hgs_disease_data(motor, population, mri_status):
 
     Returns
     -------
-    pandas.DataFrame
-        DataFrame of data specified.
+    df : pandas.DataFrame
+         DataFrame of data specified.
     """
     data_folder_path = os.path.join(
         "/data",
@@ -234,6 +236,9 @@ def load_hgs_disease_data(motor, population, mri_status):
         data_folder_path,
         f"{mri_status}_{population}_hgs_availability.csv")
 
-    data = pd.read_csv(data_file_path, sep=',')
+    df = pd.read_csv(data_file_path, sep=',')
+    
+    df = df.set_index("eid")
+    df = df.index.names = ["subject_ID"]
 
-    return data
+    return df
