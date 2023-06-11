@@ -33,6 +33,7 @@ pre_disease_df = prepare_data.extract_pre_disease(df_followup_days)
 post_disease_df = prepare_data.extract_post_disease(df_followup_days)
 longitudinal_df = prepare_data.extract_longitudinal_disease(df_followup_days)
 
+df = prepare_data.get_sorted_columns(pre_post_long_df)
 print("===== Done! =====")
 embed(globals(), locals())
 
