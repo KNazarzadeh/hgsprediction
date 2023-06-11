@@ -205,7 +205,7 @@ class PrepareDisease:
     
 ###############################################################################
     # Function to get column names with first to fourth sorted values
-    def get_sorted_columns(df):
+    def get_sorted_columns(self, df):
         filter_col = [col for col in df if col.startswith('followup_days')]
         for i in range(0, len(df[filter_col])):
             sorted_values = df[filter_col].iloc[i].sort_values()
