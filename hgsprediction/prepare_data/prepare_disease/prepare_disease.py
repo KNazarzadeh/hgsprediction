@@ -217,11 +217,11 @@ class PrepareDisease:
             df_tmp_positive = pd.DataFrame(columns=[f"{j+1}_post_session" for j in range(len(positive_numbers))])
             df_tmp_rest_positive = pd.DataFrame(columns=[f"{len(positive_numbers)+j+1}_post_session" for j in range(positive_rest)])
             # Assign the values from the series to the new columns
-            if len(negative_numbers) > 0:
+            if len(positive_numbers) > 0:
                 df_tmp_positive.loc[sorted_values.name] = positive_numbers.index
                 df_tmp_rest_positive.loc[sorted_values.name] = np.NaN
-                df_positive = pd.concat([df_tmp_positive, df_tmp_rest_positive])
-            elif len(negative_numbers) == 0:
+                df_positive = pd.concat([df_tmp_positive, df_tmp_rest_positive], axis=1)
+            elif len(positive_numbers) == 0:
                 df_tmp_rest_positive.loc[sorted_values.name] = np.NaN
                 df_positive = df_tmp_rest_positive
             # Create new columns based on the length of the series
@@ -231,70 +231,27 @@ class PrepareDisease:
             if len(negative_numbers) > 0:
                 df_tmp_negative.loc[sorted_values.name] = negative_numbers.index
                 df_tmp_rest_negative.loc[sorted_values.name] = np.NaN
-                df_negative = pd.concat([df_tmp_negative, df_tmp_rest_negative])
+                df_negative = pd.concat([df_tmp_negative, df_tmp_rest_negative], axis=1)
 
             elif len(negative_numbers) == 0:
                 df_tmp_rest_negative.loc[sorted_values.name] = np.NaN
                 df_negative = df_tmp_rest_negative
                 
-            print("===== Done! =====")
-            embed(globals(), locals())    
-            df_tmp = pd.concat([df_negative, df_positive])
             
-            df.loc[df.index==sorted_values.name, df_tmp.columns] = pd.concat([df[df.index==sorted_values.name], df_tmp], axis=1)
+            df_tmp = pd.concat([df_negative, df_positive], axis=1)
+            # print("===== Done! =====")
+            # embed(globals(), locals())
+           
+            df.loc[df.index==sorted_values.name, df_tmp.columns[0]] = df_tmp.iloc[:,0]
+            df.loc[df.index==sorted_values.name, df_tmp.columns[1]] = df_tmp.iloc[:,1]            
+            df.loc[df.index==sorted_values.name, df_tmp.columns[2]] = df_tmp.iloc[:,2]
+            df.loc[df.index==sorted_values.name, df_tmp.columns[3]] = df_tmp.iloc[:,3]
+            df.loc[df.index==sorted_values.name, df_tmp.columns[4]] = df_tmp.iloc[:,4]
+            df.loc[df.index==sorted_values.name, df_tmp.columns[5]] = df_tmp.iloc[:,5]
+            df.loc[df.index==sorted_values.name, df_tmp.columns[6]] = df_tmp.iloc[:,6]
+            df.loc[df.index==sorted_values.name, df_tmp.columns[7]] = df_tmp.iloc[:,7]
             
-        return df
-
-
-            
-            
-        #     if sorted_values[0] != np.NaN:
-        #         if sorted_values[0] >= 0: 
-        #             df.loc[sorted_values.name, 'first_post_session'] = sorted_values.index[0]
-        #             df.loc[sorted_values.name, 'first_pre_session'] = np.NaN
-        #         elif sorted_values[0] < 0:
-        #             df.loc[sorted_values.name, 'first_pre_session'] = sorted_values.index[0]
-        #             df.loc[sorted_values.name, 'first_post_session'] = np.NaN
-        #     else:
-        #         df.loc[sorted_values.name, 'first_post_session'] = np.NaN
-        #         df.loc[sorted_values.name, 'first_pre_session'] = np.NaN
-                
-            
-        #     if sorted_values[1] != np.NaN:
-        #         if sorted_values[1] >= 0: 
-        #             df.loc[sorted_values.name, 'second_post_session'] = sorted_values.index[1]
-        #             df.loc[sorted_values.name, 'second_pre_session'] = np.NaN
-        #         elif sorted_values[1] < 0:
-        #             df.loc[sorted_values.name, 'second_pre_session'] = sorted_values.index[1]
-        #             df.loc[sorted_values.name, 'second_post_session'] = np.NaN
-        #     else:
-        #         df.iloc[sorted_values.name, 'second_post_session'] = np.NaN
-        #         df.iloc[sorted_values.name, 'second_pre_session'] = np.NaN
-
-        #     if sorted_values[2] != np.NaN:
-        #         if sorted_values[2] >= 0: 
-        #             df.loc[sorted_values.name, 'third_post_session'] = sorted_values.index[2]
-        #             df.loc[sorted_values.name, 'third_pre_session'] = np.NaN
-        #         elif sorted_values[2] < 0:
-        #             df.loc[sorted_values.name, 'third_pre_session'] = sorted_values.index[2]
-        #             df.loc[sorted_values.name, 'third_post_session'] = np.NaN    
-        #     else:
-        #         df.loc[sorted_values.name, 'third_post_session'] = np.NaN
-        #         df.loc[sorted_values.name, 'third_pre_session'] = np.NaN
-
-        #     if sorted_values[3] != np.NaN:
-        #         if sorted_values[3] >= 0:
-        #             df.loc[sorted_values.name, 'forth_post_session'] = sorted_values.index[3]
-        #             df.loc[sorted_values.name, 'forth_pre_session'] = np.NaN
-        #         elif sorted_values[3] < 0:
-        #             df.loc[sorted_values.name, 'forth_pre_session'] = sorted_values.index[3]
-        #             df.loc[sorted_values.name, 'forth_post_session'] = np.NaN
-        #     else:
-        #         df.loc[sorted_values.name, 'forth_post_session'] = np.NaN
-        #         df.loc[sorted_values.name, 'forth_pre_session'] = np.NaN
-
-
-        # return df
+        return df, len(df)
     
 ###############################################################################
     def extract_post_disease(self, df):
