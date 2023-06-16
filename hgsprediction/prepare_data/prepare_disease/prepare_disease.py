@@ -182,8 +182,8 @@ class PrepareDisease:
         filter_col = [col for col in df if col.startswith('followup_days')]
         post_df = df[df[filter_col].min(axis=1)>=0]
         df.loc[post_df.index,"stroke_cohort"] = "post-stroke"
-        df.loc[post_df.index,"num_post_sessions"] =  post_df[post_df[filter_col]>=0].count(axis=1)
         df.loc[post_df.index,"num_pre_sessions"] = 0
+        df.loc[post_df.index,"num_post_sessions"] =  post_df[post_df[filter_col]>=0].count(axis=1)
               
         
         pre_df = df[df[filter_col].max(axis=1) < 0]
@@ -204,8 +204,23 @@ class PrepareDisease:
         return df
     
 ###############################################################################
+    def define_recovery_data(self, df):
+        
+        filter_col = [col for col in df if col.startswith('followup_days')]
+
+        # Identify positive values
+        positive_values = df[filter_col] > 0
+
+        # Count positive values in each row
+        positive_counts = positive_values.sum(axis=1)
+
+        # Select rows with at least two positive values
+        df = df[positive_counts >= 2]
+        
+        return df
+###############################################################################
     # Function to get column names with first to fourth sorted values
-    def get_sorted_columns(self, df):
+    def define_pre_post_sessions(self, df):
         filter_col = [col for col in df if col.startswith('followup_days')]
         for i in range(0, len(df[filter_col])):
             sorted_values = df[filter_col].iloc[i].sort_values()
@@ -237,21 +252,17 @@ class PrepareDisease:
                 df_tmp_rest_negative.loc[sorted_values.name] = np.NaN
                 df_negative = df_tmp_rest_negative
                 
-            
             df_tmp = pd.concat([df_negative, df_positive], axis=1)
             # print("===== Done! =====")
             # embed(globals(), locals())
-           
-            df.loc[df.index==sorted_values.name, df_tmp.columns[0]] = df_tmp.iloc[:,0]
-            df.loc[df.index==sorted_values.name, df_tmp.columns[1]] = df_tmp.iloc[:,1]            
-            df.loc[df.index==sorted_values.name, df_tmp.columns[2]] = df_tmp.iloc[:,2]
-            df.loc[df.index==sorted_values.name, df_tmp.columns[3]] = df_tmp.iloc[:,3]
-            df.loc[df.index==sorted_values.name, df_tmp.columns[4]] = df_tmp.iloc[:,4]
-            df.loc[df.index==sorted_values.name, df_tmp.columns[5]] = df_tmp.iloc[:,5]
-            df.loc[df.index==sorted_values.name, df_tmp.columns[6]] = df_tmp.iloc[:,6]
-            df.loc[df.index==sorted_values.name, df_tmp.columns[7]] = df_tmp.iloc[:,7]
             
-        return df, len(df)
+            for col in range(df_tmp.shape[1]):
+                if any(str(item).lower() == 'nan' for item in df_tmp.iloc[:, col].values):
+                    df.loc[df.index==sorted_values.name, df_tmp.columns[col]] = df_tmp.iloc[:, col]
+                else:
+                    df.loc[df.index==sorted_values.name, df_tmp.columns[col]] = f"session-{df_tmp.iloc[:, col].values[0][14:]}"
+            
+        return df
     
 ###############################################################################
     def extract_post_disease(self, df):

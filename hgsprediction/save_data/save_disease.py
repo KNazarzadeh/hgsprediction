@@ -45,9 +45,6 @@ def save_prepared_disease_data(
     save_file_path = os.path.join(
         save_folder_path,
         f"{df_name}_{mri_status}_{population}.csv")
-
-    df = df.set_index("eid")
-    df.index.names = ["SubjectID"]
     
-    df.to_csv(save_file_path, sep=',', index=False)
+    df.to_csv(save_file_path, sep=',')
 
