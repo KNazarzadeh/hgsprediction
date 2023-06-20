@@ -15,25 +15,7 @@ import os
 import numpy as np
 from hgsprediction.input_arguments import parse_args, input_arguments
 from hgsprediction.load_data.load_healthy import load_preprocessed_train_df
-# from load_data import load_data_per_session
-# from extract_features import ExtractFeatures
-# from define_features import define_features
-# from define_target import define_target
-# from binning_data import binning_data
-# from split_train_test import split_train_test_sets
-# from model_params import model_parameters
-# from define_confound import define_confound
-# from save_results import save_prediction_results, save_same_samplesize_r2_results, save_train_test_length_results
-# from preprocess import check_hgs_availability_per_session
-# from plot_results import regplot_genders_together, regplot_genders_seperate
-# from add_new_columns import PreprocessData
-# from save_results import save_features_dataframe_results
-# import matplotlib.pyplot as plt
-# import seaborn as sns
 
-# from sklearn.model_selection import RepeatedKFold
-# from sklearn.metrics import r2_score
-# from julearn import run_cross_validation
 
 from ptpython.repl import embed
 # print("===== Done! =====")
@@ -50,6 +32,8 @@ motor, population, mri_status, feature_type, target, gender, model, \
 # Read CSV file from Juseless
 df_train = load_preprocessed_train_df(population, mri_status)
 
+print("===== Done! =====")
+embed(globals(), locals())
 ###############################################################################
 # Remove columns that all values are NaN
 nan_cols = df_train.columns[df_train.isna().all()].tolist()

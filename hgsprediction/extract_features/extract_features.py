@@ -8,7 +8,6 @@ import pandas as pd
 # print("===== Done! =====")
 # embed(globals(), locals())
 
-
 ###############################################################################
 # This class extract all required features from data:
 class ExtractFeatures:
@@ -144,8 +143,7 @@ class ExtractFeatures:
             # ====================== Body size measures ======================
             '21001',  # Body mass index (BMI)
             '50',  # Standing height
-            '48',  # Waist circumference
-            '49',  # Hip circumference
+            'waist_to_hip_ratio',  # Waist to Hip circumference Ratio
         ]
 
         return anthropometry_features
@@ -217,6 +215,7 @@ class ExtractFeatures:
         age_visit_features = [
             # ====================== Assessment attendance ======================
             'Age1stVisit',  # Age at first Visit the assessment centre
+            '21003',  # Age when attended assessment centre
         ]
 
         age_scan_features = [
@@ -293,14 +292,14 @@ class ExtractFeatures:
             # -------  Trail making task -------
             # ---- cognitive in clinic
             # Duration to complete numeric path (trail #1)
-            # '6348',       # --> Only available for MRI subjects
+            '6348',       # --> Only available for MRI subjects
             # Duration to complete alphanumeric path (trail #2)
-            # '6350',       # --> Only available for MRI subjects
+            '6350',       # --> Only available for MRI subjects
             # ---- cognitive online
             # Duration to complete numeric path (trail #1)
-            '20156',        # --> I used this inplace of '6348' field-ID
-            # Duration to complete alphanumeric path (trail #2)
-            '20157',        # --> I used this inplace of '6350' field-ID
+            # '20156',        # --> I used this inplace of '20156' field-ID
+            # # Duration to complete alphanumeric path (trail #2)
+            # '20157',        # --> I used this inplace of '20157' field-ID
             # -------  Matrix pattern completion task -------
             # Number of puzzles correctly solved
             # '6373',       # --> Only available for MRI subjects
@@ -323,13 +322,13 @@ class ExtractFeatures:
             '20018',        # Prospective memory result
             # ------- symbol digit matches -------
             # ---- cognitive in clinic
-            # '23323',      # Number of symbol digit matches attempted
-            # '23324',      # Number of symbol digit matches made correctly
+            '23323',      # Number of symbol digit matches attempted
+            '23324',      # Number of symbol digit matches made correctly
             # ---- cognitive online
             # Number of symbol digit matches attempted
-            '20195',        # --> Only available for MRI subjects
-            # Number of symbol digit matches made correctly
-            '20159',        # --> Only available for MRI subjects
+            # '20195',        # --> Only available for nonMRI subjects
+            # # Number of symbol digit matches made correctly
+            # '20159',        # --> Only available for nonMRI subjects
             # ====================== Depression/Anxiety ======================
             # ------- Neuroticism -------
             '1920',  # Mood swings
@@ -503,7 +502,7 @@ class ExtractFeatures:
         earlylife_features = self.define_earlylife_factors_features()
         anthropometry_features = self.define_anthropometry_features()
         behavioural_features = self.define_behavioural_features()
-        disease_features = self.define_disease_features(population)
+        # disease_features = self.define_disease_features(population)
 
         features = \
             motor_features + \
@@ -512,8 +511,8 @@ class ExtractFeatures:
             sociodemographics_features + \
             baseline_features + \
             anthropometry_features + \
-            behavioural_features + \
-            disease_features
+            behavioural_features
+            # disease_features
         # Extract features from the data
         # get column names that contain the string
         features = [feat + "-" for feat in features]
@@ -534,3 +533,22 @@ class ExtractFeatures:
                 [features_df, df_tmp], axis=1).reindex(df_tmp.index)
 
         return features_df
+###############################################################################
+# Compute the extraction of features from the data.
+    def extract_anthropometrics(self):
+        """Extract the anthropometrics features from populations data.
+        Parameters
+        ----------
+        None
+        Returns
+        --------
+        features_df : pandas.DataFrame
+            DataFrame of data specified.
+        """
+        df = self.df
+
+        features = self.define_anthropometry_features()
+
+        df = df[features]
+
+        return df

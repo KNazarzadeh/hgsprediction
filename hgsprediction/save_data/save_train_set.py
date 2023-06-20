@@ -1,11 +1,9 @@
-
 import os
-import pandas as pd
-
 ###############################################################################
-def load_preprocessed_train_df(
+def save_preprocessed_train_df(
     population,
     mri_status,
+    df,
 ):
     """
     Load train set after binned process.
@@ -41,10 +39,6 @@ def load_preprocessed_train_df(
         folder_path,
         f"preprocessed_train_{mri_status}_{population}.csv")
     # Load the dataframe from csv file path
-    df_train = pd.read_csv(file_path, sep=',', index_col=0)
-    # df_train = df_train.rename(columns={"eid": "SubjectID"})
-    # df_train.set_index("SubjectID", inplace=True)
-    
-    return df_train
-
-###############################################################################
+    df = df.rename(columns={"eid": "SubjectID"})
+    df.set_index("SubjectID", inplace=True)
+    df.to_csv(file_path, sep=',')

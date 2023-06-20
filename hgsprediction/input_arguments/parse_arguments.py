@@ -46,7 +46,7 @@ def validate_args(args):
     available_feature = [
         "anthropometrics",
         "anthropometrics_gender",
-        "anthropometrics_age",
+        "bodysize+age",
         "behavioral",
         "behavioral_gender",
         "anthropometrics_behavioral",
@@ -67,7 +67,7 @@ def validate_args(args):
     available_gender = [
         "female",
         "male",
-        "both_gender",
+        "both",
     ]
     
     available_model = [
@@ -96,7 +96,7 @@ def validate_args(args):
         print("please choose Features type from the list:\n",
               available_feature,"\n anthropometrics --> anthropometric features"
                                 "\n anthropometrics_gender --> anthropometrics with gender features"
-                                "\n anthropometrics_age --> anthropometrics with age features"
+                                "\n bodysize+age --> anthropometrics with age features"
                                 "\n behavioral --> behavioral features"
                                 "\n behavioral_gender --> behavioural with gender features"
                                 "\n anthropometrics_behavioral --> anthropometrics with behavioral features"
@@ -235,7 +235,7 @@ def input_arguments(args):
     print("MRI status =", mri_status)
     print("Feature type =", feature_type)
     print("Target =", target)
-    if gender == "both_gender":
+    if gender == "both":
         print("Gender = both genders")
     else:
         print("Gender =", gender)
