@@ -219,6 +219,71 @@ class PrepareDisease:
         
         return df
 ###############################################################################
+    def define_all_post_subjects(self, df):
+            
+            filter_col = [col for col in df if col.startswith('followup_days')]
+
+            # Identify positive values
+            positive_values = df[filter_col] > 0
+
+            # Count positive values in each row
+            positive_counts = positive_values.sum(axis=1)
+
+            # Select rows with at least two positive values
+            df = df[positive_counts >= 1]
+            
+            return df
+###############################################################################
+    def define_hgs(self, df):
+
+        left_hgs = "46"
+        right_hgs = "47"
+
+        filter_col = [col for col in df if col.endswith('pre_session')]
+        for j in range(0,4):
+            ses = df[filter_col].iloc[:,j].astype(str).str[8:]
+            for i in range(0, len(df[filter_col])):
+                idx=ses.index[i]
+                if ses.iloc[i] != "":
+                    df.loc[idx, f"{j+1}_pre_left_hgs"] = df.loc[idx, f"{left_hgs}-{ses.iloc[i]}"]
+                    df.loc[idx, f"{j+1}_pre_right_hgs"] = df.loc[idx, f"{right_hgs}-{ses.iloc[i]}"]
+                else:
+                    df.loc[idx, f"{j+1}_pre_left_hgs"] = np.NaN
+                    df.loc[idx, f"{j+1}_pre_right_hgs"] = np.NaN
+                    
+        filter_col = [col for col in df if col.endswith('post_session')]
+        for j in range(0,4):
+            ses = df[filter_col].iloc[:,j].astype(str).str[8:]
+            for i in range(0, len(df[filter_col])):
+                idx=ses.index[i]
+                if ses.iloc[i] != "":
+                    df.loc[idx, f"{j+1}_post_left_hgs"] = df.loc[idx, f"{left_hgs}-{ses.iloc[i]}"]
+                    df.loc[idx, f"{j+1}_post_right_hgs"] = df.loc[idx, f"{right_hgs}-{ses.iloc[i]}"]
+                else:
+                    df.loc[idx, f"{j+1}_post_left_hgs"] = np.NaN
+                    df.loc[idx, f"{j+1}_post_right_hgs"] = np.NaN
+
+        return df
+
+###############################################################################
+    def check_hgs(self, df):
+
+        df_output = pd.DataFrame()
+        
+        for j in range(0,4):
+            df_tmp_pre = df[((~df[f"{j+1}_pre_left_hgs"].isna()) & (df[f"{j+1}_pre_left_hgs"] !=  0)) 
+                        & ((~df[f"{j+1}_pre_right_hgs"].isna()) & (df[f"{j+1}_pre_right_hgs"] !=  0))
+                        ]
+            df_tmp_post = df[((~df[f"{j+1}_post_left_hgs"].isna()) & (df[f"{j+1}_post_left_hgs"] !=  0)) 
+                        & ((~df[f"{j+1}_post_right_hgs"].isna()) & (df[f"{j+1}_post_right_hgs"] !=  0))
+                        ]
+            df_output = pd.concat([df_output, df_tmp_pre, df_tmp_post])
+
+        df_output = df_output[~df_output.index.duplicated(keep='first')]
+
+        return df_output
+    
+###############################################################################   
     # Function to get column names with first to fourth sorted values
     def define_pre_post_sessions(self, df):
         filter_col = [col for col in df if col.startswith('followup_days')]
@@ -226,7 +291,8 @@ class PrepareDisease:
             sorted_values = df[filter_col].iloc[i].sort_values()
             positive_numbers= sorted_values[sorted_values>0]
             positive_rest = 4 - len(positive_numbers)
-            negative_numbers = sorted_values[sorted_values<0]
+            sorted_values_neg = df[filter_col].iloc[i].sort_values(ascending=False)
+            negative_numbers = sorted_values_neg[sorted_values_neg<0]
             negative_rest = 4 - len(negative_numbers)
             # Create new columns based on the length of the series
             df_tmp_positive = pd.DataFrame(columns=[f"{j+1}_post_session" for j in range(len(positive_numbers))])
@@ -239,17 +305,20 @@ class PrepareDisease:
             elif len(positive_numbers) == 0:
                 df_tmp_rest_positive.loc[sorted_values.name] = np.NaN
                 df_positive = df_tmp_rest_positive
+            
             # Create new columns based on the length of the series
             df_tmp_negative = pd.DataFrame(columns=[f"{j+1}_pre_session" for j in range(len(negative_numbers))])
             df_tmp_rest_negative = pd.DataFrame(columns=[f"{len(negative_numbers)+j+1}_pre_session" for j in range(negative_rest)])
             # Assign the values from the series to the new columns
+            # print("===== Done! =====")
+            # embed(globals(), locals())
             if len(negative_numbers) > 0:
-                df_tmp_negative.loc[sorted_values.name] = negative_numbers.index
-                df_tmp_rest_negative.loc[sorted_values.name] = np.NaN
+                df_tmp_negative.loc[sorted_values_neg.name] = negative_numbers.index
+                df_tmp_rest_negative.loc[sorted_values_neg.name] = np.NaN
                 df_negative = pd.concat([df_tmp_negative, df_tmp_rest_negative], axis=1)
 
             elif len(negative_numbers) == 0:
-                df_tmp_rest_negative.loc[sorted_values.name] = np.NaN
+                df_tmp_rest_negative.loc[sorted_values_neg.name] = np.NaN
                 df_negative = df_tmp_rest_negative
                 
             df_tmp = pd.concat([df_negative, df_positive], axis=1)
@@ -258,9 +327,12 @@ class PrepareDisease:
             
             for col in range(df_tmp.shape[1]):
                 if any(str(item).lower() == 'nan' for item in df_tmp.iloc[:, col].values):
-                    df.loc[df.index==sorted_values.name, df_tmp.columns[col]] = df_tmp.iloc[:, col]
+                    df.loc[df.index==df_tmp.index[0], df_tmp.columns[col]] = df_tmp.iloc[:, col]
+                    # df.loc[df.index==sorted_values.name, df_tmp.columns[col]] = df_tmp.iloc[:, col]
+
                 else:
-                    df.loc[df.index==sorted_values.name, df_tmp.columns[col]] = f"session-{df_tmp.iloc[:, col].values[0][14:]}"
+                    # df.loc[df.index==sorted_values.name, df_tmp.columns[col]] = f"session-{df_tmp.iloc[:, col].values[0][14:]}"
+                    df.loc[df.index==df_tmp.index[0], df_tmp.columns[col]] = f"session-{df_tmp.iloc[:, col].values[0][14:]}"
             
         return df
     

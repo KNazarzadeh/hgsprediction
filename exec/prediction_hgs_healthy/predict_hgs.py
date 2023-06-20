@@ -13,26 +13,27 @@ import sys
 import pandas as pd
 import os
 import numpy as np
-from arguments_input import parse_args
-from load_data import load_data_per_session
-from extract_features import ExtractFeatures
-from define_features import define_features
-from define_target import define_target
-from binning_data import binning_data
-from split_train_test import split_train_test_sets
-from model_params import model_parameters
-from define_confound import define_confound
-from save_results import save_prediction_results, save_same_samplesize_r2_results, save_train_test_length_results
-from preprocess import check_hgs_availability_per_session
-from plot_results import regplot_genders_together, regplot_genders_seperate
-from add_new_columns import PreprocessData
-from save_results import save_features_dataframe_results
-import matplotlib.pyplot as plt
-import seaborn as sns
+from hgsprediction.input_arguments import parse_args, input_arguments
+from hgsprediction.load_data.load_healthy import load_preprocessed_train_df
+# from load_data import load_data_per_session
+# from extract_features import ExtractFeatures
+# from define_features import define_features
+# from define_target import define_target
+# from binning_data import binning_data
+# from split_train_test import split_train_test_sets
+# from model_params import model_parameters
+# from define_confound import define_confound
+# from save_results import save_prediction_results, save_same_samplesize_r2_results, save_train_test_length_results
+# from preprocess import check_hgs_availability_per_session
+# from plot_results import regplot_genders_together, regplot_genders_seperate
+# from add_new_columns import PreprocessData
+# from save_results import save_features_dataframe_results
+# import matplotlib.pyplot as plt
+# import seaborn as sns
 
-from sklearn.model_selection import RepeatedKFold
-from sklearn.metrics import r2_score
-from julearn import run_cross_validation
+# from sklearn.model_selection import RepeatedKFold
+# from sklearn.metrics import r2_score
+# from julearn import run_cross_validation
 
 from ptpython.repl import embed
 # print("===== Done! =====")
@@ -42,54 +43,26 @@ from ptpython.repl import embed
 ###############################################################################
 # Parse, add and return the arguments by function parse_args.
 args = parse_args()
-# Define motor, population and mri status to run the code:
-motor = args.motor
-population = args.population
-mri_status = args.mri_status
-feature_type = args.feature_type
-target = args.target
-gender = args.gender
-model = args.model
-confound_status = args.confound_status
-n_repeats = args.repeat_number
-n_folds = args.fold_number
-
-# Print all input
-print("================== Inputs ==================")
-if motor == "hgs":
-    print("Motor = handgrip strength")
-else:
-    print("Motor =", motor)
-print("Population =", population)
-print("MRI status =", mri_status)
-print("Feature type =", feature_type)
-print("Target =", target)
-if gender == "both":
-    print("Gender = both genders")
-else:
-    print("Gender =", gender)
-if model == "rf":
-    print("Model = random forest")
-else:
-    print("Model =", model)
-if confound_status == 0:
-    print("Confound_status = Without Confound Removal")
-else:
-    print("Confound_status = With Confound Removal")
-
-print("Repeat Numbers =", n_repeats)
-print("Fold Numbers = ", n_folds)
-
-print("============================================")
+motor, population, mri_status, feature_type, target, gender, model, \
+    confound_status, cv_repeats_number, cv_folds_number = input_arguments(args)
 
 ###############################################################################
 # Read CSV file from Juseless
-data_loaded = load_data_per_session(motor, population, mri_status, session=0)
+df_train = load_preprocessed_train_df(population, mri_status)
 
-data_hgs = check_hgs_availability_per_session(data_loaded, session=0)
+###############################################################################
+# Remove columns that all values are NaN
+nan_cols = df_train.columns[df_train.isna().all()].tolist()
+df_train_set = df_train.drop(nan_cols, axis=1)
+print("===== Done! =====")
+embed(globals(), locals())
+# Define features and target
+X = define_features(feature_type, df_train_set)
+# Target: HGS(L+R)
+y = define_target(target)
 
-extract_features = ExtractFeatures(data_hgs, motor, population)
-extracted_data = extract_features.extract_features()
+print("===== Done! =====")
+embed(globals(), locals())
 
 ###############################################################################
 # Add new culomns to data

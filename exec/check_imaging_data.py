@@ -72,33 +72,17 @@ feature_df_gcor.index = feature_df_gcor.index.map(int)
 
 
 df = pd.read_csv("stroke.csv", sep=',')
+df_mri = df[(df['followup_days-2.0']>=0) | (df['followup_days-3.0']>=0)]
 
+stroke_gcor = df_mri[df_mri['SubjectID'].isin(feature_df_gcor.index)]
+stroke_lcor = df_mri[df_mri['SubjectID'].isin(feature_df_lcor.index)]
 
-
-folder_path = os.path.join(
-    "/data",
-    "project",
-    "stroke_ukb",
-    "knazarzadeh",
-    "data_ukk",
-    "tmp",
-    "bids",
-)
-
-# Get a list of all files in the folder
-subject_list = os.listdir(folder_path)
-
-# Count the number of files
-# Iterate over subfolders within the main folder
-for subject_name in subject_list:
-    subfolder_path = os.path.join(folder_path, subject_name)
-    if os.path.isdir(subject_name):
-        print(subject_name)
-    # if "ses-2" in os.listdir(subject_name):sub
-        # Perform operations on the subfolder
-        print("Processing subfolder:", subject_name)
+stroke_gm1 = df_mri[df_mri['SubjectID'].isin(feature_df_1.index)]
+stroke_gm2 = df_mri[df_mri['SubjectID'].isin(feature_df_2.index)]
+stroke_gm4 = df_mri[df_mri['SubjectID'].isin(feature_df_4.index)]
 
 print("===== Done! =====")
 embed(globals(), locals())
+
 
 

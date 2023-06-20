@@ -12,7 +12,7 @@ and display help and errors.
 """
 
 import argparse
-
+import sys
 
 ###############################################################################
 # Check validation of arguments and give an error if they failed.
@@ -29,7 +29,9 @@ def validate_args(args):
     available_motor = [
         "handgrip_strength",
         "hgs",
-        "handgrip"
+        "handgrip",
+        "gripstrength",
+        "grip_strength",
     ]
     available_population = [
         "stroke",
@@ -42,13 +44,13 @@ def validate_args(args):
     ]
     
     available_feature = [
-        "anthropometric",
-        "anthropometric+gender",
-        "behavioural",
-        "behavioural+gender",
-        "anthropometric+behavioural",
-        "anthropometric+behavioural+gender",
-        "all",
+        "anthropometrics",
+        "anthropometrics_gender",
+        "anthropometrics_age",
+        "behavioral",
+        "behavioral_gender",
+        "anthropometrics_behavioral",
+        "anthropometrics_behavioral_gender",
     ]
     
     available_target = [
@@ -58,14 +60,14 @@ def validate_args(args):
     ]
     
     available_confound = [
-        0,
-        1,
+        0, # no confound removal
+        1, # with confound removal
     ]
     
     available_gender = [
         "female",
         "male",
-        "both",
+        "both_gender",
     ]
     
     available_model = [
@@ -77,35 +79,50 @@ def validate_args(args):
         print("Invalid Motor Type!")
         print("please choose Motor type from the list:\n",
               available_motor)
+        sys.exit()
     if args.population not in available_population:
         print("Invalid Population Name!")
         print("please choose Population name from the list:\n",
               available_population)
+        sys.exit()
     if args.mri_status not in available_mri_status:
         print("Invalid MRI Status!")
         print("please choose MRI status from the list:\n",
               available_mri_status)
+        sys.exit()
+        
     if args.feature_type not in available_feature:
         print("Invalid Features type!")
         print("please choose Features type from the list:\n",
-              available_feature)
+              available_feature,"\n anthropometrics --> anthropometric features"
+                                "\n anthropometrics_gender --> anthropometrics with gender features"
+                                "\n anthropometrics_age --> anthropometrics with age features"
+                                "\n behavioral --> behavioral features"
+                                "\n behavioral_gender --> behavioural with gender features"
+                                "\n anthropometrics_behavioral --> anthropometrics with behavioral features"
+                                "\n anthropometrics_behavioral_gender --> anthropometrics with behavioral and gender features")
+        sys.exit()
     if args.target not in available_target:
         print("Invalid Target!")
-        print("please choose Target from the list:\n",
-              available_target)
+        print("please choose Target from the target list:\n",
+              available_target, "\n L+R for Left+Right HGS \n dominant for dominant HGS \n nondominant for non-dominant HGS")
+        sys.exit()
     if args.gender not in available_gender:
         print("Invalid Gender!")
-        print("please choose Gender from the binary list:\n",
+        print("please choose Gender from the gender list:\n",
               available_gender)
+        sys.exit()
     if args.model not in available_model:
         print("Invalid Model!")
-        print("please choose Model from the binary list:\n",
-              available_model)
+        print("please choose Model from the model list:\n",
+              available_model, "\n linear_svm for Linear SVM \n rf for Random Forest")
+        sys.exit()
     if args.confound_status not in available_confound:
         print("Invalid Confound Status!")
         print("please choose Confound status from the binary list:\n",
-              available_confound)
-
+              available_confound, "\n 0 for without confound removal \n 1 for with confound removal")
+        sys.exit()
+        
 ###############################################################################
 # Parse, add and return the arguments.
 def parse_args():
@@ -138,12 +155,14 @@ def parse_args():
     # Add Features type argument:
     parser.add_argument("feature_type",
                         type=str.lower,
-                        # choices=["anthropometric",
-                        # "anthropometric+gender",
-                        # "behavioural",
-                        # "behavioural+gender",
-                        # "anthropometric+behavioural",
-                        # "anthropometric+behavioural+gender",],
+                        # choices=["anthropometrics",
+                                    # "anthropometrics_gender",
+                                    # "anthropometrics_age"
+                                    # "behavioural",
+                                    # "behavioural_gender",
+                                    # "anthropometrics_behavioural",
+                                    # "anthropometrics_behavioural_gender",
+                                    # "all",],
                         help="Features type (str).")
     # Add Target argument:
     parser.add_argument("target",
@@ -157,7 +176,7 @@ def parse_args():
                         type=str.lower,
                         # choices=["female",
                         #         "male",
-                        # "both"],
+                        # "both_gender"],
                         help="Gender (str).")
     # Add Model argument:
     parser.add_argument("model",
@@ -191,3 +210,49 @@ def parse_args():
     validate_args(args)
 
     return args
+
+###############################################################################
+def input_arguments(args):
+    # Define motor, population and mri status to run the code:
+    motor = args.motor
+    population = args.population
+    mri_status = args.mri_status
+    feature_type = args.feature_type
+    target = args.target
+    gender = args.gender
+    model = args.model
+    confound_status = args.confound_status
+    cv_repeats_number = args.repeat_number
+    cv_folds_number = args.fold_number
+
+    # Print all input
+    print("================== Inputs ==================")
+    if motor == "hgs":
+        print("Motor = handgrip strength")
+    else:
+        print("Motor =", motor)
+    print("Population =", population)
+    print("MRI status =", mri_status)
+    print("Feature type =", feature_type)
+    print("Target =", target)
+    if gender == "both_gender":
+        print("Gender = both genders")
+    else:
+        print("Gender =", gender)
+    if model == "rf":
+        model_name = "rf"
+        print("Model = random forest")
+    elif model == "linear_svm":
+        model_name = "linear_svm"
+        print("Model =", model_name)
+    if confound_status == 0:
+        print("Confound_status = Without Confound Removal")
+    else:
+        print("Confound_status = With Confound Removal")
+
+    print("CV Repeat Numbers =", cv_repeats_number)
+    print("CV Fold Numbers = ", cv_folds_number)
+
+    print("============================================")
+
+    return motor, population, mri_status, feature_type, target, gender, model, confound_status, cv_repeats_number, cv_folds_number

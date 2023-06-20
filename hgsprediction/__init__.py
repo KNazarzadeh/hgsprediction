@@ -2,6 +2,7 @@
 
 from .preprocess import PreprocessData
 from .input_arguments import parse_arguments
+from .load_data.load_healthy import load_preprocessed_train_df
 from .load_data import load_hgs_data_per_session, load_original_data_per_session, load_original_data
 from .prepare_data.prepare_disease import PrepareDisease
 from .save_data.save_disease import save_prepared_disease_data
