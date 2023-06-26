@@ -62,8 +62,8 @@ df_available_4_pre = hgs_df[((~hgs_df[f"4_pre_left_hgs"].isna()) & (hgs_df[f"4_p
                         & ((~hgs_df[f"4_pre_right_hgs"].isna()) & (hgs_df[f"4_pre_right_hgs"] !=  0))
                        ]
 
-# print("===== Done! =====")
-# embed(globals(), locals())
+print("===== Done! =====")
+embed(globals(), locals())
 # initialize data length of lists.
 index_list = ['Total_original_data_subjects',
               'original_data_female',
