@@ -130,73 +130,102 @@ gm_anthro_all = pd.concat([feature_df_1, feature_df_2, feature_df_4], axis=1)
 gm_anthro_all = gm_anthro_all.dropna()
 
 ###############################################################################
-df_name = ["1_post_session", "2_post_session", "3_post_session", "4_post_session"]
+##############################################################################
+post_list = ["1_post_session", "2_post_session", "3_post_session", "4_post_session"]
 
 mri_status = "mri"
 population = "stroke"
 
-df_post = pd.DataFrame()
-save_folder_path = os.path.join(
-        "/data",
-        "project",
-        "stroke_ukb",
-        "knazarzadeh",
-        "GIT_repositories",
-        "motor_ukb",
-        "data_ukb",
-        f"data_{motor}",
-        population,
-        "prepared_data",
-        f"{mri_status}_{population}",
-    )
+folder_path = os.path.join(
+    "/data",
+    "project",
+    "stroke_ukb",
+    "knazarzadeh",
+    "GIT_repositories",
+    "motor_ukb",
+    "data_ukb",
+    f"data_{motor}",
+    population,
+    "prepared_data",
+    f"{mri_status}_{population}",
+)
 
-for i in range(0,4):
-    # Define the csv file path to save
-    save_file_path = os.path.join(
-        save_folder_path,
-        f"{df_name[i]}_{mri_status}_{population}.csv")
-    
-    df_tmp = pd.read_csv(save_file_path, sep=',')
-    df_post = pd.concat([df_post, df_tmp], axis=0)
-    df_post = df_post.drop_duplicates()   
+file_path = os.path.join(
+        folder_path,
+        f"{post_list[0]}_{mri_status}_{population}.csv")
+
+df_post = pd.read_csv(file_path, sep=',')
+df_post.set_index("SubjectID", inplace=True)
+
+ses = df_post["1_post_session"].astype(str).str[8:]
+for i in range(0, len(df_post["1_post_session"])):
+    idx=ses.index[i]
+    if ses.iloc[i] != "":
+        df_post.loc[idx, "1_post_days"] = df_post.loc[idx, f"followup_days-{ses.iloc[i]}"]
+    else:
+        df_post.loc[idx, "1_post_days"] = np.NaN
+
 ##############################################################################
+df_ses3 = df_post[df_post["1_post_session"] == "session-3.0"]
+df_ses2 = df_post[~df_post.index.isin(df_ses3.index)]
+# print("===== Done! =====")
+# embed(globals(), locals())
 # Replace Age
-df_post.loc[:, 'post_age'] = df_post.loc[:, f'21003-2.0']
+df_ses3.loc[:, 'post_age'] = df_ses3.loc[:, f'21003-3.0']
 ##############################################################################
 # Replace BMI
-df_post.loc[:, 'post_bmi'] = df_post.loc[:, f'21001-2.0']
+df_ses3.loc[:, 'post_bmi'] = df_ses3.loc[:, f'21001-3.0']
 ##############################################################################
 # Replace Height
-df_post.loc[:, 'post_height'] = df_post.loc[:, f'50-2.0']
+df_ses3.loc[:, 'post_height'] = df_ses3.loc[:, f'50-3.0']
 
-df_post.loc[:, 'post_days'] = df_post.loc[:, f'followup_days-2.0']
+df_ses3.loc[:, 'post_days'] = df_ses3.loc[:, f'followup_days-3.0']
 
 ##############################################################################
 # Replace waist to hip ratio
-df_post.loc[:, 'post_waist'] = df_post.loc[:, f'48-2.0']
-df_post.loc[:, 'post_hip'] = df_post.loc[:, f'49-2.0']
+df_ses3.loc[:, 'post_waist'] = df_ses3.loc[:, f'48-3.0']
+df_ses3.loc[:, 'post_hip'] = df_ses3.loc[:, f'49-3.0']
 
-df_post['post_waist_hip_ratio'] = (df_post.loc[:, "post_waist"].astype(str).astype(float)).div(
-                df_post.loc[:, "post_hip"].astype(str).astype(float))
+df_ses3['post_waist_hip_ratio'] = (df_ses3.loc[:, "post_waist"].astype(str).astype(float)).div(
+                df_ses3.loc[:, "post_hip"].astype(str).astype(float))
 ##############################################################################
-sub_id = df_post[df_post['1707-0.0']== 1.0].index.values
+# Replace Age
+df_ses2.loc[:, 'post_age'] = df_ses2.loc[:, f'21003-2.0']
+##############################################################################
+# Replace BMI
+df_ses2.loc[:, 'post_bmi'] = df_ses2.loc[:, f'21001-2.0']
+##############################################################################
+# Replace Height
+df_ses2.loc[:, 'post_height'] = df_ses2.loc[:, f'50-2.0']
+
+df_ses2.loc[:, 'post_days'] = df_ses2.loc[:, f'followup_days-2.0']
+
+##############################################################################
+# Replace waist to hip ratio
+df_ses2.loc[:, 'post_waist'] = df_ses2.loc[:, f'48-2.0']
+df_ses2.loc[:, 'post_hip'] = df_ses2.loc[:, f'49-2.0']
+
+df_ses2['post_waist_hip_ratio'] = (df_ses2.loc[:, "post_waist"].astype(str).astype(float)).div(
+                df_ses2.loc[:, "post_hip"].astype(str).astype(float))
+##############################################################################
+sub_id = df_ses2[df_ses2['1707-0.0']== 1.0].index.values
 # Add and new column "dominant_hgs"
 # And assign Right hand HGS value:
-df_post.loc[sub_id, "dominant_hgs"] = \
-    df_post.loc[sub_id, "1_post_right_hgs"]
-df_post.loc[sub_id, "nondominant_hgs"] = \
-    df_post.loc[sub_id, "1_post_left_hgs"]
+df_ses2.loc[sub_id, "dominant_hgs"] = \
+    df_ses2.loc[sub_id, "1_post_right_hgs"]
+df_ses2.loc[sub_id, "nondominant_hgs"] = \
+    df_ses2.loc[sub_id, "1_post_left_hgs"]
 # ------------------------------------
 # If handedness is equal to 2
 # Left hand is Dominantsession
 # Find handedness equal to 2:
-sub_id = df_post[df_post['1707-0.0']== 2.0].index.values
+sub_id = df_ses2[df_ses2['1707-0.0']== 2.0].index.values
 # Add and new column "dominant_hgs"
 # And assign Left hand HGS value:
-df_post.loc[sub_id, "dominant_hgs"] = \
-    df_post.loc[sub_id, "1_post_left_hgs"]
-df_post.loc[sub_id, "nondominant_hgs"] = \
-    df_post.loc[sub_id, "1_post_right_hgs"]
+df_ses2.loc[sub_id, "dominant_hgs"] = \
+    df_ses2.loc[sub_id, "1_post_left_hgs"]
+df_ses2.loc[sub_id, "nondominant_hgs"] = \
+    df_ses2.loc[sub_id, "1_post_right_hgs"]
 # ------------------------------------
 # If handedness is equal to:
 # 3 (Use both right and left hands equally) OR
@@ -204,18 +233,55 @@ df_post.loc[sub_id, "nondominant_hgs"] = \
 # NaN value
 # Dominant will be the Highest Handgrip score from both hands.
 # Find handedness equal to 3, -3 or NaN:
-sub_id = df_post[(df_post['1707-0.0']== 3.0) | (df_post['1707-0.0']== -3.0) | (df_post['1707-0.0'].isna())].index.values
+sub_id = df_ses2[(df_ses2['1707-0.0']== 3.0) | (df_ses2['1707-0.0']== -3.0) | (df_ses2['1707-0.0'].isna())].index.values
 # Add and new column "dominant_hgs"
 # And assign Highest HGS value among Right and Left HGS:        
-df_post.loc[sub_id, f"dominant_hgs"] = df_post.loc[sub_id, [f"1_post_left_hgs", f"1_post_right_hgs"]].max(axis=1)
-df_post.loc[sub_id, f"nondominant_hgs"] = df_post.loc[sub_id, [f"1_post_left_hgs", f"1_post_right_hgs"]].min(axis=1)
+df_ses2.loc[sub_id, f"dominant_hgs"] = df_ses2.loc[sub_id, [f"1_post_left_hgs", f"1_post_right_hgs"]].max(axis=1)
+df_ses2.loc[sub_id, f"nondominant_hgs"] = df_ses2.loc[sub_id, [f"1_post_left_hgs", f"1_post_right_hgs"]].min(axis=1)
 
 ###############################################################################
-df_post.loc[:, f"post_hgs(L+R)"] = \
-            df_post.loc[:, f"46-2.0"] + df_post.loc[:, f"47-2.0"]
-            
-df_post = df_post[df_post.loc[:, f"dominant_hgs"] >=4]
+##############################################################################
+sub_id = df_ses3[df_ses3['1707-0.0']== 1.0].index.values
+# Add and new column "dominant_hgs"
+# And assign Right hand HGS value:
+df_ses3.loc[sub_id, "dominant_hgs"] = \
+    df_ses3.loc[sub_id, "1_post_right_hgs"]
+df_ses3.loc[sub_id, "nondominant_hgs"] = \
+    df_ses3.loc[sub_id, "1_post_left_hgs"]
+# ------------------------------------
+# If handedness is equal to 2
+# Left hand is Dominantsession
+# Find handedness equal to 2:
+sub_id = df_ses3[df_ses3['1707-0.0']== 2.0].index.values
+# Add and new column "dominant_hgs"
+# And assign Left hand HGS value:
+df_ses3.loc[sub_id, "dominant_hgs"] = \
+    df_ses3.loc[sub_id, "1_post_left_hgs"]
+df_ses3.loc[sub_id, "nondominant_hgs"] = \
+    df_ses3.loc[sub_id, "1_post_right_hgs"]
+# ------------------------------------
+# If handedness is equal to:
+# 3 (Use both right and left hands equally) OR
+# -3 (handiness is not available/Prefer not to answer) OR
+# NaN value
+# Dominant will be the Highest Handgrip score from both hands.
+# Find handedness equal to 3, -3 or NaN:
+sub_id = df_ses3[(df_ses3['1707-0.0']== 3.0) | (df_ses3['1707-0.0']== -3.0) | (df_ses3['1707-0.0'].isna())].index.values
+# Add and new column "dominant_hgs"
+# And assign Highest HGS value among Right and Left HGS:        
+df_ses3.loc[sub_id, f"dominant_hgs"] = df_ses3.loc[sub_id, [f"1_post_left_hgs", f"1_post_right_hgs"]].max(axis=1)
+df_ses3.loc[sub_id, f"nondominant_hgs"] = df_ses3.loc[sub_id, [f"1_post_left_hgs", f"1_post_right_hgs"]].min(axis=1)
+##############################################################################
+df_ses2.loc[:, f"post_hgs(L+R)"] = \
+            df_ses2.loc[:, f"46-2.0"] + df_ses2.loc[:, f"47-2.0"]
 
+df_ses3.loc[:, f"post_hgs(L+R)"] = \
+            df_ses3.loc[:, f"46-3.0"] + df_ses3.loc[:, f"47-3.0"]
+
+df_post = pd.concat([df_ses2, df_ses3], axis=0)
+df_post = df_post[df_post.loc[:, f"dominant_hgs"] >=4]
+# print("===== Done! =====")
+# embed(globals(), locals())
 ##############################################################################
 # extract_features = ExtractFeatures(df_tmp_mri, motor, population)
 # extracted_data = extract_features.extract_features()
@@ -223,7 +289,7 @@ df_post = df_post[df_post.loc[:, f"dominant_hgs"] >=4]
 nan_cols = df_post.columns[df_post.isna().all()].tolist()
 df_test_set = df_post.drop(nan_cols, axis=1)
 
-mri_features = df_test_set
+mri_features = df_test_set.copy()
 # print("===== Done! =====")
 # embed(globals(), locals())
 # X = define_features(feature_type, new_data)
@@ -232,14 +298,14 @@ X = ["post_age", "post_bmi", "post_height", "post_waist_hip_ratio", '31-0.0', 'p
 # y = define_target(target)
 if target == "L+R":
     y = "post_hgs(L+R)"
-
+# print("===== Done! =====")
+# embed(globals(), locals())
 ###############################################################################
 # Remove Missing data from Features and Target
 mri_features = mri_features.dropna(subset=y)
 mri_features = mri_features.dropna(subset=X)
-mri_features = mri_features.set_index('SubjectID')
-# print("===== Done! =====")
-# embed(globals(), locals())
+# mri_features = mri_features.set_index('SubjectID')
+
 new_data = mri_features[X]
 new_data = new_data.rename(columns={'post_age': 'Age1stVisit', 'post_bmi': '21001-0.0', 'post_height':'50-0.0', 'post_waist_hip_ratio': 'waist_to_hip_ratio-0.0'})
 new_data = pd.concat([new_data, mri_features[y]], axis=1)
