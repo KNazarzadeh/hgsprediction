@@ -1,19 +1,20 @@
 
+import pingouin as pg
+# from pingouin import partial_corr
 import os
 import pandas as pd
 from hgsprediction.input_arguments import parse_args, input_arguments
 import numpy as np
 import sys
+import datatable as dt
 import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy.stats import spearmanr
 import pickle
 from LinearSVRHeuristicC_zscore import LinearSVRHeuristicC_zscore as svrhc
 
-
 from ptpython.repl import embed
-# print("===== Done! =====")
-# embed(globals(), locals())
+ 
 
 # Parse, add and return the arguments by function parse_args.
 args = parse_args()
@@ -81,40 +82,36 @@ open_file_path_male = os.path.join(
 with open(open_file_path_male, 'rb') as f:
     model_trained_male = pickle.load(f)
 
-##############################################################################
-post_list = ["1_post_session", "2_post_session", "3_post_session", "4_post_session"]
+###############################################################################
+df_name = ["1_post_session", "2_post_session", "3_post_session", "4_post_session"]
 
 mri_status = "mri"
 population = "stroke"
 
-folder_path = os.path.join(
-    "/data",
-    "project",
-    "stroke_ukb",
-    "knazarzadeh",
-    "GIT_repositories",
-    "motor_ukb",
-    "data_ukb",
-    f"data_{motor}",
-    population,
-    "prepared_data",
-    f"{mri_status}_{population}",
-)
+df_post = pd.DataFrame()
+save_folder_path = os.path.join(
+        "/data",
+        "project",
+        "stroke_ukb",
+        "knazarzadeh",
+        "GIT_repositories",
+        "motor_ukb",
+        "data_ukb",
+        f"data_{motor}",
+        population,
+        "prepared_data",
+        f"{mri_status}_{population}",
+    )
 
-file_path = os.path.join(
-        folder_path,
-        f"{post_list[0]}_{mri_status}_{population}.csv")
-
-df_post = pd.read_csv(file_path, sep=',')
-df_post.set_index("SubjectID", inplace=True)
-
-ses = df_post["1_post_session"].astype(str).str[8:]
-for i in range(0, len(df_post["1_post_session"])):
-    idx=ses.index[i]
-    if ses.iloc[i] != "":
-        df_post.loc[idx, "1_post_days"] = df_post.loc[idx, f"followup_days-{ses.iloc[i]}"]
-    else:
-        df_post.loc[idx, "1_post_days"] = np.NaN
+for i in range(0,4):
+    # Define the csv file path to save
+    save_file_path = os.path.join(
+        save_folder_path,
+        f"{df_name[i]}_{mri_status}_{population}.csv")
+    
+    df_tmp = pd.read_csv(save_file_path, sep=',')
+    df_post = pd.concat([df_post, df_tmp], axis=0)
+    df_post = df_post.drop_duplicates()   
 
 ##############################################################################
 df_ses3 = df_post[df_post["1_post_session"] == "session-3.0"]
@@ -239,9 +236,10 @@ nan_cols = df_post.columns[df_post.isna().all()].tolist()
 df_test_set = df_post.drop(nan_cols, axis=1)
 
 mri_features = df_test_set
-    
+# print("===== Done! =====")
+# embed(globals(), locals())
 # X = define_features(feature_type, new_data)
-X = ["post_age", "post_bmi", "post_height", "post_waist_hip_ratio"]
+X = ["post_age", "post_bmi", "post_height", "post_waist_hip_ratio", '31-0.0', 'post_days']
 # Target: HGS(L+R)
 # y = define_target(target)
 if target == "L+R":
@@ -251,140 +249,60 @@ if target == "L+R":
 # Remove Missing data from Features and Target
 mri_features = mri_features.dropna(subset=y)
 mri_features = mri_features.dropna(subset=X)
-
+mri_features = mri_features.set_index('SubjectID')
+# print("===== Done! =====")
+# embed(globals(), locals())
 new_data = mri_features[X]
 new_data = new_data.rename(columns={'post_age': 'Age1stVisit', 'post_bmi': '21001-0.0', 'post_height':'50-0.0', 'post_waist_hip_ratio': 'waist_to_hip_ratio-0.0'})
-new_data = pd.concat([new_data, mri_features[y],mri_features['31-0.0']], axis=1)
+new_data = pd.concat([new_data, mri_features[y]], axis=1)
 
 df_test_female = new_data[new_data['31-0.0']==0]
 df_test_male = new_data[new_data['31-0.0']==1]
 
 X = ['Age1stVisit', '21001-0.0', '50-0.0', 'waist_to_hip_ratio-0.0']
 
-###############################################################################
-f_days = mri_features[mri_features['31-0.0']==0.0]['post_days']
+f_days = df_test_female['post_days']
 f_hgs_LR = df_test_female["post_hgs(L+R)"]
 
-m_days = mri_features[mri_features['31-0.0']==1.0]['post_days']
+m_days = df_test_male['post_days']
 m_hgs_LR = df_test_male["post_hgs(L+R)"]
 
+print("===== Done! =====")
+embed(globals(), locals())
 ###############################################################################
 # Female
 y_true_female = df_test_female[y]
 y_pred_female = model_trained_female.predict(df_test_female[X])
-df_test_female["actual_hgs"] = y_true_female
-df_test_female["predicted_hgs"] = y_pred_female
-df_test_female["hgs_diff"] = y_true_female - y_pred_female
-corr_female_diff, p_female_diff = spearmanr(df_test_female["hgs_diff"], f_days)
+# df_test_female["actual_hgs"] = y_true_female
+# df_test_female["predicted_hgs"] = y_pred_female
+# df_test_female["hgs_diff"] = y_true_female - y_pred_female
+y_diff_female = y_true_female - y_pred_female
+corr_female_diff, p_female_diff = spearmanr(y_diff_female, f_days)
+
+# corr_female_diff, p_female_diff = spearmanr(df_test_female["hgs_diff"], f_days)
 # corr_female_diff = format(np.corrcoef(df_test_female["hgs_diff"], f_days)[1, 0], '.2f')
 
 ###############################################################################
 # Male
 y_true_male = df_test_male[y]
 y_pred_male = model_trained_male.predict(df_test_male[X])
-df_test_male["actual_hgs"] = y_true_male
-df_test_male["predicted_hgs"] = y_pred_male
-df_test_male["hgs_diff"] = y_true_male - y_pred_male
-corr_male_diff, p_male_diff = spearmanr(df_test_male["hgs_diff"], m_days)
+# df_test_male["actual_hgs"] = y_true_male
+# df_test_male["predicted_hgs"] = y_pred_male
+# df_test_male["hgs_diff"] = (y_true_male - y_pred_male)
+y_diff_male = y_true_male - y_pred_male
+corr_male_diff, p_male_diff = spearmanr(y_diff_male, m_days)
+
+# corr_male_diff, p_male_diff = spearmanr(df_test_male["hgs_diff"], m_days)
 # corr_male_diff = format(np.corrcoef(df_test_male["hgs_diff"], m_days)[1, 0], '.2f')
 
-
 ###############################################################################
-# Create the actual HGS vs predicted HGS plot for females and fefemales separately
-fig, ax = plt.subplots(1, 2, figsize=(20,10))
-sns.set_context("poster")
-ax[0].set_box_aspect(1)
-sns.regplot(x=m_days, y=df_test_male["hgs_diff"], ax=ax[0], line_kws={"color": "red"})
-ax[0].tick_params(axis='both', labelsize=20)
-
-xmin0, xmax0 = ax[0].get_xlim()
-ymin0, ymax0 = ax[0].get_ylim()
-
-# xmax0 = xmax0+10
-# ymax0 = ymax0+10
-
-# ax[0].set_xlim(0, xmax0)
-# ax[0].set_ylim(0, ymax0)
-
-# xmin0, xmax0 = ax[0].get_xlim()
-# ymin0, ymax0 = ax[0].get_ylim()
-
-text0 = 'CORR: ' + str(format(corr_male_diff, '.3f'))
-ax[0].set_xlabel('Post-stroke Days', fontsize=20, fontweight="bold")
-ax[0].set_ylabel('Difference (Actual-Predicted)HGS', fontsize=20, fontweight="bold")
-
-ax[0].set_title(f"Males(N={len(df_test_male)})", fontsize=15, fontweight="bold", y=1)
-# ax[0].text(xmax0 - 0.05 * xmax0, ymax0 - 0.01 * ymax0, text0, verticalalignment='top',
-#          horizontalalignment='right', fontsize=18, fontweight="bold")
-
-# # Add a diagonal line
-# ax[0].plot([xmin0, xmax0], [ymin0, ymax0], 'k--')
-
-#################################
-ax[1].set_box_aspect(1)
-# sns.set_context("poster")
-sns.regplot(x=f_days, y=df_test_female["hgs_diff"], ax=ax[1], scatter_kws={"color": "orange"}, line_kws={"color": "red"})
-ax[1].tick_params(axis='both', labelsize=20)
-
-xmin1, xmax1 = ax[1].get_xlim()
-ymin1, ymax1 = ax[1].get_ylim()
-# xmax1 = xmax1+10
-# ymax1 = ymax1+10
-
-# ax[1].set_xlim(0, xmax1)
-# ax[1].set_ylim(0, ymax1)
-
-# xmin1, xmax1 = ax[1].get_xlim()
-# ymin1, ymax1 = ax[1].get_ylim()
-
-
-text1 = 'CORR: ' + str(format(corr_female_diff, '.3f'))
-ax[1].set_title(f"Females(N={len(df_test_female)})", fontsize=15, fontweight="bold", y=1)
-# ax[1].text(xmax1 - 0.05 * xmax1, ymax1 - 0.01 * ymax1, text1, verticalalignment='top',
-#          horizontalalignment='right', fontsize=18, fontweight="bold")
-
-# Add a diagonal line
-ax[1].set_xlabel('Post-stroke Days', fontsize=20, fontweight="bold")
-ax[1].set_ylabel('Difference (Actual-Predicted)HGS', fontsize=20, fontweight="bold")
-
-xmin0, xmax0 = ax[0].get_xlim()
-ymin0, ymax0 = ax[0].get_ylim()
-xmin1, xmax1 = ax[1].get_xlim()
-ymin1, ymax1 = ax[1].get_ylim()
-
-xmin = min(xmin0, xmin1)
-xmax = max(xmax0, xmax1)
-ymin = min(ymin0, ymin1)
-ymax = max(ymax0, ymax1)
-
-
-ax[0].set_xlim(xmin, xmax)
-ax[0].set_ylim(ymin, ymax)
-
-ax[1].set_xlim(xmin, xmax)
-ax[1].set_ylim(ymin, ymax)
-
-ax[0].plot([xmin, xmax], [ymin, ymax], 'k--')
-ax[1].plot([xmin, xmax], [ymin, ymax], 'k--')
-
-ax[0].text(xmax - 0.05 * xmax, ymax - 0.01 * ymax, text0, verticalalignment='top',
-         horizontalalignment='right', fontsize=18, fontweight="bold")
-ax[1].text(xmax - 0.05 * xmax, ymax - 0.01 * ymax, text1, verticalalignment='top',
-         horizontalalignment='right', fontsize=18, fontweight="bold")
-
-plt.suptitle("Difference (Actual-Predicted)HGS vs Post-stroke Days", fontsize=20, fontweight="bold", y=0.95)
-
-plt.show()
-plt.savefig(f"correlate_actual_predicted_hgs_storke_mri_both_gender_post_diff.png")
-plt.close()
-
 # ##############################################################################################################################################################
 ###############################################################################
 # Create the actual HGS vs predicted HGS plot for females and fefemales separately
 fig, ax = plt.subplots(1, 2, figsize=(20,10))
 sns.set_context("poster")
 ax[0].set_box_aspect(1)
-sns.regplot(x=m_days/365, y=df_test_male["hgs_diff"], ax=ax[0], line_kws={"color": "red"})
+sns.regplot(x=m_days/365, y=y_diff_male, ax=ax[0], line_kws={"color": "red"})
 ax[0].tick_params(axis='both', labelsize=20)
 
 xmin0, xmax0 = ax[0].get_xlim()
@@ -399,11 +317,11 @@ ymin0, ymax0 = ax[0].get_ylim()
 # xmin0, xmax0 = ax[0].get_xlim()
 # ymin0, ymax0 = ax[0].get_ylim()
 
-text0 = 'CORR: ' + str(format(corr_male_diff, '.3f'))
+text0 = 'CORR: ' + str(format(corr_male_diff, '.4f'))
 ax[0].set_xlabel('Post-stroke years', fontsize=20, fontweight="bold")
 ax[0].set_ylabel('Difference (Actual-Predicted)HGS', fontsize=20, fontweight="bold")
 
-ax[0].set_title(f"Males(N={len(df_test_male)})", fontsize=15, fontweight="bold", y=1)
+ax[0].set_title(f"Males({len(df_test_male)})", fontsize=15, fontweight="bold", y=1)
 # ax[0].text(xmax0 - 0.05 * xmax0, ymax0 - 0.01 * ymax0, text0, verticalalignment='top',
 #          horizontalalignment='right', fontsize=18, fontweight="bold")
 
@@ -413,7 +331,7 @@ ax[0].set_title(f"Males(N={len(df_test_male)})", fontsize=15, fontweight="bold",
 #################################
 ax[1].set_box_aspect(1)
 # sns.set_context("poster")
-sns.regplot(x=f_days/365, y=df_test_female["hgs_diff"], ax=ax[1], scatter_kws={"color": "orange"}, line_kws={"color": "red"})
+sns.regplot(x=f_days/365, y=y_diff_female, ax=ax[1], scatter_kws={"color": "orange"}, line_kws={"color": "red"})
 ax[1].tick_params(axis='both', labelsize=20)
 
 xmin1, xmax1 = ax[1].get_xlim()
@@ -428,8 +346,8 @@ ymin1, ymax1 = ax[1].get_ylim()
 # ymin1, ymax1 = ax[1].get_ylim()
 
 
-text1 = 'CORR: ' + str(format(corr_female_diff, '.3f'))
-ax[1].set_title(f"Females(N={len(df_test_female)})", fontsize=15, fontweight="bold", y=1)
+text1 = 'CORR: ' + str(format(corr_female_diff, '.4f'))
+ax[1].set_title(f"Females({len(df_test_female)})", fontsize=15, fontweight="bold", y=1)
 
 
 # Add a diagonal line
@@ -465,186 +383,7 @@ ax[1].text(xmax - 0.05 * xmax, ymax - 0.01 * ymax, text1, verticalalignment='top
 plt.suptitle("Difference (Actual-Predicted)HGS vs Post-stroke years", fontsize=20, fontweight="bold", y=0.95)
 
 plt.show()
-plt.savefig(f"correlate_actual_predicted_hgs_storke_mri_both_gender_post_diff_years.png")
+plt.savefig(f"correlate_actual_predicted_hgs_storke_mri_both_gender_post_diff_years_new_with_ses2.png")
 plt.close()
-
-###############################################################################
-# Create the actual HGS vs predicted HGS plot for females and fefemales separately
-fig, ax = plt.subplots(1, 2, figsize=(20,10))
-sns.set_context("poster")
-ax[0].set_box_aspect(1)
-sns.regplot(x=m_days/365, y=df_test_male["actual_hgs"], ax=ax[0], line_kws={"color": "red"})
-ax[0].tick_params(axis='both', labelsize=20)
-
-xmin0, xmax0 = ax[0].get_xlim()
-ymin0, ymax0 = ax[0].get_ylim()
-
-# # xmax0 = xmax0+2
-# ymax0 = ymax0+5
-
-# ax[0].set_xlim(0, xmax0)
-# ax[0].set_ylim(0, ymax0)
-
-# xmin0, xmax0 = ax[0].get_xlim()
-# ymin0, ymax0 = ax[0].get_ylim()
-
-text0 = 'CORR: ' + str(format(spearmanr(df_test_male["actual_hgs"], m_days)[0], '.3f'))
-ax[0].set_xlabel('Post-stroke years', fontsize=20, fontweight="bold")
-ax[0].set_ylabel('Actual HGS', fontsize=20, fontweight="bold")
-
-ax[0].set_title(f"Males(N={len(df_test_male)})", fontsize=15, fontweight="bold", y=1)
-# ax[0].text(xmax0 - 0.05 * xmax0, ymax0 - 0.01 * ymax0, text0, verticalalignment='top',
-#          horizontalalignment='right', fontsize=18, fontweight="bold")
-
-# # Add a diagonal line
-# ax[0].plot([xmin0, xmax0], [ymin0, ymax0], 'k--')
-
-#################################
-ax[1].set_box_aspect(1)
-# sns.set_context("poster")
-sns.regplot(x=f_days/365, y=df_test_female["actual_hgs"], ax=ax[1], scatter_kws={"color": "orange"}, line_kws={"color": "red"})
-ax[1].tick_params(axis='both', labelsize=20)
-
-xmin1, xmax1 = ax[1].get_xlim()
-ymin1, ymax1 = ax[1].get_ylim()
-# xmax1 = xmax1+2
-# ymax1 = ymax1+5
-
-# ax[1].set_xlim(0, xmax1)
-# ax[1].set_ylim(0, ymax1)
-
-# xmin1, xmax1 = ax[1].get_xlim()
-# ymin1, ymax1 = ax[1].get_ylim()
-
-
-text1 = 'CORR: ' + str(format(spearmanr(df_test_female["actual_hgs"], f_days)[0], '.3f'))
-ax[1].set_title(f"Females(N={len(df_test_female)})", fontsize=15, fontweight="bold", y=1)
-
-
-# Add a diagonal line
-ax[1].set_xlabel('Post-stroke years', fontsize=20, fontweight="bold")
-ax[1].set_ylabel('Actual HGS', fontsize=20, fontweight="bold")
-
-
-xmin0, xmax0 = ax[0].get_xlim()
-ymin0, ymax0 = ax[0].get_ylim()
-xmin1, xmax1 = ax[1].get_xlim()
-ymin1, ymax1 = ax[1].get_ylim()
-
-xmin = min(xmin0, xmin1)
-xmax = max(xmax0, xmax1)
-ymin = min(ymin0, ymin1)
-ymax = max(ymax0, ymax1)
-
-
-ax[0].set_xlim(xmin, xmax)
-ax[0].set_ylim(ymin, ymax)
-
-ax[1].set_xlim(xmin, xmax)
-ax[1].set_ylim(ymin, ymax)
-
-ax[0].plot([xmin, xmax], [ymin, ymax], 'k--')
-ax[1].plot([xmin, xmax], [ymin, ymax], 'k--')
-
-ax[0].text(xmax - 0.05 * xmax, ymax - 0.01 * ymax, text0, verticalalignment='top',
-         horizontalalignment='right', fontsize=18, fontweight="bold")
-ax[1].text(xmax - 0.05 * xmax, ymax - 0.01 * ymax, text1, verticalalignment='top',
-         horizontalalignment='right', fontsize=18, fontweight="bold")
-
-plt.suptitle("Actual HGS vs Post-stroke years", fontsize=20, fontweight="bold", y=0.95)
-
-plt.show()
-plt.savefig(f"correlate_actual_hgs_storke_mri_both_gender_post_years.png")
-plt.close()
-
-###############################################################################
-# Create the actual HGS vs predicted HGS plot for females and fefemales separately
-fig, ax = plt.subplots(1, 2, figsize=(20,10))
-sns.set_context("poster")
-ax[0].set_box_aspect(1)
-sns.regplot(x=m_days/365, y=df_test_male["predicted_hgs"], ax=ax[0], line_kws={"color": "red"})
-ax[0].tick_params(axis='both', labelsize=20)
-
-xmin0, xmax0 = ax[0].get_xlim()
-ymin0, ymax0 = ax[0].get_ylim()
-
-# # xmax0 = xmax0+2
-# ymax0 = ymax0+5
-
-# ax[0].set_xlim(0, xmax0)
-# ax[0].set_ylim(0, ymax0)
-
-# xmin0, xmax0 = ax[0].get_xlim()
-# ymin0, ymax0 = ax[0].get_ylim()
-
-text0 = 'CORR: ' + str(format(spearmanr(df_test_male["actual_hgs"], m_days)[0], '.3f'))
-ax[0].set_xlabel('Post-stroke years', fontsize=20, fontweight="bold")
-ax[0].set_ylabel('Predicted HGS', fontsize=20, fontweight="bold")
-
-ax[0].set_title(f"Males(N={len(df_test_male)})", fontsize=15, fontweight="bold", y=1)
-# ax[0].text(xmax0 - 0.05 * xmax0, ymax0 - 0.01 * ymax0, text0, verticalalignment='top',
-#          horizontalalignment='right', fontsize=18, fontweight="bold")
-
-# # Add a diagonal line
-# ax[0].plot([xmin0, xmax0], [ymin0, ymax0], 'k--')
-
-#################################
-ax[1].set_box_aspect(1)
-# sns.set_context("poster")
-sns.regplot(x=f_days/365, y=df_test_female["predicted_hgs"], ax=ax[1], scatter_kws={"color": "orange"}, line_kws={"color": "red"})
-ax[1].tick_params(axis='both', labelsize=20)
-
-xmin1, xmax1 = ax[1].get_xlim()
-ymin1, ymax1 = ax[1].get_ylim()
-# xmax1 = xmax1+2
-# ymax1 = ymax1+5
-
-# ax[1].set_xlim(0, xmax1)
-# ax[1].set_ylim(0, ymax1)
-
-# xmin1, xmax1 = ax[1].get_xlim()
-# ymin1, ymax1 = ax[1].get_ylim()
-
-
-text1 = 'CORR: ' + str(format(spearmanr(df_test_female["predicted_hgs"], f_days)[0], '.3f'))
-ax[1].set_title(f"Females(N={len(df_test_female)})", fontsize=15, fontweight="bold", y=1)
-
-
-# Add a diagonal line
-ax[1].set_xlabel('Post-stroke years', fontsize=20, fontweight="bold")
-ax[1].set_ylabel('Predicted HGS', fontsize=20, fontweight="bold")
-
-
-xmin0, xmax0 = ax[0].get_xlim()
-ymin0, ymax0 = ax[0].get_ylim()
-xmin1, xmax1 = ax[1].get_xlim()
-ymin1, ymax1 = ax[1].get_ylim()
-
-xmin = min(xmin0, xmin1)
-xmax = max(xmax0, xmax1)
-ymin = min(ymin0, ymin1)
-ymax = max(ymax0, ymax1)
-
-
-ax[0].set_xlim(xmin, xmax)
-ax[0].set_ylim(ymin, ymax)
-
-ax[1].set_xlim(xmin, xmax)
-ax[1].set_ylim(ymin, ymax)
-
-ax[0].plot([xmin, xmax], [ymin, ymax], 'k--')
-ax[1].plot([xmin, xmax], [ymin, ymax], 'k--')
-
-ax[0].text(xmax - 0.05 * xmax, ymax - 0.01 * ymax, text0, verticalalignment='top',
-         horizontalalignment='right', fontsize=18, fontweight="bold")
-ax[1].text(xmax - 0.05 * xmax, ymax - 0.01 * ymax, text1, verticalalignment='top',
-         horizontalalignment='right', fontsize=18, fontweight="bold")
-
-plt.suptitle("Predicted HGS vs Post-stroke years", fontsize=20, fontweight="bold", y=0.95)
-
-plt.show()
-plt.savefig(f"correlate_predicted_hgs_storke_mri_both_gender_post_years.png")
-plt.close()
-
 print("===== Done! =====")
 embed(globals(), locals())

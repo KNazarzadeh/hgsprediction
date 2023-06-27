@@ -36,6 +36,18 @@ recovery_df = prepare_data.define_recovery_data(pre_post_long_df)
 all_post_stroke = prepare_data.define_all_post_subjects(pre_post_long_df)
 hgs_df = prepare_data.define_hgs(pre_post_long_df)
 
+
+longi = hgs_df[((~hgs_df[f"1_post_left_hgs"].isna()) & (hgs_df[f"1_post_left_hgs"] !=  0)) & ((~hgs_df[f"1_post_right_hgs"].isna()) & (hgs_df[f"1_post_right_hgs"] !=  0)) & ((~hgs_df[f"1_pre_left_hgs"].isna()) & (hgs_df[f"1_pre_left_hgs"] !=  0)) & ((~hgs_df[f"1_pre_right_hgs"].isna()) & (hgs_df[f"1_pre_right_hgs"] !=  0))]
+for ses in range(0,4):
+    sub_id = longi[longi['1_pre_session']== f"session-{ses}.0"].index
+    longi.loc[sub_id, '1_pre_bmi'] = longi.loc[sub_id, f'21001-{ses}.0']
+for ses in range(0,4):
+    sub_id = longi[longi['1_post_session']== f"session-{ses}.0"].index
+    longi.loc[sub_id, '1_post_bmi'] = longi.loc[sub_id, f'21001-{ses}.0']
+
+longi = longi.dropna(subset=['1_post_bmi'])
+  
+    
 df_available_1_post = hgs_df[((~hgs_df[f"1_post_left_hgs"].isna()) & (hgs_df[f"1_post_left_hgs"] !=  0))
                         & ((~hgs_df[f"1_post_right_hgs"].isna()) & (hgs_df[f"1_post_right_hgs"] !=  0))
                        ]
@@ -170,7 +182,7 @@ save_prepared_disease_data(df_available_disease_dates, "available_disease_dates"
 save_prepared_disease_data(df_available_hgs, "available_hgs", motor, population, mri_status)
 save_prepared_disease_data(pre_disease_df, "pre_disease", motor, population, mri_status)
 save_prepared_disease_data(post_disease_df, "post_disease", motor, population, mri_status)
-save_prepared_disease_data(longitudinal_df, "longitudinal_disease", motor, population, mri_status)
+save_prepared_disease_data(longi, "longitudinal_disease", motor, population, mri_status)
 save_prepared_disease_data(recovery_df, "recovery_disease", motor, population, mri_status)
 save_prepared_disease_data(df_available_1_post, "1_post_session", motor, population, mri_status)
 save_prepared_disease_data(df_available_2_post, "2_post_session", motor, population, mri_status)
