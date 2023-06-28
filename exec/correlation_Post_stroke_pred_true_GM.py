@@ -164,9 +164,45 @@ for i in range(0, len(df_post["1_post_session"])):
         df_post.loc[idx, "1_post_days"] = np.NaN
 
 ##############################################################################
+post_list = ["1_post_session", "2_post_session", "3_post_session", "4_post_session"]
+
+mri_status = "mri"
+population = "stroke"
+
+folder_path = os.path.join(
+    "/data",
+    "project",
+    "stroke_ukb",
+    "knazarzadeh",
+    "GIT_repositories",
+    "motor_ukb",
+    "data_ukb",
+    f"data_{motor}",
+    population,
+    "prepared_data",
+    f"{mri_status}_{population}",
+)
+
+file_path = os.path.join(
+        folder_path,
+        f"{post_list[0]}_{mri_status}_{population}.csv")
+
+df_post = pd.read_csv(file_path, sep=',')
+df_post.set_index("SubjectID", inplace=True)
+
+ses = df_post["1_post_session"].astype(str).str[8:]
+for i in range(0, len(df_post["1_post_session"])):
+    idx=ses.index[i]
+    if ses.iloc[i] != "":
+        df_post.loc[idx, "1_post_days"] = df_post.loc[idx, f"followup_days-{ses.iloc[i]}"]
+    else:
+        df_post.loc[idx, "1_post_days"] = np.NaN
+
+##############################################################################
 df_ses3 = df_post[df_post["1_post_session"] == "session-3.0"]
 df_ses2 = df_post[~df_post.index.isin(df_ses3.index)]
-
+# print("===== Done! =====")
+# embed(globals(), locals())
 # Replace Age
 df_ses3.loc[:, 'post_age'] = df_ses3.loc[:, f'21003-3.0']
 ##############################################################################
@@ -285,7 +321,7 @@ df_post = df_post[df_post.loc[:, f"dominant_hgs"] >=4]
 nan_cols = df_post.columns[df_post.isna().all()].tolist()
 df_test_set = df_post.drop(nan_cols, axis=1)
 
-mri_features = df_test_set
+mri_features = df_test_set.copy()
     
 # X = define_features(feature_type, new_data)
 X = ["post_age", "post_bmi", "post_height", "post_waist_hip_ratio"]
@@ -381,43 +417,7 @@ gm_region_corr_predicted_male.loc['p_values',:]= p_values_male.tolist()
 for region in range(n_regions):
     print(f"{gm_anthro_male.columns[region]}: Correlation_male = {correlations_male[region]:.3f}, p-value_male = {p_values_male[region]:.3f}")
     
-###############################################################################
-# Females
-# Calculate correlations between gm and Predicted HGS
-gm_region_corr_actual_female = pd.DataFrame(columns=gm_anthro_female.columns)
 
-n_regions = 1088
-correlations_female = np.zeros(n_regions)
-p_values_female = np.zeros(n_regions)
-for region in range(n_regions):
-    corr, p_value = spearmanr(gm_anthro_female.iloc[:, region], df_test_female['actual_hgs'])
-    correlations_female[region] = corr
-    p_values_female[region] = p_value
-
-gm_region_corr_actual_female.loc['correlations',:]= correlations_female.tolist()
-gm_region_corr_actual_female.loc['p_values',:]= p_values_female.tolist()
-
-# Print correlations and p-values for each region
-for region in range(n_regions):
-    print(f"{gm_anthro_female.columns[region]}: Correlation_female = {correlations_female[region]:.3f}, p-value_female = {p_values_female[region]:.3f}")
-###############################################################################
-# Males
-# Calculate correlations between gm and Predicted HGS
-gm_region_corr_actual_male = pd.DataFrame(columns=gm_anthro_male.columns)
-
-n_regions = 1088
-correlations_male = np.zeros(n_regions)
-p_values_male = np.zeros(n_regions)
-for region in range(n_regions):
-    corr, p_value = spearmanr(gm_anthro_male.iloc[:, region], df_test_male['actual_hgs'])
-    correlations_male[region] = corr
-    p_values_male[region] = p_value
-gm_region_corr_actual_male.loc['correlations',:]= correlations_male.tolist()
-gm_region_corr_actual_male.loc['p_values',:]= p_values_male.tolist()
-
-# Print correlations and p-values for each region
-for region in range(n_regions):
-    print(f"{gm_anthro_male.columns[region]}: Correlation_male = {correlations_male[region]:.3f}, p-value_male = {p_values_male[region]:.3f}")
 ###############################################################################
 df_predicted_male = gm_region_corr_predicted_male.T
 # cast the strings to floats
@@ -430,19 +430,6 @@ df_predicted_female = gm_region_corr_predicted_female.T
 df_predicted_female['correlations'] = abs(df_predicted_female['correlations'].astype(float))
 top10_predicted_female = df_predicted_female.nlargest(10, 'correlations')
 highest_region_predicted_female = top10_predicted_female.iloc[0].name
-
-###############################################################################
-df_actual_male = gm_region_corr_actual_male.T
-# cast the strings to floats
-df_actual_male['correlations'] = abs(df_actual_male['correlations'].astype(float))
-top10_actual_male = df_actual_male.nlargest(10, 'correlations')
-highest_region_actual_male = top10_actual_male.iloc[0].name
-
-df_actual_female = gm_region_corr_actual_female.T
-# cast the strings to floats
-df_actual_female['correlations'] = abs(df_actual_female['correlations'].astype(float))
-top10_actual_female = df_actual_female.nlargest(10, 'correlations')
-highest_region_actual_female = top10_actual_female.iloc[0].name
 
 ###############################################################################
 # Females
@@ -494,121 +481,9 @@ df_actual_predicted_female = gm_region_corr_actual_predicted_female.T
 df_actual_predicted_female['correlations'] = abs(df_actual_predicted_female['correlations'].astype(float))
 top10_actual_predicted_female = df_actual_predicted_female.nlargest(10, 'correlations')
 highest_region_actual_predicted_female = top10_actual_predicted_female.iloc[0].name
-###############################################################################
-corr_actual_predicted_female, p_actual_predicted_female = spearmanr(abs(df_actual_female['correlations']), abs(df_predicted_female['correlations']))
-corr_actual_predicted_male, p_actual_predicted_male = spearmanr(abs(df_actual_male['correlations']), abs(df_predicted_male['correlations']))
-
-df_predicted_male = df_predicted_male.rename(columns={'correlations':'correlations_pred'})
-df_predicted_female = df_predicted_female.rename(columns={'correlations':'correlations_pred'})
-
-df_male = pd.concat([df_actual_male, df_predicted_male], axis=1)
-df_male.loc[:, "Gender"] = "Males"
-df_female = pd.concat([df_actual_female, df_predicted_female], axis=1)
-df_female.loc[:, "Gender"] = "Females"
-
-df = pd.concat([df_male, df_female], axis=0)
+    
 print("===== Done! =====")
 embed(globals(), locals())
-
-fig, ax = plt.subplots(1, 2, figsize=(20,10))
-plt.rcParams['font.weight'] = 'bold'
-
-ax[0].set_box_aspect(1)
-# Adjust the aspect ratio
-sns.set_context("poster")
-# sns.jointplot(x=df_actual_male['correlations'], y=df_predicted_male['correlations'], kind='hex', gridsize=20, cmap='Blues', ax=ax[0])
-# plot_joint(sns.histplot, stat='density', bins=20, color='white', edgecolor='black', linewidth=0.5)
-# ax[0].hexbin(x=df_actual_male['correlations'], y=df_predicted_male['correlations'], gridsize = 50, cmap ='Blues')
-sns.regplot(x=df_actual_male['correlations'], y=df_predicted_male['correlations_pred'], ax=ax[0], line_kws={"color": "red"})
-ax[0].tick_params(axis='both', labelsize=20)
-
-ax[0].set(xlabel =None, ylabel=None)
-xmin0, xmax0 = ax[0].get_xlim()
-ymin0, ymax0 = ax[0].get_ylim()
-
-# max0 = max(xmax0, ymax0)
-# min0 = min(xmin0, ymin0)
-ax[0].set_ylim(xmin0, xmax0)
-ax[0].set_xlim(ymin0, ymax0)
-xmin0, xmax0 = ax[0].get_xlim()
-ymin0, ymax0 = ax[0].get_ylim()
-text0 = 'CORR: ' + str(format(corr_actual_predicted_male, '.3f'))
-# ax[0].set_title(f"Males - Corr={format(corr_actual_predicted_male, '.3f')}", fontsize=15, fontweight="bold", y=1.02)
-# ax[0].text(xmax0 - 0.05 * xmax0, ymax0 - 0.01 * ymax0, text0, verticalalignment='top',
-#          horizontalalignment='right', fontsize=18, fontweight="bold")
-ax[0].set_title(f"Males(N={len(df_test_male)})", fontsize=15, fontweight="bold", y=1)
-# # Add a diagonal line
-# ax[0].plot([ymin0, xmax0], [ymin0, ymax0], 'k--')
-
-#################################
-ax[1].set_box_aspect(1)
-sns.set_context("poster")
-# sns.jointplot(x=df_actual_female['correlations'], y=df_predicted_female['correlations'], kind='hex', gridsize=20, cmap='Oranges', ax=ax[1])
-# ax[1].hexbin(x=df_actual_female['correlations'], y=df_predicted_female['correlations'], gridsize = 50, cmap ='Oranges')
-sns.regplot(x=df_actual_female['correlations'], y=df_predicted_female['correlations_pred'], ax=ax[1], line_kws={"color": "red"}, color="orange")
-ax[1].tick_params(axis='both', labelsize=20)
-
-xmin1, xmax1 = ax[1].get_xlim()
-ymin1, ymax1 = ax[1].get_ylim()
-# max1 = max(xmax1, ymax1)
-# min1 = min(xmin1, ymin1)
-ax[1].set_xlim(xmin1, xmax1)
-ax[1].set_ylim(ymin1, ymax1)
-xmin1, xmax1 = ax[1].get_xlim()
-ymin1, ymax1 = ax[1].get_ylim()
-
-text1 = 'CORR: ' + str(format(corr_actual_predicted_female, '.3f'))
-# ax[1].set_title(f"Females - Corr={format(corr_actual_predicted_female, '.3f')}", fontsize=15, fontweight="bold", y=1.02)
-ax[1].set_title(f"Females(N={len(df_test_female)})", fontsize=15, fontweight="bold", y=1)
-# ax[1].text(xmax1 - 0.05 * xmax1, ymax1 - 0.01 * ymax1, text1, verticalalignment='top',
-#          horizontalalignment='right', fontsize=18, fontweight="bold")
-# ax[1].plot([0, xmax1], [0, ymax1], 'k--')
-
-# Add a diagonal line
-ax[1].set(xlabel =None, ylabel=None)
-
-
-xmin0, xmax0 = ax[0].get_xlim()
-ymin0, ymax0 = ax[0].get_ylim()
-xmin1, xmax1 = ax[1].get_xlim()
-ymin1, ymax1 = ax[1].get_ylim()
-
-xmin = min(xmin0, xmin1)
-xmax = max(xmax0, xmax1)
-ymin = min(ymin0, ymin1)
-ymax = max(ymax0, ymax1)
-
-
-ax[0].set_xlim(xmin, xmax)
-ax[0].set_ylim(ymin, ymax)
-
-ax[1].set_xlim(xmin, xmax)
-ax[1].set_ylim(ymin, ymax)
-
-ax[0].plot([xmin, xmax], [ymin, ymax], 'k--')
-ax[1].plot([xmin, xmax], [ymin, ymax], 'k--')
-
-ax[0].text(xmax - 0.05 * xmax, ymax - 0.01 * ymax, text0, verticalalignment='top',
-         horizontalalignment='right', fontsize=18, fontweight="bold")
-ax[1].text(xmax - 0.05 * xmax, ymax - 0.01 * ymax, text1, verticalalignment='top',
-         horizontalalignment='right', fontsize=18, fontweight="bold")
-
-# # Specify the format of the tick labels
-# ax[0].xaxis.set_major_formatter('{:.2f}')  # Format x-axis tick labels to display 2 decimal places
-# ax[0].yaxis.set_major_formatter('{:.2f}')  # Format x-axis tick labels to display 2 decimal places
-
-# # Specify the format of the tick labels
-# ax[1].xaxis.set_major_formatter('{:.2f}')  # Format x-axis tick labels to display 2 decimal places
-# ax[1].yaxis.set_major_formatter('{:.2f}')  # Format x-axis tick labels to display 2 decimal places
-
-fig.text(0.5, 0.05, 'Correlation of GM with Actual HGS', ha='center', fontsize=20, fontweight="bold")
-fig.text(0.05, 0.5, 'Correlation of GM with Predicted HGS', va='center',
-        rotation='vertical', fontsize=20, fontweight="bold")
-plt.suptitle("Correlation of GM with Actual HGS vs Predicted HGS", fontsize=20, fontweight="bold", y=.95)
-
-plt.show()
-plt.savefig(f"correlate_gm_actual_predicted_hgs_stroke_1.png")
-plt.close()
 ###############################################################################
 # Create the actual HGS vs predicted HGS plot for females and fefemales separately
 fig, ax = plt.subplots(1, 2, figsize=(20,10))
@@ -695,7 +570,7 @@ ax[1].text(xmax - 0.05 * xmax, ymax - 0.01 * ymax, text1, verticalalignment='top
 plt.suptitle("Difference (Actual-Predicted)HGS vs Post-stroke Days", fontsize=20, fontweight="bold", y=0.95)
 
 plt.show()
-plt.savefig(f"correlate_actual_predicted_hgs_storke_mri_both_gender_post_diff_GM.png")
+plt.savefig(f"correlate_actual_predicted_hgs_storke_mri_both_gender_post_diff_2.png")
 plt.close()
 
 # ##############################################################################################################################################################
@@ -713,8 +588,8 @@ ymin0, ymax0 = ax[0].get_ylim()
 # # xmax0 = xmax0+2
 # ymax0 = ymax0+5
 
-ax[0].set_xlim(0, xmax0)
-ax[0].set_ylim(0, ymax0)
+# ax[0].set_xlim(0, xmax0)
+# ax[0].set_ylim(0, ymax0)
 
 # xmin0, xmax0 = ax[0].get_xlim()
 # ymin0, ymax0 = ax[0].get_ylim()
@@ -741,8 +616,8 @@ ymin1, ymax1 = ax[1].get_ylim()
 # xmax1 = xmax1+2
 # ymax1 = ymax1+5
 
-ax[1].set_xlim(0, xmax1)
-ax[1].set_ylim(0, ymax1)
+# ax[1].set_xlim(xmin1, xmax1)
+# ax[1].set_ylim(0, ymax1)
 
 # xmin1, xmax1 = ax[1].get_xlim()
 # ymin1, ymax1 = ax[1].get_ylim()
@@ -768,11 +643,11 @@ ymin = min(ymin0, ymin1)
 ymax = max(ymax0, ymax1)
 
 
-ax[0].set_xlim(0, xmax)
-ax[0].set_ylim(0, ymax)
+ax[0].set_xlim(xmin, xmax)
+ax[0].set_ylim(ymin, ymax)
 
-ax[1].set_xlim(0, xmax)
-ax[1].set_ylim(0, ymax)
+ax[1].set_xlim(xmin, xmax)
+ax[1].set_ylim(ymin, ymax)
 
 ax[0].plot([xmin, xmax], [ymin, ymax], 'k--')
 ax[1].plot([xmin, xmax], [ymin, ymax], 'k--')
@@ -785,5 +660,5 @@ ax[1].text(xmax - 0.05 * xmax, ymax - 0.01 * ymax, text1, verticalalignment='top
 plt.suptitle("Difference (Actual-Predicted)HGS vs Post-stroke years", fontsize=20, fontweight="bold", y=0.95)
 
 plt.show()
-plt.savefig(f"correlate_actual_predicted_hgs_storke_mri_both_gender_post_diff_years_GM.png")
+plt.savefig(f"correlate_actual_predicted_hgs_storke_mri_both_gender_post_diff_years_2.png")
 plt.close()
