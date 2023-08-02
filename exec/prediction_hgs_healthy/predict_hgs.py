@@ -21,7 +21,6 @@ from ptpython.repl import embed
 # print("===== Done! =====")
 # embed(globals(), locals())
 
-
 ###############################################################################
 # Parse, add and return the arguments by function parse_args.
 args = parse_args()

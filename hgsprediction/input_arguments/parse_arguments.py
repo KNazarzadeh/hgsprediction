@@ -46,7 +46,7 @@ def validate_args(args):
     available_feature = [
         "anthropometrics",
         "anthropometrics_gender",
-        "bodysize+age",
+        "anthropometrics_age",
         "behavioral",
         "behavioral_gender",
         "anthropometrics_behavioral",
@@ -57,6 +57,8 @@ def validate_args(args):
         "L+R",
         "dominant",
         "nondominant",
+        "left_hgs",
+        "right_hgs",
     ]
     
     available_confound = [
@@ -67,7 +69,7 @@ def validate_args(args):
     available_gender = [
         "female",
         "male",
-        "both",
+        "both_gender",
     ]
     
     available_model = [
@@ -96,7 +98,7 @@ def validate_args(args):
         print("please choose Features type from the list:\n",
               available_feature,"\n anthropometrics --> anthropometric features"
                                 "\n anthropometrics_gender --> anthropometrics with gender features"
-                                "\n bodysize+age --> anthropometrics with age features"
+                                "\n anthropometrics_age --> anthropometrics with age features"
                                 "\n behavioral --> behavioral features"
                                 "\n behavioral_gender --> behavioural with gender features"
                                 "\n anthropometrics_behavioral --> anthropometrics with behavioral features"
@@ -105,7 +107,8 @@ def validate_args(args):
     if args.target not in available_target:
         print("Invalid Target!")
         print("please choose Target from the target list:\n",
-              available_target, "\n L+R for Left+Right HGS \n dominant for dominant HGS \n nondominant for non-dominant HGS")
+              available_target, "\n L+R for Left+Right HGS \n dominant for dominant HGS \n nondominant for non-dominant HGS \
+                   \n left_hgs for Left HGS  \n right_hgs for Right HGS")
         sys.exit()
     if args.gender not in available_gender:
         print("Invalid Gender!")
@@ -169,7 +172,9 @@ def parse_args():
                         type=str,
                         # choices=["L+R",
                         #         "dominant",
-                        #         "nondominant",],
+                        #         "nondominant",
+                        #         "left_hgs",
+                        #         "right_hgs",],
                         help="Confound status (int).")
     # Add Gender argument:
     parser.add_argument("gender",
