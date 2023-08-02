@@ -9,7 +9,7 @@ import pandas as pd
 
 ###############################################################################
 # Define the target which should be predict.
-def define_targets(
+def define_target(
     df,
     target,
 ):

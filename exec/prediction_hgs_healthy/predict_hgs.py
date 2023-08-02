@@ -8,13 +8,13 @@ Motor is Handgrip strength (1 phase).
 # License: AGPL
 
 """
-
 import sys
 import pandas as pd
 import os
 import numpy as np
 from hgsprediction.input_arguments import parse_args, input_arguments
 from hgsprediction.load_data.load_healthy import load_preprocessed_train_df
+from hgsprediction.prediction_preparing import remove_nan_columns
 
 
 from ptpython.repl import embed
@@ -31,12 +31,11 @@ motor, population, mri_status, feature_type, target, gender, model, \
 # Read CSV file from Juseless
 df_train = load_preprocessed_train_df(population, mri_status)
 
-print("===== Done! =====")
-embed(globals(), locals())
+# print("===== Done! =====")
+# embed(globals(), locals())
 ###############################################################################
 # Remove columns that all values are NaN
-nan_cols = df_train.columns[df_train.isna().all()].tolist()
-df_train_set = df_train.drop(nan_cols, axis=1)
+df_train_set = remove_nan_columns(df_train)
 print("===== Done! =====")
 embed(globals(), locals())
 # Define features and target
@@ -437,3 +436,4 @@ regplot_genders_seperate(
 
 print("============================ Done! ============================")
 embed(globals(), locals())
+# %%
