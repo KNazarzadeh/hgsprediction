@@ -17,7 +17,7 @@ from hgsprediction.input_arguments import parse_args
 from hgsprediction.preprocess import PreprocessData
 from hgsprediction.load_data.load_data import load_data_per_session
 from hgsprediction.preprocess.preprocess_healthy import check_hgs_availability_per_session
-from hgsprediction.extract_features import ExtractFeatures
+from hgsprediction.features_extraction import ExtractFeatures
 
 from ptpython.repl import embed
 # print("===== Done! =====")

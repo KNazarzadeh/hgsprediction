@@ -13,7 +13,7 @@ Motor is Handgrip strength (1 phase).
 import pandas as pd
 import numpy as np
 from hgsprediction.input_arguments import parse_args
-from hgsprediction.extract_features import ExtractFeatures
+from hgsprediction.features_extraction import ExtractFeatures
 from load_data import load_data_per_session
 from define_features import define_features
 from define_target import define_target

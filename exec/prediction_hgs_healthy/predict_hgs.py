@@ -13,9 +13,8 @@ import pandas as pd
 import os
 import numpy as np
 from hgsprediction.input_arguments import parse_args, input_arguments
-from hgsprediction.load_data.load_healthy import load_preprocessed_train_df
-from hgsprediction.prediction_preparing import remove_nan_columns
-
+from hgsprediction.load_data.load_healthy import load_preprocessed_train_df, load_train_set_df
+from hgsprediction.data_preprocessing import run_healthy_preprocessing, DataPreprocessor
 
 from ptpython.repl import embed
 # print("===== Done! =====")
@@ -29,15 +28,17 @@ motor, population, mri_status, feature_type, target, gender, model, \
 
 ###############################################################################
 # Read CSV file from Juseless
-df_train = load_preprocessed_train_df(population, mri_status)
 
-# print("===== Done! =====")
-# embed(globals(), locals())
-###############################################################################
-# Remove columns that all values are NaN
-df_train_set = remove_nan_columns(df_train)
+df_train = load_train_set_df(population,
+                             mri_status,)
+
 print("===== Done! =====")
 embed(globals(), locals())
+df_train = load_preprocessed_train_df(population, mri_status)
+data = df_train.copy()
+print("===== Done! =====")
+embed(globals(), locals())
+
 # Define features and target
 X = define_features(feature_type, df_train_set)
 # Target: HGS(L+R)

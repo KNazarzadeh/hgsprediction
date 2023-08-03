@@ -12,7 +12,7 @@ import os
 import pandas as pd
 import numpy as np
 import sys
-from hgsprediction.extract_features import ExtractFeatures
+from hgsprediction.features_extraction import ExtractFeatures
 from define_features import define_features
 from define_target import define_target
 from ptpython.repl import embed
