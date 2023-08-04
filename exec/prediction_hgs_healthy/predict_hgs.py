@@ -8,12 +8,17 @@ Motor is Handgrip strength (1 phase).
 # License: AGPL
 
 """
-import sys
 import pandas as pd
-import os
 import numpy as np
+import sys
+import os
+####### Load Train set #######
 from hgsprediction.input_arguments import parse_args, input_arguments
-from hgsprediction.load_data.load_healthy import load_preprocessed_train_df, load_train_set_df
+# Load Primary Train set (after binning and splitting to Train and test)
+from hgsprediction.load_data.load_healthy import load_primary_train_set_df
+# Load Processed Train set (after data validation, feature engineering)
+from hgsprediction.load_data.load_healthy import load_preprocessed_train_df
+####### Prepocessing data #######
 from hgsprediction.data_preprocessing import run_healthy_preprocessing, DataPreprocessor
 
 from ptpython.repl import embed
@@ -28,9 +33,19 @@ motor, population, mri_status, feature_type, target, gender, model, \
 
 ###############################################################################
 # Read CSV file from Juseless
+df_train = load_primary_train_set_df(population,gender,mri_status)
+print("===== Done! =====")
+embed(globals(), locals())
+###############################################################################
+# Preprocess Data
+add_new_cols = DataPreprocessor(df_train, session=0)
+df_hgs = add_new_cols.validate_handgrips(df_train)
+df_train_set = add_new_cols.calculate_cidi_score(df_hgs)
 
-df_train = load_train_set_df(population,
-                             mri_status,)
+print("===== Done! =====")
+embed(globals(), locals())
+data = run_healthy_preprocessing(df_train)
+
 
 print("===== Done! =====")
 embed(globals(), locals())

@@ -1,10 +1,17 @@
 """Provide imports for the hgsprediction package."""
 
+"""LOAD TRAIN SET"""
+# Load Primary Train set (after binning and splitting to Train and test)
+from .load_data.load_healthy import load_primary_train_set_df
+# Load Processed Train set (after data validation, feature engineering)
+from .load_data.load_healthy import load_preprocessed_train_df
+############################################################################
+
+
 from .preprocess import PreprocessData
 # Parse and check validate input arguments to fetch data
 from .input_arguments import parse_arguments
 #
-from .load_data.load_healthy import load_preprocessed_train_df, load_train_set_df
 from .load_data import load_hgs_data_per_session, load_original_data_per_session, load_original_data
 from .prepare_data.prepare_disease import PrepareDisease
 from .save_data.save_disease import save_prepared_disease_data

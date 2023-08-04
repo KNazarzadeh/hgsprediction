@@ -105,7 +105,8 @@ class DataPreprocessor:
         # If handedness is equal to 1
         # Right hand is Dominant
         # Find handedness equal to 1:
-        index = np.where(df.loc[:, f"1707-{session}.0"] == 1.0)[0]
+        # index = np.where(df.loc[:, f"1707-{session}.0"] == 1.0)[0]
+        index = df[df.loc[:,f"1707-{session}.0"] == 1.0].index
         # Add and new column "dominant_hgs"
         # And assign Right hand HGS value:
         df.loc[index, f"dominant_hgs-{session}.0"] = \
@@ -114,7 +115,8 @@ class DataPreprocessor:
         # If handedness is equal to 2
         # Left hand is Dominant
         # Find handedness equal to 2:
-        index = np.where(df.loc[:, f"1707-{session}.0"] == 2.0)[0]
+        # index = np.where(df.loc[:, f"1707-{session}.0"] == 2.0)[0]
+        index = df[df.loc[:,f"1707-{session}.0"] == 2.0].index
         # Add and new column "dominant_hgs"
         # And assign Left hand HGS value:
         df.loc[index, f"dominant_hgs-{session}.0"] = \
@@ -126,10 +128,13 @@ class DataPreprocessor:
         # NaN value
         # Dominant will be the Highest Handgrip score from both hands.
         # Find handedness equal to 3, -3 or NaN:
-        index = np.where(
-            (df.loc[:, f"1707-{session}.0"] == 3.0) |
-            (df.loc[:, f"1707-{session}.0"] == -3.0)|
-            (df.loc[:, f"1707-{session}.0"].isna()))[0]
+        # index = np.where(
+        #     (df.loc[:, f"1707-{session}.0"] == 3.0) |
+        #     (df.loc[:, f"1707-{session}.0"] == -3.0)|
+        #     (df.loc[:, f"1707-{session}.0"].isna()))[0]
+        index = df[(df.loc[:, f"1707-{session}.0"] == 3.0) |
+                   (df.loc[:, f"1707-{session}.0"] == -3.0)|
+                   (df.loc[:, f"1707-{session}.0"].isna())].index
         # Add and new column "dominant_hgs"
         # And assign Highest HGS value among Right and Left HGS:        
         df.loc[index, f"dominant_hgs-{session}.0"] = \
@@ -175,7 +180,8 @@ class DataPreprocessor:
         # If handedness is equal to 1
         # Left hand is Non-Dominant
         # Find handedness equal to 1:
-        index = np.where(df.loc[:, f"1707-{session}.0"] == 1.0)[0]
+        # index = np.where(df.loc[:, f"1707-{session}.0"] == 1.0)[0]
+        index = df[df.loc[:,f"1707-{session}.0"] == 1.0].index
         # Add and new column "nondominant_hgs"
         # And assign Left hand HGS value:
         df.loc[index, f"nondominant_hgs-{session}.0"] = \
@@ -184,7 +190,8 @@ class DataPreprocessor:
         # If handedness is equal to 2
         # Right hand is Non-Dominant
         # Find handedness equal to 2:
-        index = np.where(df.loc[:, f"1707-{session}.0"] == 2.0)[0]
+        # index = np.where(df.loc[:, f"1707-{session}.0"] == 2.0)[0]
+        index = df[df.loc[:,f"1707-{session}.0"] == 2.0].index
         # Add and new column "nondominant_hgs"
         # And assign Right hand HGS value:        
         df.loc[index, f"nondominant_hgs-{session}.0"] = \
@@ -196,10 +203,13 @@ class DataPreprocessor:
         # NaN value
         # Non-Dominant will be the Lowest Handgrip score from both hands.
         # Find handedness equal to 3, -3 or NaN:
-        index = np.where(
-            (df.loc[:, f"1707-{session}.0"] == 3.0) |
-            (df.loc[:, f"1707-{session}.0"] == -3.0) |
-            (df.loc[:, f"1707-{session}.0"].isna()))[0]
+        # index = np.where(
+        #     (df.loc[:, f"1707-{session}.0"] == 3.0) |
+        #     (df.loc[:, f"1707-{session}.0"] == -3.0) |
+        #     (df.loc[:, f"1707-{session}.0"].isna()))[0]
+        index = df[(df.loc[:, f"1707-{session}.0"] == 3.0) |
+                   (df.loc[:, f"1707-{session}.0"] == -3.0)|
+                   (df.loc[:, f"1707-{session}.0"].isna())].index
         # Add and new column "nondominant_hgs"
         # And assign Lowest HGS value among Right and Left HGS:    
         df.loc[index, f"nondominant_hgs-{session}.0"] = \
@@ -479,8 +489,8 @@ class DataPreprocessor:
                     '2020',     # Data-Coding: 100349
                     '2030',     # Data-Coding: 100349
         ]
-        # Add corresponding intences/session that we are lookin for 
-        # to the list of fields:
+        # Add corresponding intences/session that we are looking for 
+        # to the list of fields as suffix:
         neuroticism_fields = [s + f"-{session}.0" for s in neuroticism_fields]
         # ------------------------------------
         # Add new column "neuroticism_score" by the following process: 
@@ -489,8 +499,9 @@ class DataPreprocessor:
         # df.where is replacing all negative values with NaN
         # min_count=9, means calculate Sum if 
         # at leaset 9 of the fields are answered:
-        df.loc[:, "neuroticism_score"] = \
-            df.where(df.loc[:, neuroticism_fields] >= 0.0).sum(axis=1, min_count=9)
+        # df.loc[:, "neuroticism_score"] = \
+        #     df.where(df.loc[:, neuroticism_fields] >= 0.0).sum(axis=1, min_count=9)
+        df.loc[:, "neuroticism_score"] = df[neuroticism_fields].where(df.loc[:, neuroticism_fields] >= 0.0).sum(axis=1, min_count=9)
 
         return df
 
@@ -568,8 +579,9 @@ class DataPreprocessor:
         # df.where is replacing all negative values with NaN
         # min_count=1, means calculate Sum if 
         # at leaset 1 of the fields are answered:
-        df.loc[:, "depression_score"] = df.where(
-            df[depression_fields] > 0.0).sum(axis=1, min_count=1)
+        # df.loc[:, "depression_score"] = df.where(
+        #     df[depression_fields] > 0.0).sum(axis=1, min_count=1)
+        df.loc[:, "depression_score"] = df[depression_fields].where(df[depression_fields] > 0.0).sum(axis=1, min_count=1)
 
         return df
 
@@ -641,8 +653,9 @@ class DataPreprocessor:
         # df.where is replacing all negative values with NaN
         # min_count=1, means calculate Sum if 
         # at leaset 1 of the fields are answered:
-        df.loc[:, "anxiety_score"] = \
-            df.where(df[anxiety_fields] > 0.0).sum(axis=1, min_count=1)
+        # df.loc[:, "anxiety_score"] = \
+        #     df.where(df[anxiety_fields] > 0.0).sum(axis=1, min_count=1)
+        df.loc[:, "anxiety_score"] = df[anxiety_fields].where(df[anxiety_fields] > 0.0).sum(axis=1, min_count=1)
 
         return df
 
@@ -733,14 +746,14 @@ class DataPreprocessor:
         cidi_core_fields = [s + f"-{session}.0" for s in cidi_core_fields]
         cidi_noncore_fields = [s +
                                f"-{session}.0" for s in cidi_noncore_fields]
-
         # ------------------------------------
         # Find Non-Core field '20536' if is in the following answers:
         #   1	Gained weight
         #   2	Lost weight
         #   3	Both gained and lost some weight during the episode
-        index = np.where(
-            df.loc[:, f"20536-{session}.0"].isin([1.0, 2.0, 3.0]))[0]
+        # index = np.where(
+        #     df.loc[:, f"20536-{session}.0"].isin([1.0, 2.0, 3.0]))[0]
+        index = df[df.loc[:, f"20536-{session}.0"].isin([1.0, 2.0, 3.0])].index
         # And Replace with 1.0 value:
         df.loc[index, f"20536-{session}.0"] = 1.0
         # ------------------------------------
@@ -749,8 +762,9 @@ class DataPreprocessor:
         # df.where is replacing all negative values with NaN
         # min_count=1, means calculate Sum if 
         # at leaset 1 of the fields are answered:
-        core_score = df.where(
-            df[cidi_core_fields] >= 0.0).sum(axis=1, min_count=1)
+        # core_score = df.where(
+        #     df[cidi_core_fields] >= 0.0).sum(axis=1, min_count=1)
+        core_score = df[cidi_core_fields].where(df[cidi_core_fields] >= 0.0).sum(axis=1, min_count=1)
         # Replace all core scores equal to 2.0 with 1.0 value:
         core_score = core_score.replace(2.0, 1.0)
         # ------------------------------------
@@ -759,17 +773,17 @@ class DataPreprocessor:
         # df.where is replacing all negative values with NaN
         # min_count=4, means calculate Sum if 
         # at leaset 4 of the fields are answered:
-        noncore_score = df.where(
-            df[cidi_noncore_fields] >= 0.0).sum(axis=1, min_count=4)
+        # noncore_score = df.where(
+        #     df[cidi_noncore_fields] >= 0.0).sum(axis=1, min_count=4)
+        noncore_score = df[cidi_noncore_fields].where(df[cidi_noncore_fields] >= 0.0).sum(axis=1, min_count=4)
         # ------------------------------------
-        # calculate cidi main score adding 2 core and non-core scores:
+        # calculate cidi main score by adding core and non-core scores:
         # 'fill_value' parameter use when adding two series.
         # It means that any non NaN value be successful on adding.
         cidi_score = core_score.add(noncore_score, fill_value=0)
         # If cidi_score is nan or core_score are 'NaN'
         # then replace cidi_score with 'NaN':
         # Find cidi_score or core_score are 'NaN'
-        # embed(globals(), locals())
         index = cidi_score.isna() | core_score.isna()
         # And Replace cidi_score with 'NaN':
         cidi_score.loc[index] = np.NaN
@@ -1111,4 +1125,27 @@ class DataPreprocessor:
         return df
     
 ###############################################################################
+def run_healthy_preprocessing(data, data_processor=None):
+    if data_processor is None:
+        # Create an instance of DataPreprocessor with session=0
+        data_processor = DataPreprocessor(data,session=0)
 
+    # Call all functions inside the class
+    # DATA VALIDATION
+    data = data_processor.validate_handgrips(data)
+    # FEATURE ENGINEERING
+    data = data_processor.calculate_qualification(data)
+    data = data_processor.calculate_waist_to_hip_ratio(data)
+    data = data_processor.calculate_neuroticism_score(data)
+    data = data_processor.calculate_anxiety_score(data)
+    data = data_processor.calculate_depression_score(data)
+    data = data_processor.calculate_cidi_score(data)
+    data = data_processor.preprocess_behaviours(data)
+    data = data_processor.sum_handgrips(data)
+    data = data_processor.calculate_left_hgs(data)
+    data = data_processor.calculate_right_hgs(data)
+    data = data_processor.sub_handgrips(data)
+    data = data_processor.calculate_laterality_index(data)
+    data = data_processor.remove_nan_columns(data)
+
+    return data
