@@ -20,6 +20,8 @@ from hgsprediction.load_data.load_healthy import load_primary_train_set_df
 from hgsprediction.load_data.load_healthy import load_preprocessed_train_df
 ####### Prepocessing data #######
 from hgsprediction.data_preprocessing import run_healthy_preprocessing, DataPreprocessor
+from hgsprediction.compute_target import compute_target, extract_target
+from hgsprediction.data_extraction import run_data_extraction
 
 from ptpython.repl import embed
 # print("===== Done! =====")
@@ -33,24 +35,11 @@ motor, population, mri_status, feature_type, target, gender, model, \
 
 ###############################################################################
 # Read CSV file from Juseless
-df_train = load_primary_train_set_df(population,gender,mri_status)
-print("===== Done! =====")
-embed(globals(), locals())
+# df_train = load_primary_train_set_df(population,gender,mri_status)
 ###############################################################################
-# Preprocess Data
-add_new_cols = DataPreprocessor(df_train, session=0)
-df_hgs = add_new_cols.validate_handgrips(df_train)
-df_train_set = add_new_cols.calculate_cidi_score(df_hgs)
-
-print("===== Done! =====")
-embed(globals(), locals())
-data = run_healthy_preprocessing(df_train)
-
-
-print("===== Done! =====")
-embed(globals(), locals())
 df_train = load_preprocessed_train_df(population, mri_status)
-data = df_train.copy()
+data = compute_target(df_train, mri_status, target)
+
 print("===== Done! =====")
 embed(globals(), locals())
 
@@ -61,22 +50,6 @@ y = define_target(target)
 
 print("===== Done! =====")
 embed(globals(), locals())
-
-###############################################################################
-# Add new culomns to data
-data = extracted_data.copy()
-add_new_cols = PreprocessData(data, session=0)
-# data = add_new_cols.dominant_handgrip(data)
-data = add_new_cols.validate_handgrips(data)
-# Preprocess data
-data = add_new_cols.preprocess_behaviours(data)
-data = add_new_cols.calculate_qualification(data)
-data = add_new_cols.calculate_waist_to_hip_ratio(data)
-data = add_new_cols.sum_handgrips(data)
-data = add_new_cols.calculate_neuroticism_score(data)
-data = add_new_cols.calculate_anxiety_score(data)
-data = add_new_cols.calculate_depression_score(data)
-data = add_new_cols.calculate_cidi_score(data)
 
 ###############################################################################
 

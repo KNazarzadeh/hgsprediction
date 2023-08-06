@@ -6,10 +6,23 @@
 
 import pandas as pd
 
+###############################################################################
+def compute_target(df, mri_status, target):
+    if mri_status == "nonmri":
+        session = 0
+    elif mri_status == "mri":
+        session = 2
+
+    if target == "left_hgs":
+        df.loc[:, f"left_hgs-{session}.0"] = df.loc[:, f"46-{session}.0"]
+    elif target == "right_hgs":
+        df.loc[:, f"right_hgs-{session}.0"] = df.loc[:, f"47-{session}.0"]        
+        
+    return df
 
 ###############################################################################
 # Define the target which should be predict.
-def define_target(
+def extract_target(
     df,
     target,
 ):

@@ -840,28 +840,35 @@ class DataPreprocessor:
         for i in range(6):
             # Find College or University degree
             # And Replace with '1.0' value
-            index_college = np.where(
-                df.loc[:,f"6138-{session}.{i}"] == 1.0)[0]
+            # index_college = np.where(
+            #     df.loc[:,f"6138-{session}.{i}"] == 1.0)[0]
+            index_college = df[df.loc[:,f"6138-{session}.{i}"] == 1.0].index
             df.loc[index_college, f"6138-{session}.{i}"] = 1.0
             # Find No College or University degree
             # And Replace with '0.0' value:
-            index_no_college = np.where(
-                df.loc[:,f"6138-{session}.{i}"].isin([2.0,
-                                                      3.0,
-                                                      4.0,
-                                                      5.0,
-                                                      6.0,
-                                                      -7.0]))[0]
+            # index_no_college = np.where(
+            #     df.loc[:,f"6138-{session}.{i}"].isin([2.0,
+            #                                           3.0,
+            #                                           4.0,
+            #                                           5.0,
+            #                                           6.0,
+            #                                           -7.0]))[0]
+            index_no_college = df[df.loc[:,f"6138-{session}.{i}"].isin([2.0,
+                                                                        3.0,
+                                                                        4.0,
+                                                                        5.0,
+                                                                        6.0,
+                                                                        -7.0])].index         
             df.loc[index_no_college, f"6138-{session}.{i}"] = 0.0
             # Find No answered
             # And Replace with 'NaN' value:
-            index_no_answer = np.where(
-                df.loc[:,f"6138-{session}.{i}"] == -3.0)[0]
+            # index_no_answer = np.where(
+            #     df.loc[:,f"6138-{session}.{i}"] == -3.0)[0]
+            index_no_answer = df[df.loc[:,f"6138-{session}.{i}"] == -3.0].index
             df.loc[index_no_answer, f"6138-{session}.{i}"] = np.NaN
         # Calculate Maximum Qualification
         max_qualification = \
-            df.loc[:,
-                   df.columns.str.startswith(f"6138-{session}.")].max(axis=1)
+            df.loc[:,df.columns.str.startswith(f"6138-{session}.")].max(axis=1)
         # Add new column for qualification with Maximum value
         df.loc[:, "qualification"] = max_qualification
 
@@ -1018,35 +1025,42 @@ class DataPreprocessor:
         # ------------------------------------
         # Replace Happiness less than 0
         # with NaN based on Data-Coding 100478
-        index = np.where(df.loc[:, f"4526-{session}.0"] < 0)[0]
+        # index = np.where(df.loc[:, f"4526-{session}.0"] < 0)[0]
+        index = df[df.loc[:, f"4526-{session}.0"] < 0].index
         df.loc[index, f"4526-{session}.0"] = np.NaN
         # ------------------------------------
         # Replace Family relationship satisfaction less than 0
         # with NaN based on Data-Coding 100478    
-        index = np.where(df.loc[:, f"4559-{session}.0"] < 0)[0]
+        # index = np.where(df.loc[:, f"4559-{session}.0"] < 0)[0]
+        index = df[df.loc[:, f"4559-{session}.0"] < 0].index
         df.loc[index, f"4559-{session}.0"] = np.NaN
         # ------------------------------------
         # https://github.com/Jiang-brain/Grip-strength-association/blob/3d3952ffb661e5e8a774b397f428a43dbe58f665/association_grip_strength_behavior.m#L75
         # Replace Work/job satisfaction less than 0 and more than 6
         # with NaN based on Data-Coding 100479
-        index = np.where(
-            (df.loc[:, f"4537-{session}.0"] < 0) | \
-                (df.loc[:, f"4537-{session}.0"] > 6))[0]
+        # index = np.where(
+        #     (df.loc[:, f"4537-{session}.0"] < 0) | \
+        #         (df.loc[:, f"4537-{session}.0"] > 6))[0]
+        index = df[(df.loc[:, f"4537-{session}.0"] < 0) | \
+            (df.loc[:, f"4537-{session}.0"] > 6)].index        
         df.loc[index, f"4537-{session}.0"] = np.NaN
         # ------------------------------------
         # Replace Health satisfaction less than 0
         # with NaN based on Data-Coding 100478    
-        index = np.where(df.loc[:, f"4548-{session}.0"] < 0)[0]
+        # index = np.where(df.loc[:, f"4548-{session}.0"] < 0)[0]
+        index = df[df.loc[:, f"4548-{session}.0"] < 0].index
         df.loc[index, f"4548-{session}.0"] = np.NaN
         # ------------------------------------
         # Replace Friendships satisfaction less than 0
         # with NaN based on Data-Coding 100478    
-        index = np.where(df.loc[:, f"4570-{session}.0"] < 0)[0]
+        # index = np.where(df.loc[:, f"4570-{session}.0"] < 0)[0]
+        index = df[df.loc[:, f"4570-{session}.0"] < 0].index
         df.loc[index, f"4570-{session}.0"] = np.NaN
         # ------------------------------------
         # Replace Financial situation satisfaction less than 0
         # with NaN based on Data-Coding 100478    
-        index = np.where(df.loc[:, f"4581-{session}.0"] < 0)[0]
+        # index = np.where(df.loc[:, f"4581-{session}.0"] < 0)[0]
+        index = df[df.loc[:, f"4581-{session}.0"] < 0].index        
         df.loc[index, f"4581-{session}.0"] = np.NaN
         
         #######################################################
@@ -1076,17 +1090,20 @@ class DataPreprocessor:
         # ------------------------------------
         # Replace General happiness less than 0
         # with NaN based on Data-Coding 537    
-        index = np.where(df.loc[:, f"20458-{session}.0"] < 0)[0]
+        # index = np.where(df.loc[:, f"20458-{session}.0"] < 0)[0]
+        index = df[df.loc[:, f"20458-{session}.0"] < 0].index
         df.loc[index, f"20458-{session}.0"] = np.NaN
         # ------------------------------------
         # Replace General happiness with own health less than 0
         # with NaN based on Data-Coding 537    
-        index = np.where(df.loc[:, f"20459-{session}.0"] < 0)[0]
+        # index = np.where(df.loc[:, f"20459-{session}.0"] < 0)[0]
+        index = df[df.loc[:, f"20459-{session}.0"] < 0].index
         df.loc[index, f"20459-{session}.0"] = np.NaN
         # ------------------------------------
         # Replace Belief that own life is meaningful less than 0
         # with NaN based on Data-Coding 538   
-        index = np.where(df.loc[:, f"20460-{session}.0"] < 0)[0]
+        # index = np.where(df.loc[:, f"20460-{session}.0"] < 0)[0]
+        index = df[df.loc[:, f"20460-{session}.0"] < 0].index
         df.loc[index, f"20460-{session}.0"] = np.NaN
 
         #######################################################
