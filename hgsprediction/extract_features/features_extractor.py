@@ -10,7 +10,7 @@ import pandas as pd
 
 ###############################################################################
 # This class extract all required features from data:
-def features_extractor(feature_type):
+def features_extractor(df, mri_status, feature_type):
         
     if feature_type == "anthropometrics":
         result = extract_anthropometric_features()
@@ -33,7 +33,9 @@ def features_extractor(feature_type):
     elif feature_type == "anthropometrics_behavioral_gender":
         result = extract_anthropometric_features() + extract_behavioral_features() + extract_gender_features()
     
-
+    features = [col for col in df.columns if col in result]
+    
+    return features
 ###############################################################################
 # Extract anthropometric features from the data.
 def extract_anthropometric_features():
@@ -96,7 +98,7 @@ def extract_age_features(mri_status):
     if mri_status == "nonmri": 
         age_features = [
             # ====================== Assessment attendance ======================
-            'Age1stVisit',  # Age at first Visit the assessment centre
+            'Age',  # Age at first Visit the assessment centre
             # '21003',  # Age when attended assessment centre
         ]
     elif mri_status == "mri": 

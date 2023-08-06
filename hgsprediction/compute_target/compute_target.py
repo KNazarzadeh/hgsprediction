@@ -13,10 +13,10 @@ def compute_target(df, mri_status, target):
     elif mri_status == "mri":
         session = 2
 
-    if target == "left_hgs":
-        df.loc[:, f"left_hgs-{session}.0"] = df.loc[:, f"46-{session}.0"]
-    elif target == "right_hgs":
-        df.loc[:, f"right_hgs-{session}.0"] = df.loc[:, f"47-{session}.0"]        
+    if target == "hgs_left":
+        df.loc[:, f"hgs_left-{session}.0"] = df.loc[:, f"46-{session}.0"]
+    elif target == "hgs_right":
+        df.loc[:, f"hgs_right-{session}.0"] = df.loc[:, f"47-{session}.0"]        
         
     return df
 

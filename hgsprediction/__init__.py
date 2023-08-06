@@ -19,6 +19,12 @@ from .save_data.save_disease import save_prepared_disease_data
 from .preprocess.check_hgs_availability_healthy import check_hgs_availability
 # from define_targets import define_targets
 from .compute_target import compute_target
+
+from .extract_features import features_extractor
+from .extract_target import target_extractor
+
+
+from .data_extraction import data_extractor, run_data_extraction
 ############################################################################
 from .image_processing import load_images, load_trained_models
 
@@ -27,6 +33,6 @@ from .image_processing import load_images, load_trained_models
 from .prediction_preparing import remove_nan_columns
 
 # Run feature extraction
-from .features_extraction import run_features_extraction
+from .features_extraction import features_extractor
 
 from .data_preprocessing import run_healthy_preprocessing, DataPreprocessor, healthy_data_preprocessor

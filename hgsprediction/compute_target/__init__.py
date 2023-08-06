@@ -1,1 +1,1 @@
-from .compute_target import define_target, compute_target
+from .compute_target import compute_target

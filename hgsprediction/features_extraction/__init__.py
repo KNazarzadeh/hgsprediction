@@ -1,1 +1,1 @@
-from .features_extractor import FeaturesExtractor
+from .features_extractor import features_extractor

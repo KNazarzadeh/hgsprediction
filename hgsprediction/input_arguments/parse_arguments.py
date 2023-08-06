@@ -57,8 +57,8 @@ def validate_args(args):
         "L+R",
         "dominant",
         "nondominant",
-        "left_hgs",
-        "right_hgs",
+        "hgs_left",
+        "hgs_right",
     ]
     
     available_confound = [
