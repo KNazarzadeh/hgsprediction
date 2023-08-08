@@ -54,3 +54,11 @@ from .prediction_preparing import remove_nan_columns
 from .features_extraction import features_extractor
 
 from .data_preprocessing import run_healthy_preprocessing, DataPreprocessor, healthy_data_preprocessor
+
+
+
+########################################################################################################################################################
+########################################################################################################################################################
+########################################################################################################################################################
+# STROKE
+from .data_preprocessing import stroke_data_preprocessor

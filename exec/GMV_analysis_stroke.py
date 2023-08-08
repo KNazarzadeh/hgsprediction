@@ -17,85 +17,79 @@ from ptpython.repl import embed
 # embed(globals(), locals())
 
 # Parse, add and return the arguments by function parse_args.
-args = parse_args()
-motor, population, mri_status, feature_type, target, gender, model_type, \
-    confound_status, cv_repeats_number, cv_folds_number = input_arguments(args)
+# args = parse_args()
+# motor, population, mri_status, feature_type, target, gender, model_type, \
+#     confound_status, cv_repeats_number, cv_folds_number = input_arguments(args)
 
-###############################################################################
+# ###############################################################################
+# if confound_status == 0:
+#         confound = "without_confound_removal"
+# else:
+#     confound = "with_confound_removal"
+# if model_type == "rf":
+#     model_name = "random_forest"
+# if model_type == "linear_svm":
+#     model_name = "linear_svm"
+# if "+" in feature_type:
+#         feature_type_name = feature_type.replace("+", "_")
+# else:
+#     feature_type_name = feature_type
+# if target == "L+R":
+#     target_label = "L_plus_R"
+# else:
+#     target_label = target
+# open_folder_path = os.path.join(
+#         "/data",
+#         "project",
+#         "stroke_ukb",
+#         "knazarzadeh",
+#         "GIT_repositories",
+#         "motor_ukb",
+#         "results",
+#         "hgs_prediction",
+#         f"results_{population}",
+#         f"results_{mri_status}",
+#         f"results_{gender}_genders",
+#         f"{feature_type_name}_features",
+#         f"{target_label}_target",
+#         f"{model_name}",
+#         f"{confound}",
+#         f"{cv_repeats_number}_repeats_{cv_folds_number}_folds",
+#         f"results_csv",
+#         "model_trained",
+#     )
 
-# Parse, add and return the arguments by function parse_args.
-args = parse_args()
-motor, population, mri_status, feature_type, target, gender, model_type, \
-    confound_status, cv_repeats_number, cv_folds_number = input_arguments(args)
+# # Define the csv file path to save
+# open_file_path = os.path.join(
+#     open_folder_path,
+#     f"main_model_trained_{mri_status}_{population}_{gender}_genders_{feature_type_name}_{target_label}_{model_name}_{confound}_{cv_repeats_number}_repeats_{cv_folds_number}_folds.pkl")
 
-###############################################################################
-if confound_status == 0:
-        confound = "without_confound_removal"
-else:
-    confound = "with_confound_removal"
-if model_type == "rf":
-    model_name = "random_forest"
-if model_type == "linear_svm":
-    model_name = "linear_svm"
-if "+" in feature_type:
-        feature_type_name = feature_type.replace("+", "_")
-else:
-    feature_type_name = feature_type
-if target == "L+R":
-    target_label = "L_plus_R"
-else:
-    target_label = target
-open_folder_path = os.path.join(
-        "/data",
-        "project",
-        "stroke_ukb",
-        "knazarzadeh",
-        "GIT_repositories",
-        "motor_ukb",
-        "results",
-        "hgs_prediction",
-        f"results_{population}",
-        f"results_{mri_status}",
-        f"results_{gender}_genders",
-        f"{feature_type_name}_features",
-        f"{target_label}_target",
-        f"{model_name}",
-        f"{confound}",
-        f"{cv_repeats_number}_repeats_{cv_folds_number}_folds",
-        f"results_csv",
-        "model_trained",
-    )
+# with open(open_file_path, 'rb') as f:
+#     model_trained = pickle.load(f)
 
-# Define the csv file path to save
-open_file_path = os.path.join(
-    open_folder_path,
-    f"main_model_trained_{mri_status}_{population}_{gender}_genders_{feature_type_name}_{target_label}_{model_name}_{confound}_{cv_repeats_number}_repeats_{cv_folds_number}_folds.pkl")
+# # Define the csv file path to save
+# open_file_path_female = os.path.join(
+#     open_folder_path,
+#     f"model_trained_female_{mri_status}_{population}_{gender}_genders_{feature_type_name}_{target_label}_{model_name}_{confound}_{cv_repeats_number}_repeats_{cv_folds_number}_folds.pkl")
 
-with open(open_file_path, 'rb') as f:
-    model_trained = pickle.load(f)
+# with open(open_file_path_female, 'rb') as f:
+#     model_trained_female = pickle.load(f)
+#     # Define the csv file path to save
+# open_file_path_male = os.path.join(
+#     open_folder_path,
+#     f"model_trained_male_{mri_status}_{population}_{gender}_genders_{feature_type_name}_{target_label}_{model_name}_{confound}_{cv_repeats_number}_repeats_{cv_folds_number}_folds.pkl")
 
-# Define the csv file path to save
-open_file_path_female = os.path.join(
-    open_folder_path,
-    f"model_trained_female_{mri_status}_{population}_{gender}_genders_{feature_type_name}_{target_label}_{model_name}_{confound}_{cv_repeats_number}_repeats_{cv_folds_number}_folds.pkl")
-
-with open(open_file_path_female, 'rb') as f:
-    model_trained_female = pickle.load(f)
-    # Define the csv file path to save
-open_file_path_male = os.path.join(
-    open_folder_path,
-    f"model_trained_male_{mri_status}_{population}_{gender}_genders_{feature_type_name}_{target_label}_{model_name}_{confound}_{cv_repeats_number}_repeats_{cv_folds_number}_folds.pkl")
-
-with open(open_file_path_male, 'rb') as f:
-    model_trained_male = pickle.load(f)
+# with open(open_file_path_male, 'rb') as f:
+#     model_trained_male = pickle.load(f)
 
 # print("===== Done! =====")
 # embed(globals(), locals())
 ##############################################################################
 ###############################################################################
+motor = "hgs"
 post_list = ["1_post_session", "2_post_session", "3_post_session", "4_post_session"]
 
-mri_status = "mri"
+mri_status = "all"
 population = "stroke"
 
 folder_path = os.path.join(
@@ -108,27 +102,29 @@ folder_path = os.path.join(
     "data_ukb",
     f"data_{motor}",
     population,
-    "prepared_data",
+    "original_data",
     f"{mri_status}_{population}",
 )
 
+# file_path = os.path.join(
+#         folder_path,
+#         f"{post_list[0]}_{mri_status}_{population}.csv")
 file_path = os.path.join(
         folder_path,
-        f"{post_list[0]}_{mri_status}_{population}.csv")
-
+        f"{mri_status}_{population}.csv")
 df_post = pd.read_csv(file_path, sep=',')
-df_post.set_index("SubjectID", inplace=True)
-
-ses = df_post["1_post_session"].astype(str).str[8:]
-for i in range(0, len(df_post["1_post_session"])):
-    idx=ses.index[i]
-    if ses.iloc[i] != "":
-        df_post.loc[idx, "1_post_days"] = df_post.loc[idx, f"followup_days-{ses.iloc[i]}"]
-    else:
-        df_post.loc[idx, "1_post_days"] = np.NaN
+df_post.set_index("eid", inplace=True)
+df_all = df_post.copy()
+# ses = df_post["1_post_session"].astype(str).str[8:]
+# for i in range(0, len(df_post["1_post_session"])):
+#     idx=ses.index[i]
+#     if ses.iloc[i] != "":
+#         df_post.loc[idx, "1_post_days"] = df_post.loc[idx, f"followup_days-{ses.iloc[i]}"]
+#     else:
+#         df_post.loc[idx, "1_post_days"] = np.NaN
 
 ##############################################################################
-post_list = ["1_post_session", "2_post_session", "3_post_session", "4_post_session"]
+# post_list = ["1_post_session", "2_post_session", "3_post_session", "4_post_session"]
 
 mri_status = "mri"
 population = "stroke"
@@ -147,21 +143,24 @@ folder_path = os.path.join(
     f"{mri_status}_{population}",
 )
 
+# file_path = os.path.join(
+#         folder_path,
+#         f"{post_list[0]}_{mri_status}_{population}.csv")
 file_path = os.path.join(
         folder_path,
-        f"{post_list[0]}_{mri_status}_{population}.csv")
-
+        f"{mri_status}_{population}.csv")
 df_post = pd.read_csv(file_path, sep=',')
-df_post.set_index("SubjectID", inplace=True)
-
-ses = df_post["1_post_session"].astype(str).str[8:]
-for i in range(0, len(df_post["1_post_session"])):
-    idx=ses.index[i]
-    if ses.iloc[i] != "":
-        df_post.loc[idx, "1_post_days"] = df_post.loc[idx, f"followup_days-{ses.iloc[i]}"]
-    else:
-        df_post.loc[idx, "1_post_days"] = np.NaN
-
+df_post.set_index("eid", inplace=True)
+df_mri = df_post.copy()
+# ses = df_post["1_post_session"].astype(str).str[8:]
+# for i in range(0, len(df_post["1_post_session"])):
+#     idx=ses.index[i]
+#     if ses.iloc[i] != "":
+#         df_post.loc[idx, "1_post_days"] = df_post.loc[idx, f"followup_days-{ses.iloc[i]}"]
+#     else:
+#         df_post.loc[idx, "1_post_days"] = np.NaN
+print("===== Done! =====")
+embed(globals(), locals())
 ##############################################################################
 df_ses3 = df_post[df_post["1_post_session"] == "session-3.0"]
 df_ses2 = df_post[~df_post.index.isin(df_ses3.index)]
@@ -675,7 +674,7 @@ fig.text(0.05, 0.5, 'Correlation of GM with Predicted HGS', va='center',
 plt.suptitle("Correlation of GM with Actual HGS vs Predicted HGS", fontsize=20, fontweight="bold", y=.95)
 
 plt.show()
-plt.savefig(f"correlate_gm_actual_predicted_hgs_stroke_2.png")
+plt.savefig(f"correlate_gm_actual_predicted_hgs_stroke_8823.png")
 plt.close()
 
 ##############################################################################################################################################################
@@ -776,7 +775,7 @@ fig.text(0.05, 0.5, 'Correlation of GCOR with Predicted HGS', va='center',
 plt.suptitle("Correlation of GCOR with Actual HGS vs Predicted HGS", fontsize=20, fontweight="bold", y=.95)
 
 plt.show()
-plt.savefig(f"correlate_gcor_actual_predicted_hgs_stroke_1.png")
+plt.savefig(f"correlate_gcor_actual_predicted_hgs_stroke_8823.png")
 plt.close()
 # print("===== Done! =====")
 # embed(globals(), locals())

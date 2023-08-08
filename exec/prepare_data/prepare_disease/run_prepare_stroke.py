@@ -36,6 +36,9 @@ recovery_df = prepare_data.define_recovery_data(pre_post_long_df)
 all_post_stroke = prepare_data.define_all_post_subjects(pre_post_long_df)
 hgs_df = prepare_data.define_hgs(pre_post_long_df)
 
+print("===== Done! =====")
+embed(globals(), locals())
+
 
 longi = hgs_df[((~hgs_df[f"1_post_left_hgs"].isna()) & (hgs_df[f"1_post_left_hgs"] !=  0)) & ((~hgs_df[f"1_post_right_hgs"].isna()) & (hgs_df[f"1_post_right_hgs"] !=  0)) & ((~hgs_df[f"1_pre_left_hgs"].isna()) & (hgs_df[f"1_pre_left_hgs"] !=  0)) & ((~hgs_df[f"1_pre_right_hgs"].isna()) & (hgs_df[f"1_pre_right_hgs"] !=  0))]
 for ses in range(0,4):

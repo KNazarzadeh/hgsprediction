@@ -1,0 +1,534 @@
+#!/usr/bin/env Disorderspredwp3
+"""Perform different preprocessing on disease."""
+
+# Authors: Kimia Nazarzadeh <k.nazarzadeh@fz-juelich.de>
+
+import pandas as pd
+# from ptpython.repl import embed
+# print('Done!')
+# embed(globals(), locals())
+
+from cmath import isnan
+from matplotlib.pyplot import axis
+import numpy as np
+import pandas as pd
+from datetime import datetime as dt
+from ptpython.repl import embed
+
+###############################################################################
+class StrokePreprocessor:
+    def __init__(self, df):
+        """
+        Parameters
+        ----------
+        df : pandas.DataFrame
+            The dataframe that desired to analysis.
+        """
+        self.df = df
+
+###############################################################################
+    def remove_missing_stroke_dates(self, df):
+        """ Drop all subjects who has no date of disease and
+            all dates of 1900-01-01 epresents "Date is unknown".
+
+        Parameters
+        ----------
+        df : pandas.DataFrame
+            DataFrame of data specified.
+        population : str
+            Name of population/disease.
+            
+        Returns
+        --------
+        df : pandas.DataFrame
+            DataFrame of data specified.   
+        """
+        df = df[~df['42006-0.0'].isna() & df['42006-0.0'] != "1900-01-01"]
+
+        return df
+    
+###############################################################################
+    def remove_missing_hgs(self, df):
+        
+        # Handgrip strength info
+        # for Left and Right Hands
+        hgs_left = "46"  # Handgrip_strength_(left)
+        hgs_right = "47"  # Handgrip_strength_(right)
+        # UK Biobank assessed handgrip strength in 4 sessions
+        session = 4 # 0 to 3
+        
+        for ses in range(session):
+            df_tmp = df[
+                ((~df[f'{hgs_left}-{ses}.0'].isna()) &
+                (df[f'{hgs_left}-{ses}.0'] !=  0))
+                & ((~df[f'{hgs_right}-{ses}.0'].isna()) &
+                (df[f'{hgs_right}-{ses}.0'] !=  0))
+            ]
+            df_output = pd.concat([df_output, df_tmp])
+
+        # Drop the duplicated subjects
+        # based on 'eid' column (subject ID)
+        df_output = df_output.drop_duplicates(subset=['Subjectid'], keep="first")
+
+        return df
+
+###############################################################################
+    def define_onset_disease(self, dataframe, population):
+        """ Define the Baseline date of disease."
+
+        Parameters
+        ----------
+        dataframe : pandas.DataFrame
+            DataFrame of data specified.
+        population : str
+            Name of population/disease.
+            
+        Returns
+        --------
+        onset : array
+            The column of the disease onset date when the disease occurred.
+        """
+        if population == "stroke":
+            onset = dataframe['42006-0.0']
+
+        return onset
+
+###############################################################################
+    def date_difference(self, attendance, onset):
+        """Find the number of days between two given dates.
+           Here for diseae onset and attendance at clinic.
+            
+        Parameters
+        ----------
+        attendance :  array
+            The column of the baseline visit date when the subject visited clinic.
+        onset : array
+            The column of the disease onset date when the disease occurred.
+            
+        Returns
+        --------
+        dataframe : pandas.DataFrame
+            DataFrame of data specified.
+        """
+        onset_date = pd.to_datetime(onset)
+        attendance_date = pd.to_datetime(attendance)
+        
+        days = (attendance_date-onset_date).dt.days
+        
+        return days
+    
+###############################################################################
+    def days_difference_onset_baseline(self, dataframe, population):
+        """Calcuate the days differences between
+            the Attendance date (the visit in clinic) and the Onset date of disease.
+            
+        Parameters
+        ----------
+        dataframe : pandas.DataFrame
+            DataFrame of data specified.
+        onset :  array
+            The column of the disease onset date when the disease occurred.
+            
+        Returns
+        --------
+        dataframe : pandas.DataFrame
+            DataFrame of data specified.
+        """
+        sessions = 4
+        if population == "stroke":
+            onset = dataframe['42006-0.0']
+        for ses in range(0, sessions):
+            attendance = dataframe[f'53-{ses}.0']
+            dataframe[f'days_to_onset-{ses}.0'] = self.date_difference(attendance, onset)
+
+        return dataframe
+    
+###############################################################################
+    def extract_post_disease_df(self, dataframe, population):
+        """Extract the post disease dataframe from the disease dataframe. 
+        
+        Parameters
+        ----------
+        dataframe : pandas.DataFrame
+            DataFrame of data specified.
+        population : str
+            Name of population/disease.
+            
+        Returns
+        --------
+        dataframe : pandas.DataFrame
+            DataFrame of data specified.
+        """
+        sessions = 4
+        if population == "stroke":
+            onset = dataframe['42006-0.0']
+        for ses in range(0, sessions):
+            attendance = dataframe[f'53-{ses}.0']
+            dataframe[f'followup_days-{ses}.0'] = \
+                dataframe[f'followup_days-{ses}.0'].mask(dataframe[f'followup_days-{ses}.0']<0)
+
+        return dataframe
+    
+        # for ses in range(0, sessions):
+        #     attendance = dataframe[f"53-{ses}.0"]
+        #     dataframe[f"days_hgs_after_stroke_ses-{ses}.0"] = \
+        #         self.numOfDays(base_date, follow_date)
+        #     dataframe[f"days_hgs_after_stroke_ses-{ses}.0"] = \
+        #     dataframe[f"days_hgs_after_stroke_ses-{ses}.0"].mask(dataframe[f"days_hgs_after_stroke_ses-{ses}.0"]<0)
+
+###############################################################################
+    def extract_pre_disease_df(self, dataframe, population):
+        """Extract the pre disease dataframe from the disease dataframe. 
+
+        Parameters
+        ----------
+        dataframe : pandas.DataFrame
+            DataFrame of data specified.
+        population : str
+            Name of population/disease.
+            
+        Returns
+        --------
+        dataframe : pandas.DataFrame
+            DataFrame of data specified.
+        """
+        sessions = 4
+        
+        if population == "stroke":
+            onset = dataframe['42006-0.0']       
+        for ses in range(0, sessions):
+            attendance = dataframe[f'53-{ses}.0']
+            dataframe[f'followup_days-{ses}.0'] = self.date_difference(attendance, onset)
+            dataframe[f'followup_days-{ses}.0'] = \
+                dataframe[f'followup_days-{ses}.0'].mask(dataframe[f'followup_days-{ses}.0'] >= 0)
+
+        # for ses in range(0, sessions):
+        #     follow_date = dataframe[f"53-{ses}.0"]
+        #     dataframe[f"days_hgs_after_stroke_ses-{ses}.0"] = \
+        #         self.numOfDays(base_date, follow_date)
+        #     dataframe[f"days_hgs_after_stroke_ses-{ses}.0"] = \
+        #     dataframe[f"days_hgs_after_stroke_ses-{ses}.0"].mask(dataframe[f"days_hgs_after_stroke_ses-{ses}.0"]>0)
+
+        return dataframe
+
+###############################################################################
+    def extract_longitudinal_disease_df(self, dataframe, population):
+        """Extract the longitudinal dataframe from the disease dataframe. 
+
+        Parameters
+        ----------
+        dataframe : pandas.DataFrame
+            DataFrame of data specified.
+        population : str
+            Name of population/disease.
+            
+        Returns
+        --------
+        dataframe : pandas.DataFrame
+            DataFrame of data specified.
+        """
+        post_df = self.extract_post_disease_df(dataframe, population)
+        pre_df = self.exract_pre_disease_df(dataframe, population)
+
+        # The intersection between pre and post dataframes of disease
+        # will be the longitudinal dataframe.
+        keys = ['eid']
+        longitudinal_df = pre_df.merge(post_df[keys], on=keys)
+
+        return longitudinal_df
+
+###############################################################################
+    def disease_subsets(self, dataframe, population):
+        
+        sessions = 4
+        days = [col for col in dataframe.columns if 'days_to_onset' in col]
+        df_post = dataframe[dataframe[days]>=0]
+
+        first_post_visit_days = df_post[days].min(axis=1)
+        first_post_visit_ses = df_post[days].idxmin(axis=1)
+
+        df_pre = dataframe[dataframe[days]<0]
+
+        first_pre_visit_days = df_pre[days].max(axis=1)
+        first_pre_visit_ses = df_pre[days].idxmax(axis=1)
+
+        dataframe['first_post_visit_days'] = first_post_visit_days
+        dataframe['first_post_visit_ses'] = first_post_visit_ses
+        dataframe['first_post_visit_ses'] = dataframe['first_post_ses'].replace(to_replace=days, value=[0, 1, 2, 3])
+
+        for ses in range(0, sessions):
+            post_ses_subs = dataframe.loc[dataframe['first_post_ses'] == ses, 'eid']
+            dataframe.loc[dataframe['first_post_ses'] == ses, 'first_post_hgs_L'] = dataframe[f'46-{ses}.0']
+            dataframe.loc[dataframe['first_post_ses'] == ses, 'first_post_hgs_R'] = dataframe[f'47-{ses}.0']
+
+        for ses in range(0, sessions):
+            dataframe.loc[dataframe['first_post_ses'] == ses, 'first_post_BMI'] = dataframe[f'21002-{ses}.0']
+
+
+        dataframe['first_pre_days'] = first_pre_visit_days
+        dataframe['first_pre_ses'] = first_pre_visit_ses
+        dataframe['first_pre_ses'] = dataframe['first_pre_ses'].replace(to_replace=days, value=[0, 1, 2, 3])
+        for ses in range(0, sessions):
+            pre_ses_subs = dataframe.loc[dataframe['first_pre_ses'] == ses, 'eid']
+            dataframe.loc[dataframe['first_pre_ses'] == ses, 'first_pre_hgs_L'] = dataframe[f'46-{ses}.0']
+            dataframe.loc[dataframe['first_pre_ses'] == ses, 'first_pre_hgs_R'] = dataframe[f'47-{ses}.0']
+
+        for ses in range(0, sessions):
+            dataframe.loc[dataframe['first_pre_ses'] == ses, 'first_pre_BMI'] = dataframe[f'21002-{ses}.0']
+
+        return dataframe
+
+###############################################################################
+    
+    def howmany_sessions(
+        self,
+        dataframe,
+        num_session,
+    ):
+        total_days_col = [col for col in dataframe.columns if 'total' in col]
+        sub_df_days = pd.DataFrame(dataframe, columns=total_days_col)
+
+        dataframe['num_NaN_sessions'] = sub_df_days.isna().sum(axis=1)
+
+        return dataframe
+
+###############################################################################
+    def prior_stroke_subs(
+        self,
+        dataframe,
+        num_session,
+    ):
+        dataframe = self.cal_stroke_based_days(dataframe, num_session)
+        total_days_col = [col for col in dataframe.columns if 'total' in col]
+        sub_df_days = pd.DataFrame(dataframe, columns=total_days_col)
+
+        sub_df_days[total_days_col] = sub_df_days[total_days_col].apply(
+                lambda x: pd.to_numeric(x, errors='coerce'))
+        # dataframe = dataframe [(dataframe[total_days_col].isna().sum(axis=1) == 3)]
+
+        first_prior_strok_days = sub_df_days.where(sub_df_days<0).max(axis = 1)
+        first_prior_strok_ses = sub_df_days.where(sub_df_days<0).idxmax(axis = 1)
+        
+        dataframe['first_prior_days'] = first_prior_strok_days
+        dataframe['first_prior_session'] = first_prior_strok_ses
+        dataframe['first_prior_session'] = dataframe['first_prior_session'].replace(to_replace=total_days_col, value=[0, 1, 2, 3])
+
+        for ses in range(0, num_session):
+            prior_ses_subs = dataframe.loc[dataframe['first_prior_session'] == ses, 'eid']
+            dataframe.loc[dataframe['first_prior_session'] == ses, 'first_prior_hgs_L'] = dataframe[f'46-{ses}.0']
+            dataframe.loc[dataframe['first_prior_session'] == ses, 'first_prior_hgs_R'] = dataframe[f'47-{ses}.0']
+        
+        dataframe = dataframe.dropna(subset = ['first_prior_hgs_L', 'first_prior_hgs_R'])
+
+        return dataframe
+###############################################################################
+    def first_visit_poststroke(
+        self,
+        dataframe,
+        num_session,
+    ):
+        dataframe = self.cal_stroke_based_days(dataframe, num_session)
+        total_days_col = [col for col in dataframe.columns if 'total' in col]
+        sub_df_days = pd.DataFrame(dataframe, columns=total_days_col)
+        sub_df_days[total_days_col] = sub_df_days[total_days_col].apply(
+                lambda x: pd.to_numeric(x, errors='coerce'))
+        # first_post_strok_days = dataframe.where(dataframe[total_days_col] >=0).min(axis=1)
+        # dataframe = dataframe[dataframe[total_days_col] >=0]
+        # dataframe = dataframe[dataframe[total_days_col].isna().sum(axis=1) == 3]
+        # dataframe = dataframe [(dataframe[total_days_col].isna().sum(axis=1) == 3)]
+        # # a = sub_df_days.where(sub_df_days[total_days_col].isna().sum(axis=1) == 3)
+        # first_post_strok_days = dataframe.where(dataframe[total_days_col]>=0).min(axis = 1)
+        # first_post_strok_ses = dataframe.where(dataframe[total_days_col]>=0).idxmin(axis = 1)
+        
+        # dataframe = dataframe.where(sub_df_days[total_days_col].isna().sum(axis=1) == 3)
+        df_post = sub_df_days[sub_df_days['total_days_ses-0.0']>=0]
+        first_post_strok_days = df_post[total_days_col].min(axis = 1)
+        first_post_strok_ses = dataframe[total_days_col].idxmin(axis = 1)
+        sub_df_days['first_visit_days'] = first_post_strok_days
+        sub_df_days['first_visit_session'] = first_post_strok_ses
+        sub_df_days['first_visit_session'] = sub_df_days['first_visit_session'].replace(to_replace=total_days_col, value=[0, 1, 2, 3])
+
+        dataframe['first_visit_days'] = first_post_strok_days
+        dataframe['first_visit_session'] = first_post_strok_ses
+        dataframe['first_visit_session'] = dataframe['first_visit_session'].replace(to_replace=total_days_col, value=[0, 1, 2, 3])
+
+        for ses in range(0, num_session):
+            min_ses_subs = dataframe.loc[dataframe['first_visit_session'] == ses, 'eid']
+            dataframe.loc[dataframe['first_visit_session'] == ses, 'first_visit_hgs_L'] = dataframe[f'46-{ses}.0']
+            dataframe.loc[dataframe['first_visit_session'] == ses, 'first_visit_hgs_R'] = dataframe[f'47-{ses}.0']
+        
+        dataframe = dataframe.dropna(subset = ['first_visit_hgs_L', 'first_visit_hgs_R'])
+
+        dataframe = dataframe[dataframe['total_days_ses-0.0']<0]
+        first_prior_strok_days = dataframe[total_days_col].max(axis = 1)
+        first_prior_strok_ses = dataframe[total_days_col].idxmax(axis = 1)
+        
+        dataframe['first_prior_days'] = first_prior_strok_days
+        dataframe['first_prior_session'] = first_prior_strok_ses
+        dataframe['first_prior_session'] = dataframe['first_prior_session'].replace(to_replace=total_days_col, value=[0, 1, 2, 3])
+
+        for ses in range(0, num_session):
+            prior_ses_subs = dataframe.loc[dataframe['first_prior_session'] == ses, 'eid']
+            dataframe.loc[dataframe['first_prior_session'] == ses, 'first_prior_hgs_L'] = dataframe[f'46-{ses}.0']
+            dataframe.loc[dataframe['first_prior_session'] == ses, 'first_prior_hgs_R'] = dataframe[f'47-{ses}.0']
+        
+        dataframe = dataframe.dropna(subset = ['first_prior_hgs_L', 'first_prior_hgs_R'])
+
+
+#         #-----------------------
+        # session_days = pd.DataFrame(dataframe, columns=total_days_col)
+
+        # # mask = session_days.all(i >= 30 for i in session_days)
+        # for ses in range(1, num_session):
+        #     #matching_days = session_days.loc[session_days[f'total_days_ses-{ses}.0'] == dataframe['first_visit_days']]
+        #     mask = session_days.apply(lambda x: x.isin(x.nsmallest(ses)), axis=1)
+
+        #     # prior_first_visit = session_days[mask].where(session_days>=0).min(axis = 1)
+        #     prior_first_visit = session_days[mask].where(session_days<0).max(axis = 1)
+
+        #     # prior_first_visit = session_days[mask].where(session_days>=0).idxmin(axis=1)
+        #     prior_first_session = session_days[mask].where(session_days<0).idxmax(axis=1)
+
+        #     dataframe['prior_first_visit'] = prior_first_visit
+        #     dataframe['prior_first_session'] = prior_first_session
+        #     dataframe['prior_first_session'] = dataframe['prior_first_session'].replace(to_replace=total_days_col, value=[0, 1, 2, 3])
+        
+        #     dataframe.loc[dataframe['prior_first_session']==dataframe['first_visit_session'], 'prior_first_visit'] = np.nan
+        #     dataframe.loc[dataframe['prior_first_session']==dataframe['first_visit_session'], 'prior_first_session'] = np.nan
+
+        # for ses in range(0, num_session):
+        #     min_ses_subs = dataframe.loc[dataframe['prior_first_session'] == ses, 'eid']
+        #     dataframe.loc[dataframe['prior_first_session'] == ses, 'prior_first_visit_hgs_L'] = dataframe[f'Hand_grip_strength_(left)-{ses}.0']
+        #     dataframe.loc[dataframe['prior_first_session'] == ses, 'prior_first_visit_hgs_R'] = dataframe[f'47-{ses}.0']
+
+        
+#         #-----------------------
+#         session_days = pd.DataFrame(dataframe, columns=total_days_col)
+#         session_days = session_days.where(session_days[total_days_col] >=0)
+
+#         mask = session_days.apply(lambda x: x.isin(x.nsmallest(2)), axis=1)
+#         second_visit_days = session_days[mask].max(axis=1)
+#         second_visit_session = session_days[mask].idxmax(axis=1)
+
+
+#         dataframe['second_visit_days'] = second_visit_days
+#         dataframe['second_visit_session'] = second_visit_session
+#         dataframe['second_visit_session'] = dataframe['second_visit_session'].replace(to_replace=total_days_col, value=[0, 1, 2, 3])
+
+
+#         dataframe.loc[(dataframe['second_visit_session']==dataframe['first_visit_session']), 'second_visit_days'] = np.nan
+#         dataframe.loc[(dataframe['second_visit_session']==dataframe['first_visit_session']), 'second_visit_session'] = np.nan
+
+#         for ses in range(0, num_session):
+#             min_ses_subs = dataframe.loc[dataframe['second_visit_session'] == ses, 'eid']
+#             dataframe.loc[dataframe['second_visit_session'] == ses, 'second_visit_hgs_L'] = dataframe[f'Hand_grip_strength_(left)-{ses}.0']
+#             dataframe.loc[dataframe['second_visit_session'] == ses, 'second_visit_hgs_R'] = dataframe[f'47-{ses}.0']
+
+# #-----------------------
+#         session_days = pd.DataFrame(dataframe, columns=total_days_col)
+#         session_days = session_days.where(session_days[total_days_col] >=0)
+
+#         mask = session_days.apply(lambda x: x.isin(x.nsmallest(3)), axis=1)
+#         third_visit_days = session_days[mask].max(axis=1)
+#         third_visit_session = session_days[mask].idxmax(axis=1)
+
+
+#         dataframe['third_visit_days'] = third_visit_days
+#         dataframe['third_visit_session'] = third_visit_session
+#         dataframe['third_visit_session'] = dataframe['third_visit_session'].replace(to_replace=total_days_col, value=[0, 1, 2, 3])
+
+
+#         dataframe.loc[(dataframe['third_visit_session']==dataframe['first_visit_session']) | (dataframe['third_visit_session']==dataframe['second_visit_session']), 'third_visit_days'] = np.nan
+#         dataframe.loc[(dataframe['third_visit_session']==dataframe['first_visit_session']) | (dataframe['third_visit_session']==dataframe['second_visit_session']), 'third_visit_session'] = np.nan
+
+#         for ses in range(0, num_session):
+#             min_ses_subs = dataframe.loc[dataframe['third_visit_session'] == ses, 'eid']
+#             dataframe.loc[dataframe['third_visit_session'] == ses, 'third_visit_hgs_L'] = dataframe[f'Hand_grip_strength_(left)-{ses}.0']
+#             dataframe.loc[dataframe['third_visit_session'] == ses, 'third_visit_hgs_R'] = dataframe[f'Hand_grip_strength_(right)-{ses}.0']
+
+        return dataframe
+
+# -------------------------------
+    def add_mri_status(
+        self,
+        non_mri_dataframe,
+        mri_dataframe,
+    ):
+
+        non_mri_dataframe['MRI'] = non_mri_dataframe['eid'].isin(mri_dataframe['eid'])
+        non_mri_dataframe['MRI'].replace({True: 1, False: 0}, inplace = True)
+
+        return non_mri_dataframe
+###############################################################################
+    def check_hgs_for_stroke(
+        self,
+        dataframe,
+    ):
+        dataframe['HGS_status'] = dataframe.mask(~dataframe['46-0.0'].isna(), 1)
+        dataframe['HGS_status'] = dataframe.mask(dataframe['46-0.0'].isna(), 0)
+
+        # dataframe['HGS_status'].replace({True: 1, False: 0}, inplace = True)
+###############################################################################
+    def subtraction_hgs(
+        self,
+        dataframe,
+        HGS_L,
+        HGs_R
+    ):
+        dataframe['sub_hgs'] = dataframe['HGS_L'] - dataframe['HGS_R']
+
+        return dataframe
+###############################################################################
+    def sum_hgs(
+        self,
+        dataframe,
+    ):
+        dataframe['sum_hgs'] = dataframe['first_visit_hgs_L'] + dataframe['first_visit_hgs_R']
+
+        return dataframe
+###############################################################################
+    def laterality_index(
+        self,
+        dataframe,
+        HGS_L,
+        HGS_R
+    ):
+        dataframe['LI'] =  (dataframe[HGS_L]-dataframe[HGS_R]) / (dataframe[HGS_L]+dataframe[HGS_R])
+        dataframe['abs_LI'] = abs(dataframe[HGS_L]-dataframe[HGS_R]) / abs(dataframe[HGS_L]+dataframe[HGS_R])
+
+        return dataframe
+###############################################################################
+    def remove_stroke_before_2006(
+        self,
+        dataframe,
+        stroke_date
+    ):
+        start_date = pd.to_datetime('2005-01-01')
+        stroke_date = pd.to_datetime(stroke_date)
+        dataframe = dataframe[stroke_date > start_date]
+
+        return dataframe
+
+###############################################################################
+    def post_stroke_6months(
+        self,
+        dataframe,
+    ):
+        start_date = pd.to_datetime('2005-01-01')
+        stroke_date = pd.to_datetime(stroke_date)
+        dataframe = dataframe[stroke_date > start_date]
+
+        return dataframe
+
+###############################################################################
+    def add_mri_status(
+        self,
+        non_mri_dataframe,
+        mri_dataframe,
+    ):
+        non_mri_dataframe['MRI'] = non_mri_dataframe['eid'].isin(mri_dataframe['eid'])
+        non_mri_dataframe['MRI'].replace({True: 1, False: 0}, inplace = True)
+        
+        return non_mri_dataframe
+# -----------------------------------------------------------------------------#    
+
