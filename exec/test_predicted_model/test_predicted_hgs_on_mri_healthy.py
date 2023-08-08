@@ -28,20 +28,12 @@ df_test = load_mri_data_for_anthropometrics(population)
 
 ###############################################################################
 data_extracted = run_data_extraction.data_extractor(df_test, mri_status, gender, feature_type, target)
-save_extracted_mri_data(
-    data_extracted,
-    population,
-    mri_status,
-    confound_status,
-    gender,
-    feature_type,
-    target,
-)
+print(data_extracted)
 
 X = features_extractor(data_extracted, mri_status, feature_type)
 y = target_extractor(data_extracted, target)
-print("===== Done! =====")
-embed(globals(), locals())
+print(X)
+print(y)
 ###############################################################################
 best_model_trained = load_best_model_trained(
                                 population,
@@ -53,18 +45,26 @@ best_model_trained = load_best_model_trained(
                                 cv_repeats_number,
                                 cv_folds_number,
                             )
-
+print(best_model_trained)
 ###############################################################################
-print("===== Done! =====")
-embed(globals(), locals())
 y_true = data_extracted[y]
 y_pred = best_model_trained.predict(data_extracted[X])
 
 data_tested = data_extracted.copy()
-data_tested["hgs_actual"] = y_true
 data_tested["hgs_predicted"] = y_pred
 data_tested["hgs_actual-predicted"] = y_true - y_pred
 
+print(data_tested)
+###############################################################################
+save_extracted_mri_data(
+    data_extracted,
+    population,
+    mri_status,
+    confound_status,
+    gender,
+    feature_type,
+    target,
+)
 ###############################################################################
 save_tested_mri_data(
     data_tested,
@@ -78,3 +78,5 @@ save_tested_mri_data(
     cv_repeats_number,
     cv_folds_number,
 )
+
+print("===== Done! =====")

@@ -10,29 +10,27 @@ Motor is Handgrip strength (1 phase).
 """
 import pandas as pd
 import numpy as np
-import sys
-import os
-####### Load Train set #######
+####### Parse Input #######
 from hgsprediction.input_arguments import parse_args, input_arguments
-# Load Primary Train set (after binning and splitting to Train and test)
-from hgsprediction.load_data.load_healthy import load_primary_train_set_df
+####### Load Train set #######
 # Load Processed Train set (after data validation, feature engineering)
 from hgsprediction.load_data.load_healthy import load_preprocessed_train_df
-####### Prepocessing data #######
-from hgsprediction.data_preprocessing import run_healthy_preprocessing, DataPreprocessor
-from hgsprediction.compute_target import compute_target
+####### Data Extraction #######
 from hgsprediction.data_extraction import data_extractor, run_data_extraction
+####### Features Extraction #######
 from hgsprediction.extract_features import features_extractor
+########################### Target Extraction ###########################
 from hgsprediction.extract_target import target_extractor
-
+# Calculation of Heuristic C for Linear SVM model
 from hgsprediction.LinearSVRHeuristicC_zscore import LinearSVRHeuristicC_zscore as svrhc
+# Save Python objects in pickle structure
 import pickle
-
+####### Julearn #######
+from julearn import run_cross_validation
+####### sklearn libraries #######
 from sklearn.model_selection import RepeatedKFold
 from sklearn.metrics import r2_score
-from julearn import run_cross_validation
-############################################################################
-########################  IMPORT SAVE FUNCTIONS  ###########################
+# IMPORT SAVE FUNCTIONS
 import pickle
 from hgsprediction.save_results import save_extracted_nonmri_data, \
                                        save_best_model_trained, \
@@ -49,16 +47,12 @@ motor, population, mri_status, feature_type, target, gender, model_name, \
     confound_status, cv_repeats_number, cv_folds_number = input_arguments(args)
 
 ###############################################################################
-# Read CSV file from Juseless
-# df_train = load_primary_train_set_df(population,gender,mri_status)
-###############################################################################
 df_train = load_preprocessed_train_df(population, mri_status)
 
 data_extracted = run_data_extraction.data_extractor(df_train, mri_status, gender, feature_type, target)
 
 X = features_extractor(data_extracted, mri_status, feature_type)
 y = target_extractor(data_extracted, target)
-
 
 ###############################################################################
 # Define model and model parameters:
@@ -114,8 +108,7 @@ df_prediction_scores.index.name = 'Repeats'
 df_prediction_scores.columns.name = 'K-fold splits'
 
 print(df_prediction_scores)
-print("===== Done! =====")
-embed(globals(), locals())
+
 ###############################################################################
 # SAVE THE RESULTS
 ###############################################################################

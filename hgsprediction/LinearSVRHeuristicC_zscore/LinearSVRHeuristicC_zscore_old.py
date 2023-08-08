@@ -17,6 +17,7 @@ class LinearSVRHeuristicC_zscore(LinearSVR):
         self.scaler_ = StandardScaler().fit(X)
         
         # calculate heuristic C
+        # for this we first need to zscore the X
         X_trans = self.scaler_.transform(X)
         C = 1/np.mean(np.sqrt((X_trans**2).sum(axis=1)))
 

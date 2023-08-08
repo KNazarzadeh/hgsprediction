@@ -32,7 +32,7 @@ def load_best_model_trained(
             "project",
             "stroke_ukb",
             "knazarzadeh",
-            "result_hgsprediction",
+            "results_hgsprediction",
             f"{population}",
             "nonmri",
             f"{gender}",
@@ -48,8 +48,7 @@ def load_best_model_trained(
     file_path = os.path.join(
         folder_path,
         f"best_model_trained.pkl")
-    # print("===== Done! =====")
-    # embed(globals(), locals())
+
     # Load the model
     with open(file_path, 'rb') as f:
         model_trained = pickle.load(f)

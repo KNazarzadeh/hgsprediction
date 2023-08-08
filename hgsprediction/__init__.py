@@ -42,7 +42,7 @@ from .save_results import save_extracted_mri_data, \
 
 from .data_preprocessing import DataPreprocessor
 
-from .LinearSVRHeuristicC_zscore import LinearSVRHeuristicC_zscore
+from .LinearSVRHeuristicC_zscore import LinearSVR, LinearSVRHeuristicC_zscore
 from .data_extraction import data_extractor, run_data_extraction
 ############################################################################
 from .image_processing import load_images, load_trained_models

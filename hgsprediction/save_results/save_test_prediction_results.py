@@ -110,8 +110,7 @@ def save_tested_mri_data(
         f"{target_label}",
         f"{confound}",
         f"{model_name}",
-        f"{n_repeats}",
-        f"{n_folds}",
+        f"{n_repeats}_repeats_{n_folds}_folds",
         f"mri_data_tested",
     )
     if(not os.path.isdir(folder_path)):
