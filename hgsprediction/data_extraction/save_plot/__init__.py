@@ -1,1 +1,0 @@
-from .save_disease_plots.save_plot import save_plots

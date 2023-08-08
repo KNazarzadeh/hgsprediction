@@ -6,15 +6,16 @@ def data_extractor(df, mri_status, gender, feature_type, target):
     if gender == "female":
         df = df[df['31-0.0']==0]
     elif gender == "male":
-        df = df[df['31-0.0']==1]        
+        df = df[df['31-0.0']==1]
+        
     if feature_type == "anthropometrics":
-        features = extract_anthropometric_features()
+        features = extract_anthropometric_features(mri_status)
             
     elif feature_type == "anthropometrics_gender":
         features = extract_anthropometric_features() + extract_gender_features()
 
     elif feature_type == "anthropometrics_age":
-        features = extract_anthropometric_features() + extract_age_features(mri_status)
+        features = extract_anthropometric_features(mri_status) + extract_age_features(mri_status)
         
     elif feature_type == "behavioral":
         features = extract_behavioral_features()
@@ -27,20 +28,24 @@ def data_extractor(df, mri_status, gender, feature_type, target):
                     
     elif feature_type == "anthropometrics_behavioral_gender":
         features = extract_anthropometric_features() + extract_behavioral_features() + extract_gender_features()
+    # print("===== Done! =====")
+    # embed(globals(), locals())
     
     df_tmp = pd.DataFrame(index=pd.Index(name="SubjectID", data=[]))
-    for column_name in df.columns:
-        if column_name == "Age1stVisit":
-            df_tmp = pd.concat([df_tmp,df.loc[:, column_name]], axis=1)
-        else:
-            parts = column_name.split('-')
-            if len(parts) == 2 and parts[0] in features:
-                df_tmp = pd.concat([df_tmp,df.loc[:, column_name]], axis=1)
-    
-    filter_col = [col for col in df.columns if f"{target}" in col]
+    df_tmp = pd.concat([df_tmp, df[features]], axis=1)
+    filter_col = [col for col in df.columns if col.startswith(target)]
     df_tmp = pd.concat([df_tmp,df.loc[:, filter_col]], axis=1)
-        
-    df_tmp = rename_columns_for_prediction(df_tmp)
+    # for column_name in df.columns:
+    #     if column_name == "Age1stVisit":
+    #         df_tmp = pd.concat([df_tmp,df.loc[:, column_name]], axis=1)
+    #     elif column_name == "AgeAtScan":
+    #         df_tmp = pd.concat([df_tmp,df.loc[:, column_name]], axis=1)
+    #     else:
+    #         parts = column_name.split('-')
+    #         if len(parts) == 2 and parts[0] in features:
+    #             df_tmp = pd.concat([df_tmp,df.loc[:, column_name]], axis=1)
+    
+    df_tmp = rename_columns_for_prediction(df_tmp, mri_status)
     
     # Remove Missing data from Features and Target
     df_tmp = df_tmp.dropna()
@@ -49,19 +54,28 @@ def data_extractor(df, mri_status, gender, feature_type, target):
     return df_tmp
 
 ###############################################################################   
-def rename_columns_for_prediction(df):
-    for column_name in df.columns:
-        if column_name == "Age1stVisit":
-            df = df.rename(columns={"Age1stVisit": "Age"})
-        else:
-            parts = column_name.split('-')
-            if len(parts) == 2 and parts[1] in ["0.0"]:
-                df = df.rename(columns={column_name: parts[0]})
+def rename_columns_for_prediction(df, mri_status):
+    if mri_status == "nonmri":
+        for column_name in df.columns:
+            if column_name == "Age1stVisit":
+                df = df.rename(columns={"Age1stVisit": "Age"})
+            else:
+                parts = column_name.split('-')
+                if len(parts) == 2 and parts[1] in ["0.0"]:
+                    df = df.rename(columns={column_name: parts[0]})
+    elif mri_status == "mri":
+        for column_name in df.columns:
+            if column_name == "AgeAtScan":
+                df = df.rename(columns={"AgeAtScan": "Age"})
+            else:
+                parts = column_name.split('-')
+                if len(parts) == 2 and parts[1] in ["2.0"]:
+                    df = df.rename(columns={column_name: parts[0]})
     return df
 
 ###############################################################################
 # Extract anthropometric features from the data.
-def extract_anthropometric_features():
+def extract_anthropometric_features(mri_status):
     """Extract Anthropometrics Features.
 
     Parameters
@@ -73,11 +87,15 @@ def extract_anthropometric_features():
     anthropometric_features : list of lists
         List of anthropometry features.
     """
+    if mri_status == "nonmri":
+        session = 0
+    elif mri_status == "mri":
+        session = 2
     anthropometric_features = [
         # ====================== Body size measures ======================
-        '21001',  # Body mass index (BMI)
-        '50',  # Standing height
-        'waist_to_hip_ratio',  # Waist to Hip circumference Ratio
+        f'21001-{session}.0',  # Body mass index (BMI)
+        f'50-{session}.0',  # Standing height
+        f'waist_to_hip_ratio-{session}.0',  # Waist to Hip circumference Ratio
     ]
     return anthropometric_features
 
@@ -126,7 +144,7 @@ def extract_age_features(mri_status):
         age_features = [
                     # ====================== Scan attendance ======================
                     'AgeAtScan',  # Age at first Scan
-                    'AgeAt2ndScan',  # Age at second Scan
+                    # 'AgeAt2ndScan',  # Age at second Scan
                 ]
 
     return age_features
