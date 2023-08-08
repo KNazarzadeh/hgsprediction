@@ -24,10 +24,12 @@ motor, population, mri_status, feature_type, target, gender, model_name, \
 
 ###############################################################################
 df_test = load_mri_data_for_anthropometrics(population)
-
+print("===== Done! =====")
+embed(globals(), locals())
 ###############################################################################
 data_extracted = run_data_extraction.data_extractor(df_test, mri_status, gender, feature_type, target)
-
+print("===== Done! =====")
+embed(globals(), locals())
 X = features_extractor(data_extracted, mri_status, feature_type)
 y = target_extractor(data_extracted, target)
 print("===== Done! =====")
