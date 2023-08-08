@@ -19,7 +19,7 @@ def features_extractor(df, mri_status, feature_type):
         result = extract_anthropometric_features() + extract_gender_features()
 
     elif feature_type == "anthropometrics_age":
-        result = extract_anthropometric_features() + extract_age_features(mri_status)
+        result = extract_anthropometric_features() + extract_age_features()
         
     elif feature_type == "behavioral":
         result = extract_behavioral_features()
@@ -81,7 +81,7 @@ def extract_gender_features(
     return gender_features
 ###############################################################################    
 # Extract anthropometric and age features from the data.
-def extract_age_features(mri_status):
+def extract_age_features():
     """Extract Age Features.
 
     Parameters
@@ -92,21 +92,12 @@ def extract_age_features(mri_status):
     --------
     age_features : list of lists
         List of age features.
-    """
-    # mri_status = self.mri_status
-    
-    if mri_status == "nonmri": 
-        age_features = [
-            # ====================== Assessment attendance ======================
-            'Age',  # Age at first Visit the assessment centre
-            # '21003',  # Age when attended assessment centre
-        ]
-    elif mri_status == "mri": 
-        age_features = [
-                    # ====================== Scan attendance ======================
-                    'AgeAtScan',  # Age at first Scan
-                    'AgeAt2ndScan',  # Age at second Scan
-                ]
+    """    
+    age_features = [
+        # ====================== Assessment attendance ======================
+        'Age',  # Age at first Visit the assessment centre
+        # '21003',  # Age when attended assessment centre
+    ]
 
     return age_features
 

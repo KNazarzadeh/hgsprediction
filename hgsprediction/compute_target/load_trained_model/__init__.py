@@ -1,1 +1,0 @@
-from .load_trained_model import load_best_model_trained

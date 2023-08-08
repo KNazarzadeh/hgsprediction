@@ -25,9 +25,9 @@ from .extract_target import target_extractor
 ############################################################################
 ########################  IMPORT SAVE FUNCTIONS  ###########################
 ############################################################################
-# from .save_results import save_data_extracted, \
-#                           save_best_model_trained, \
-#                           save_scores_trained
+from .save_results import save_extracted_nonmri_data, \
+                          save_best_model_trained, \
+                          save_scores_trained
 ############################################################################
 ##################  IMPORT LOAD BEST MODEL TRAINED FUNCTION  ###############
 ############################################################################
@@ -36,6 +36,10 @@ from .load_trained_model import load_best_model_trained
 from .load_data.load_healthy import load_mri_data, \
                                     load_mri_data_for_anthropometrics
 ############################################################################
+from .save_results import save_extracted_mri_data, \
+                          save_tested_mri_data
+
+
 from .data_preprocessing import DataPreprocessor
 
 from .LinearSVRHeuristicC_zscore import LinearSVRHeuristicC_zscore

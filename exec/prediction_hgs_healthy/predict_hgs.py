@@ -34,7 +34,7 @@ from julearn import run_cross_validation
 ############################################################################
 ########################  IMPORT SAVE FUNCTIONS  ###########################
 import pickle
-from hgsprediction.save_results import save_data_extracted, \
+from hgsprediction.save_results import save_extracted_nonmri_data, \
                                        save_best_model_trained, \
                                        save_scores_trained
 #--------------------------------------------------------------------------#
@@ -119,7 +119,7 @@ embed(globals(), locals())
 ###############################################################################
 # SAVE THE RESULTS
 ###############################################################################
-save_data_extracted(
+save_extracted_nonmri_data(
     data_extracted,
     population,
     mri_status,

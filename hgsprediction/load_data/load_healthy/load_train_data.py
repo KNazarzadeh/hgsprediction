@@ -89,15 +89,9 @@ def load_preprocessed_train_df(
         "project",
         "stroke_ukb",
         "knazarzadeh",
-        "GIT_repositories",
-        "motor_ukb",
-        "data_ukb",
-        "data_hgs",
+        "results_hgsprediction"
         f"{population}",
-        "preprocessed_data",
-        "binned_data",
         f"{mri_status}",
-        "train_set",
         "preprocessed_train_set",
     )
     # Define the csv file path to load

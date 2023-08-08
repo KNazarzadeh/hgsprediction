@@ -1,1 +1,0 @@
-from .prepare_disease import PrepareDisease
