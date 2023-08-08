@@ -54,11 +54,13 @@ def validate_args(args):
     ]
     
     available_target = [
-        "L+R",
-        "dominant",
-        "nondominant",
+        "hgs_L+R",
+        "hgs_dominant",
+        "hgs_nondominant",
         "hgs_left",
         "hgs_right",
+        "hgs_LI",
+        "hgs_L-R"
     ]
     
     available_confound = [
@@ -74,7 +76,7 @@ def validate_args(args):
     
     available_model = [
         "linear_svm",
-        "rf",
+        "random_forest",
     ]
     
     if args.motor not in available_motor:
@@ -107,18 +109,18 @@ def validate_args(args):
     if args.target not in available_target:
         print("Invalid Target!")
         print("please choose Target from the target list:\n",
-              available_target, "\n L+R for Left+Right HGS \n dominant for dominant HGS \n nondominant for non-dominant HGS \
-                   \n left_hgs for Left HGS  \n right_hgs for Right HGS")
+              available_target, "\n hgs_L+R for Left+Right HGS \n hgs_dominant for dominant HGS \n hgs_nondominant for non-dominant HGS \
+                   \n hgs_left for Left HGS  \n hgs_right for Right HGS  \n hgs_L-R for Left-Right HGS")
         sys.exit()
     if args.gender not in available_gender:
         print("Invalid Gender!")
         print("please choose Gender from the gender list:\n",
               available_gender)
         sys.exit()
-    if args.model not in available_model:
+    if args.model_name not in available_model:
         print("Invalid Model!")
         print("please choose Model from the model list:\n",
-              available_model, "\n linear_svm for Linear SVM \n rf for Random Forest")
+              available_model, "\n linear_svm for Linear SVM \n random_forest for Random Forest")
         sys.exit()
     if args.confound_status not in available_confound:
         print("Invalid Confound Status!")
@@ -170,11 +172,12 @@ def parse_args():
     # Add Target argument:
     parser.add_argument("target",
                         type=str,
-                        # choices=["L+R",
-                        #         "dominant",
-                        #         "nondominant",
-                        #         "left_hgs",
-                        #         "right_hgs",],
+                        # choices=["hgs_L+R",
+                        #         "hgs_dominant",
+                        #         "hgs_nondominant",
+                        #         "hgs_left",
+                        #         "hgs_right",
+                        #         "hgs_L-R",],
                         help="Confound status (int).")
     # Add Gender argument:
     parser.add_argument("gender",
@@ -184,10 +187,10 @@ def parse_args():
                         # "both_gender"],
                         help="Gender (str).")
     # Add Model argument:
-    parser.add_argument("model",
+    parser.add_argument("model_name",
                         type=str.lower,
                         # choices=["linear_svm",
-                        #         "rf",
+                        #         "random_forest",
                         # ],
                         help="Model (str).")
     # Add Confound status argument:
@@ -225,7 +228,7 @@ def input_arguments(args):
     feature_type = args.feature_type
     target = args.target
     gender = args.gender
-    model = args.model
+    model_name = args.model_name
     confound_status = args.confound_status
     cv_repeats_number = args.repeat_number
     cv_folds_number = args.fold_number
@@ -240,16 +243,14 @@ def input_arguments(args):
     print("MRI status =", mri_status)
     print("Feature type =", feature_type)
     print("Target =", target)
-    if gender == "both":
+    if gender == "both_gender":
         print("Gender = both genders")
     else:
         print("Gender =", gender)
-    if model == "rf":
-        model_name = "rf"
+    if model_name == "random_forest":
         print("Model = random forest")
-    elif model == "linear_svm":
-        model_name = "linear_svm"
-        print("Model =", model_name)
+    elif model_name == "linear_svm":
+        print("Model =", "Linear SVM")
     if confound_status == 0:
         print("Confound_status = Without Confound Removal")
     else:
@@ -260,4 +261,4 @@ def input_arguments(args):
 
     print("============================================")
 
-    return motor, population, mri_status, feature_type, target, gender, model, confound_status, cv_repeats_number, cv_folds_number
+    return motor, population, mri_status, feature_type, target, gender, model_name, confound_status, cv_repeats_number, cv_folds_number
