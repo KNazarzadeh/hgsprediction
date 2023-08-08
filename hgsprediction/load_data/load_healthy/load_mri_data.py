@@ -48,6 +48,7 @@ def load_mri_data_for_anthropometrics(
             "project",
             "stroke_ukb",
             "knazarzadeh",
+            "project_hgsprediction",
             "results_hgsprediction",
             f"{population}",
             f"{mri_status}",

@@ -48,7 +48,8 @@ motor, population, mri_status, feature_type, target, gender, model_name, \
 
 ###############################################################################
 df_train = load_preprocessed_train_df(population, mri_status)
-
+print("===== Done! =====")
+embed(globals(), locals())
 data_extracted = run_data_extraction.data_extractor(df_train, mri_status, gender, feature_type, target)
 
 X = features_extractor(data_extracted, mri_status, feature_type)

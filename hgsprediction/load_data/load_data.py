@@ -85,8 +85,6 @@ def load_original_data(motor, population, mri_status):
         "project_hgsprediction",
         "data_hgs",
         f"{population}",
-        f"data_{motor}",
-        population,
         "original_data",
         f"{mri_status}_{population}"
     )

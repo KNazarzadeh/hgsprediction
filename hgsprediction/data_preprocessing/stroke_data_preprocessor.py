@@ -1,5 +1,5 @@
 #!/usr/bin/env Disorderspredwp3
-"""Perform different preprocessing on disease."""
+"""Perform different preprocessing on stroke."""
 
 # Authors: Kimia Nazarzadeh <k.nazarzadeh@fz-juelich.de>
 
@@ -28,7 +28,7 @@ class StrokePreprocessor:
 
 ###############################################################################
     def remove_missing_stroke_dates(self, df):
-        """ Drop all subjects who has no date of disease and
+        """ Drop all subjects who has no date of stroke and
             all dates of 1900-01-01 epresents "Date is unknown".
 
         Parameters
@@ -36,7 +36,7 @@ class StrokePreprocessor:
         df : pandas.DataFrame
             DataFrame of data specified.
         population : str
-            Name of population/disease.
+            Name of population/stroke.
             
         Returns
         --------
@@ -57,6 +57,8 @@ class StrokePreprocessor:
         # UK Biobank assessed handgrip strength in 4 sessions
         session = 4 # 0 to 3
         
+        df_output = pd.DataFrame()
+        
         for ses in range(session):
             df_tmp = df[
                 ((~df[f'{hgs_left}-{ses}.0'].isna()) &
@@ -68,28 +70,28 @@ class StrokePreprocessor:
 
         # Drop the duplicated subjects
         # based on 'eid' column (subject ID)
-        df_output = df_output.drop_duplicates(subset=['Subjectid'], keep="first")
+        df_output = df_output.drop_duplicates(keep="first")
 
         return df
 
 ###############################################################################
-    def define_onset_disease(self, dataframe, population):
-        """ Define the Baseline date of disease."
+    def define_onset_stroke(self, df, population):
+        """ Define the Baseline date of stroke."
 
         Parameters
         ----------
-        dataframe : pandas.DataFrame
+        df : pandas.DataFrame
             DataFrame of data specified.
         population : str
-            Name of population/disease.
+            Name of population/stroke.
             
         Returns
         --------
         onset : array
-            The column of the disease onset date when the disease occurred.
+            The column of the stroke onset date when the stroke occurred.
         """
         if population == "stroke":
-            onset = dataframe['42006-0.0']
+            onset = df['42006-0.0']
 
         return onset
 
@@ -103,11 +105,11 @@ class StrokePreprocessor:
         attendance :  array
             The column of the baseline visit date when the subject visited clinic.
         onset : array
-            The column of the disease onset date when the disease occurred.
+            The column of the stroke onset date when the stroke occurred.
             
         Returns
         --------
-        dataframe : pandas.DataFrame
+        df : pandas.DataFrame
             DataFrame of data specified.
         """
         onset_date = pd.to_datetime(onset)
@@ -118,119 +120,119 @@ class StrokePreprocessor:
         return days
     
 ###############################################################################
-    def days_difference_onset_baseline(self, dataframe, population):
+    def days_difference_onset_baseline(self, df, population):
         """Calcuate the days differences between
-            the Attendance date (the visit in clinic) and the Onset date of disease.
+            the Attendance date (the visit in clinic) and the Onset date of stroke.
             
         Parameters
         ----------
-        dataframe : pandas.DataFrame
+        df : pandas.DataFrame
             DataFrame of data specified.
         onset :  array
-            The column of the disease onset date when the disease occurred.
+            The column of the stroke onset date when the stroke occurred.
             
         Returns
         --------
-        dataframe : pandas.DataFrame
+        df : pandas.DataFrame
             DataFrame of data specified.
         """
         sessions = 4
         if population == "stroke":
-            onset = dataframe['42006-0.0']
+            onset = df['42006-0.0']
         for ses in range(0, sessions):
-            attendance = dataframe[f'53-{ses}.0']
-            dataframe[f'days_to_onset-{ses}.0'] = self.date_difference(attendance, onset)
+            attendance = df[f'53-{ses}.0']
+            df[f'days_to_onset-{ses}.0'] = self.date_difference(attendance, onset)
 
-        return dataframe
+        return df
     
 ###############################################################################
-    def extract_post_disease_df(self, dataframe, population):
-        """Extract the post disease dataframe from the disease dataframe. 
+    def extract_post_stroke_df(self, df, population):
+        """Extract the post stroke dataframe from the stroke dataframe. 
         
         Parameters
         ----------
-        dataframe : pandas.DataFrame
+        df : pandas.DataFrame
             DataFrame of data specified.
         population : str
-            Name of population/disease.
+            Name of population/stroke.
             
         Returns
         --------
-        dataframe : pandas.DataFrame
+        df : pandas.DataFrame
             DataFrame of data specified.
         """
         sessions = 4
         if population == "stroke":
-            onset = dataframe['42006-0.0']
+            onset = df['42006-0.0']
         for ses in range(0, sessions):
-            attendance = dataframe[f'53-{ses}.0']
-            dataframe[f'followup_days-{ses}.0'] = \
-                dataframe[f'followup_days-{ses}.0'].mask(dataframe[f'followup_days-{ses}.0']<0)
+            attendance = df[f'53-{ses}.0']
+            df[f'followup_days-{ses}.0'] = \
+                df[f'followup_days-{ses}.0'].mask(df[f'followup_days-{ses}.0']<0)
 
-        return dataframe
+        return df
     
         # for ses in range(0, sessions):
-        #     attendance = dataframe[f"53-{ses}.0"]
-        #     dataframe[f"days_hgs_after_stroke_ses-{ses}.0"] = \
+        #     attendance = df[f"53-{ses}.0"]
+        #     df[f"days_hgs_after_stroke_ses-{ses}.0"] = \
         #         self.numOfDays(base_date, follow_date)
-        #     dataframe[f"days_hgs_after_stroke_ses-{ses}.0"] = \
-        #     dataframe[f"days_hgs_after_stroke_ses-{ses}.0"].mask(dataframe[f"days_hgs_after_stroke_ses-{ses}.0"]<0)
+        #     df[f"days_hgs_after_stroke_ses-{ses}.0"] = \
+        #     df[f"days_hgs_after_stroke_ses-{ses}.0"].mask(df[f"days_hgs_after_stroke_ses-{ses}.0"]<0)
 
 ###############################################################################
-    def extract_pre_disease_df(self, dataframe, population):
-        """Extract the pre disease dataframe from the disease dataframe. 
+    def extract_pre_stroke_df(self, df, population):
+        """Extract the pre stroke dataframe from the stroke dataframe. 
 
         Parameters
         ----------
-        dataframe : pandas.DataFrame
+        df : pandas.DataFrame
             DataFrame of data specified.
         population : str
-            Name of population/disease.
+            Name of population/stroke.
             
         Returns
         --------
-        dataframe : pandas.DataFrame
+        df : pandas.DataFrame
             DataFrame of data specified.
         """
         sessions = 4
         
         if population == "stroke":
-            onset = dataframe['42006-0.0']       
+            onset = df['42006-0.0']       
         for ses in range(0, sessions):
-            attendance = dataframe[f'53-{ses}.0']
-            dataframe[f'followup_days-{ses}.0'] = self.date_difference(attendance, onset)
-            dataframe[f'followup_days-{ses}.0'] = \
-                dataframe[f'followup_days-{ses}.0'].mask(dataframe[f'followup_days-{ses}.0'] >= 0)
+            attendance = df[f'53-{ses}.0']
+            df[f'followup_days-{ses}.0'] = self.date_difference(attendance, onset)
+            df[f'followup_days-{ses}.0'] = \
+                df[f'followup_days-{ses}.0'].mask(df[f'followup_days-{ses}.0'] >= 0)
 
         # for ses in range(0, sessions):
-        #     follow_date = dataframe[f"53-{ses}.0"]
-        #     dataframe[f"days_hgs_after_stroke_ses-{ses}.0"] = \
+        #     follow_date = df[f"53-{ses}.0"]
+        #     df[f"days_hgs_after_stroke_ses-{ses}.0"] = \
         #         self.numOfDays(base_date, follow_date)
-        #     dataframe[f"days_hgs_after_stroke_ses-{ses}.0"] = \
-        #     dataframe[f"days_hgs_after_stroke_ses-{ses}.0"].mask(dataframe[f"days_hgs_after_stroke_ses-{ses}.0"]>0)
+        #     df[f"days_hgs_after_stroke_ses-{ses}.0"] = \
+        #     df[f"days_hgs_after_stroke_ses-{ses}.0"].mask(df[f"days_hgs_after_stroke_ses-{ses}.0"]>0)
 
-        return dataframe
+        return df
 
 ###############################################################################
-    def extract_longitudinal_disease_df(self, dataframe, population):
-        """Extract the longitudinal dataframe from the disease dataframe. 
+    def extract_longitudinal_stroke_df(self, df, population):
+        """Extract the longitudinal dataframe from the stroke dataframe. 
 
         Parameters
         ----------
-        dataframe : pandas.DataFrame
+        df : pandas.DataFrame
             DataFrame of data specified.
         population : str
-            Name of population/disease.
+            Name of population/stroke.
             
         Returns
         --------
-        dataframe : pandas.DataFrame
+        df : pandas.DataFrame
             DataFrame of data specified.
         """
-        post_df = self.extract_post_disease_df(dataframe, population)
-        pre_df = self.exract_pre_disease_df(dataframe, population)
+        post_df = self.extract_post_stroke_df(df, population)
+        pre_df = self.exract_pre_stroke_df(df, population)
 
-        # The intersection between pre and post dataframes of disease
+        # The intersection between pre and post dataframes of stroke
         # will be the longitudinal dataframe.
         keys = ['eid']
         longitudinal_df = pre_df.merge(post_df[keys], on=keys)
@@ -238,59 +240,59 @@ class StrokePreprocessor:
         return longitudinal_df
 
 ###############################################################################
-    def disease_subsets(self, dataframe, population):
+    def stroke_subsets(self, df, population):
         
         sessions = 4
-        days = [col for col in dataframe.columns if 'days_to_onset' in col]
-        df_post = dataframe[dataframe[days]>=0]
+        days = [col for col in df.columns if 'days_to_onset' in col]
+        df_post = df[df[days]>=0]
 
         first_post_visit_days = df_post[days].min(axis=1)
         first_post_visit_ses = df_post[days].idxmin(axis=1)
 
-        df_pre = dataframe[dataframe[days]<0]
+        df_pre = df[df[days]<0]
 
         first_pre_visit_days = df_pre[days].max(axis=1)
         first_pre_visit_ses = df_pre[days].idxmax(axis=1)
 
-        dataframe['first_post_visit_days'] = first_post_visit_days
-        dataframe['first_post_visit_ses'] = first_post_visit_ses
-        dataframe['first_post_visit_ses'] = dataframe['first_post_ses'].replace(to_replace=days, value=[0, 1, 2, 3])
+        df['first_post_visit_days'] = first_post_visit_days
+        df['first_post_visit_ses'] = first_post_visit_ses
+        df['first_post_visit_ses'] = df['first_post_ses'].replace(to_replace=days, value=[0, 1, 2, 3])
 
         for ses in range(0, sessions):
-            post_ses_subs = dataframe.loc[dataframe['first_post_ses'] == ses, 'eid']
-            dataframe.loc[dataframe['first_post_ses'] == ses, 'first_post_hgs_L'] = dataframe[f'46-{ses}.0']
-            dataframe.loc[dataframe['first_post_ses'] == ses, 'first_post_hgs_R'] = dataframe[f'47-{ses}.0']
+            post_ses_subs = df.loc[df['first_post_ses'] == ses, 'eid']
+            df.loc[df['first_post_ses'] == ses, 'first_post_hgs_L'] = df[f'46-{ses}.0']
+            df.loc[df['first_post_ses'] == ses, 'first_post_hgs_R'] = df[f'47-{ses}.0']
 
         for ses in range(0, sessions):
-            dataframe.loc[dataframe['first_post_ses'] == ses, 'first_post_BMI'] = dataframe[f'21002-{ses}.0']
+            df.loc[df['first_post_ses'] == ses, 'first_post_BMI'] = df[f'21002-{ses}.0']
 
 
-        dataframe['first_pre_days'] = first_pre_visit_days
-        dataframe['first_pre_ses'] = first_pre_visit_ses
-        dataframe['first_pre_ses'] = dataframe['first_pre_ses'].replace(to_replace=days, value=[0, 1, 2, 3])
+        df['first_pre_days'] = first_pre_visit_days
+        df['first_pre_ses'] = first_pre_visit_ses
+        df['first_pre_ses'] = df['first_pre_ses'].replace(to_replace=days, value=[0, 1, 2, 3])
         for ses in range(0, sessions):
-            pre_ses_subs = dataframe.loc[dataframe['first_pre_ses'] == ses, 'eid']
-            dataframe.loc[dataframe['first_pre_ses'] == ses, 'first_pre_hgs_L'] = dataframe[f'46-{ses}.0']
-            dataframe.loc[dataframe['first_pre_ses'] == ses, 'first_pre_hgs_R'] = dataframe[f'47-{ses}.0']
+            pre_ses_subs = df.loc[df['first_pre_ses'] == ses, 'eid']
+            df.loc[df['first_pre_ses'] == ses, 'first_pre_hgs_L'] = df[f'46-{ses}.0']
+            df.loc[df['first_pre_ses'] == ses, 'first_pre_hgs_R'] = df[f'47-{ses}.0']
 
         for ses in range(0, sessions):
-            dataframe.loc[dataframe['first_pre_ses'] == ses, 'first_pre_BMI'] = dataframe[f'21002-{ses}.0']
+            df.loc[df['first_pre_ses'] == ses, 'first_pre_BMI'] = df[f'21002-{ses}.0']
 
-        return dataframe
+        return df
 
 ###############################################################################
     
     def howmany_sessions(
         self,
-        dataframe,
+        df,
         num_session,
     ):
-        total_days_col = [col for col in dataframe.columns if 'total' in col]
-        sub_df_days = pd.DataFrame(dataframe, columns=total_days_col)
+        total_days_col = [col for col in df.columns if 'total' in col]
+        sub_df_days = pd.DataFrame(df, columns=total_days_col)
 
-        dataframe['num_NaN_sessions'] = sub_df_days.isna().sum(axis=1)
+        df['num_NaN_sessions'] = sub_df_days.isna().sum(axis=1)
 
-        return dataframe
+        return df
 
 ###############################################################################
     def prior_stroke_subs(

@@ -89,6 +89,7 @@ def load_preprocessed_train_df(
         "project",
         "stroke_ukb",
         "knazarzadeh",
+        "project_hgsprediction",
         "results_hgsprediction",
         f"{population}",
         f"{mri_status}",

@@ -19,12 +19,16 @@ population = argv[2]
 mri_status = argv[3]
 
 df_original = load_original_data(motor=motor, population=population, mri_status=mri_status)
-
+print("===== Done! =====")
+embed(globals(), locals())
 ###############################################################################
 
 prepare_data = StrokePreprocessor(df_original)
-df_available_disease_dates = prepare_data.remove_missing_stroke_dates(df_original)
-df_available_hgs = prepare_data.remove_missing_hgs(df_available_disease_dates)
+df_dates = prepare_data.remove_missing_stroke_dates(df_original)
+df_hgs = prepare_data.remove_missing_hgs(df_dates)
+df_followup_days = prepare_data.define_followup_days(df_hgs)
+
+
 
 
 
