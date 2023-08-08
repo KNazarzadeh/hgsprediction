@@ -50,9 +50,9 @@ embed(globals(), locals())
 y_true = data_extracted[y]
 y_pred = best_model_trained.predict(data_extracted[X])
 
-new_data["actual_hgs"] = y_true
-new_data["predicted_hgs"] = y_pred
-new_data["hgs_diff"] = y_true - y_pred
-mae = format(mean_absolute_error(y_true, y_pred), '.2f')
-corr = format(np.corrcoef(y_pred, y_true)[1, 0], '.2f')
-score = format(r2_score(y_true, y_pred), '.2f')
+# new_data["actual_hgs"] = y_true
+# new_data["predicted_hgs"] = y_pred
+# new_data["hgs_diff"] = y_true - y_pred
+# mae = format(mean_absolute_error(y_true, y_pred), '.2f')
+# corr = format(np.corrcoef(y_pred, y_true)[1, 0], '.2f')
+# score = format(r2_score(y_true, y_pred), '.2f')
