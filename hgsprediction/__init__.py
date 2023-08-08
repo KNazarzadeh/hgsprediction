@@ -39,13 +39,12 @@ from .load_data.load_healthy import load_mri_data, \
 from .save_results import save_extracted_mri_data, \
                           save_tested_mri_data
 
+from .load_imaging_data.load_brain_imaging_data import load_imaging_data
 
 from .data_preprocessing import DataPreprocessor
 
 from .LinearSVRHeuristicC_zscore import LinearSVR, LinearSVRHeuristicC_zscore
 from .data_extraction import data_extractor, run_data_extraction
-############################################################################
-from .image_processing import load_images, load_trained_models
 
 ############################################################################
 # Remove columns that all values are NaN
