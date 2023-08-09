@@ -16,10 +16,20 @@ from ptpython.repl import embed
 # embed(globals(), locals())
 
 # Parse, add and return the arguments by function parse_args.
-args = parse_args()
-motor, population, mri_status, feature_type, target, gender, model_type, \
-    confound_status, cv_repeats_number, cv_folds_number = input_arguments(args)
+# args = parse_args()
+# motor, population, mri_status, feature_type, target, gender, model_type, \
+#     confound_status, cv_repeats_number, cv_folds_number = input_arguments(args)
 
+motor = "hgs"
+population = "healthy"
+mri_status = "nonmri"
+feature_type = "bodysize+age"
+target = "L+R"
+gender = "both"
+model_type = "linear_svm"
+confound_status = 0
+cv_repeats_number = 10
+cv_folds_number = 5
 ###############################################################################
 if confound_status == 0:
         confound = "without_confound_removal"
@@ -288,7 +298,8 @@ df_test_male["hgs_diff"] = y_true_male - y_pred_male
 corr_male_diff, p_male_diff = spearmanr(df_test_male["hgs_diff"], m_days)
 # corr_male_diff = format(np.corrcoef(df_test_male["hgs_diff"], m_days)[1, 0], '.2f')
 
-
+print("===== Done! =====")
+embed(globals(), locals())
 ###############################################################################
 # Create the actual HGS vs predicted HGS plot for females and fefemales separately
 fig, ax = plt.subplots(1, 2, figsize=(20,10))

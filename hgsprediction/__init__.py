@@ -55,10 +55,13 @@ from .features_extraction import features_extractor
 
 from .data_preprocessing import run_healthy_preprocessing, DataPreprocessor, healthy_data_preprocessor
 
-
+from .prepare_stroke.prepare_stroke_data import prepare_stroke
 
 ########################################################################################################################################################
 ########################################################################################################################################################
 ########################################################################################################################################################
 # STROKE
 from .data_preprocessing import stroke_data_preprocessor
+
+# PLOTS
+from .plots.make_plot import create_regplot

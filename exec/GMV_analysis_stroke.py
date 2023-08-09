@@ -87,9 +87,9 @@ from ptpython.repl import embed
 ##############################################################################
 ###############################################################################
 motor = "hgs"
-post_list = ["1_post_session", "2_post_session", "3_post_session", "4_post_session"]
+# post_list = ["1_post_session", "2_post_session", "3_post_session", "4_post_session"]
 
-mri_status = "all"
+mri_status = "mri"
 population = "stroke"
 
 folder_path = os.path.join(
@@ -106,26 +106,26 @@ folder_path = os.path.join(
     f"{mri_status}_{population}",
 )
 
-# file_path = os.path.join(
-#         folder_path,
-#         f"{post_list[0]}_{mri_status}_{population}.csv")
+# # file_path = os.path.join(
+# #         folder_path,
+# #         f"{post_list[0]}_{mri_status}_{population}.csv")
 file_path = os.path.join(
         folder_path,
         f"{mri_status}_{population}.csv")
 df_post = pd.read_csv(file_path, sep=',')
-df_post.set_index("eid", inplace=True)
+# df_post.set_index("eid", inplace=True)
 df_all = df_post.copy()
-# ses = df_post["1_post_session"].astype(str).str[8:]
-# for i in range(0, len(df_post["1_post_session"])):
-#     idx=ses.index[i]
-#     if ses.iloc[i] != "":
-#         df_post.loc[idx, "1_post_days"] = df_post.loc[idx, f"followup_days-{ses.iloc[i]}"]
-#     else:
-#         df_post.loc[idx, "1_post_days"] = np.NaN
+# # ses = df_post["1_post_session"].astype(str).str[8:]
+# # for i in range(0, len(df_post["1_post_session"])):
+# #     idx=ses.index[i]
+# #     if ses.iloc[i] != "":
+# #         df_post.loc[idx, "1_post_days"] = df_post.loc[idx, f"followup_days-{ses.iloc[i]}"]
+# #     else:
+# #         df_post.loc[idx, "1_post_days"] = np.NaN
 
 ##############################################################################
-# post_list = ["1_post_session", "2_post_session", "3_post_session", "4_post_session"]
-
+post_list = ["1_post_session", "2_post_session", "3_post_session", "4_post_session"]
+motor = "hgs"
 mri_status = "mri"
 population = "stroke"
 
@@ -143,22 +143,24 @@ folder_path = os.path.join(
     f"{mri_status}_{population}",
 )
 
-# file_path = os.path.join(
-#         folder_path,
-#         f"{post_list[0]}_{mri_status}_{population}.csv")
 file_path = os.path.join(
         folder_path,
-        f"{mri_status}_{population}.csv")
+        f"{post_list[0]}_{mri_status}_{population}.csv")
+# file_path = os.path.join(
+#         folder_path,
+#         f"{mri_status}_{population}.csv")
 df_post = pd.read_csv(file_path, sep=',')
-df_post.set_index("eid", inplace=True)
-df_mri = df_post.copy()
-# ses = df_post["1_post_session"].astype(str).str[8:]
-# for i in range(0, len(df_post["1_post_session"])):
-#     idx=ses.index[i]
-#     if ses.iloc[i] != "":
-#         df_post.loc[idx, "1_post_days"] = df_post.loc[idx, f"followup_days-{ses.iloc[i]}"]
-#     else:
-#         df_post.loc[idx, "1_post_days"] = np.NaN
+print("===== Done! =====")
+embed(globals(), locals())
+df_post.set_index("SubjectID", inplace=True)
+# df_mri = df_post.copy()
+ses = df_post["1_post_session"].astype(str).str[8:]
+for i in range(0, len(df_post["1_post_session"])):
+    idx=ses.index[i]
+    if ses.iloc[i] != "":
+        df_post.loc[idx, "1_post_days"] = df_post.loc[idx, f"followup_days-{ses.iloc[i]}"]
+    else:
+        df_post.loc[idx, "1_post_days"] = np.NaN
 print("===== Done! =====")
 embed(globals(), locals())
 ##############################################################################
@@ -167,7 +169,9 @@ df_ses2 = df_post[~df_post.index.isin(df_ses3.index)]
 # print("===== Done! =====")
 # embed(globals(), locals())
 # Replace Age
-df_ses3.loc[:, 'post_age'] = df_ses3.loc[:, f'21003-3.0']
+# df_ses3.loc[:, 'post_age'] = df_ses3.loc[:, f'21003-3.0']
+df_ses3.loc[:, 'post_age'] = df_ses3.loc[:, f'AgeAt2ndScan']
+
 ##############################################################################
 # Replace BMI
 df_ses3.loc[:, 'post_bmi'] = df_ses3.loc[:, f'21001-3.0']
@@ -186,7 +190,9 @@ df_ses3['post_waist_hip_ratio'] = (df_ses3.loc[:, "post_waist"].astype(str).asty
                 df_ses3.loc[:, "post_hip"].astype(str).astype(float))
 ##############################################################################
 # Replace Age
-df_ses2.loc[:, 'post_age'] = df_ses2.loc[:, f'21003-2.0']
+# df_ses2.loc[:, 'post_age'] = df_ses2.loc[:, f'21003-2.0']
+df_ses2.loc[:, 'post_age'] = df_ses2.loc[:, f'AgeAtScan']
+
 ##############################################################################
 # Replace BMI
 df_ses2.loc[:, 'post_bmi'] = df_ses2.loc[:, f'21001-2.0']

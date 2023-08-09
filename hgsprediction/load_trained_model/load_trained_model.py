@@ -32,6 +32,7 @@ def load_best_model_trained(
             "project",
             "stroke_ukb",
             "knazarzadeh",
+            "project_hgsprediction",
             "results_hgsprediction",
             f"{population}",
             "nonmri",
