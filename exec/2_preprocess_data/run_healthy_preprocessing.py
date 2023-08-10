@@ -1,9 +1,9 @@
 
-from .healthy_data_preprocessor import DataPreprocessor
+from hgsprediction.data_preprocessing import healthy_data_preprocessor, DataPreprocessor
 
-def run_healthy_preprocessing(data):
+def run_healthy_preprocessing(df, session):
     
-    data_processor = DataPreprocessor(data,session=0)
+    data_processor = DataPreprocessor(df, session)
 
     # Call all functions inside the class
     # DATA VALIDATION

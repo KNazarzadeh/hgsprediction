@@ -56,7 +56,8 @@ male_best_model_trained = load_best_model_trained(
 print(male_best_model_trained)
 ##############################################################################
 stroke_all_columns, df_female, df_male, X, y = prepare_stroke(target)
-
+print("===== Done! =====")
+embed(globals(), locals())
 ##############################################################################
 f_days = df_female[df_female['31-0.0']==0.0]['post_days']
 m_days = df_male[df_male['31-0.0']==1.0]['post_days']

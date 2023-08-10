@@ -1,3 +1,2 @@
 from .healthy_data_preprocessor import DataPreprocessor
-from .healthy_data_preprocessor import run_healthy_preprocessing
 from .stroke_data_preprocessor import StrokePreprocessor

@@ -14,7 +14,7 @@ import numpy as np
 from hgsprediction.input_arguments import parse_args, input_arguments
 ####### Load Train set #######
 # Load Processed Train set (after data validation, feature engineering)
-from hgsprediction.load_data.load_healthy import load_preprocessed_train_df
+from hgsprediction.load_data.load_healthy.load_train_data import load_preprocessed_train_df, load_primary_nonmri_train_set_df, load_primary_mri_df
 ####### Data Extraction #######
 from hgsprediction.data_extraction import data_extractor, run_data_extraction
 ####### Features Extraction #######
@@ -48,7 +48,19 @@ motor, population, mri_status, feature_type, target, gender, model_name, \
 
 ###############################################################################
 df_train = load_preprocessed_train_df(population, mri_status)
-
+df_nonmri = load_primary_nonmri_train_set_df(
+    population,
+    gender,
+    mri_status,
+)
+mri_status="mri"
+df_mri = load_primary_mri_df(
+    population,
+    gender,
+    mri_status,
+)
+print("===== Done! =====")
+embed(globals(), locals())
 data_extracted = run_data_extraction.data_extractor(df_train, mri_status, gender, feature_type, target)
 
 X = features_extractor(data_extracted, mri_status, feature_type)

@@ -43,7 +43,8 @@ def prepare_stroke(target):
             df_post.loc[idx, "1_post_days"] = df_post.loc[idx, f"followup_days-{ses.iloc[i]}"]
         else:
             df_post.loc[idx, "1_post_days"] = np.NaN
-
+    print("===== Done! =====")
+    embed(globals(), locals())
     ##############################################################################
     df_ses3 = df_post[df_post["1_post_session"] == "session-3.0"]
     df_ses2 = df_post[~df_post.index.isin(df_ses3.index)]

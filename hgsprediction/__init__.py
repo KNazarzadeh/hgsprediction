@@ -2,10 +2,18 @@
 
 """LOAD TRAIN SET"""
 # Load Primary Train set (after binning and splitting to Train and test)
-from .load_data.load_healthy import load_primary_train_set_df
+# from .load_data.load_healthy import load_primary_train_set_df
 # Load Processed Train set (after data validation, feature engineering)
 from .load_data.load_healthy import load_preprocessed_train_df
 ############################################################################
+############################################################################
+############################################################################
+from .data_preprocessing import healthy_data_preprocessor, DataPreprocessor
+
+
+
+
+
 
 
 from .preprocess import PreprocessData
@@ -53,8 +61,6 @@ from .prediction_preparing import remove_nan_columns
 # Run feature extraction
 from .features_extraction import features_extractor
 
-from .data_preprocessing import run_healthy_preprocessing, DataPreprocessor, healthy_data_preprocessor
-
 from .prepare_stroke.prepare_stroke_data import prepare_stroke
 
 ########################################################################################################################################################
@@ -65,3 +71,5 @@ from .data_preprocessing import stroke_data_preprocessor
 
 # PLOTS
 from .plots.make_plot import create_regplot
+
+from .load_data.load_healthy.load_train_data import load_primary_mri_df, load_primary_nonmri_train_set_df, load_preprocessed_train_df

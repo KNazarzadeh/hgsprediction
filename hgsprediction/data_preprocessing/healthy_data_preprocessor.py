@@ -15,11 +15,7 @@ from ptpython.repl import embed
 
 ###############################################################################
 class DataPreprocessor:
-    def __init__(
-        self,
-        df: pd.DataFrame,
-        session,
-    ):
+    def __init__(self, df: pd.DataFrame, mri_status):
         """Preprocess data, Calculate and Add new columns to dataframe
 
         Parameters
@@ -28,17 +24,54 @@ class DataPreprocessor:
             The dataframe that desired to analysis
         """
         self.df = df
-        self.session = session
+        self.mri_status = mri_status
         
+        assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
+        assert isinstance(mri_status, str), "df must be a string!"
+        
+        if mri_status == "nonmri":
+            self.session = 0
+        elif mri_status == "mri":
+            self.session = 2
+############################# CHECK HGS AVAILABILITY ##########################
+# The main goal of check HGS availability is to check if the right and left HGS
+# be available for each session.
+###############################################################################
+    def check_hgs_availability(self, df):
+        """Check HGS availability on right and left for each session:
+
+        Parameters
+        ----------
+        df : dataframe
+            The dataframe that desired to analysis
+
+        Return
+        ----------
+        df : dataframe
+        """
+        # Assign corresponding session number from the Class:
+        session = self.session
+
+        assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
+        assert isinstance(session, int), "session must be a int!"
+        # Handgrip strength info
+        # for Left and Right Hands
+        hgs_left = "46"  # Handgrip_strength_(left)
+        hgs_right = "47"  # Handgrip_strength_(right)
+        # UK Biobank assessed handgrip strength in 4 sessions
+        index = df[((~df[f'{hgs_left}-{session}.0'].isna()) &
+                (df[f'{hgs_left}-{session}.0'] !=  0))
+                & ((~df[f'{hgs_right}-{session}.0'].isna()) &
+                (df[f'{hgs_right}-{session}.0'] !=  0))].index
+
+        df = df.loc[index, :]
+
+        return df
 ################################ DATA VALIDATION ##############################
 # The main goal of data validation is to verify that the data is 
 # accurate, reliable, and suitable for the intended analysis.
 ###############################################################################
-
-    def validate_handgrips(
-        self,
-        df,
-    ):
+    def validate_handgrips(self, df):
         """Exclude all subjects who had Dominant HGS < 4:
 
         Parameters
@@ -62,19 +95,16 @@ class DataPreprocessor:
         df = self.nondominant_handgrip(df)
         # ------------------------------------
         # Exclude all subjects who had Dominant HGS < 4:
-        # The condition is applied to "dominant_hgs" columns
+        # The condition is applied to "hgs_dominant" columns
         # And then reset_index the new dataframe:
-        df = df[df.loc[:, f"dominant_hgs-{session}.0"] >=4]
+        df = df[df.loc[:, f"hgs_dominant-{session}.0"] >=4]
 
         return df
 
 ###############################################################################
-    def dominant_handgrip(
-        self,
-        df,
-    ):
+    def dominant_handgrip(self, df):
         """Calculate dominant handgrip
-        and add "dominant_hgs" column to dataframe
+        and add "hgs_dominant" column to dataframe
 
         Parameters
         ----------
@@ -105,21 +135,19 @@ class DataPreprocessor:
         # If handedness is equal to 1
         # Right hand is Dominant
         # Find handedness equal to 1:
-        # index = np.where(df.loc[:, f"1707-{session}.0"] == 1.0)[0]
         index = df[df.loc[:,f"1707-{session}.0"] == 1.0].index
-        # Add and new column "dominant_hgs"
+        # Add and new column "hgs_dominant"
         # And assign Right hand HGS value:
-        df.loc[index, f"dominant_hgs-{session}.0"] = \
+        df.loc[index, f"hgs_dominant-{session}.0"] = \
             df.loc[:, f"47-{session}.0"]
         # ------------------------------------
         # If handedness is equal to 2
         # Left hand is Dominant
         # Find handedness equal to 2:
-        # index = np.where(df.loc[:, f"1707-{session}.0"] == 2.0)[0]
         index = df[df.loc[:,f"1707-{session}.0"] == 2.0].index
-        # Add and new column "dominant_hgs"
+        # Add and new column "hgs_dominant"
         # And assign Left hand HGS value:
-        df.loc[index, f"dominant_hgs-{session}.0"] = \
+        df.loc[index, f"hgs_dominant-{session}.0"] = \
             df.loc[:, f"46-{session}.0"]
         # ------------------------------------
         # If handedness is equal to:
@@ -128,27 +156,38 @@ class DataPreprocessor:
         # NaN value
         # Dominant will be the Highest Handgrip score from both hands.
         # Find handedness equal to 3, -3 or NaN:
-        # index = np.where(
-        #     (df.loc[:, f"1707-{session}.0"] == 3.0) |
-        #     (df.loc[:, f"1707-{session}.0"] == -3.0)|
-        #     (df.loc[:, f"1707-{session}.0"].isna()))[0]
         index = df[(df.loc[:, f"1707-{session}.0"] == 3.0) |
-                   (df.loc[:, f"1707-{session}.0"] == -3.0)|
-                   (df.loc[:, f"1707-{session}.0"].isna())].index
-        # Add and new column "dominant_hgs"
-        # And assign Highest HGS value among Right and Left HGS:        
-        df.loc[index, f"dominant_hgs-{session}.0"] = \
-            df.loc[:, [f"46-{session}.0", f"47-{session}.0"]].max(axis=1)
-            
+                (df.loc[:, f"1707-{session}.0"] == -3.0)|
+                (df.loc[:, f"1707-{session}.0"].isna())].index
+        if session == 0:
+            # Add and new column "hgs_dominant"
+            # And assign Highest HGS value among Right and Left HGS:        
+            df.loc[index, f"hgs_dominant-{session}.0"] = \
+                df.loc[:, [f"46-{session}.0", f"47-{session}.0"]].max(axis=1)
+        elif session == 2:
+            for idx in index:
+                if df.loc[idx,"1707-0.0"] == 1.0:
+                    # Add and new column "hgs_dominant"
+                    # And assign Right hand HGS value:
+                    df.loc[idx, f"hgs_dominant-{session}.0"] = \
+                        df.loc[idx, "47-0.0"]
+                elif df.loc[idx,"1707-0.0"] == 2.0:
+                    # Add and new column "hgs_dominant"
+                    # And assign Left hand HGS value:
+                    df.loc[idx, f"hgs_dominant-{session}.0"] = \
+                        df.loc[idx, "46-0.0"]
+                else:
+                     # Add and new column "hgs_dominant"
+                    # And assign Highest HGS value among Right and Left HGS:        
+                    df.loc[idx, f"hgs_dominant-{session}.0"] = \
+                        df.loc[:, [f"46-{session}.0", f"47-{session}.0"]].max(axis=1)
+                
         return df
 
 ###############################################################################
-    def nondominant_handgrip(
-        self,
-        df,
-    ):
+    def nondominant_handgrip(self, df):
         """Calculate dominant handgrip
-        and add "nondominant_hgs" column to dataframe
+        and add "hgs_nondominant" column to dataframe
         (Opposite Process of Dominant module)
 
         Parameters
@@ -182,9 +221,9 @@ class DataPreprocessor:
         # Find handedness equal to 1:
         # index = np.where(df.loc[:, f"1707-{session}.0"] == 1.0)[0]
         index = df[df.loc[:,f"1707-{session}.0"] == 1.0].index
-        # Add and new column "nondominant_hgs"
+        # Add and new column "hgs_nondominant"
         # And assign Left hand HGS value:
-        df.loc[index, f"nondominant_hgs-{session}.0"] = \
+        df.loc[index, f"hgs_nondominant-{session}.0"] = \
             df.loc[:, f"46-{session}.0"]
         # ------------------------------------
         # If handedness is equal to 2
@@ -192,9 +231,9 @@ class DataPreprocessor:
         # Find handedness equal to 2:
         # index = np.where(df.loc[:, f"1707-{session}.0"] == 2.0)[0]
         index = df[df.loc[:,f"1707-{session}.0"] == 2.0].index
-        # Add and new column "nondominant_hgs"
+        # Add and new column "hgs_nondominant"
         # And assign Right hand HGS value:        
-        df.loc[index, f"nondominant_hgs-{session}.0"] = \
+        df.loc[index, f"hgs_nondominant-{session}.0"] = \
             df.loc[:, f"47-{session}.0"]
         # ------------------------------------
         # If handedness is equal to:
@@ -207,13 +246,36 @@ class DataPreprocessor:
         #     (df.loc[:, f"1707-{session}.0"] == 3.0) |
         #     (df.loc[:, f"1707-{session}.0"] == -3.0) |
         #     (df.loc[:, f"1707-{session}.0"].isna()))[0]
-        index = df[(df.loc[:, f"1707-{session}.0"] == 3.0) |
-                   (df.loc[:, f"1707-{session}.0"] == -3.0)|
-                   (df.loc[:, f"1707-{session}.0"].isna())].index
-        # Add and new column "nondominant_hgs"
-        # And assign Lowest HGS value among Right and Left HGS:    
-        df.loc[index, f"nondominant_hgs-{session}.0"] = \
-            df.loc[:, [f"46-{session}.0", f"47-{session}.0"]].min(axis=1)
+        if session == 0:
+            index = df[(df.loc[:, f"1707-{session}.0"] == 3.0) |
+                    (df.loc[:, f"1707-{session}.0"] == -3.0)|
+                    (df.loc[:, f"1707-{session}.0"].isna())].index
+            # Add and new column "hgs_nondominant"
+            # And assign Highest HGS value among Right and Left HGS:        
+            df.loc[index, f"hgs_nondominant-{session}.0"] = \
+                df.loc[:, [f"46-{session}.0", f"47-{session}.0"]].max(axis=1)
+        elif session == 2:
+            index = df[(df.loc[:, f"1707-{session}.0"] == 3.0) |
+                    (df.loc[:, f"1707-{session}.0"] == -3.0)|
+                    (df.loc[:, f"1707-{session}.0"].isna())].index
+            for idx in index:
+                if df.loc[idx,"1707-0.0"] == 1.0:
+                    # Add and new column "hgs_nondominant"
+                    # And assign Left hand HGS value:
+                    df.loc[idx, f"hgs_nondominant-{session}.0"] = \
+                        df.loc[idx, "46-0.0"]
+                elif df.loc[idx,"1707-0.0"] == 2.0:
+                    # Add and new column "hgs_nondominant"
+                    # And assign Right hand HGS value:
+                    df.loc[idx, f"hgs_nondominant-{session}.0"] = \
+                        df.loc[idx, "47-0.0"]
+                elif (df.loc[idx, "1707-0.0"] == 3.0) | \
+                    (df.loc[idx, "1707-0.0"] == -3.0)| \
+                    (df.loc[idx, "1707-0.0"].isna()):
+                     # Add and new column "hgs_nondominant"
+                    # And assign Highest HGS value among Right and Left HGS:        
+                    df.loc[idx, f"hgs_nondominant-{session}.0"] = \
+                        df.loc[idx, ["46-0.0", "47-0.0"]].max(axis=1) 
     
         return df
 
@@ -222,10 +284,7 @@ class DataPreprocessor:
 # Preprocess features or Handling Outliers
 # more meaningful insights and patterns for machine learning models.
 ###############################################################################
-    def calculate_waist_to_hip_ratio(
-        self,
-        df,
-    ):
+    def calculate_waist_to_hip_ratio(self, df):
         """Calculate and add "Waist to Hip Ratio" column to dataframe
 
         Parameters
@@ -255,10 +314,7 @@ class DataPreprocessor:
         return df
 
 ###############################################################################
-    def sum_handgrips(
-        self,
-        df,
-    ):
+    def sum_handgrips(self, df):
         """Calculate sum of Handgrips
         and add "hgs(L+R)" column to dataframe
 
@@ -288,10 +344,7 @@ class DataPreprocessor:
         return df
 
 ###############################################################################
-    def calculate_left_hgs(
-        self,
-        df,
-    ):
+    def calculate_left_hgs(self, df):
         """Calculate left and add "hgs(left)" column to dataframe
 
         Parameters
@@ -319,10 +372,7 @@ class DataPreprocessor:
         return df
 
 ###############################################################################
-    def calculate_right_hgs(
-        self,
-        df,
-    ):
+    def calculate_right_hgs(self, df):
         """Calculate right and add "hgs(right)" column to dataframe
 
         Parameters
@@ -349,10 +399,7 @@ class DataPreprocessor:
 
         return df
 ###############################################################################
-    def sub_handgrips(
-        self,
-        df,
-    ):
+    def sub_handgrips(self, df):
         """Calculate subtraction of Handgrips
         and add "hgs(L-R)" column to dataframe
 
@@ -382,10 +429,7 @@ class DataPreprocessor:
         return df
 
 ###############################################################################
-    def calculate_laterality_index(
-        self,
-        df,
-    ):
+    def calculate_laterality_index(self, df):
         """Calculate Laterality Index and add "hgs(LI)" column to dataframe
 
         Parameters
@@ -418,10 +462,7 @@ class DataPreprocessor:
         return df
 
 ###############################################################################
-    def calculate_neuroticism_score(
-        self,
-        df,
-    ):
+    def calculate_neuroticism_score(self, df):
         """Calculate neuroticism score
         and add "neuroticism_score" column to dataframe
 
@@ -506,10 +547,7 @@ class DataPreprocessor:
         return df
 
 ###############################################################################
-    def calculate_depression_score(
-        self,
-        df,
-    ):
+    def calculate_depression_score(self, df):
         """Calculate depression score
         and add "depression_score" column to dataframe
 
@@ -524,7 +562,8 @@ class DataPreprocessor:
             with extra column for: depression score
         """
         # Assign corresponding session number from the Class:
-        session = self.session
+        # The only aailable session for Depression is 0:
+        session = 0
 
         assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
         assert isinstance(session, int), "session must be a int!"
@@ -586,10 +625,7 @@ class DataPreprocessor:
         return df
 
 ###############################################################################
-    def calculate_anxiety_score(
-        self,
-        df,
-    ):
+    def calculate_anxiety_score(self, df):
         """Calculate anxiety score
         and add "anxiety_score" column to dataframe
 
@@ -604,7 +640,8 @@ class DataPreprocessor:
             with extra column for: anxiety score
         """
         # Assign corresponding session number from the Class:
-        session = self.session
+        # The only aailable session for Anxiety is 0:
+        session = 0
 
         assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
         assert isinstance(session, int), "session must be a int!"
@@ -660,10 +697,7 @@ class DataPreprocessor:
         return df
 
 ###############################################################################
-    def calculate_cidi_score(
-        self,
-        df,
-    ):
+    def calculate_cidi_score(self, df):
         """Calculate CIDI score
         and add "cidi_score" column to dataframe
 
@@ -678,7 +712,8 @@ class DataPreprocessor:
             with extra column for: CIDI score
         """
         # Assign corresponding session number from the Class:
-        session = self.session
+        # The only aailable session for CIDI is 0:
+        session = 0
 
         assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
         assert isinstance(session, int), "session must be a int!"
@@ -801,10 +836,7 @@ class DataPreprocessor:
         return df
 
 ###############################################################################
-    def calculate_qualification(
-        self,
-        df,
-    ):
+    def calculate_qualification(self, df):
         """Calculate maximum qualification
         and add "qualification" column to dataframe
 
@@ -823,7 +855,7 @@ class DataPreprocessor:
 
         assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
         assert isinstance(session, int), "session must be a int!"
-        
+                    
         # ------- Qualification -------
         # '6138', Qualifications
         # Data-coding: 100305
@@ -879,10 +911,7 @@ class DataPreprocessor:
 # Preprocess features or Handling Outliers
 # more meaningful insights and patterns for machine learning models.
 ###############################################################################
-    def preprocess_behaviours(
-        self,
-        df,
-    ):
+    def preprocess_behaviours(self, df):
         """Preprocess Behavioural Phenotypes
       
         Parameters
@@ -970,7 +999,19 @@ class DataPreprocessor:
         for i in range(1, 4):
             df.loc[:,f"400-{session}.{i}"] = \
                 df.loc[:,f"400-{session}.{i}"].replace(0, np.NaN)
-                
+        # We need to add a new columns to remove session number
+        # for matching column names for prediction process.
+        for i in range(1, 4):
+            df.loc[:, f"400-{i}"] = \
+                df.loc[:, f"400-{session}.{i}"]
+        # ------------------------------------
+        # Number of incorrect matches in round
+        # This feild doen't have Data-coding
+        # But we need to add a new columns to remove session number
+        # for matching column names for prediction process.
+        for i in range(1, 4):
+            df.loc[:, f"399-{i}"] = \
+                df.loc[:, f"399-{session}.{i}"]
         #######################################################
         # ------- Prospective memory result -------
         # '20018',  # Prospective memory result
@@ -1063,7 +1104,11 @@ class DataPreprocessor:
         index = df[df.loc[:, f"4581-{session}.0"] < 0].index        
         df.loc[index, f"4581-{session}.0"] = np.NaN
         
-        #######################################################
+        ############ Subjective well-being ###############
+        # The only available session for Subjective well-being
+        # is session 0
+        if session == 2:
+            session = 0
         # ------- Subjective well-being -------
         # Data-Coding: 537
         #           -818	Prefer not to answer
@@ -1115,10 +1160,7 @@ class DataPreprocessor:
 # Remove columns if their values are all NAN
 ###############################################################################
 # Remove columns that all values are NaN
-    def remove_nan_columns(
-        self,
-        df,
-    ):
+    def remove_nan_columns(self, df):
         """Remove columns with all NAN values
       
         Parameters

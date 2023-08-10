@@ -1,2 +1,2 @@
-from .load_train_data import load_primary_train_set_df, load_preprocessed_train_df
+from .load_train_data import load_primary_nonmri_train_set_df, load_preprocessed_train_df, load_primary_mri_df
 from .load_mri_data import load_mri_data, load_mri_data_for_anthropometrics
