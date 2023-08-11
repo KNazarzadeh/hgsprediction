@@ -1,1 +1,1 @@
-from .make_plot import create_regplot
+from .make_plot import plot_correlation_hgs
