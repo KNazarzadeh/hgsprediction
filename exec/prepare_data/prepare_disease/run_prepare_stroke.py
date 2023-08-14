@@ -5,7 +5,8 @@ import pandas as pd
 from sys import argv
 import numpy as np
 from hgsprediction.load_data import load_original_data
-from hgsprediction.prepare_data.prepare_disease import PrepareDisease
+# from hgsprediction.prepare_data.prepare_disease import PrepareDisease
+from hgsprediction.data_preprocessing import stroke_data_preprocessor, StrokeDataPreprocessor
 from hgsprediction.save_data import save_prepared_disease_data
 
 from ptpython.repl import embed
@@ -19,7 +20,8 @@ population = argv[2]
 mri_status = argv[3]
 
 df_original = load_original_data(motor=motor, population=population, mri_status=mri_status)
-
+print("===== Done! =====")
+embed(globals(), locals())
 ###############################################################################
 
 prepare_data = PrepareDisease(df_original, population)

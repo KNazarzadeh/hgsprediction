@@ -2,7 +2,7 @@
 import os
 import pandas as pd
 import numpy as np
-from hgsprediction.compute_features import Features
+# from hgsprediction.compute_features import Features
 
 from ptpython.repl import embed
 # print("===== Done! =====")
@@ -37,13 +37,14 @@ def prepare_stroke(target):
     df_post.rename(columns={'1_pre_session': '1st_pre-stroke_session', '2_pre_session': '2nd_pre-stroke_session', '3_pre_session': '3rd_pre-stroke_session', '4_pre_session': '4th_pre-stroke_session', '1_post_session': '1st_post-stroke_session', '2_post_session': '2nd_post-stroke_session', '3_post_session': '3rd_post-stroke_session', '4_post_session':'4th_post-stroke_session'}, inplace=True)
     
     df_post.loc[:, '1st_post-stroke_session'] = df_post.loc[:, '1st_post-stroke_session'].str.replace("session-", "")
-
-    processor = Features(df_post, mri_status, stroke_cohort="post", visit_session=1)
-    data = processor.calculate_neuroticism_score(df_post)
     print("===== Done! =====")
     embed(globals(), locals())
-    print("===== Done! =====")
-    embed(globals(), locals())
+    # processor = Features(df_post, mri_status, stroke_cohort="post", visit_session=1)
+    # data = processor.calculate_neuroticism_score(df_post)
+    # print("===== Done! =====")
+    # embed(globals(), locals())
+    # print("===== Done! =====")
+    # embed(globals(), locals())
     ses = df_post["1_post_session"].astype(str).str[8:]
     for i in range(0, len(df_post["1_post_session"])):
         idx=ses.index[i]

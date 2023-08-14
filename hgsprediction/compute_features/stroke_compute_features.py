@@ -4,8 +4,13 @@ import numpy as np
 from ptpython.repl import embed
 
 ###############################################################################
-class Features:
-    def __init__(self, df: pd.DataFrame, mri_status, stroke_cohort, visit_session):
+class StrokeFeaturesComputing:
+    def __init__(self, 
+                 df, 
+                 mri_status,
+                 feature_type,
+                 stroke_cohort, 
+                 visit_session):
         """Preprocess data, Calculate and Add new columns to dataframe
 
         Parameters
@@ -20,6 +25,7 @@ class Features:
         
         assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
         assert isinstance(mri_status, str), "mri_status must be a string!"
+        assert isinstance(feature_type, str), "feature_type must be a string!"        
         assert isinstance(stroke_cohort, str), "stroke_cohort must be a string!"
         assert isinstance(visit_session, int), "visit_session must be a integer!"
         
@@ -28,11 +34,166 @@ class Features:
         elif visit_session == 2:
             self.session_column = f"2nd_{stroke_cohort}-stroke_session"
         elif visit_session == 3:
-            session_column = df[f"3rd_{stroke_cohort}-stroke_session"]
+            self.session_column = f"3rd_{stroke_cohort}-stroke_session"
         elif visit_session == 4:
-            session_column = df[f"4th_{stroke_cohort}-stroke_session"]
+            self.session_column = f"4th_{stroke_cohort}-stroke_session"
 
 ###############################################################################
+    def calculate_bmi(self, df):
+        """Calculate coressponding BMI
+        and add "BMI" column to dataframe
+
+        Parameters
+        ----------
+        df : dataframe
+            The dataframe that desired to analysis
+
+        Return
+        ----------
+        df : dataframe
+            with extra column for: BMI
+        """
+        # Assign corresponding session number from the Class:
+        session_column = self.session_column
+        
+        assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
+        assert isinstance(session_column, str), "session_column must be a string!"
+        substring_to_remove = "session"
+        # -----------------------------------------------------------
+        for idx in df.index:
+            session = df.loc[idx, session_column]
+            df.loc[idx, f"{session_column[:-len(substring_to_remove)].strip()}bmi"] = \
+                df.loc[idx, f"21001-{session}"]
+        return df
+
+###############################################################################
+    def calculate_height(self, df):
+        """Calculate coressponding Height
+        and add "Height" column to dataframe
+
+        Parameters
+        ----------
+        df : dataframe
+            The dataframe that desired to analysis
+
+        Return
+        ----------
+        df : dataframe
+            with extra column for: Height
+        """
+        # Assign corresponding session number from the Class:
+        session_column = self.session_column
+        
+        assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
+        assert isinstance(session_column, str), "session_column must be a string!"
+        substring_to_remove = "session"
+        # -----------------------------------------------------------
+        for idx in df.index:
+            session = df.loc[idx, session_column]
+            df.loc[idx, f"{session_column[:-len(substring_to_remove)].strip()}height"] = \
+                df.loc[idx, f"50-{session}"]
+        
+        return df
+    
+    
+###############################################################################
+    def calculate_waist_to_hip_ratio(self, df):
+        """Calculate coressponding waist_to_hip_ratio
+        and add "waist_to_hip_ratio" column to dataframe
+
+        Parameters
+        ----------
+        df : dataframe
+            The dataframe that desired to analysis
+
+        Return
+        ----------
+        df : dataframe
+            with extra column for: waist_to_hip_ratio
+        """
+        # Assign corresponding session number from the Class:
+        session_column = self.session_column
+        
+        assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
+        assert isinstance(session_column, str), "session_column must be a string!"
+        substring_to_remove = "session"
+        # -----------------------------------------------------------
+        for idx in df.index:
+            session = df.loc[idx, session_column]
+            df.loc[idx, f"{session_column[:-len(substring_to_remove)].strip()}waist_to_hip_ratio"] = \
+                df.loc[idx, f"48-{session}"] / df.loc[idx, f"49-{session}"]
+        
+        return df
+
+###############################################################################
+    def calculate_age(self, df):
+        """Calculate coressponding Age
+        and add "Age" column to dataframe
+
+        Parameters
+        ----------
+        df : dataframe
+            The dataframe that desired to analysis
+
+        Return
+        ----------
+        df : dataframe
+            with extra column for: Age
+        """
+        # Assign corresponding session number from the Class:
+        session_column = self.session_column
+        
+        assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
+        assert isinstance(session_column, str), "session_column must be a string!"
+        substring_to_remove = "session"
+        # -----------------------------------------------------------
+        for idx in df.index:
+            session = df.loc[idx, session_column]
+            if session == "0.0":
+                df.loc[idx, f"{session_column[:-len(substring_to_remove)].strip()}Age"] = \
+                df.loc[idx, f"Age1stVisit"]
+            elif session == "1.0":
+                df.loc[idx, f"{session_column[:-len(substring_to_remove)].strip()}Age"] = \
+                df.loc[idx, f"AgeRepVisit"]
+            elif session == "2.0":
+                df.loc[idx, f"{session_column[:-len(substring_to_remove)].strip()}Age"] = \
+                df.loc[idx, f"AgeAtScan"]
+            elif session == "3.0":
+                df.loc[idx, f"{session_column[:-len(substring_to_remove)].strip()}Age"] = \
+                df.loc[idx, f"AgeAt2ndScan"]
+
+        return df    
+    
+###############################################################################
+    def calculate_days(self, df):
+        """Calculate coressponding Height
+        and add "Height" column to dataframe
+
+        Parameters
+        ----------
+        df : dataframe
+            The dataframe that desired to analysis
+
+        Return
+        ----------
+        df : dataframe
+            with extra column for: Height
+        """
+        # Assign corresponding session number from the Class:
+        session_column = self.session_column
+        
+        assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
+        assert isinstance(session_column, str), "session_column must be a string!"
+        substring_to_remove = "session"
+        # -----------------------------------------------------------
+        for idx in df.index:
+            session = df.loc[idx, session_column]        
+            df.loc[idx, f"{session_column[:-len(substring_to_remove)].strip()}days"] = \
+                df.loc[idx, f"followup_days-{session}"]
+            
+        return df
+
+###############################################################################    
     def calculate_neuroticism_score(self, df):
         """Calculate neuroticism score
         and add "neuroticism_score" column to dataframe
@@ -119,4 +280,28 @@ class Features:
 
         return df
 
+###############################################################################
+###############################################################################
+############################## Remove NaN coulmns #############################
+# Remove columns if their values are all NAN
+###############################################################################
+# Remove columns that all values are NaN
+    def remove_nan_columns(self, df):
+        """Remove columns with all NAN values
+      
+        Parameters
+        ----------
+        df : dataframe
+            The dataframe that desired to analysis
+
+        Return
+        ----------
+        df : dataframe
+        """ 
+
+        nan_cols = df.columns[df.isna().all()].tolist()
+        df = df.drop(nan_cols, axis=1)
+        
+        return df
+    
 ###############################################################################

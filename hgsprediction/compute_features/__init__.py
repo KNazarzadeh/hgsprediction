@@ -1,1 +1,2 @@
-from .stroke_compute_features import Features
+from .healthy_compute_features import HealthyFeaturesComputing
+from .stroke_compute_features import StrokeFeaturesComputing

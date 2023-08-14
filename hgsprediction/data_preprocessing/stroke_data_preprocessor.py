@@ -16,15 +16,40 @@ from datetime import datetime as dt
 from ptpython.repl import embed
 
 ###############################################################################
-class StrokePreprocessor:
-    def __init__(self, df):
-        """
+class StrokeDataPreprocessor:
+    def __init__(self, df, 
+                 mri_status,
+                 feature_type,
+                 stroke_cohort, 
+                 visit_session):
+        """Preprocess data, Calculate and Add new columns to dataframe
+
         Parameters
         ----------
-        df : pandas.DataFrame
-            The dataframe that desired to analysis.
+        df : dataframe
+            The dataframe that desired to analysis
         """
         self.df = df
+        self.mri_status = mri_status
+        self.stroke_cohort = stroke_cohort
+        self.visit_session = visit_session
+        
+        assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
+        assert isinstance(mri_status, str), "mri_status must be a string!"
+        assert isinstance(feature_type, str), "feature_type must be a string!"        
+        assert isinstance(stroke_cohort, str), "stroke_cohort must be a string!"
+        assert isinstance(visit_session, int), "visit_session must be a integer!"
+        
+        if visit_session == 1:
+            self.session_column = f"1st_{stroke_cohort}-stroke_session"
+        elif visit_session == 2:
+            self.session_column = f"2nd_{stroke_cohort}-stroke_session"
+        elif visit_session == 3:
+            self.session_column = f"3rd_{stroke_cohort}-stroke_session"
+        elif visit_session == 4:
+            self.session_column = f"4th_{stroke_cohort}-stroke_session"
+
+###############################################################################
 
 ###############################################################################
     def remove_missing_stroke_dates(self, df):
@@ -75,7 +100,59 @@ class StrokePreprocessor:
         return df
 
 ###############################################################################
-    def define_onset_stroke(self, df, population):
+################################ DATA VALIDATION ##############################
+# The main goal of data validation is to verify that the data is 
+# accurate, reliable, and suitable for the intended analysis.
+###############################################################################
+    def validate_handgrips(self, df):
+        """Exclude all subjects who had Dominant HGS < 4:
+
+        Parameters
+        ----------
+        df : dataframe
+            The dataframe that desired to analysis
+
+        Return
+        ----------
+        df : dataframe
+        """
+        # Assign corresponding session number from the Class:
+        session = self.session
+
+        assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
+        assert isinstance(session, int), "session must be a int!"
+        # ------------------------------------
+        # Calculate Dominant and Non-Dominant HGS by
+        # Calling the modules:
+        df = self.dominant_handgrip(df)
+        df = self.nondominant_handgrip(df)
+        # ------------------------------------
+        # Exclude all subjects who had Dominant HGS < 4:
+        # The condition is applied to "hgs_dominant" columns
+        # And then reset_index the new dataframe:
+        df = df[df.loc[:, f"hgs_dominant-{session}.0"] >=4]
+
+        return df
+
+###############################################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+###############################################################################
+    def define_onset_stroke(self, df):
         """ Define the Baseline date of stroke."
 
         Parameters
@@ -90,8 +167,7 @@ class StrokePreprocessor:
         onset : array
             The column of the stroke onset date when the stroke occurred.
         """
-        if population == "stroke":
-            onset = df['42006-0.0']
+        onset = df['42006-0.0']
 
         return onset
 
@@ -137,8 +213,7 @@ class StrokePreprocessor:
             DataFrame of data specified.
         """
         sessions = 4
-        if population == "stroke":
-            onset = df['42006-0.0']
+        onset = df['42006-0.0']
         for ses in range(0, sessions):
             attendance = df[f'53-{ses}.0']
             df[f'days_to_onset-{ses}.0'] = self.date_difference(attendance, onset)
@@ -146,7 +221,7 @@ class StrokePreprocessor:
         return df
     
 ###############################################################################
-    def extract_post_stroke_df(self, df, population):
+    def extract_post_stroke_df(self, df):
         """Extract the post stroke dataframe from the stroke dataframe. 
         
         Parameters
@@ -162,8 +237,7 @@ class StrokePreprocessor:
             DataFrame of data specified.
         """
         sessions = 4
-        if population == "stroke":
-            onset = df['42006-0.0']
+        onset = df['42006-0.0']
         for ses in range(0, sessions):
             attendance = df[f'53-{ses}.0']
             df[f'followup_days-{ses}.0'] = \
@@ -179,7 +253,7 @@ class StrokePreprocessor:
         #     df[f"days_hgs_after_stroke_ses-{ses}.0"].mask(df[f"days_hgs_after_stroke_ses-{ses}.0"]<0)
 
 ###############################################################################
-    def extract_pre_stroke_df(self, df, population):
+    def extract_pre_stroke_df(self, df):
         """Extract the pre stroke dataframe from the stroke dataframe. 
 
         Parameters
@@ -195,9 +269,7 @@ class StrokePreprocessor:
             DataFrame of data specified.
         """
         sessions = 4
-        
-        if population == "stroke":
-            onset = df['42006-0.0']       
+        onset = df['42006-0.0']       
         for ses in range(0, sessions):
             attendance = df[f'53-{ses}.0']
             df[f'followup_days-{ses}.0'] = self.date_difference(attendance, onset)
@@ -214,7 +286,7 @@ class StrokePreprocessor:
         return df
 
 ###############################################################################
-    def extract_longitudinal_stroke_df(self, df, population):
+    def extract_longitudinal_stroke_df(self, df):
         """Extract the longitudinal dataframe from the stroke dataframe. 
 
         Parameters
@@ -229,8 +301,8 @@ class StrokePreprocessor:
         df : pandas.DataFrame
             DataFrame of data specified.
         """
-        post_df = self.extract_post_stroke_df(df, population)
-        pre_df = self.exract_pre_stroke_df(df, population)
+        post_df = self.extract_post_stroke_df(df)
+        pre_df = self.exract_pre_stroke_df(df)
 
         # The intersection between pre and post dataframes of stroke
         # will be the longitudinal dataframe.
@@ -240,7 +312,7 @@ class StrokePreprocessor:
         return longitudinal_df
 
 ###############################################################################
-    def stroke_subsets(self, df, population):
+    def extract_stroke_subsets(self, df, visit_session):
         
         sessions = 4
         days = [col for col in df.columns if 'days_to_onset' in col]
@@ -377,128 +449,6 @@ class StrokePreprocessor:
         dataframe = dataframe.dropna(subset = ['first_prior_hgs_L', 'first_prior_hgs_R'])
 
 
-#         #-----------------------
-        # session_days = pd.DataFrame(dataframe, columns=total_days_col)
-
-        # # mask = session_days.all(i >= 30 for i in session_days)
-        # for ses in range(1, num_session):
-        #     #matching_days = session_days.loc[session_days[f'total_days_ses-{ses}.0'] == dataframe['first_visit_days']]
-        #     mask = session_days.apply(lambda x: x.isin(x.nsmallest(ses)), axis=1)
-
-        #     # prior_first_visit = session_days[mask].where(session_days>=0).min(axis = 1)
-        #     prior_first_visit = session_days[mask].where(session_days<0).max(axis = 1)
-
-        #     # prior_first_visit = session_days[mask].where(session_days>=0).idxmin(axis=1)
-        #     prior_first_session = session_days[mask].where(session_days<0).idxmax(axis=1)
-
-        #     dataframe['prior_first_visit'] = prior_first_visit
-        #     dataframe['prior_first_session'] = prior_first_session
-        #     dataframe['prior_first_session'] = dataframe['prior_first_session'].replace(to_replace=total_days_col, value=[0, 1, 2, 3])
-        
-        #     dataframe.loc[dataframe['prior_first_session']==dataframe['first_visit_session'], 'prior_first_visit'] = np.nan
-        #     dataframe.loc[dataframe['prior_first_session']==dataframe['first_visit_session'], 'prior_first_session'] = np.nan
-
-        # for ses in range(0, num_session):
-        #     min_ses_subs = dataframe.loc[dataframe['prior_first_session'] == ses, 'eid']
-        #     dataframe.loc[dataframe['prior_first_session'] == ses, 'prior_first_visit_hgs_L'] = dataframe[f'Hand_grip_strength_(left)-{ses}.0']
-        #     dataframe.loc[dataframe['prior_first_session'] == ses, 'prior_first_visit_hgs_R'] = dataframe[f'47-{ses}.0']
-
-        
-#         #-----------------------
-#         session_days = pd.DataFrame(dataframe, columns=total_days_col)
-#         session_days = session_days.where(session_days[total_days_col] >=0)
-
-#         mask = session_days.apply(lambda x: x.isin(x.nsmallest(2)), axis=1)
-#         second_visit_days = session_days[mask].max(axis=1)
-#         second_visit_session = session_days[mask].idxmax(axis=1)
-
-
-#         dataframe['second_visit_days'] = second_visit_days
-#         dataframe['second_visit_session'] = second_visit_session
-#         dataframe['second_visit_session'] = dataframe['second_visit_session'].replace(to_replace=total_days_col, value=[0, 1, 2, 3])
-
-
-#         dataframe.loc[(dataframe['second_visit_session']==dataframe['first_visit_session']), 'second_visit_days'] = np.nan
-#         dataframe.loc[(dataframe['second_visit_session']==dataframe['first_visit_session']), 'second_visit_session'] = np.nan
-
-#         for ses in range(0, num_session):
-#             min_ses_subs = dataframe.loc[dataframe['second_visit_session'] == ses, 'eid']
-#             dataframe.loc[dataframe['second_visit_session'] == ses, 'second_visit_hgs_L'] = dataframe[f'Hand_grip_strength_(left)-{ses}.0']
-#             dataframe.loc[dataframe['second_visit_session'] == ses, 'second_visit_hgs_R'] = dataframe[f'47-{ses}.0']
-
-# #-----------------------
-#         session_days = pd.DataFrame(dataframe, columns=total_days_col)
-#         session_days = session_days.where(session_days[total_days_col] >=0)
-
-#         mask = session_days.apply(lambda x: x.isin(x.nsmallest(3)), axis=1)
-#         third_visit_days = session_days[mask].max(axis=1)
-#         third_visit_session = session_days[mask].idxmax(axis=1)
-
-
-#         dataframe['third_visit_days'] = third_visit_days
-#         dataframe['third_visit_session'] = third_visit_session
-#         dataframe['third_visit_session'] = dataframe['third_visit_session'].replace(to_replace=total_days_col, value=[0, 1, 2, 3])
-
-
-#         dataframe.loc[(dataframe['third_visit_session']==dataframe['first_visit_session']) | (dataframe['third_visit_session']==dataframe['second_visit_session']), 'third_visit_days'] = np.nan
-#         dataframe.loc[(dataframe['third_visit_session']==dataframe['first_visit_session']) | (dataframe['third_visit_session']==dataframe['second_visit_session']), 'third_visit_session'] = np.nan
-
-#         for ses in range(0, num_session):
-#             min_ses_subs = dataframe.loc[dataframe['third_visit_session'] == ses, 'eid']
-#             dataframe.loc[dataframe['third_visit_session'] == ses, 'third_visit_hgs_L'] = dataframe[f'Hand_grip_strength_(left)-{ses}.0']
-#             dataframe.loc[dataframe['third_visit_session'] == ses, 'third_visit_hgs_R'] = dataframe[f'Hand_grip_strength_(right)-{ses}.0']
-
-        return dataframe
-
-# -------------------------------
-    def add_mri_status(
-        self,
-        non_mri_dataframe,
-        mri_dataframe,
-    ):
-
-        non_mri_dataframe['MRI'] = non_mri_dataframe['eid'].isin(mri_dataframe['eid'])
-        non_mri_dataframe['MRI'].replace({True: 1, False: 0}, inplace = True)
-
-        return non_mri_dataframe
-###############################################################################
-    def check_hgs_for_stroke(
-        self,
-        dataframe,
-    ):
-        dataframe['HGS_status'] = dataframe.mask(~dataframe['46-0.0'].isna(), 1)
-        dataframe['HGS_status'] = dataframe.mask(dataframe['46-0.0'].isna(), 0)
-
-        # dataframe['HGS_status'].replace({True: 1, False: 0}, inplace = True)
-###############################################################################
-    def subtraction_hgs(
-        self,
-        dataframe,
-        HGS_L,
-        HGs_R
-    ):
-        dataframe['sub_hgs'] = dataframe['HGS_L'] - dataframe['HGS_R']
-
-        return dataframe
-###############################################################################
-    def sum_hgs(
-        self,
-        dataframe,
-    ):
-        dataframe['sum_hgs'] = dataframe['first_visit_hgs_L'] + dataframe['first_visit_hgs_R']
-
-        return dataframe
-###############################################################################
-    def laterality_index(
-        self,
-        dataframe,
-        HGS_L,
-        HGS_R
-    ):
-        dataframe['LI'] =  (dataframe[HGS_L]-dataframe[HGS_R]) / (dataframe[HGS_L]+dataframe[HGS_R])
-        dataframe['abs_LI'] = abs(dataframe[HGS_L]-dataframe[HGS_R]) / abs(dataframe[HGS_L]+dataframe[HGS_R])
-
-        return dataframe
 ###############################################################################
     def remove_stroke_before_2006(
         self,
@@ -521,16 +471,4 @@ class StrokePreprocessor:
         dataframe = dataframe[stroke_date > start_date]
 
         return dataframe
-
-###############################################################################
-    def add_mri_status(
-        self,
-        non_mri_dataframe,
-        mri_dataframe,
-    ):
-        non_mri_dataframe['MRI'] = non_mri_dataframe['eid'].isin(mri_dataframe['eid'])
-        non_mri_dataframe['MRI'].replace({True: 1, False: 0}, inplace = True)
-        
-        return non_mri_dataframe
-# -----------------------------------------------------------------------------#    
 

@@ -14,7 +14,7 @@ import pandas as pd
 from ptpython.repl import embed
 
 ###############################################################################
-class HealthyDataPreprocessor:
+class HealthyFeaturesComputing:
     def __init__(self, df, mri_status):
         """Preprocess data, Calculate and Add new columns to dataframe
 
@@ -33,252 +33,8 @@ class HealthyDataPreprocessor:
             self.session = 0
         elif mri_status == "mri":
             self.session = 2
-############################# CHECK HGS AVAILABILITY ##########################
-# The main goal of check HGS availability is to check if the right and left HGS
-# be available for each session.
-###############################################################################
-    def check_hgs_availability(self, df):
-        """Check HGS availability on right and left for each session:
-
-        Parameters
-        ----------
-        df : dataframe
-            The dataframe that desired to analysis
-
-        Return
-        ----------
-        df : dataframe
-        """
-        # Assign corresponding session number from the Class:
-        session = self.session
-
-        assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
-        assert isinstance(session, int), "session must be a int!"
-        # Handgrip strength info
-        # for Left and Right Hands
-        hgs_left = "46"  # Handgrip_strength_(left)
-        hgs_right = "47"  # Handgrip_strength_(right)
-        # UK Biobank assessed handgrip strength in 4 sessions
-        index = df[((~df[f'{hgs_left}-{session}.0'].isna()) &
-                (df[f'{hgs_left}-{session}.0'] !=  0))
-                & ((~df[f'{hgs_right}-{session}.0'].isna()) &
-                (df[f'{hgs_right}-{session}.0'] !=  0))].index
-
-        df = df.loc[index, :]
-
-        return df
-################################ DATA VALIDATION ##############################
-# The main goal of data validation is to verify that the data is 
-# accurate, reliable, and suitable for the intended analysis.
-###############################################################################
-    def validate_handgrips(self, df):
-        """Exclude all subjects who had Dominant HGS < 4:
-
-        Parameters
-        ----------
-        df : dataframe
-            The dataframe that desired to analysis
-
-        Return
-        ----------
-        df : dataframe
-        """
-        # Assign corresponding session number from the Class:
-        session = self.session
-
-        assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
-        assert isinstance(session, int), "session must be a int!"
-        # ------------------------------------
-        # Calculate Dominant and Non-Dominant HGS by
-        # Calling the modules:
-        df = self.dominant_handgrip(df)
-        df = self.nondominant_handgrip(df)
-        # ------------------------------------
-        # Exclude all subjects who had Dominant HGS < 4:
-        # The condition is applied to "hgs_dominant" columns
-        # And then reset_index the new dataframe:
-        df = df[df.loc[:, f"hgs_dominant-{session}.0"] >=4]
-
-        return df
 
 ###############################################################################
-    def dominant_handgrip(self, df):
-        """Calculate dominant handgrip
-        and add "hgs_dominant" column to dataframe
-
-        Parameters
-        ----------
-        df : dataframe
-            The dataframe that desired to analysis
-
-        Return
-        ----------
-        df : dataframe
-            with extra column for: Dominant hand Handgrip strength
-        """
-        # Assign corresponding session number from the Class:
-        session = self.session
-
-        assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
-        assert isinstance(session, int), "session must be a int!"
-        # ------------------------------------
-        # hgs_left field-ID: 46
-        # hgs_right field-ID: 47
-        # ------------------------------------
-        # ------- Handedness Field-ID: 1707
-        # Data-Coding: 100430
-        #           1	Right-handed
-        #           2	Left-handed
-        #           3	Use both right and left hands equally
-        #           -3	Prefer not to answer
-        # ------------------------------------
-        # If handedness is equal to 1
-        # Right hand is Dominant
-        # Find handedness equal to 1:
-        index = df[df.loc[:,f"1707-{session}.0"] == 1.0].index
-        # Add and new column "hgs_dominant"
-        # And assign Right hand HGS value:
-        df.loc[index, f"hgs_dominant-{session}.0"] = \
-            df.loc[:, f"47-{session}.0"]
-        # ------------------------------------
-        # If handedness is equal to 2
-        # Left hand is Dominant
-        # Find handedness equal to 2:
-        index = df[df.loc[:,f"1707-{session}.0"] == 2.0].index
-        # Add and new column "hgs_dominant"
-        # And assign Left hand HGS value:
-        df.loc[index, f"hgs_dominant-{session}.0"] = \
-            df.loc[:, f"46-{session}.0"]
-        # ------------------------------------
-        # If handedness is equal to:
-        # 3 (Use both right and left hands equally) OR
-        # -3 (handiness is not available/Prefer not to answer) OR
-        # NaN value
-        # Dominant will be the Highest Handgrip score from both hands.
-        # Find handedness equal to 3, -3 or NaN:
-        index = df[(df.loc[:, f"1707-{session}.0"] == 3.0) |
-                (df.loc[:, f"1707-{session}.0"] == -3.0)|
-                (df.loc[:, f"1707-{session}.0"].isna())].index
-        if session == 0:
-            # Add and new column "hgs_dominant"
-            # And assign Highest HGS value among Right and Left HGS:        
-            df.loc[index, f"hgs_dominant-{session}.0"] = \
-                df.loc[:, [f"46-{session}.0", f"47-{session}.0"]].max(axis=1)
-        elif session == 2:
-            for idx in index:
-                if df.loc[idx,"1707-0.0"] == 1.0:
-                    # Add and new column "hgs_dominant"
-                    # And assign Right hand HGS value:
-                    df.loc[idx, f"hgs_dominant-{session}.0"] = \
-                        df.loc[idx, "47-0.0"]
-                elif df.loc[idx,"1707-0.0"] == 2.0:
-                    # Add and new column "hgs_dominant"
-                    # And assign Left hand HGS value:
-                    df.loc[idx, f"hgs_dominant-{session}.0"] = \
-                        df.loc[idx, "46-0.0"]
-                else:
-                     # Add and new column "hgs_dominant"
-                    # And assign Highest HGS value among Right and Left HGS:        
-                    df.loc[idx, f"hgs_dominant-{session}.0"] = \
-                        df.loc[:, [f"46-{session}.0", f"47-{session}.0"]].max(axis=1)
-                
-        return df
-
-###############################################################################
-    def nondominant_handgrip(self, df):
-        """Calculate dominant handgrip
-        and add "hgs_nondominant" column to dataframe
-        (Opposite Process of Dominant module)
-
-        Parameters
-        ----------
-        df : dataframe
-            The dataframe that desired to analysis
-
-        Return
-        ----------
-        df : dataframe
-            with extra column for: NonDominant hand Handgrip strength
-        """
-        # Assign corresponding session number from the Class:
-        session = self.session
-
-        assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
-        assert isinstance(session, int), "session must be a int!"
-        # ------------------------------------
-        # hgs_left field-ID: 46
-        # hgs_right field-ID: 47
-        # ------------------------------------
-        # ------- Handedness Field-ID: 1707
-        # Data-Coding: 100430
-        #           1	Right-handed
-        #           2	Left-handed
-        #           3	Use both right and left hands equally
-        #           -3	Prefer not to answer
-        # ------------------------------------
-        # If handedness is equal to 1
-        # Left hand is Non-Dominant
-        # Find handedness equal to 1:
-        # index = np.where(df.loc[:, f"1707-{session}.0"] == 1.0)[0]
-        index = df[df.loc[:,f"1707-{session}.0"] == 1.0].index
-        # Add and new column "hgs_nondominant"
-        # And assign Left hand HGS value:
-        df.loc[index, f"hgs_nondominant-{session}.0"] = \
-            df.loc[:, f"46-{session}.0"]
-        # ------------------------------------
-        # If handedness is equal to 2
-        # Right hand is Non-Dominant
-        # Find handedness equal to 2:
-        # index = np.where(df.loc[:, f"1707-{session}.0"] == 2.0)[0]
-        index = df[df.loc[:,f"1707-{session}.0"] == 2.0].index
-        # Add and new column "hgs_nondominant"
-        # And assign Right hand HGS value:        
-        df.loc[index, f"hgs_nondominant-{session}.0"] = \
-            df.loc[:, f"47-{session}.0"]
-        # ------------------------------------
-        # If handedness is equal to:
-        # 3 (Use both right and left hands equally) OR
-        # -3 (handiness is not available/Prefer not to answer) OR
-        # NaN value
-        # Non-Dominant will be the Lowest Handgrip score from both hands.
-        # Find handedness equal to 3, -3 or NaN:
-        # index = np.where(
-        #     (df.loc[:, f"1707-{session}.0"] == 3.0) |
-        #     (df.loc[:, f"1707-{session}.0"] == -3.0) |
-        #     (df.loc[:, f"1707-{session}.0"].isna()))[0]
-        if session == 0:
-            index = df[(df.loc[:, f"1707-{session}.0"] == 3.0) |
-                    (df.loc[:, f"1707-{session}.0"] == -3.0)|
-                    (df.loc[:, f"1707-{session}.0"].isna())].index
-            # Add and new column "hgs_nondominant"
-            # And assign Highest HGS value among Right and Left HGS:        
-            df.loc[index, f"hgs_nondominant-{session}.0"] = \
-                df.loc[:, [f"46-{session}.0", f"47-{session}.0"]].max(axis=1)
-        elif session == 2:
-            index = df[(df.loc[:, f"1707-{session}.0"] == 3.0) |
-                    (df.loc[:, f"1707-{session}.0"] == -3.0)|
-                    (df.loc[:, f"1707-{session}.0"].isna())].index
-            for idx in index:
-                if df.loc[idx,"1707-0.0"] == 1.0:
-                    # Add and new column "hgs_nondominant"
-                    # And assign Left hand HGS value:
-                    df.loc[idx, f"hgs_nondominant-{session}.0"] = \
-                        df.loc[idx, "46-0.0"]
-                elif df.loc[idx,"1707-0.0"] == 2.0:
-                    # Add and new column "hgs_nondominant"
-                    # And assign Right hand HGS value:
-                    df.loc[idx, f"hgs_nondominant-{session}.0"] = \
-                        df.loc[idx, "47-0.0"]
-                elif (df.loc[idx, "1707-0.0"] == 3.0) | \
-                    (df.loc[idx, "1707-0.0"] == -3.0)| \
-                    (df.loc[idx, "1707-0.0"].isna()):
-                     # Add and new column "hgs_nondominant"
-                    # And assign Highest HGS value among Right and Left HGS:        
-                    df.loc[idx, f"hgs_nondominant-{session}.0"] = \
-                        df.loc[idx, ["46-0.0", "47-0.0"]].max(axis=1) 
-    
-        return df
-
 ############################## FFEATURE ENGINEERING ###########################
 # Creating new columns/features/targets from existing data
 # Preprocess features or Handling Outliers
@@ -310,154 +66,6 @@ class HealthyDataPreprocessor:
         df.loc[:, f"waist_to_hip_ratio-{session}.0"] = \
             (df.loc[:, f"48-{session}.0"].astype(str).astype(float)).div(
                 df.loc[:, f"49-{session}.0"].astype(str).astype(float))
-
-        return df
-
-###############################################################################
-    def sum_handgrips(self, df):
-        """Calculate sum of Handgrips
-        and add "hgs(L+R)" column to dataframe
-
-        Parameters
-        ----------
-        df : dataframe
-            The dataframe that desired to analysis
-
-        Return
-        ----------
-        df : dataframe
-            with calculating extra column for: (HGS Left + HGS Right)
-        """
-        # Assign corresponding session number from the Class:
-        session = self.session
-
-        assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
-        assert isinstance(session, int), "session must be a int!"
-        # ------------------------------------
-        # Add new column "hgs(L+R)" by the following process: 
-        # hgs_left field-ID: 46
-        # hgs_right field-ID: 47
-        # sum of Handgrips (Left + Right)
-        df.loc[:, f"hgs(L+R)-{session}.0"] = \
-            df.loc[:, f"46-{session}.0"] + df.loc[:, f"47-{session}.0"]
-
-        return df
-
-###############################################################################
-    def calculate_left_hgs(self, df):
-        """Calculate left and add "hgs(left)" column to dataframe
-
-        Parameters
-        ----------
-        df : dataframe
-            The dataframe that desired to analysis
-
-        Return
-        ----------
-        df : dataframe
-            with calculating extra column for:
-            HGS(Left)
-        """
-        # Assign corresponding session number from the Class:
-        session = self.session
-
-        assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
-        assert isinstance(session, int), "session must be a int!"
-
-        # hgs_left field-ID: 46
-        # hgs_right field-ID: 47
-
-        df.loc[:, f"hgs(left)-{session}.0"] = df.loc[:, f"46-{session}.0"]
-
-        return df
-
-###############################################################################
-    def calculate_right_hgs(self, df):
-        """Calculate right and add "hgs(right)" column to dataframe
-
-        Parameters
-        ----------
-        df : dataframe
-            The dataframe that desired to analysis
-
-        Return
-        ----------
-        df : dataframe
-            with calculating extra column for:
-            HGS(Right)
-        """
-        # Assign corresponding session number from the Class:
-        session = self.session
-
-        assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
-        assert isinstance(session, int), "session must be a int!"
-
-        # hgs_left field-ID: 46
-        # hgs_right field-ID: 47
-
-        df.loc[:, f"hgs(right)-{session}.0"] = df.loc[:, f"47-{session}.0"]
-
-        return df
-###############################################################################
-    def sub_handgrips(self, df):
-        """Calculate subtraction of Handgrips
-        and add "hgs(L-R)" column to dataframe
-
-        Parameters
-        ----------
-        df : dataframe
-            The dataframe that desired to analysis
-
-        Return
-        ----------
-        df : dataframe
-            with calculating extra column for: (HGS Left - HGS Right)
-        """
-        # Assign corresponding session number from the Class:
-        session = self.session
-
-        assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
-        assert isinstance(session, int), "session must be a int!"
-        # ------------------------------------
-        # Add new column "hgs(L-R)" by the following process: 
-        # hgs_left field-ID: 46
-        # hgs_right field-ID: 47
-        # Subtraction of Handgrips (Left - Right)
-        df.loc[:, f"hgs(L-R)-{session}.0"] = \
-            df.loc[:, f"46-{session}.0"] - df.loc[:, f"47-{session}.0"]
-
-        return df
-
-###############################################################################
-    def calculate_laterality_index(self, df):
-        """Calculate Laterality Index and add "hgs(LI)" column to dataframe
-
-        Parameters
-        ----------
-        df : dataframe
-            The dataframe that desired to analysis
-
-        Return
-        ----------
-        df : dataframe
-            with calculating extra column for:
-            HGS(Left - Right)/HGS(Left + Right)
-        """
-        # Assign corresponding session number from the Class:
-        session = self.session
-
-        assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
-        assert isinstance(session, int), "session must be a int!"
-
-        # hgs_left field-ID: 46
-        # hgs_right field-ID: 47
-
-        df_sub = self.sub_handgrips(df)
-        df_sum = self.sum_handgrips(df)
-
-        # Laterality Index of Handgrip strength: (Left - Right)/(Left +right)
-        df.loc[:, f"hgs(LI)-{session}.0"] = \
-            (df_sub.loc[:, f"hgs(L-R)-{session}.0"] / df_sum.loc[:, f"hgs(L+R)-{session}.0"])
 
         return df
 
@@ -836,77 +444,6 @@ class HealthyDataPreprocessor:
         return df
 
 ###############################################################################
-    def calculate_qualification(self, df):
-        """Calculate maximum qualification
-        and add "qualification" column to dataframe
-
-        Parameters
-        ----------
-        df : dataframe
-            The dataframe that desired to analysis
-
-        Return
-        ----------
-        df : dataframe
-            with extra column for: maximum qualification
-        """
-        # Assign corresponding session number from the Class:
-        session = self.session
-
-        assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
-        assert isinstance(session, int), "session must be a int!"
-                    
-        # ------- Qualification -------
-        # '6138', Qualifications
-        # Data-coding: 100305
-        #           1	College or University degree
-        #           2	A levels/AS levels or equivalent
-        #           3	O levels/GCSEs or equivalent
-        #           4	CSEs or equivalent
-        #           5	NVQ or HND or HNC or equivalent
-        #           6	Other professional qualifications eg: nursing, teaching
-        #           -7	None of the above
-        #           -3	Prefer not to answer
-        # ------------------------------------
-        # Array indices run from 0 to 5 for each intences:
-        for i in range(6):
-            # Find College or University degree
-            # And Replace with '1.0' value
-            # index_college = np.where(
-            #     df.loc[:,f"6138-{session}.{i}"] == 1.0)[0]
-            index_college = df[df.loc[:,f"6138-{session}.{i}"] == 1.0].index
-            df.loc[index_college, f"6138-{session}.{i}"] = 1.0
-            # Find No College or University degree
-            # And Replace with '0.0' value:
-            # index_no_college = np.where(
-            #     df.loc[:,f"6138-{session}.{i}"].isin([2.0,
-            #                                           3.0,
-            #                                           4.0,
-            #                                           5.0,
-            #                                           6.0,
-            #                                           -7.0]))[0]
-            index_no_college = df[df.loc[:,f"6138-{session}.{i}"].isin([2.0,
-                                                                        3.0,
-                                                                        4.0,
-                                                                        5.0,
-                                                                        6.0,
-                                                                        -7.0])].index         
-            df.loc[index_no_college, f"6138-{session}.{i}"] = 0.0
-            # Find No answered
-            # And Replace with 'NaN' value:
-            # index_no_answer = np.where(
-            #     df.loc[:,f"6138-{session}.{i}"] == -3.0)[0]
-            index_no_answer = df[df.loc[:,f"6138-{session}.{i}"] == -3.0].index
-            df.loc[index_no_answer, f"6138-{session}.{i}"] = np.NaN
-        # Calculate Maximum Qualification
-        max_qualification = \
-            df.loc[:,df.columns.str.startswith(f"6138-{session}.")].max(axis=1)
-        # Add new column for qualification with Maximum value
-        df.loc[:, "qualification"] = max_qualification
-
-        return df
-
-###############################################################################
 ############################## PREPROCESS FEATURES ############################
 # Preprocess features or Handling Outliers
 # more meaningful insights and patterns for machine learning models.
@@ -1156,6 +693,77 @@ class HealthyDataPreprocessor:
         return df
 
 ###############################################################################
+    def calculate_qualification(self, df):
+        """Calculate maximum qualification
+        and add "qualification" column to dataframe
+
+        Parameters
+        ----------
+        df : dataframe
+            The dataframe that desired to analysis
+
+        Return
+        ----------
+        df : dataframe
+            with extra column for: maximum qualification
+        """
+        # Assign corresponding session number from the Class:
+        session = self.session
+
+        assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
+        assert isinstance(session, int), "session must be a int!"
+                    
+        # ------- Qualification -------
+        # '6138', Qualifications
+        # Data-coding: 100305
+        #           1	College or University degree
+        #           2	A levels/AS levels or equivalent
+        #           3	O levels/GCSEs or equivalent
+        #           4	CSEs or equivalent
+        #           5	NVQ or HND or HNC or equivalent
+        #           6	Other professional qualifications eg: nursing, teaching
+        #           -7	None of the above
+        #           -3	Prefer not to answer
+        # ------------------------------------
+        # Array indices run from 0 to 5 for each intences:
+        for i in range(6):
+            # Find College or University degree
+            # And Replace with '1.0' value
+            # index_college = np.where(
+            #     df.loc[:,f"6138-{session}.{i}"] == 1.0)[0]
+            index_college = df[df.loc[:,f"6138-{session}.{i}"] == 1.0].index
+            df.loc[index_college, f"6138-{session}.{i}"] = 1.0
+            # Find No College or University degree
+            # And Replace with '0.0' value:
+            # index_no_college = np.where(
+            #     df.loc[:,f"6138-{session}.{i}"].isin([2.0,
+            #                                           3.0,
+            #                                           4.0,
+            #                                           5.0,
+            #                                           6.0,
+            #                                           -7.0]))[0]
+            index_no_college = df[df.loc[:,f"6138-{session}.{i}"].isin([2.0,
+                                                                        3.0,
+                                                                        4.0,
+                                                                        5.0,
+                                                                        6.0,
+                                                                        -7.0])].index         
+            df.loc[index_no_college, f"6138-{session}.{i}"] = 0.0
+            # Find No answered
+            # And Replace with 'NaN' value:
+            # index_no_answer = np.where(
+            #     df.loc[:,f"6138-{session}.{i}"] == -3.0)[0]
+            index_no_answer = df[df.loc[:,f"6138-{session}.{i}"] == -3.0].index
+            df.loc[index_no_answer, f"6138-{session}.{i}"] = np.NaN
+        # Calculate Maximum Qualification
+        max_qualification = \
+            df.loc[:,df.columns.str.startswith(f"6138-{session}.")].max(axis=1)
+        # Add new column for qualification with Maximum value
+        df.loc[:, "qualification"] = max_qualification
+
+        return df
+
+###############################################################################
 ############################## Remove NaN coulmns #############################
 # Remove columns if their values are all NAN
 ###############################################################################
@@ -1184,27 +792,3 @@ class HealthyDataPreprocessor:
         return df
     
 ###############################################################################
-def run_healthy_preprocessing(data, data_processor=None):
-    if data_processor is None:
-        # Create an instance of DataPreprocessor with session=0
-        data_processor = DataPreprocessor(data,session=0)
-
-    # Call all functions inside the class
-    # DATA VALIDATION
-    data = data_processor.validate_handgrips(data)
-    # FEATURE ENGINEERING
-    data = data_processor.calculate_qualification(data)
-    data = data_processor.calculate_waist_to_hip_ratio(data)
-    data = data_processor.calculate_neuroticism_score(data)
-    data = data_processor.calculate_anxiety_score(data)
-    data = data_processor.calculate_depression_score(data)
-    data = data_processor.calculate_cidi_score(data)
-    data = data_processor.preprocess_behaviours(data)
-    data = data_processor.sum_handgrips(data)
-    data = data_processor.calculate_left_hgs(data)
-    data = data_processor.calculate_right_hgs(data)
-    data = data_processor.sub_handgrips(data)
-    data = data_processor.calculate_laterality_index(data)
-    data = data_processor.remove_nan_columns(data)
-
-    return data

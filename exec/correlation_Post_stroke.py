@@ -38,6 +38,8 @@ file_path = os.path.join(
         f"{post_list[0]}_{mri_status}_{population}.csv")
 
 df_post = pd.read_csv(file_path, sep=',')
+print("===== Done! =====")
+embed(globals(), locals())
 df_post.set_index("SubjectID", inplace=True)
 
 ses = df_post["1_post_session"].astype(str).str[8:]
