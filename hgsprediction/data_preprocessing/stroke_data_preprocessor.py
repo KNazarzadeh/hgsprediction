@@ -16,12 +16,8 @@ from datetime import datetime as dt
 from ptpython.repl import embed
 
 ###############################################################################
-class StrokeDataPreprocessor:
-    def __init__(self, df, 
-                 mri_status,
-                 feature_type,
-                 stroke_cohort, 
-                 visit_session):
+class StrokeMainDataPreprocessor:
+    def __init__(self, df):
         """Preprocess data, Calculate and Add new columns to dataframe
 
         Parameters
@@ -30,26 +26,6 @@ class StrokeDataPreprocessor:
             The dataframe that desired to analysis
         """
         self.df = df
-        self.mri_status = mri_status
-        self.stroke_cohort = stroke_cohort
-        self.visit_session = visit_session
-        
-        assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
-        assert isinstance(mri_status, str), "mri_status must be a string!"
-        assert isinstance(feature_type, str), "feature_type must be a string!"        
-        assert isinstance(stroke_cohort, str), "stroke_cohort must be a string!"
-        assert isinstance(visit_session, int), "visit_session must be a integer!"
-        
-        if visit_session == 1:
-            self.session_column = f"1st_{stroke_cohort}-stroke_session"
-        elif visit_session == 2:
-            self.session_column = f"2nd_{stroke_cohort}-stroke_session"
-        elif visit_session == 3:
-            self.session_column = f"3rd_{stroke_cohort}-stroke_session"
-        elif visit_session == 4:
-            self.session_column = f"4th_{stroke_cohort}-stroke_session"
-
-###############################################################################
 
 ###############################################################################
     def remove_missing_stroke_dates(self, df):
@@ -100,112 +76,22 @@ class StrokeDataPreprocessor:
         return df
 
 ###############################################################################
-################################ DATA VALIDATION ##############################
-# The main goal of data validation is to verify that the data is 
-# accurate, reliable, and suitable for the intended analysis.
+################################ Calculate Followup Days ######################
+# The main goal of Followup Days calculation is to calculate the difference days 
+# between stroke date and the attendence dates (for each session) 
+# To see each subject had stroke before/after stroke
+# to find the subject's stroke cohort (Pre-, Post- or Longitudinal)
 ###############################################################################
-    def validate_handgrips(self, df):
-        """Exclude all subjects who had Dominant HGS < 4:
-
-        Parameters
-        ----------
-        df : dataframe
-            The dataframe that desired to analysis
-
-        Return
-        ----------
-        df : dataframe
-        """
-        # Assign corresponding session number from the Class:
-        session = self.session
-
-        assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
-        assert isinstance(session, int), "session must be a int!"
-        # ------------------------------------
-        # Calculate Dominant and Non-Dominant HGS by
-        # Calling the modules:
-        df = self.dominant_handgrip(df)
-        df = self.nondominant_handgrip(df)
-        # ------------------------------------
-        # Exclude all subjects who had Dominant HGS < 4:
-        # The condition is applied to "hgs_dominant" columns
-        # And then reset_index the new dataframe:
-        df = df[df.loc[:, f"hgs_dominant-{session}.0"] >=4]
-
-        return df
-
-###############################################################################
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-###############################################################################
-    def define_onset_stroke(self, df):
-        """ Define the Baseline date of stroke."
-
-        Parameters
-        ----------
-        df : pandas.DataFrame
-            DataFrame of data specified.
-        population : str
-            Name of population/stroke.
-            
-        Returns
-        --------
-        onset : array
-            The column of the stroke onset date when the stroke occurred.
-        """
-        onset = df['42006-0.0']
-
-        return onset
-
-###############################################################################
-    def date_difference(self, attendance, onset):
-        """Find the number of days between two given dates.
-           Here for diseae onset and attendance at clinic.
-            
-        Parameters
-        ----------
-        attendance :  array
-            The column of the baseline visit date when the subject visited clinic.
-        onset : array
-            The column of the stroke onset date when the stroke occurred.
-            
-        Returns
-        --------
-        df : pandas.DataFrame
-            DataFrame of data specified.
-        """
-        onset_date = pd.to_datetime(onset)
-        attendance_date = pd.to_datetime(attendance)
-        
-        days = (attendance_date-onset_date).dt.days
-        
-        return days
-    
-###############################################################################
-    def days_difference_onset_baseline(self, df, population):
+    def define_followup_days(self, df):
         """Calcuate the days differences between
-            the Attendance date (the visit in clinic) and the Onset date of stroke.
+            the Attendance date (the visit in clinic) and the Onset date of disease.
             
         Parameters
         ----------
         df : pandas.DataFrame
             DataFrame of data specified.
         onset :  array
-            The column of the stroke onset date when the stroke occurred.
+            The column of the disease onset date when the disease occurred.
             
         Returns
         --------
@@ -213,10 +99,33 @@ class StrokeDataPreprocessor:
             DataFrame of data specified.
         """
         sessions = 4
-        onset = df['42006-0.0']
+        onset_date = pd.to_datetime(df['42006-0.0'])
+
         for ses in range(0, sessions):
-            attendance = df[f'53-{ses}.0']
-            df[f'days_to_onset-{ses}.0'] = self.date_difference(attendance, onset)
+            attendance_date = pd.to_datetime(df[f'53-{ses}.0'])
+            df[f'followup_days-{ses}.0'] = (attendance_date-onset_date).dt.days
+
+        return df
+
+###############################################################################
+    def define_stroke_type(self,df):
+
+        stroke_subtypes = [
+            '42008-0.0',	# Date of ischaemic stroke
+            '42010-0.0',	# Date of intracerebral haemorrhage
+            '42012-0.0',	# Date of subarachnoid haemorrhage
+        ]
+        df_subtype = df[stroke_subtypes]
+        # Convert the columns to datetime
+        df_subtype = df_subtype.apply(pd.to_datetime)
+
+        # Find the earliest date on each row
+        df['primary_subtype'] = df_subtype.min(axis=1)
+        df['stroke_subtype_field'] = df_subtype.idxmin(axis=1)
+        
+        df.loc[df[df['stroke_subtype_field']=="42008-0.0"].index, 'stroke_subtype'] = "ischaemic"
+        df.loc[df[df['stroke_subtype_field']=="420010-0.0"].index, 'stroke_subtype'] = "intracerebral_haemorrhage"
+        df.loc[df[df['stroke_subtype_field']=="420012-0.0"].index, 'stroke_subtype'] = "subarachnoid_haemorrhage"
 
         return df
     
@@ -236,21 +145,22 @@ class StrokeDataPreprocessor:
         df : pandas.DataFrame
             DataFrame of data specified.
         """
+        # UKB contains 4 assessment sessions
         sessions = 4
-        onset = df['42006-0.0']
+        # Initialize an empty list
+        followupdays_cols = []
+        # Append "followup_days" column names to list
         for ses in range(0, sessions):
-            attendance = df[f'53-{ses}.0']
-            df[f'followup_days-{ses}.0'] = \
-                df[f'followup_days-{ses}.0'].mask(df[f'followup_days-{ses}.0']<0)
+            followupdays_cols.append(f"followup_days-{ses}.0")
 
-        return df
-    
-        # for ses in range(0, sessions):
-        #     attendance = df[f"53-{ses}.0"]
-        #     df[f"days_hgs_after_stroke_ses-{ses}.0"] = \
-        #         self.numOfDays(base_date, follow_date)
-        #     df[f"days_hgs_after_stroke_ses-{ses}.0"] = \
-        #     df[f"days_hgs_after_stroke_ses-{ses}.0"].mask(df[f"days_hgs_after_stroke_ses-{ses}.0"]<0)
+        # Create a boolean mask for rows where all numeric variables are greater than zero or are NaN
+        mask = df[followupdays_cols].apply(lambda row: np.all(np.logical_or(np.isnan(row), row >= 0)), axis=1)
+
+        # Apply the mask to the DataFrame to get the desired rows
+        # for only Post-stroke subjects
+        post_stroke_df = df[mask]
+
+        return post_stroke_df
 
 ###############################################################################
     def extract_pre_stroke_df(self, df):
@@ -269,21 +179,18 @@ class StrokeDataPreprocessor:
             DataFrame of data specified.
         """
         sessions = 4
-        onset = df['42006-0.0']       
+        followupdays_cols = []
         for ses in range(0, sessions):
-            attendance = df[f'53-{ses}.0']
-            df[f'followup_days-{ses}.0'] = self.date_difference(attendance, onset)
-            df[f'followup_days-{ses}.0'] = \
-                df[f'followup_days-{ses}.0'].mask(df[f'followup_days-{ses}.0'] >= 0)
+            followupdays_cols.append(f"followup_days-{ses}.0")
 
-        # for ses in range(0, sessions):
-        #     follow_date = df[f"53-{ses}.0"]
-        #     df[f"days_hgs_after_stroke_ses-{ses}.0"] = \
-        #         self.numOfDays(base_date, follow_date)
-        #     df[f"days_hgs_after_stroke_ses-{ses}.0"] = \
-        #     df[f"days_hgs_after_stroke_ses-{ses}.0"].mask(df[f"days_hgs_after_stroke_ses-{ses}.0"]>0)
+        # Create a boolean mask for rows where all numeric variables are lower than zero or are NaN
+        mask = df[followupdays_cols].apply(lambda row: np.all(np.logical_or(np.isnan(row), row < 0)), axis=1)
 
-        return df
+        # Apply the mask to the DataFrame to get the desired rows
+        # for only Pre-stroke subjects
+        post_stroke_df = df[mask]
+
+        return post_stroke_df
 
 ###############################################################################
     def extract_longitudinal_stroke_df(self, df):
@@ -301,174 +208,296 @@ class StrokeDataPreprocessor:
         df : pandas.DataFrame
             DataFrame of data specified.
         """
-        post_df = self.extract_post_stroke_df(df)
-        pre_df = self.exract_pre_stroke_df(df)
+        post_stroke_df = self.extract_post_stroke_df(df)
+        pre_stroke_df = self.extract_pre_stroke_df(df)
 
         # The intersection between pre and post dataframes of stroke
         # will be the longitudinal dataframe.
-        keys = ['eid']
-        longitudinal_df = pre_df.merge(post_df[keys], on=keys)
+        # Merge the two DataFrames
+        merged_df = pd.concat([pre_stroke_df, post_stroke_df]).drop_duplicates()
 
-        return longitudinal_df
+        # Find the symmetric difference between
+        # the merged pre- and post- stroke DataFrames and the original DataFrame
+        longitudinal_stroke_df = df.merge(merged_df, how='outer', indicator=True).query('_merge != "both"').drop('_merge', axis=1)
+
+        return longitudinal_stroke_df
 
 ###############################################################################
-    def extract_stroke_subsets(self, df, visit_session):
+###############################################################################
+    def extract_all_post_stroke_visits(self, df):
+        """Extract the post stroke dataframe from the stroke dataframe. 
         
+        Parameters
+        ----------
+        df : pandas.DataFrame
+            DataFrame of data specified.
+        population : str
+            Name of population/stroke.
+            
+        Returns
+        --------
+        df : pandas.DataFrame
+            DataFrame of data specified.
+        """
+        # Assign corresponding session number from the Class:
+        stroke_cohort = "post-stroke"
+        
+        assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
+
         sessions = 4
-        days = [col for col in df.columns if 'days_to_onset' in col]
-        df_post = df[df[days]>=0]
-
-        first_post_visit_days = df_post[days].min(axis=1)
-        first_post_visit_ses = df_post[days].idxmin(axis=1)
-
-        df_pre = df[df[days]<0]
-
-        first_pre_visit_days = df_pre[days].max(axis=1)
-        first_pre_visit_ses = df_pre[days].idxmax(axis=1)
-
-        df['first_post_visit_days'] = first_post_visit_days
-        df['first_post_visit_ses'] = first_post_visit_ses
-        df['first_post_visit_ses'] = df['first_post_ses'].replace(to_replace=days, value=[0, 1, 2, 3])
-
+        followupdays_cols = []
         for ses in range(0, sessions):
-            post_ses_subs = df.loc[df['first_post_ses'] == ses, 'eid']
-            df.loc[df['first_post_ses'] == ses, 'first_post_hgs_L'] = df[f'46-{ses}.0']
-            df.loc[df['first_post_ses'] == ses, 'first_post_hgs_R'] = df[f'47-{ses}.0']
+            followupdays_cols.append(f"followup_days-{ses}.0")
+        # Drop rows where values in all four columns of followup_days 
+        # are less than 0 (Drop All Pre-stroke subjects)
+        # And keep rows with at least one value (>= 0)
+        filtered_df = df.loc[(df[followupdays_cols] >= 0).any(axis=1), followupdays_cols]
+        # Apply a lambda function to each element in the DataFrame 'filtered_df'.
+        # The lambda function replaces negative values with NaN (Not a Number),
+        # while leaving non-negative values unchanged.
+        cleaned_df = filtered_df.applymap(lambda x: np.nan if x < 0 else x)
+        # Function to sort each row and return column names, handling NaN values
+        # Sorts the values in a row in ascending order while placing NaN values at the end,
+        # and returns a list of column names where non-NaN values are preserved in the sorted order.
+        # Any NaN values are replaced with np.nan in the resulting list.   
+        def sort_and_get_columns(row):
+            sorted_row = row.sort_values(na_position='last')  # Sort the row values, keeping NaNs at the end.
+            result = []
+            for col in sorted_row.index:
+                if not pd.isna(sorted_row[col]):  # Check if the value is not NaN.
+                    result.append(col)  # Append the column name to the result list.
+                else:
+                    result.append(np.nan)  # Append np.nan if the value is NaN.
+            return result  # Return the list of column names preserving the sorted non-NaN values.
+            # Another way to write code --> return [col if not pd.isna(sorted_row[col]) else np.nan for col in sorted_row.index]
 
+        # Apply the 'sort_and_get_columns' function to each row of the cleaned DataFrame ('cleaned_df').
+        # The function sorts row values in ascending order with NaNs placed at the end,
+        # and returns a DataFrame where each row contains the sorted column names with NaN values replaced by np.nan.
+        sorted_columns = cleaned_df.apply(sort_and_get_columns, axis=1, result_type='expand')
+        
+        # Set custom column names for the sorted_columns DataFrame
+        sorted_columns.columns = [f"1st_{stroke_cohort}-stroke_session",
+                                  f"2nd_{stroke_cohort}-stroke_session",
+                                  f"3rd_{stroke_cohort}-stroke_session",
+                                  f"4th_{stroke_cohort}-stroke_session"]
+        # Function to remove a substring
+        def remove_substring(value, substring):
+            if isinstance(value, str):
+                return value.replace(substring, '')
+            return value
+        substring_to_remove = "followup_days-"
+        # Apply the function to remove the substring from all values
+        post_stroke_visits_df = sorted_columns.applymap(lambda x: remove_substring(x, substring_to_remove))
+
+        return post_stroke_visits_df
+
+###############################################################################
+def extract_all_pre_stroke_visits(self, df):
+        """Extract the pre stroke dataframe from the stroke dataframe. 
+        
+        Parameters
+        ----------
+        df : pandas.DataFrame
+            DataFrame of data specified.
+        population : str
+            Name of population/stroke.
+            
+        Returns
+        --------
+        df : pandas.DataFrame
+            DataFrame of data specified.
+        """
+        # Assign corresponding session number from the Class:
+        stroke_cohort = "pre-stroke"
+        
+        assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
+
+        sessions = 4
+        followupdays_cols = []
         for ses in range(0, sessions):
-            df.loc[df['first_post_ses'] == ses, 'first_post_BMI'] = df[f'21002-{ses}.0']
+            followupdays_cols.append(f"followup_days-{ses}.0")
+        # Drop rows where values in all four columns of followup_days 
+        # are greather or equal to 0 (Drop All Post-stroke subjects)
+        # And keep rows with at least one value (< 0)
+        filtered_df = df.loc[(df[followupdays_cols] < 0).any(axis=1), followupdays_cols]
+        
+        # Sort column names based on values if values < threshold for each row
+        # columns with values lower than 0 is all pre-stroke
+        sorted_columns = filtered_df.apply(lambda row: sorted([col for col in row.index if row[col] < 0]),
+                          axis=1, result_type='expand')
+        # Set custom column names for the sorted_columns DataFrame
+        sorted_columns.columns = [f"1st_{stroke_cohort}-stroke_session",
+                                  f"2nd_{stroke_cohort}-stroke_session",
+                                  f"3rd_{stroke_cohort}-stroke_session",
+                                  f"4th_{stroke_cohort}-stroke_session"]
+        # Function to remove a substring
+        def remove_substring(value, substring):
+            if isinstance(value, str):
+                return value.replace(substring, '')
+            return value
+        substring_to_remove = "followup_days-"
+        # Apply the function to remove the substring from all values
+        pre_stroke_visits_df = sorted_columns.applymap(lambda x: remove_substring(x, substring_to_remove))
 
+        return pre_stroke_visits_df
+###############################################################################
+class StrokeExtraDataPreprocessor:
+    def __init__(self, 
+                 df, 
+                 mri_status,
+                 feature_type,
+                 stroke_cohort, 
+                 visit_session):
+        """Preprocess data, Calculate and Add new columns to dataframe
 
-        df['first_pre_days'] = first_pre_visit_days
-        df['first_pre_ses'] = first_pre_visit_ses
-        df['first_pre_ses'] = df['first_pre_ses'].replace(to_replace=days, value=[0, 1, 2, 3])
-        for ses in range(0, sessions):
-            pre_ses_subs = df.loc[df['first_pre_ses'] == ses, 'eid']
-            df.loc[df['first_pre_ses'] == ses, 'first_pre_hgs_L'] = df[f'46-{ses}.0']
-            df.loc[df['first_pre_ses'] == ses, 'first_pre_hgs_R'] = df[f'47-{ses}.0']
+        Parameters
+        ----------
+        df : dataframe
+            The dataframe that desired to analysis
+        """
+        self.df = df
+        self.mri_status = mri_status
+        self.stroke_cohort = stroke_cohort
+        self.visit_session = visit_session
+        
+        assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
+        assert isinstance(mri_status, str), "mri_status must be a string!"
+        assert isinstance(feature_type, str), "feature_type must be a string!"        
+        assert isinstance(stroke_cohort, str), "stroke_cohort must be a string!"
+        assert isinstance(visit_session, int), "visit_session must be a integer!"
+        
+        if visit_session == 1:
+            self.session_column = f"1st_{stroke_cohort}-stroke_session"
+        elif visit_session == 2:
+            self.session_column = f"2nd_{stroke_cohort}-stroke_session"
+        elif visit_session == 3:
+            self.session_column = f"3rd_{stroke_cohort}-stroke_session"
+        elif visit_session == 4:
+            self.session_column = f"4th_{stroke_cohort}-stroke_session"
 
-        for ses in range(0, sessions):
-            df.loc[df['first_pre_ses'] == ses, 'first_pre_BMI'] = df[f'21002-{ses}.0']
+################################ DATA VALIDATION ##############################
+# The main goal of data validation is to verify that the data is 
+# accurate, reliable, and suitable for the intended analysis.
+###############################################################################
+    def validate_handgrips(self, df):
+        """Exclude all subjects who had Dominant HGS < 4:
+
+        Parameters
+        ----------
+        df : dataframe
+            The dataframe that desired to analysis
+
+        Return
+        ----------
+        df : dataframe
+        """        
+        # Assign corresponding session number from the Class:
+        session_column = self.session_column
+        
+        assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
+        assert isinstance(session_column, str), "session_column must be a string!"
+        # -----------------------------------------------------------
+        substring_to_remove = "session"
+        # Calculate Dominant and Non-Dominant HGS by
+        # Calling the modules:
+        df = self.calculate_dominant_hgs(df)
+        # ------------------------------------
+        # Exclude all subjects who had Dominant HGS < 4:
+        # The condition is applied to "hgs_dominant" columns
+        # And then reset_index the new dataframe:
+        df = df[df.loc[:, f"{session_column[:, len(substring_to_remove)].strip()}hgs_dominant"] >=4]
 
         return df
 
 ###############################################################################
-    
-    def howmany_sessions(
-        self,
-        df,
-        num_session,
-    ):
-        total_days_col = [col for col in df.columns if 'total' in col]
-        sub_df_days = pd.DataFrame(df, columns=total_days_col)
+    def calculate_dominant_hgs(self, df):
+        """Calculate dominant handgrip
+        and add "hgs_dominant" column to dataframe
 
-        df['num_NaN_sessions'] = sub_df_days.isna().sum(axis=1)
+        Parameters
+        ----------
+        df : dataframe
+            The dataframe that desired to analysis
 
-        return df
-
-###############################################################################
-    def prior_stroke_subs(
-        self,
-        dataframe,
-        num_session,
-    ):
-        dataframe = self.cal_stroke_based_days(dataframe, num_session)
-        total_days_col = [col for col in dataframe.columns if 'total' in col]
-        sub_df_days = pd.DataFrame(dataframe, columns=total_days_col)
-
-        sub_df_days[total_days_col] = sub_df_days[total_days_col].apply(
-                lambda x: pd.to_numeric(x, errors='coerce'))
-        # dataframe = dataframe [(dataframe[total_days_col].isna().sum(axis=1) == 3)]
-
-        first_prior_strok_days = sub_df_days.where(sub_df_days<0).max(axis = 1)
-        first_prior_strok_ses = sub_df_days.where(sub_df_days<0).idxmax(axis = 1)
+        Return
+        ----------
+        df : dataframe
+            with extra column for: Dominant hand Handgrip strength
+        """
+        # Assign corresponding session number from the Class:
+        session_column = self.session_column
         
-        dataframe['first_prior_days'] = first_prior_strok_days
-        dataframe['first_prior_session'] = first_prior_strok_ses
-        dataframe['first_prior_session'] = dataframe['first_prior_session'].replace(to_replace=total_days_col, value=[0, 1, 2, 3])
-
-        for ses in range(0, num_session):
-            prior_ses_subs = dataframe.loc[dataframe['first_prior_session'] == ses, 'eid']
-            dataframe.loc[dataframe['first_prior_session'] == ses, 'first_prior_hgs_L'] = dataframe[f'46-{ses}.0']
-            dataframe.loc[dataframe['first_prior_session'] == ses, 'first_prior_hgs_R'] = dataframe[f'47-{ses}.0']
-        
-        dataframe = dataframe.dropna(subset = ['first_prior_hgs_L', 'first_prior_hgs_R'])
-
-        return dataframe
-###############################################################################
-    def first_visit_poststroke(
-        self,
-        dataframe,
-        num_session,
-    ):
-        dataframe = self.cal_stroke_based_days(dataframe, num_session)
-        total_days_col = [col for col in dataframe.columns if 'total' in col]
-        sub_df_days = pd.DataFrame(dataframe, columns=total_days_col)
-        sub_df_days[total_days_col] = sub_df_days[total_days_col].apply(
-                lambda x: pd.to_numeric(x, errors='coerce'))
-        # first_post_strok_days = dataframe.where(dataframe[total_days_col] >=0).min(axis=1)
-        # dataframe = dataframe[dataframe[total_days_col] >=0]
-        # dataframe = dataframe[dataframe[total_days_col].isna().sum(axis=1) == 3]
-        # dataframe = dataframe [(dataframe[total_days_col].isna().sum(axis=1) == 3)]
-        # # a = sub_df_days.where(sub_df_days[total_days_col].isna().sum(axis=1) == 3)
-        # first_post_strok_days = dataframe.where(dataframe[total_days_col]>=0).min(axis = 1)
-        # first_post_strok_ses = dataframe.where(dataframe[total_days_col]>=0).idxmin(axis = 1)
-        
-        # dataframe = dataframe.where(sub_df_days[total_days_col].isna().sum(axis=1) == 3)
-        df_post = sub_df_days[sub_df_days['total_days_ses-0.0']>=0]
-        first_post_strok_days = df_post[total_days_col].min(axis = 1)
-        first_post_strok_ses = dataframe[total_days_col].idxmin(axis = 1)
-        sub_df_days['first_visit_days'] = first_post_strok_days
-        sub_df_days['first_visit_session'] = first_post_strok_ses
-        sub_df_days['first_visit_session'] = sub_df_days['first_visit_session'].replace(to_replace=total_days_col, value=[0, 1, 2, 3])
-
-        dataframe['first_visit_days'] = first_post_strok_days
-        dataframe['first_visit_session'] = first_post_strok_ses
-        dataframe['first_visit_session'] = dataframe['first_visit_session'].replace(to_replace=total_days_col, value=[0, 1, 2, 3])
-
-        for ses in range(0, num_session):
-            min_ses_subs = dataframe.loc[dataframe['first_visit_session'] == ses, 'eid']
-            dataframe.loc[dataframe['first_visit_session'] == ses, 'first_visit_hgs_L'] = dataframe[f'46-{ses}.0']
-            dataframe.loc[dataframe['first_visit_session'] == ses, 'first_visit_hgs_R'] = dataframe[f'47-{ses}.0']
-        
-        dataframe = dataframe.dropna(subset = ['first_visit_hgs_L', 'first_visit_hgs_R'])
-
-        dataframe = dataframe[dataframe['total_days_ses-0.0']<0]
-        first_prior_strok_days = dataframe[total_days_col].max(axis = 1)
-        first_prior_strok_ses = dataframe[total_days_col].idxmax(axis = 1)
-        
-        dataframe['first_prior_days'] = first_prior_strok_days
-        dataframe['first_prior_session'] = first_prior_strok_ses
-        dataframe['first_prior_session'] = dataframe['first_prior_session'].replace(to_replace=total_days_col, value=[0, 1, 2, 3])
-
-        for ses in range(0, num_session):
-            prior_ses_subs = dataframe.loc[dataframe['first_prior_session'] == ses, 'eid']
-            dataframe.loc[dataframe['first_prior_session'] == ses, 'first_prior_hgs_L'] = dataframe[f'46-{ses}.0']
-            dataframe.loc[dataframe['first_prior_session'] == ses, 'first_prior_hgs_R'] = dataframe[f'47-{ses}.0']
-        
-        dataframe = dataframe.dropna(subset = ['first_prior_hgs_L', 'first_prior_hgs_R'])
-
-
-###############################################################################
-    def remove_stroke_before_2006(
-        self,
-        dataframe,
-        stroke_date
-    ):
-        start_date = pd.to_datetime('2005-01-01')
-        stroke_date = pd.to_datetime(stroke_date)
-        dataframe = dataframe[stroke_date > start_date]
-
-        return dataframe
-
-###############################################################################
-    def post_stroke_6months(
-        self,
-        dataframe,
-    ):
-        start_date = pd.to_datetime('2005-01-01')
-        stroke_date = pd.to_datetime(stroke_date)
-        dataframe = dataframe[stroke_date > start_date]
-
-        return dataframe
+        assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
+        assert isinstance(session_column, str), "session_column must be a string!"
+        # -----------------------------------------------------------
+        substring_to_remove = "session"
+        for idx in df.index:
+            session = df.loc[idx, session_column]
+            if (session == 1.0) | (session == 3.0):
+                session = 0.0
+            # hgs_left field-ID: 46
+            # hgs_right field-ID: 47
+            # ------------------------------------
+            # ------- Handedness Field-ID: 1707
+            # Data-Coding: 100430
+            #           1	Right-handed
+            #           2	Left-handed
+            #           3	Use both right and left hands equally
+            #           -3	Prefer not to answer
+            # ------------------------------------
+            # If handedness is equal to 1
+            # Right hand is Dominant
+            # Find handedness equal to 1:
+            if df.loc[idx,f"1707-{session}"] == 1.0:
+                # Add and new column "hgs_dominant"
+                # And assign Right hand HGS value:
+                df.loc[idx, f"{session_column[:, len(substring_to_remove)].strip()}hgs_dominant"] = \
+                    df.loc[idx, f"47-{session}"]
+            # ------------------------------------
+            # If handedness is equal to 2
+            # Right hand is Non-Dominant
+            # Find handedness equal to 2:
+            elif df.loc[idx,f"1707-{session}"] == 2.0:
+                # Add and new column "hgs_dominant"
+                # And assign Left hand HGS value:        
+                df.loc[idx, f"{session_column[:, len(substring_to_remove)].strip()}hgs_dominant"] = \
+                    df.loc[idx, f"46-{session}"]
+            # ------------------------------------
+            # If handedness is equal to:
+            # 3 (Use both right and left hands equally) OR
+            # -3 (handiness is not available/Prefer not to answer) OR
+            # NaN value
+            # Dominant will be the Highest Handgrip score from both hands.
+            # Find handedness equal to 3, -3 or NaN:
+            if session == 0:
+                if (df.loc[idx, f"1707-{session}"] == 3.0) | \
+                    (df.loc[idx, f"1707-{session}"] == -3.0) | \
+                    (df.loc[idx, f"1707-{session}"].isna()):
+                    # Add and new column "hgs_dominant"
+                    # And assign Highest HGS value among Right and Left HGS:        
+                    df.loc[idx, f"{session_column[:, len(substring_to_remove)].strip()}hgs_dominant"] = \
+                        df.loc[idx, [f"46-{session}", f"47-{session}"]].max(axis=1)
+            elif session == 2:
+                if (df.loc[idx, f"1707-{session}"] == 3.0) | \
+                    (df.loc[idx, f"1707-{session}"] == -3.0) | \
+                    (df.loc[idx, f"1707-{session}"].isna()):
+                    if df.loc[idx,"1707-0.0"] == 1.0:
+                        # Add and new column "hgs_dominant"
+                        # And assign Right hand HGS value:
+                        df.loc[idx, f"{session_column[:, len(substring_to_remove)].strip()}hgs_dominant"] = \
+                            df.loc[idx, "47-0.0"]
+                    elif df.loc[idx,"1707-0.0"] == 2.0:
+                        # Add and new column "hgs_dominant"
+                        # And assign Left hand HGS value:
+                        df.loc[idx, f"{session_column[:, len(substring_to_remove)].strip()}hgs_dominant"] = \
+                            df.loc[idx, "46-0.0"]
+                            
+                    elif (df.loc[idx, "1707-0.0"] == 3.0) | \
+                        (df.loc[idx, "1707-0.0"] == -3.0)| \
+                        (df.loc[idx, "1707-0.0"].isna()):
+                        # Add and new column "hgs_dominant"
+                        # And assign Highest HGS value among Right and Left HGS:        
+                        df.loc[idx, f"{session_column[:, len(substring_to_remove)].strip()}hgs_dominant"] = \
+                            df.loc[idx, ["46-0.0", "47-0.0"]].max(axis=1) 
 

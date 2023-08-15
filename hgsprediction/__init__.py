@@ -1,7 +1,11 @@
 """Provide imports for the hgsprediction package."""
 
+# Load Stroke Data
+from .load_data import stroke_load_data
+
 # Data Preprocessing
 from .data_preprocessing import stroke_data_preprocessor
+
 # Features Computing
 from .compute_features import HealthyFeaturesComputing, \
                               StrokeFeaturesComputing
