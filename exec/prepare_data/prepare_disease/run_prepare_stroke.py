@@ -6,7 +6,7 @@ from sys import argv
 import numpy as np
 from hgsprediction.load_data import load_original_data
 # from hgsprediction.prepare_data.prepare_disease import PrepareDisease
-from hgsprediction.data_preprocessing import stroke_data_preprocessor, StrokeDataPreprocessor
+from hgsprediction.data_preprocessing import StrokeDataPreprocessor, stroke_data_preprocessor
 from hgsprediction.save_data import save_prepared_disease_data
 
 from ptpython.repl import embed
