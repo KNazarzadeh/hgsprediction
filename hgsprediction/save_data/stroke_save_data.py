@@ -1,14 +1,12 @@
 
 import os
+import pandas as pd
 
-
-
-def save_prepared_disease_data(
+def save_preprocessed_data(
     df,
-    df_name,
-    motor,
     population,
     mri_status,
+    stroke_cohort,
 ):
     """
     Save data to csv file.
@@ -24,27 +22,25 @@ def save_prepared_disease_data(
     mri_status: str
         MRI status which data to be  to be analyse.
     """
-    save_folder_path = os.path.join(
+    folder_path = os.path.join(
         "/data",
         "project",
         "stroke_ukb",
         "knazarzadeh",
-        "GIT_repositories",
-        "motor_ukb",
-        "data_ukb",
-        f"data_{motor}",
-        population,
-        "prepared_data",
+        "project_hgsprediction",
+        "data_hgs",
+        f"{population}",
+        "preprocessed_data",
         f"{mri_status}_{population}",
+        f"{stroke_cohort}_data",
     )
 
-    if(not os.path.isdir(save_folder_path)):
-        os.makedirs(save_folder_path)
+    if(not os.path.isdir(folder_path)):
+        os.makedirs(folder_path)
 
-    # Define the csv file path to save
-    save_file_path = os.path.join(
-        save_folder_path,
-        f"{df_name}_{mri_status}_{population}.csv")
+    file_path = os.path.join(
+        folder_path,
+        f"{stroke_cohort}_data.csv")
     
-    df.to_csv(save_file_path, sep=',')
-
+    df.to_csv(file_path, sep=',', index=True)
+  

@@ -43,8 +43,45 @@ def load_original_data(population, mri_status):
         folder_path,
         f"{mri_status}_{population}.csv")
     
-    df = pd.read_csv(file_path, sep=',')
-    df = df.set_index("eid")
-    df.index.names = ["SubjectID"]
+    df = pd.read_csv(file_path, sep=',', index_col=0)
+  
+    return df
+
+###############################################################################
+# Load preprocessed data
+def load_preprocessed_data(population, mri_status, stroke_cohort):
+    """Get data from the preprocessed csv file.
+    Parameters
+    ----------
+    motor : str
+     Name of the motor which to be analyse.
+    population: str
+        Name of the population which to  to be analyse
+    mri_status: str
+        MRI status which data to be  to be analyse.
+
+    Returns
+    -------
+    df : pandas.DataFrame
+        DataFrame of data specified.
+    """
+    folder_path = os.path.join(
+        "/data",
+        "project",
+        "stroke_ukb",
+        "knazarzadeh",
+        "project_hgsprediction",
+        "data_hgs",
+        f"{population}",
+        "preprocessed_data",
+        f"{mri_status}_{population}",
+        f"{stroke_cohort}_data",
+    )
+
+    file_path = os.path.join(
+        folder_path,
+        f"{stroke_cohort}_data.csv")
+    
+    df = pd.read_csv(file_path, sep=',', index_col=0)
   
     return df

@@ -1,1 +1,1 @@
-from .save_disease import save_prepared_disease_data
+from .stroke_save_data import save_preprocessed_data
