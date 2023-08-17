@@ -50,11 +50,11 @@ class StrokeMainDataPreprocessor:
         hgs_left = "46"  # Handgrip_strength_(left)
         hgs_right = "47"  # Handgrip_strength_(right)
         # UK Biobank assessed handgrip strength in 4 sessions
-        session = 4 # 0 to 3
+        sessions = 4 # 0 to 3
         
         df_output = pd.DataFrame()
         
-        for ses in range(session):
+        for ses in range(sessions):
             df_tmp = df[
                 ((~df[f'{hgs_left}-{ses}.0'].isna()) &
                 (df[f'{hgs_left}-{ses}.0'] !=  0))
@@ -139,12 +139,155 @@ class StrokeMainDataPreprocessor:
         df : pandas.DataFrame
             DataFrame of data specified.
         """
-        df_pre_stroke = self.extract_pre_stroke_df(df)
-        df_post_stroke = self.extract_post_stroke_df(df)
-        df_longitudinal_stroke = self.extract_longitudinal_stroke_df(df)
+        sessions = 4
+        followupdays_cols = []
+        for ses in range(0, sessions):
+            followupdays_cols.append(f"followup_days-{ses}.0")
+        # df_all_pre_stroke_visits = self.extract_all_pre_stroke_visits(df)
+        # df_all_post_stroke_visits = self.extract_all_post_stroke_visits(df)
+        substring_to_remove = "followup_days-"
+        # Function to remove a substring
+        def remove_substring(value, substring):
+            if isinstance(value, str):
+                return value.replace(substring, '')
+            return value
+        ##################################################################
+        ############### Extract All Post Stroke Subjects #################
+        ##################################################################
+        stroke_cohort = "post-stroke"
+        # Drop rows where values in all four columns of followup_days 
+        # are less than 0 (Drop All Pre-stroke subjects)
+        # And keep rows with at least one value (>= 0)
+        filtered_post_df = df.loc[(df[followupdays_cols] >= 0).any(axis=1), followupdays_cols]
+        # Apply a lambda function to each element in the DataFrame 'filtered_df'.
+        # The lambda function replaces negative values with NaN (Not a Number),
+        # while leaving non-negative values unchanged.
+        cleaned_post_df = filtered_post_df.applymap(lambda x: np.nan if x < 0 else x)
+        # Function to sort each row and return column names, handling NaN values
+        # Sorts the values in a row in ascending order while placing NaN values at the end,
+        # and returns a list of column names where non-NaN values are preserved in the sorted order.
+        # Any NaN values are replaced with np.nan in the resulting list.   
+        def sort_and_get_post_visit_columns(row):
+            sorted_row = row.sort_values(na_position='last')  # Sort the row values, keeping NaNs at the end.
+            result = []
+            for col in sorted_row.index:
+                if not pd.isna(sorted_row[col]):  # Check if the value is not NaN.
+                    result.append(col)  # Append the column name to the result list.
+                else:
+                    result.append(np.nan)  # Append np.nan if the value is NaN.
+            return result  # Return the list of column names preserving the sorted non-NaN values.
+            # Another way to write code --> return [col if not pd.isna(sorted_row[col]) else np.nan for col in sorted_row.index]
+        # Apply the 'sort_and_get_columns' function to each row of the cleaned DataFrame ('cleaned_df').
+        # The function sorts row values in ascending order with NaNs placed at the end,
+        # and returns a DataFrame where each row contains the sorted column names with NaN values replaced by np.nan.
+        post_sorted_columns = cleaned_post_df.apply(sort_and_get_post_visit_columns, axis=1, result_type='expand')
+        # Set custom column names for the sorted_columns DataFrame
+        post_sorted_columns.columns = [f"1st_{stroke_cohort}_session",
+                                        f"2nd_{stroke_cohort}_session",
+                                        f"3rd_{stroke_cohort}_session",
+                                        f"4th_{stroke_cohort}_session"]
         
-        merged_df = pd.concat([df_pre_stroke, df_post_stroke, df_longitudinal_stroke])
+        # Apply the function to remove the substring from all values
+        # And convert string to float
+        post_sorted_columns = post_sorted_columns.applymap(lambda x: float(remove_substring(x, substring_to_remove)))
+        # List of new pre_visits column names
+        # pre_visits_columns = ["1st_pre-stroke_session",
+        #                       "2nd_pre-stroke_session",
+        #                       "3rd_pre-stroke_session",
+        #                       "4th_pre-stroke_session"]
 
+        # # Add new columns with NaN values
+        # for col in pre_visits_columns:
+        #     post_sorted_columns.insert(0, col, np.NAN)
+        
+        # Combine selected rows from 'df' with sorted columns from 'sorted_columns' to create 'post_stroke_visits_df'
+        post_stroke_visits_df = pd.concat([df[df.index.isin(post_sorted_columns.index)], post_sorted_columns], axis=1)
+        ##################################################################        
+        ############### Extract All Pre Stroke Subjects #################
+        ##################################################################
+        stroke_cohort = "pre-stroke"
+        # Drop rows where values in all four columns of followup_days 
+        # are greather than 0 (Drop All Post-stroke subjects)
+        # And keep rows with at least one value (< 0)
+        filtered_pre_df = df.loc[(df[followupdays_cols] < 0).any(axis=1), followupdays_cols]
+        # Apply a lambda function to each element in the DataFrame 'filtered_df'.
+        # The lambda function replaces positive/zero values with NaN (Not a Number),
+        # while leaving negative values unchanged.
+        cleaned_pre_df = filtered_pre_df.applymap(lambda x: np.nan if x >= 0 else x)
+        # Function to sort each row and return column names, handling NaN values
+        # Sorts the values in a row in descending order while placing NaN values at the end,
+        # and returns a list of column names where non-NaN values are preserved in the sorted order.
+        # Any NaN values are replaced with np.nan in the resulting list.   
+        def sort_and_get_pre_visit_columns(row):
+            sorted_row = row.sort_values(na_position='last', ascending=False)  # Sort descending row values, keeping NaNs at the end.
+            result = []
+            for col in sorted_row.index:
+                if not pd.isna(sorted_row[col]):  # Check if the value is not NaN.
+                    result.append(col)  # Append the column name to the result list.
+                else:
+                    result.append(np.nan)  # Append np.nan if the value is NaN.
+            return result  # Return the list of column names preserving the sorted non-NaN values.
+            # Another way to write code --> return [col if not pd.isna(sorted_row[col]) else np.nan for col in sorted_row.index]
+
+        # Apply the 'sort_and_get_columns' function to each row of the cleaned DataFrame ('cleaned_df').
+        # The function sorts row values in ascending order with NaNs placed at the end,
+        # and returns a DataFrame where each row contains the sorted column names with NaN values replaced by np.nan.
+        pre_sorted_columns = cleaned_pre_df.apply(sort_and_get_pre_visit_columns, axis=1, result_type='expand')
+        
+        # Set custom column names for the sorted_columns DataFrame
+        pre_sorted_columns.columns = [f"1st_{stroke_cohort}_session",
+                                        f"2nd_{stroke_cohort}_session",
+                                        f"3rd_{stroke_cohort}_session",
+                                        f"4th_{stroke_cohort}_session"]
+
+        # Apply the function to remove the substring from all values
+        # And convert string to float
+        pre_sorted_columns = pre_sorted_columns.applymap(lambda x: float(remove_substring(x, substring_to_remove)))
+        # Combine selected rows from 'df' with sorted columns from 'sorted_columns' to create 'pre_stroke_visits_df'
+        pre_stroke_visits_df = pd.concat([df[df.index.isin(pre_sorted_columns.index)], pre_sorted_columns], axis=1)
+        # List of new post_visits column names
+        # post_visits_columns = ["1st_post-stroke_session",
+        #                        "2nd_post-stroke_session",
+        #                        "3rd_post-stroke_session",
+        #                        "4th_post-stroke_session"]
+        # # Add new columns with NaN values
+        # # because post-stroke session are NaN for the dataframe with only pre-stroke
+        # for col in post_visits_columns:
+        #     pre_stroke_visits_df[col] = np.NAN
+        ##################################################################        
+        ############### Extract Longitudinal Stroke Subjects #############
+        ##################################################################
+        # The intersection between pre and post dataframes of stroke
+        # will be the longitudinal dataframe.
+        # Find duplicate index values
+        duplicate_index = pre_stroke_visits_df.index.intersection(post_stroke_visits_df.index)
+        # Find duplicate index values on the original DataFrame
+        df_longitudinal_stroke = df[df.index.isin(duplicate_index)]
+        # List of new pre_visits column names
+        pre_visits_columns = ["1st_pre-stroke_session",
+                              "2nd_pre-stroke_session",
+                              "3rd_pre-stroke_session",
+                              "4th_pre-stroke_session"]
+        # List of new post_visits column names
+        post_visits_columns = ["1st_post-stroke_session",
+                               "2nd_post-stroke_session",
+                               "3rd_post-stroke_session",
+                               "4th_post-stroke_session"]
+        # Join pre_visits columns from df_all_pre_stroke_visits into longitudinal_stroke_df    
+        df_longitudinal_stroke = df_longitudinal_stroke.join(pre_stroke_visits_df[pre_stroke_visits_df.index.isin(duplicate_index)][pre_visits_columns])
+        # Join post_visits columns from df_all_post_stroke_visits into longitudinal_stroke_df
+        df_longitudinal_stroke = df_longitudinal_stroke.join(post_stroke_visits_df[post_stroke_visits_df.index.isin(duplicate_index)][post_visits_columns])
+        ##################################################################        
+        ############### Merge All 3 types of sub-type stroke #############
+        ##################################################################
+        # Merge All 3 types of sub-type stroke dataframes 
+        # while excluding duplicates from pre-stroke and post-stroke visits,
+        # and include the longitudinal stroke dataframe.
+        merged_df = pd.concat([pre_stroke_visits_df[~pre_stroke_visits_df.index.isin(duplicate_index)],
+                               post_stroke_visits_df[~post_stroke_visits_df.index.isin(duplicate_index)],
+                               df_longitudinal_stroke])
+        # Reindex the merged dataframe to align with the original index of df,
+        # ensuring consistent indexing for further analysis or operations.
         preprocessed_df = merged_df.reindex(df.index)
         
         return preprocessed_df
@@ -179,10 +322,6 @@ class StrokeMainDataPreprocessor:
         # Apply the mask to the DataFrame to get the desired rows
         # for only Post-stroke subjects
         post_stroke_df = df[mask]
-        all_post_stroke_df = self.extract_all_post_stroke_visits(df)
-
-        # Combine selected rows from 'df' with sorted columns from 'sorted_columns' to create 'post_stroke_visits_df'
-        post_stroke_df = all_post_stroke_df[all_post_stroke_df.index.isin(df[mask].index)]
         
         return post_stroke_df
 
@@ -214,11 +353,6 @@ class StrokeMainDataPreprocessor:
         # for only Pre-stroke subjects
         pre_stroke_df = df[mask]
         
-        all_pre_stroke_df = self.extract_all_pre_stroke_visits(df)
-
-        # Combine selected rows from 'df' with sorted columns from 'sorted_columns' to create 'post_stroke_visits_df'
-        pre_stroke_df = all_pre_stroke_df[all_pre_stroke_df.index.isin(df[mask].index)]
-        
         return pre_stroke_df
 
 ###############################################################################
@@ -237,194 +371,18 @@ class StrokeMainDataPreprocessor:
         df : pandas.DataFrame
             DataFrame of data specified.
         """
-        df_all_pre_stroke_visits = self.extract_all_pre_stroke_visits(df)
-        df_all_post_stroke_visits = self.extract_all_post_stroke_visits(df)
+        df_pre_stroke = self.extract_pre_stroke_df(df)
+        df_post_stroke = self.extract_post_stroke_df(df)
 
         # The intersection between pre and post dataframes of stroke
         # will be the longitudinal dataframe.
         # Find duplicate index values
-        duplicate_index = df_all_pre_stroke_visits.index.intersection(df_all_post_stroke_visits.index)
+        merged_df = pd.concat([df_pre_stroke, df_post_stroke])
         # Find duplicate index values on the original DataFrame
-        longitudinal_stroke_df = df[df.index.isin(duplicate_index)]
-        # List of new pre_visits column names
-        pre_visits_columns = [f"1st_pre-stroke_session",
-                                f"2nd_pre-stroke_session",
-                                f"3rd_pre-stroke_session",
-                                f"4th_pre-stroke_session"]
-        # Join pre_visits columns from df_all_pre_stroke_visits into longitudinal_stroke_df
-        longitudinal_stroke_df = longitudinal_stroke_df.join(df_all_pre_stroke_visits[df_all_pre_stroke_visits.index.isin(duplicate_index)][pre_visits_columns])
-        # List of new post_visits column names
-        post_visits_columns = [f"1st_post-stroke_session",
-                                f"2nd_post-stroke_session",
-                                f"3rd_post-stroke_session",
-                                f"4th_post-stroke_session"]
-        # Join post_visits columns from df_all_post_stroke_visits into longitudinal_stroke_df
-        longitudinal_stroke_df = longitudinal_stroke_df.join(df_all_post_stroke_visits[df_all_post_stroke_visits.index.isin(duplicate_index)][post_visits_columns])
+        longitudinal_stroke_df = df[~df.index.isin(merged_df.index)]
         
         return longitudinal_stroke_df
 
-###############################################################################
-    def extract_all_post_stroke_visits(self, df):
-        """Extract the post stroke dataframe from the stroke dataframe. 
-        
-        Parameters
-        ----------
-        df : pandas.DataFrame
-            DataFrame of data specified.
-        population : str
-            Name of population/stroke.
-            
-        Returns
-        --------
-        df : pandas.DataFrame
-            DataFrame of data specified.
-        """
-        # Assign corresponding session number from the Class:
-        stroke_cohort = "post-stroke"
-        
-        assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
-
-        sessions = 4
-        followupdays_cols = []
-        for ses in range(0, sessions):
-            followupdays_cols.append(f"followup_days-{ses}.0")
-        # Drop rows where values in all four columns of followup_days 
-        # are less than 0 (Drop All Pre-stroke subjects)
-        # And keep rows with at least one value (>= 0)
-        filtered_df = df.loc[(df[followupdays_cols] >= 0).any(axis=1), followupdays_cols]
-        # Apply a lambda function to each element in the DataFrame 'filtered_df'.
-        # The lambda function replaces negative values with NaN (Not a Number),
-        # while leaving non-negative values unchanged.
-        cleaned_df = filtered_df.applymap(lambda x: np.nan if x < 0 else x)
-        # Function to sort each row and return column names, handling NaN values
-        # Sorts the values in a row in ascending order while placing NaN values at the end,
-        # and returns a list of column names where non-NaN values are preserved in the sorted order.
-        # Any NaN values are replaced with np.nan in the resulting list.   
-        def sort_and_get_columns(row):
-            sorted_row = row.sort_values(na_position='last')  # Sort the row values, keeping NaNs at the end.
-            result = []
-            for col in sorted_row.index:
-                if not pd.isna(sorted_row[col]):  # Check if the value is not NaN.
-                    result.append(col)  # Append the column name to the result list.
-                else:
-                    result.append(np.nan)  # Append np.nan if the value is NaN.
-            return result  # Return the list of column names preserving the sorted non-NaN values.
-            # Another way to write code --> return [col if not pd.isna(sorted_row[col]) else np.nan for col in sorted_row.index]
-
-        # Apply the 'sort_and_get_columns' function to each row of the cleaned DataFrame ('cleaned_df').
-        # The function sorts row values in ascending order with NaNs placed at the end,
-        # and returns a DataFrame where each row contains the sorted column names with NaN values replaced by np.nan.
-        sorted_columns = cleaned_df.apply(sort_and_get_columns, axis=1, result_type='expand')
-        
-        # Set custom column names for the sorted_columns DataFrame
-        sorted_columns.columns = [f"1st_{stroke_cohort}_session",
-                                  f"2nd_{stroke_cohort}_session",
-                                  f"3rd_{stroke_cohort}_session",
-                                  f"4th_{stroke_cohort}_session"]
-        # Function to remove a substring
-        def remove_substring(value, substring):
-            if isinstance(value, str):
-                return value.replace(substring, '')
-            return value
-        substring_to_remove = "followup_days-"
-        # Apply the function to remove the substring from all values
-        # And convert string to float
-        sorted_columns = sorted_columns.applymap(lambda x: float(remove_substring(x, substring_to_remove)))
-        # List of new pre_visits column names
-        pre_visits_columns = [f"1st_pre-stroke_session",
-                                f"2nd_pre-stroke_session",
-                                f"3rd_pre-stroke_session",
-                                f"4th_pre-stroke_session"]
-
-        # Add new columns with NaN values
-        for col in pre_visits_columns:
-            sorted_columns.insert(0, col, np.NAN)
-
-        # Combine selected rows from 'df' with sorted columns from 'sorted_columns' to create 'post_stroke_visits_df'
-        post_stroke_visits_df = pd.concat([df[df.index.isin(sorted_columns.index)], sorted_columns], axis=1)
-        
-
-        return post_stroke_visits_df
-
-###############################################################################
-    def extract_all_pre_stroke_visits(self, df):
-            """Extract the pre stroke dataframe from the stroke dataframe. 
-            
-            Parameters
-            ----------
-            df : pandas.DataFrame
-                DataFrame of data specified.
-            population : str
-                Name of population/stroke.
-                
-            Returns
-            --------
-            df : pandas.DataFrame
-                DataFrame of data specified.
-            """
-            # Assign corresponding session number from the Class:
-            stroke_cohort = "pre-stroke"
-            
-            assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
-
-            sessions = 4
-            followupdays_cols = []
-            for ses in range(0, sessions):
-                followupdays_cols.append(f"followup_days-{ses}.0")
-            # Drop rows where values in all four columns of followup_days 
-            # are greather than 0 (Drop All Post-stroke subjects)
-            # And keep rows with at least one value (< 0)
-            filtered_df = df.loc[(df[followupdays_cols] < 0).any(axis=1), followupdays_cols]
-            # Apply a lambda function to each element in the DataFrame 'filtered_df'.
-            # The lambda function replaces positive/zero values with NaN (Not a Number),
-            # while leaving negative values unchanged.
-            cleaned_df = filtered_df.applymap(lambda x: np.nan if x >= 0 else x)
-            # Function to sort each row and return column names, handling NaN values
-            # Sorts the values in a row in descending order while placing NaN values at the end,
-            # and returns a list of column names where non-NaN values are preserved in the sorted order.
-            # Any NaN values are replaced with np.nan in the resulting list.   
-            def sort_and_get_columns(row):
-                sorted_row = row.sort_values(na_position='last', ascending=False)  # Sort descending row values, keeping NaNs at the end.
-                result = []
-                for col in sorted_row.index:
-                    if not pd.isna(sorted_row[col]):  # Check if the value is not NaN.
-                        result.append(col)  # Append the column name to the result list.
-                    else:
-                        result.append(np.nan)  # Append np.nan if the value is NaN.
-                return result  # Return the list of column names preserving the sorted non-NaN values.
-                # Another way to write code --> return [col if not pd.isna(sorted_row[col]) else np.nan for col in sorted_row.index]
-
-            # Apply the 'sort_and_get_columns' function to each row of the cleaned DataFrame ('cleaned_df').
-            # The function sorts row values in ascending order with NaNs placed at the end,
-            # and returns a DataFrame where each row contains the sorted column names with NaN values replaced by np.nan.
-            sorted_columns = cleaned_df.apply(sort_and_get_columns, axis=1, result_type='expand')
-            
-            # Set custom column names for the sorted_columns DataFrame
-            sorted_columns.columns = [f"1st_{stroke_cohort}_session",
-                                    f"2nd_{stroke_cohort}_session",
-                                    f"3rd_{stroke_cohort}_session",
-                                    f"4th_{stroke_cohort}_session"]
-            def remove_substring(value, substring):
-                if isinstance(value, str):
-                    return value.replace(substring, '')
-                return value
-            substring_to_remove = "followup_days-"
-            # Apply the function to remove the substring from all values
-            # And convert string to float
-            sorted_columns = sorted_columns.applymap(lambda x: float(remove_substring(x, substring_to_remove)))
-            # Combine selected rows from 'df' with sorted columns from 'sorted_columns' to create 'pre_stroke_visits_df'
-            pre_stroke_visits_df = pd.concat([df[df.index.isin(sorted_columns.index)], sorted_columns], axis=1)
-            # List of new post_visits column names
-            post_visits_columns = [f"1st_post-stroke_session",
-                                    f"2nd_post-stroke_session",
-                                    f"3rd_post-stroke_session",
-                                    f"4th_post-stroke_session"]
-
-            # Add new columns with NaN values
-            for col in post_visits_columns:
-                pre_stroke_visits_df[col] = np.NAN
-                
-            return pre_stroke_visits_df
 ###############################################################################
 class StrokeExtraDataPreprocessor:
     def __init__(self, 
@@ -583,3 +541,63 @@ class StrokeExtraDataPreprocessor:
                         df.loc[idx, f"{session_column[:, len(substring_to_remove)].strip()}hgs_dominant"] = \
                             df.loc[idx, ["46-0.0", "47-0.0"]].max(axis=1) 
 
+###############################################################################
+    def extract_all_post_stroke_visits(self, df):
+        """Extract the post stroke dataframe from the stroke dataframe. 
+        
+        Parameters
+        ----------
+        df : pandas.DataFrame
+            DataFrame of data specified.
+        population : str
+            Name of population/stroke.
+            
+        Returns
+        --------
+        df : pandas.DataFrame
+            DataFrame of data specified.
+        """        
+        assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
+
+        sessions = 4
+        followupdays_cols = []
+        for ses in range(0, sessions):
+            followupdays_cols.append(f"followup_days-{ses}.0")
+        # Drop rows where values in all four columns of followup_days 
+        # are less than 0 (Drop All Pre-stroke subjects)
+        # And keep only post-stroke subjects
+        # rows with at least one value (>= 0)
+        post_stroke_visits_df = df.loc[(df[followupdays_cols] >= 0).any(axis=1)]
+        
+        return post_stroke_visits_df
+
+###############################################################################
+    def extract_all_pre_stroke_visits(self, df):
+            """Extract the pre stroke dataframe from the stroke dataframe. 
+            
+            Parameters
+            ----------
+            df : pandas.DataFrame
+                DataFrame of data specified.
+            population : str
+                Name of population/stroke.
+                
+            Returns
+            --------
+            df : pandas.DataFrame
+                DataFrame of data specified.
+            """          
+            assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
+
+            sessions = 4
+            followupdays_cols = []
+            for ses in range(0, sessions):
+                followupdays_cols.append(f"followup_days-{ses}.0")
+            # Drop rows where values in all four columns of followup_days 
+            # are greather than 0 (Drop All Post-stroke subjects)
+            # And keep only pre-stroke subjects
+            # rows with at least one value (< 0)
+            pre_stroke_visits_df = df.loc[(df[followupdays_cols] < 0).any(axis=1)]
+                
+            return pre_stroke_visits_df
+###############################################################################
