@@ -384,7 +384,7 @@ class StrokeMainDataPreprocessor:
         return longitudinal_stroke_df
 
 ###############################################################################
-class StrokeExtraDataPreprocessor:
+class StrokeValidateDataPreprocessor:
     def __init__(self, 
                  df, 
                  mri_status,

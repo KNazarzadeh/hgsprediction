@@ -30,8 +30,8 @@ def save_preprocessed_data(
         "project_hgsprediction",
         "data_hgs",
         f"{population}",
-        f"{mri_status}_{population}",
         "preprocessed_data",
+        f"{mri_status}_{population}",
         f"{stroke_cohort}_data",
     )
 
