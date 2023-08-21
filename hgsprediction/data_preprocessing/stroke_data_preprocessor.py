@@ -406,15 +406,15 @@ class StrokeValidateDataPreprocessor:
         assert isinstance(mri_status, str), "mri_status must be a string!"
         assert isinstance(stroke_cohort, str), "stroke_cohort must be a string!"
         assert isinstance(visit_session, str), "visit_session must be a integer!"
-        
+
         if visit_session == "1":
-            self.session_column = f"1st_{stroke_cohort}-stroke_session"
+            self.session_column = f"1st_{stroke_cohort}_session"
         elif visit_session == "2":
-            self.session_column = f"2nd_{stroke_cohort}-stroke_session"
+            self.session_column = f"2nd_{stroke_cohort}_session"
         elif visit_session == "3":
-            self.session_column = f"3rd_{stroke_cohort}-stroke_session"
+            self.session_column = f"3rd_{stroke_cohort}_session"
         elif visit_session == "4":
-            self.session_column = f"4th_{stroke_cohort}-stroke_session"
+            self.session_column = f"4th_{stroke_cohort}_session"
 
 ################################ DATA VALIDATION ##############################
 # The main goal of data validation is to verify that the data is 
@@ -472,10 +472,35 @@ class StrokeValidateDataPreprocessor:
         assert isinstance(session_column, str), "session_column must be a string!"
         # -----------------------------------------------------------
         substring_to_remove = "session"
+        # Add a new column 'new_column'
+        new_column_dominant = session_column.replace(substring_to_remove, "hgs_dominant")
+
+        filter_df = df[df[session_column].isin([0.0, 1.0, 3.0])]
+        filter_df.loc[filter_df["1707-0.0"] == 1.0, new_column_dominant] = filter_df.loc[filter_df["1707-0.0"] == 1.0, "47-0.0"]
+        filter_df.loc[filter_df["1707-0.0"] == 2.0, new_column_dominant] = filter_df.loc[filter_df["1707-0.0"] == 2.0, "46-0.0"]
+        filter_df.loc[filter_df["1707-0.0"].isin([3.0, -3.0, np.nan]), new_column_dominant] = filter_df[["46-0.0", "47-0.0"]].max(axis=1)
+        filter_df = df[df[session_column].isin([2.0])]
+        # print("===== Done! =====")
+        # embed(globals(), locals())
+        filter_df.loc[filter_df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & filter_df["1707-0.0"] == 1.0, new_column_dominant] = filter_df.loc[filter_df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & filter_df["1707-0.0"] == 1.0, "47-0.0"]
+        filter_df.loc[filter_df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & filter_df["1707-0.0"] == 2.0, new_column_dominant] = filter_df.loc[filter_df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & filter_df["1707-0.0"] == 2.0, "46-0.0"]
+        filter_df.loc[filter_df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & filter_df["1707-0.0"].isin([3.0, -3.0, np.NaN]), new_column_dominant] = filter_df[["46-0.0", "47-0.0"]].max(axis=1)
+        filter_df.loc[filter_df["1707-2.0"] == 1.0, new_column_dominant] = filter_df.loc[filter_df["1707-2.0"] == 1.0, "47-2.0"]
+        filter_df.loc[filter_df["1707-2.0"] == 2.0, new_column_dominant] = filter_df.loc[filter_df["1707-2.0"] == 2.0, "46-2.0"]
+        
+        print("===== Done! =====")
+        embed(globals(), locals())
+        
         for idx in df.index:
             session = df.loc[idx, session_column]
             if (session == 1.0) | (session == 3.0):
                 session = 0.0
+            
+            index = df[df[session_column]==0.0].index
+            idx = df[df["1707-0.0"]==1.0].index
+            df[index, session_column.replace(substring_to_remove, "hgs_dominant")] =  df.loc[index, f"47-0.0"]
+            index = df[df[session_column]==0.0].index
+            df[index, session_column.replace(substring_to_remove, "hgs_dominant")] =  df.loc[index, f"47-0.0"]
             # hgs_left field-ID: 46
             # hgs_right field-ID: 47
             # ------------------------------------
@@ -489,6 +514,7 @@ class StrokeValidateDataPreprocessor:
             # If handedness is equal to 1
             # Right hand is Dominant
             # Find handedness equal to 1:
+            index = df[df[session_column]==1.0].index
             if df.loc[idx,f"1707-{session}"] == 1.0:
                 # Add and new column "hgs_dominant"
                 # And assign Right hand HGS value:
@@ -510,21 +536,23 @@ class StrokeValidateDataPreprocessor:
             # NaN value
             # Dominant will be the Highest Handgrip score from both hands.
             # Find handedness equal to 3, -3 or NaN:
-            if session == 0:
+            if session == 0.0:
                 if (df.loc[idx, f"1707-{session}"] == 3.0) | \
                     (df.loc[idx, f"1707-{session}"] == -3.0) | \
-                    (df.loc[idx, f"1707-{session}"].isna()):
+                    (pd.isna(df.loc[idx, f"1707-{session}"])):
                     # Add and new column "hgs_dominant"
                     # And assign Highest HGS value among Right and Left HGS:        
                     df.loc[idx, f"{session_column[:, len(substring_to_remove)].strip()}hgs_dominant"] = \
                         df.loc[idx, [f"46-{session}", f"47-{session}"]].max(axis=1)
-            elif session == 2:
+            elif session == 2.0:
                 if (df.loc[idx, f"1707-{session}"] == 3.0) | \
                     (df.loc[idx, f"1707-{session}"] == -3.0) | \
-                    (df.loc[idx, f"1707-{session}"].isna()):
+                    (pd.isna(df.loc[idx, f"1707-{session}"])):
                     if df.loc[idx,"1707-0.0"] == 1.0:
                         # Add and new column "hgs_dominant"
                         # And assign Right hand HGS value:
+                        print("===== Done! =====")
+                        embed(globals(), locals())
                         df.loc[idx, f"{session_column[:, len(substring_to_remove)].strip()}hgs_dominant"] = \
                             df.loc[idx, "47-0.0"]
                     elif df.loc[idx,"1707-0.0"] == 2.0:
@@ -535,7 +563,7 @@ class StrokeValidateDataPreprocessor:
                             
                     elif (df.loc[idx, "1707-0.0"] == 3.0) | \
                         (df.loc[idx, "1707-0.0"] == -3.0)| \
-                        (df.loc[idx, "1707-0.0"].isna()):
+                        (pd.isna(df.loc[idx, "1707-0.0"])):
                         # Add and new column "hgs_dominant"
                         # And assign Highest HGS value among Right and Left HGS:        
                         df.loc[idx, f"{session_column[:, len(substring_to_remove)].strip()}hgs_dominant"] = \
