@@ -439,19 +439,56 @@ class StrokeValidateDataPreprocessor:
         assert isinstance(session_column, str), "session_column must be a string!"
         # -----------------------------------------------------------
         substring_to_remove = "session"
-        # Calculate Dominant and Non-Dominant HGS by
-        # Calling the modules:
-        df = self.calculate_dominant_hgs(df)
-        # ------------------------------------
-        # Exclude all subjects who had Dominant HGS < 4:
-        # The condition is applied to "hgs_dominant" columns
-        # And then reset_index the new dataframe:
-        df = df[df.loc[:, f"{session_column[:, len(substring_to_remove)].strip()}hgs_dominant"] >=4]
+        if df[session_column].isna().sum() < len(df):
+            df = df[df[session_column]>=0]
+            # Calculate Dominant HGS by
+            # Calling the modules
+            
+            df = self.remove_missing_hgs(df)
+            df = self.calculate_dominant_nondominant_hgs(df)
+            dominant_col = session_column.replace(substring_to_remove, "hgs_dominant")
+            # ------------------------------------
+            # Exclude all subjects who had Dominant HGS < 4:
+            # The condition is applied to "hgs_dominant" columns
+            # And then reset_index the new dataframe:
+            # df = df[df.loc[:, f"{session_column[:, len(substring_to_remove)].strip()}hgs_dominant"] >=4]
+            df = df[df[dominant_col] >= 4 & ~df[dominant_col].isna()]
+        
+        elif df[session_column].isna().sum() == len(df):
+            # Drop all rows from the DataFrame
+            df = pd.DataFrame(columns=df.columns)
+            # Display message to the user
+            print(f"******* No patient has assessed for {session_column} *******")
+
+        return df, session_column
+
+###############################################################################
+    def remove_missing_hgs(self, df):
+        
+        # Assign corresponding session number from the Class:
+        session_column = self.session_column
+        
+        assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
+        assert isinstance(session_column, str), "session_column must be a string!"
+        # -----------------------------------------------------------
+         # Handgrip strength info
+        # for Left and Right Hands
+        hgs_left = "46"  # Handgrip_strength_(left)
+        hgs_right = "47"  # Handgrip_strength_(right)
+        # print("===== Done! =====")
+        # embed(globals(), locals())
+        for idx in df.index:
+            session = df.loc[idx, session_column]
+            # hgs_left field-ID: 46
+            # hgs_right field-ID: 47
+            if ((df.loc[idx, f"{hgs_left}-{session}"] == 0) | (np.isnan(df.loc[idx, f"{hgs_left}-{session}"]))) | \
+                ((df.loc[idx, f"{hgs_right}-{session}"] == 0) | (np.isnan(df.loc[idx, f"{hgs_right}-{session}"]))):
+                    df = df.drop(index=idx)
 
         return df
 
 ###############################################################################
-    def calculate_dominant_hgs(self, df):
+    def calculate_dominant_nondominant_hgs(self, df):
         """Calculate dominant handgrip
         and add "hgs_dominant" column to dataframe
 
@@ -473,62 +510,34 @@ class StrokeValidateDataPreprocessor:
         # -----------------------------------------------------------
         substring_to_remove = "session"
         # Add a new column 'new_column'
-        new_column_dominant = session_column.replace(substring_to_remove, "hgs_dominant")
-
-        filter_df = df[df[session_column].isin([0.0, 1.0, 3.0])]
-        filter_df.loc[filter_df["1707-0.0"] == 1.0, new_column_dominant] = filter_df.loc[filter_df["1707-0.0"] == 1.0, "47-0.0"]
-        filter_df.loc[filter_df["1707-0.0"] == 2.0, new_column_dominant] = filter_df.loc[filter_df["1707-0.0"] == 2.0, "46-0.0"]
-        filter_df.loc[filter_df["1707-0.0"].isin([3.0, -3.0, np.nan]), new_column_dominant] = filter_df[["46-0.0", "47-0.0"]].max(axis=1)
-        filter_df = df[df[session_column].isin([2.0])]
-        # print("===== Done! =====")
-        # embed(globals(), locals())
-        filter_df.loc[filter_df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & filter_df["1707-0.0"] == 1.0, new_column_dominant] = filter_df.loc[filter_df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & filter_df["1707-0.0"] == 1.0, "47-0.0"]
-        filter_df.loc[filter_df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & filter_df["1707-0.0"] == 2.0, new_column_dominant] = filter_df.loc[filter_df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & filter_df["1707-0.0"] == 2.0, "46-0.0"]
-        filter_df.loc[filter_df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & filter_df["1707-0.0"].isin([3.0, -3.0, np.NaN]), new_column_dominant] = filter_df[["46-0.0", "47-0.0"]].max(axis=1)
-        filter_df.loc[filter_df["1707-2.0"] == 1.0, new_column_dominant] = filter_df.loc[filter_df["1707-2.0"] == 1.0, "47-2.0"]
-        filter_df.loc[filter_df["1707-2.0"] == 2.0, new_column_dominant] = filter_df.loc[filter_df["1707-2.0"] == 2.0, "46-2.0"]
+        dominant_col = session_column.replace(substring_to_remove, "hgs_dominant")
+        nondominant_col = session_column.replace(substring_to_remove, "hgs_nondominant")
         
-        print("===== Done! =====")
-        embed(globals(), locals())
-        
-        for idx in df.index:
-            session = df.loc[idx, session_column]
-            if (session == 1.0) | (session == 3.0):
-                session = 0.0
-            
-            index = df[df[session_column]==0.0].index
-            idx = df[df["1707-0.0"]==1.0].index
-            df[index, session_column.replace(substring_to_remove, "hgs_dominant")] =  df.loc[index, f"47-0.0"]
-            index = df[df[session_column]==0.0].index
-            df[index, session_column.replace(substring_to_remove, "hgs_dominant")] =  df.loc[index, f"47-0.0"]
-            # hgs_left field-ID: 46
-            # hgs_right field-ID: 47
-            # ------------------------------------
-            # ------- Handedness Field-ID: 1707
-            # Data-Coding: 100430
-            #           1	Right-handed
-            #           2	Left-handed
-            #           3	Use both right and left hands equally
-            #           -3	Prefer not to answer
-            # ------------------------------------
-            # If handedness is equal to 1
-            # Right hand is Dominant
-            # Find handedness equal to 1:
-            index = df[df[session_column]==1.0].index
-            if df.loc[idx,f"1707-{session}"] == 1.0:
-                # Add and new column "hgs_dominant"
-                # And assign Right hand HGS value:
-                df.loc[idx, f"{session_column[:, len(substring_to_remove)].strip()}hgs_dominant"] = \
-                    df.loc[idx, f"47-{session}"]
-            # ------------------------------------
+        # hgs_left field-ID: 46
+        # hgs_right field-ID: 47
+        # ------------------------------------
+        # ------- Handedness Field-ID: 1707
+        # Data-Coding: 100430
+        #           1	Right-handed
+        #           2	Left-handed
+        #           3	Use both right and left hands equally
+        #           -3	Prefer not to answer
+        # ------------------------------------
+        # If handedness is equal to 1
+        # Right hand is Dominant
+        # Find handedness equal to 1:        
+        if df[session_column].isin([0.0, 1.0, 3.0]).any():
+            # Add and new column "hgs_dominant"
+            # And assign Right hand HGS value
+            df.loc[df["1707-0.0"] == 1.0, dominant_col] = df.loc[df["1707-0.0"] == 1.0, "47-0.0"]
+            df.loc[df["1707-0.0"] == 1.0, nondominant_col] = df.loc[df["1707-0.0"] == 1.0, "46-0.0"]
             # If handedness is equal to 2
             # Right hand is Non-Dominant
             # Find handedness equal to 2:
-            elif df.loc[idx,f"1707-{session}"] == 2.0:
-                # Add and new column "hgs_dominant"
-                # And assign Left hand HGS value:        
-                df.loc[idx, f"{session_column[:, len(substring_to_remove)].strip()}hgs_dominant"] = \
-                    df.loc[idx, f"46-{session}"]
+            # Add and new column "hgs_dominant"
+            # And assign Left hand HGS value:  
+            df.loc[df["1707-0.0"] == 2.0, dominant_col] = df.loc[df["1707-0.0"] == 2.0, "46-0.0"]
+            df.loc[df["1707-0.0"] == 2.0, nondominant_col] = df.loc[df["1707-0.0"] == 2.0, "47-0.0"]
             # ------------------------------------
             # If handedness is equal to:
             # 3 (Use both right and left hands equally) OR
@@ -536,96 +545,34 @@ class StrokeValidateDataPreprocessor:
             # NaN value
             # Dominant will be the Highest Handgrip score from both hands.
             # Find handedness equal to 3, -3 or NaN:
-            if session == 0.0:
-                if (df.loc[idx, f"1707-{session}"] == 3.0) | \
-                    (df.loc[idx, f"1707-{session}"] == -3.0) | \
-                    (pd.isna(df.loc[idx, f"1707-{session}"])):
-                    # Add and new column "hgs_dominant"
-                    # And assign Highest HGS value among Right and Left HGS:        
-                    df.loc[idx, f"{session_column[:, len(substring_to_remove)].strip()}hgs_dominant"] = \
-                        df.loc[idx, [f"46-{session}", f"47-{session}"]].max(axis=1)
-            elif session == 2.0:
-                if (df.loc[idx, f"1707-{session}"] == 3.0) | \
-                    (df.loc[idx, f"1707-{session}"] == -3.0) | \
-                    (pd.isna(df.loc[idx, f"1707-{session}"])):
-                    if df.loc[idx,"1707-0.0"] == 1.0:
-                        # Add and new column "hgs_dominant"
-                        # And assign Right hand HGS value:
-                        print("===== Done! =====")
-                        embed(globals(), locals())
-                        df.loc[idx, f"{session_column[:, len(substring_to_remove)].strip()}hgs_dominant"] = \
-                            df.loc[idx, "47-0.0"]
-                    elif df.loc[idx,"1707-0.0"] == 2.0:
-                        # Add and new column "hgs_dominant"
-                        # And assign Left hand HGS value:
-                        df.loc[idx, f"{session_column[:, len(substring_to_remove)].strip()}hgs_dominant"] = \
-                            df.loc[idx, "46-0.0"]
-                            
-                    elif (df.loc[idx, "1707-0.0"] == 3.0) | \
-                        (df.loc[idx, "1707-0.0"] == -3.0)| \
-                        (pd.isna(df.loc[idx, "1707-0.0"])):
-                        # Add and new column "hgs_dominant"
-                        # And assign Highest HGS value among Right and Left HGS:        
-                        df.loc[idx, f"{session_column[:, len(substring_to_remove)].strip()}hgs_dominant"] = \
-                            df.loc[idx, ["46-0.0", "47-0.0"]].max(axis=1) 
-
-###############################################################################
-    def extract_all_post_stroke_visits(self, df):
-        """Extract the post stroke dataframe from the stroke dataframe. 
-        
-        Parameters
-        ----------
-        df : pandas.DataFrame
-            DataFrame of data specified.
-        population : str
-            Name of population/stroke.
-            
-        Returns
-        --------
-        df : pandas.DataFrame
-            DataFrame of data specified.
-        """        
-        assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
-
-        sessions = 4
-        followupdays_cols = []
-        for ses in range(0, sessions):
-            followupdays_cols.append(f"followup_days-{ses}.0")
-        # Drop rows where values in all four columns of followup_days 
-        # are less than 0 (Drop All Pre-stroke subjects)
-        # And keep only post-stroke subjects
-        # rows with at least one value (>= 0)
-        post_stroke_visits_df = df.loc[(df[followupdays_cols] >= 0).any(axis=1)]
-        
-        return post_stroke_visits_df
-
-###############################################################################
-    def extract_all_pre_stroke_visits(self, df):
-            """Extract the pre stroke dataframe from the stroke dataframe. 
-            
-            Parameters
-            ----------
-            df : pandas.DataFrame
-                DataFrame of data specified.
-            population : str
-                Name of population/stroke.
+            # Add and new column "hgs_dominant"
+            # And assign Highest HGS value among Right and Left HGS:
+            # Add and new column "hgs_dominant"
+            # And assign lowest HGS value among Right and Left HGS:
+            df.loc[df["1707-0.0"].isin([3.0, -3.0, np.nan]), dominant_col] = df[["46-0.0", "47-0.0"]].max(axis=1)
+            df.loc[df["1707-0.0"].isin([3.0, -3.0, np.nan]), nondominant_col] = df[["46-0.0", "47-0.0"]].min(axis=1)
+        elif df[session_column].isin([2.0]).any():
+            df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"] == 1.0, dominant_col] = \
+                df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"] == 1.0, "47-0.0"]
+            df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"] == 1.0, nondominant_col] = \
+                df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"] == 1.0, "46-0.0"]
                 
-            Returns
-            --------
-            df : pandas.DataFrame
-                DataFrame of data specified.
-            """          
-            assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
-
-            sessions = 4
-            followupdays_cols = []
-            for ses in range(0, sessions):
-                followupdays_cols.append(f"followup_days-{ses}.0")
-            # Drop rows where values in all four columns of followup_days 
-            # are greather than 0 (Drop All Post-stroke subjects)
-            # And keep only pre-stroke subjects
-            # rows with at least one value (< 0)
-            pre_stroke_visits_df = df.loc[(df[followupdays_cols] < 0).any(axis=1)]
+            df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"] == 2.0, dominant_col] = \
+                df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"] == 2.0, "46-0.0"]
+            df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"] == 2.0, nondominant_col] = \
+                df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"] == 2.0, "47-0.0"]
                 
-            return pre_stroke_visits_df
+            df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"].isin([3.0, -3.0, np.NaN]), dominant_col] = \
+                df[["46-0.0", "47-0.0"]].max(axis=1)
+            df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"].isin([3.0, -3.0, np.NaN]), nondominant_col] = \
+                df[["46-0.0", "47-0.0"]].min(axis=1)
+    
+            df.loc[df["1707-2.0"] == 1.0, dominant_col] = df.loc[df["1707-2.0"] == 1.0, "47-2.0"]
+            df.loc[df["1707-2.0"] == 1.0, nondominant_col] = df.loc[df["1707-2.0"] == 1.0, "46-2.0"]
+            df.loc[df["1707-2.0"] == 2.0, dominant_col] = df.loc[df["1707-2.0"] == 2.0, "46-2.0"]
+            df.loc[df["1707-2.0"] == 2.0, nondominant_col] = df.loc[df["1707-2.0"] == 2.0, "47-2.0"]
+            
+            
+        return df
+
 ###############################################################################

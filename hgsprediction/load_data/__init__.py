@@ -1,4 +1,6 @@
-from .stroke_load_data import load_original_data
+from .stroke_load_data import load_original_data, \
+                              load_original_preprocessed_data, \
+                              load_preprocessed_pre_post_data
 
 
 

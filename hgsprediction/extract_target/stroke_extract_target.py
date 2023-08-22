@@ -13,12 +13,13 @@ import pandas as pd
 from ptpython.repl import embed
 
 ###############################################################################
-class StrokeTargetComputing:
+class StrokeExtractTarget:
     def __init__(self, 
                  df, 
                  mri_status,
                  stroke_cohort, 
-                 visit_session):
+                 visit_session,
+                 target):
         """Preprocess data, Calculate and Add new columns to dataframe
 
         Parameters
@@ -30,11 +31,13 @@ class StrokeTargetComputing:
         self.mri_status = mri_status
         self.stroke_cohort = stroke_cohort
         self.visit_session = visit_session
+        self.target = target
         
         assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
         assert isinstance(mri_status, str), "mri_status must be a string!"
         assert isinstance(stroke_cohort, str), "stroke_cohort must be a string!"
-        assert isinstance(visit_session, str), "visit_session must be a integer!"
+        assert isinstance(visit_session, str), "visit_session must be a string!"
+        assert isinstance(target, str), "target must be a string!"
 
         if visit_session == "1":
             self.session_column = f"1st_{stroke_cohort}_session"
@@ -45,7 +48,7 @@ class StrokeTargetComputing:
         elif visit_session == "4":
             self.session_column = f"4th_{stroke_cohort}_session"
 ###############################################################################
-    def calculate_sum_hgs(self, df):
+    def extract_sum_hgs(self, df):
         """Calculate sum of Handgrips
         and add "hgs(L+R)" column to dataframe
 
@@ -68,17 +71,13 @@ class StrokeTargetComputing:
         substring_to_remove = "session"
         # Add a new column 'new_column'
         hgs_sum = session_column.replace(substring_to_remove, "hgs_L+R")
-        
-        # Add new column "hgs_L+R" by the following process: 
-        # hgs_left field-ID: 46
-        # hgs_right field-ID: 47
-        # Addition of Handgrips (Left + Right)
-        df[hgs_sum] = df.apply(lambda row: row[f"46-{row[session_column]}"]+row[f"47-{row[session_column]}"], axis=1)
+
+        df = df[hgs_sum]
 
         return df
 
 ###############################################################################
-    def calculate_left_hgs(self, df):
+    def extract_left_hgs(self, df):
         """Calculate right and add "hgs(left)" column to dataframe
 
         Parameters
@@ -101,13 +100,12 @@ class StrokeTargetComputing:
         substring_to_remove = "session"
         # Add a new column 'new_column'
         hgs_left = session_column.replace(substring_to_remove, "hgs_left")
-            
-        df[hgs_left] = df.apply(lambda row: row[f"46-{row[session_column]}"], axis=1)
-
+  
+        df = df[hgs_left]
         return df
 
 ###############################################################################
-    def calculate_right_hgs(self, df):
+    def extract_right_hgs(self, df):
         """Calculate right and add "hgs(right)" column to dataframe
 
         Parameters
@@ -130,12 +128,11 @@ class StrokeTargetComputing:
         substring_to_remove = "session"
         # Add a new column 'new_column'
         hgs_right = session_column.replace(substring_to_remove, "hgs_right")
-        df[hgs_right] = df.apply(lambda row: row[f"47-{row[session_column]}"], axis=1)
-
+        df = df[hgs_right]
         return df
 
 ###############################################################################
-    def calculate_sub_hgs(self, df):
+    def extract_sub_hgs(self, df):
         """Calculate subtraction of Handgrips
         and add "hgs(L-R)" column to dataframe
 
@@ -158,17 +155,13 @@ class StrokeTargetComputing:
         substring_to_remove = "session"
         # Add a new column 'new_column'
         hgs_sub = session_column.replace(substring_to_remove, "hgs_L-R")
-        
-        # Add new column "hgs_L-R" by the following process: 
-        # hgs_left field-ID: 46
-        # hgs_right field-ID: 47
-        # Subtraction of Handgrips (Left - Right)
-        df[hgs_sub] = df.apply(lambda row: row[f"46-{row[session_column]}"]-row[f"47-{row[session_column]}"], axis=1)
+
+        df = df[hgs_sub]
 
         return df
 
 ###############################################################################
-    def calculate_laterality_index_hgs(self, df):
+    def extract_laterality_index_hgs(self, df):
         """Calculate Laterality Index and add "hgs(LI)" column to dataframe
 
         Parameters
@@ -189,21 +182,14 @@ class StrokeTargetComputing:
         assert isinstance(session_column, str), "session_column must be a string!"
         # -----------------------------------------------------------
         substring_to_remove = "session"
-        # Add a new column 'new_column'
-        hgs_sub = session_column.replace(substring_to_remove, "hgs_L-R")
-        hgs_sum = session_column.replace(substring_to_remove, "hgs_L+R")
         hgs_LI = session_column.replace(substring_to_remove, "hgs_LI")
-        
-        df_sub = self.calculate_sub_hgs(df)
-        df_sum = self.calculate_sum_hgs(df)
-        
-        # df.loc[:, hgs_LI] = df_sub.loc[:, hgs_sub] / df_sum.loc[:, hgs_sum]
-        df[hgs_LI] = df.apply(lambda row: row[hgs_sub]/row[hgs_sum], axis=1)
+
+        df = df[hgs_LI]
 
         return df
 
 ###############################################################################
-    def calculate_dominant_nondominant_hgs(self, df):
+    def extract_dominant_hgs(self, df):
         """Calculate dominant handgrip
         and add "hgs_dominant" column to dataframe
 
@@ -225,69 +211,37 @@ class StrokeTargetComputing:
         # -----------------------------------------------------------
         substring_to_remove = "session"
         # Add a new column 'new_column'
-        dominant_col = session_column.replace(substring_to_remove, "hgs_dominant")
-        nondominant_col = session_column.replace(substring_to_remove, "hgs_nondominant")
+        hgs_dominant = session_column.replace(substring_to_remove, "hgs_dominant")
         
-        # hgs_left field-ID: 46
-        # hgs_right field-ID: 47
-        # ------------------------------------
-        # ------- Handedness Field-ID: 1707
-        # Data-Coding: 100430
-        #           1	Right-handed
-        #           2	Left-handed
-        #           3	Use both right and left hands equally
-        #           -3	Prefer not to answer
-        # ------------------------------------
-        # If handedness is equal to 1
-        # Right hand is Dominant
-        # Find handedness equal to 1:        
-        if df[session_column].isin([0.0, 1.0, 3.0]).any():
-            # Add and new column "hgs_dominant"
-            # And assign Right hand HGS value
-            df.loc[df["1707-0.0"] == 1.0, dominant_col] = df.loc[df["1707-0.0"] == 1.0, "47-0.0"]
-            df.loc[df["1707-0.0"] == 1.0, nondominant_col] = df.loc[df["1707-0.0"] == 1.0, "46-0.0"]
-            # If handedness is equal to 2
-            # Right hand is Non-Dominant
-            # Find handedness equal to 2:
-            # Add and new column "hgs_dominant"
-            # And assign Left hand HGS value:  
-            df.loc[df["1707-0.0"] == 2.0, dominant_col] = df.loc[df["1707-0.0"] == 2.0, "46-0.0"]
-            df.loc[df["1707-0.0"] == 2.0, nondominant_col] = df.loc[df["1707-0.0"] == 2.0, "47-0.0"]
-            # ------------------------------------
-            # If handedness is equal to:
-            # 3 (Use both right and left hands equally) OR
-            # -3 (handiness is not available/Prefer not to answer) OR
-            # NaN value
-            # Dominant will be the Highest Handgrip score from both hands.
-            # Find handedness equal to 3, -3 or NaN:
-            # Add and new column "hgs_dominant"
-            # And assign Highest HGS value among Right and Left HGS:
-            # Add and new column "hgs_dominant"
-            # And assign lowest HGS value among Right and Left HGS:
-            df.loc[df["1707-0.0"].isin([3.0, -3.0, np.nan]), dominant_col] = df[["46-0.0", "47-0.0"]].max(axis=1)
-            df.loc[df["1707-0.0"].isin([3.0, -3.0, np.nan]), nondominant_col] = df[["46-0.0", "47-0.0"]].min(axis=1)
-        elif df[session_column].isin([2.0]).any():
-            df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"] == 1.0, dominant_col] = \
-                df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"] == 1.0, "47-0.0"]
-            df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"] == 1.0, nondominant_col] = \
-                df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"] == 1.0, "46-0.0"]
-                
-            df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"] == 2.0, dominant_col] = \
-                df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"] == 2.0, "46-0.0"]
-            df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"] == 2.0, nondominant_col] = \
-                df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"] == 2.0, "47-0.0"]
-                
-            df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"].isin([3.0, -3.0, np.NaN]), dominant_col] = \
-                df[["46-0.0", "47-0.0"]].max(axis=1)
-            df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"].isin([3.0, -3.0, np.NaN]), nondominant_col] = \
-                df[["46-0.0", "47-0.0"]].min(axis=1)
-    
-            df.loc[df["1707-2.0"] == 1.0, dominant_col] = df.loc[df["1707-2.0"] == 1.0, "47-2.0"]
-            df.loc[df["1707-2.0"] == 1.0, nondominant_col] = df.loc[df["1707-2.0"] == 1.0, "46-2.0"]
-            df.loc[df["1707-2.0"] == 2.0, dominant_col] = df.loc[df["1707-2.0"] == 2.0, "46-2.0"]
-            df.loc[df["1707-2.0"] == 2.0, nondominant_col] = df.loc[df["1707-2.0"] == 2.0, "47-2.0"]
-            
-            
+        df = df[hgs_dominant]
+        
         return df
+    
+    ###############################################################################
+    def extract_nondominant_hgs(self, df):
+        """Calculate dominant handgrip
+        and add "hgs_dominant" column to dataframe
 
-###############################################################################
+        Parameters
+        ----------
+        df : dataframe
+            The dataframe that desired to analysis
+
+        Return
+        ----------
+        df : dataframe
+            with extra column for: Dominant hand Handgrip strength
+        """
+        # Assign corresponding session number from the Class:
+        session_column = self.session_column
+        
+        assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
+        assert isinstance(session_column, str), "session_column must be a string!"
+        # -----------------------------------------------------------
+        substring_to_remove = "session"
+        # Add a new column 'new_column'
+        hgs_nondominant = session_column.replace(substring_to_remove, "hgs_nondominant")
+        
+        df = df[hgs_nondominant]
+        
+        return df

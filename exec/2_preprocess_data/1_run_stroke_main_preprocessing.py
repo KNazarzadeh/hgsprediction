@@ -22,6 +22,7 @@ df_original = stroke_load_data.load_original_data(population=population, mri_sta
 data_processor = stroke_data_preprocessor.StrokeMainDataPreprocessor(df_original)
 df = data_processor.remove_missing_stroke_dates(df_original)
 df = data_processor.remove_missing_hgs(df)
+
 ###############################################################################
 df = data_processor.define_stroke_type(df)
 df = data_processor.define_followup_days(df)

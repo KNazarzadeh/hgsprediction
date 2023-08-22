@@ -20,24 +20,24 @@ class StrokeFeaturesComputing:
         """
         self.df = df
         self.mri_status = mri_status
+        self.feature_type = feature_type
         self.stroke_cohort = stroke_cohort
         self.visit_session = visit_session
         
         assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
         assert isinstance(mri_status, str), "mri_status must be a string!"
-        assert isinstance(feature_type, str), "feature_type must be a string!"        
         assert isinstance(stroke_cohort, str), "stroke_cohort must be a string!"
-        assert isinstance(visit_session, int), "visit_session must be a integer!"
-        
-        if visit_session == 1:
-            self.session_column = f"1st_{stroke_cohort}-stroke_session"
-        elif visit_session == 2:
-            self.session_column = f"2nd_{stroke_cohort}-stroke_session"
-        elif visit_session == 3:
-            self.session_column = f"3rd_{stroke_cohort}-stroke_session"
-        elif visit_session == 4:
-            self.session_column = f"4th_{stroke_cohort}-stroke_session"
+        assert isinstance(visit_session, str), "visit_session must be a integer!"
 
+        if visit_session == "1":
+            self.session_column = f"1st_{stroke_cohort}_session"
+        elif visit_session == "2":
+            self.session_column = f"2nd_{stroke_cohort}_session"
+        elif visit_session == "3":
+            self.session_column = f"3rd_{stroke_cohort}_session"
+        elif visit_session == "4":
+            self.session_column = f"4th_{stroke_cohort}_session"
+    
 ###############################################################################
     def calculate_bmi(self, df):
         """Calculate coressponding BMI
@@ -58,12 +58,13 @@ class StrokeFeaturesComputing:
         
         assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
         assert isinstance(session_column, str), "session_column must be a string!"
-        substring_to_remove = "session"
         # -----------------------------------------------------------
-        for idx in df.index:
-            session = df.loc[idx, session_column]
-            df.loc[idx, f"{session_column[:-len(substring_to_remove)].strip()}bmi"] = \
-                df.loc[idx, f"21001-{session}"]
+        substring_to_remove = "session"
+        # Add a new column 'new_column'
+        bmi = session_column.replace(substring_to_remove, "bmi")
+        
+        df[bmi] = df.apply(lambda row: row[f"21001-{row[session_column]}"], axis=1)
+
         return df
 
 ###############################################################################
@@ -88,11 +89,10 @@ class StrokeFeaturesComputing:
         assert isinstance(session_column, str), "session_column must be a string!"
         substring_to_remove = "session"
         # -----------------------------------------------------------
-        for idx in df.index:
-            session = df.loc[idx, session_column]
-            df.loc[idx, f"{session_column[:-len(substring_to_remove)].strip()}height"] = \
-                df.loc[idx, f"50-{session}"]
+        height = session_column.replace(substring_to_remove, "height")
         
+        df[height] = df.apply(lambda row: row[f"50-{row[session_column]}"], axis=1)
+
         return df
     
     
@@ -118,10 +118,9 @@ class StrokeFeaturesComputing:
         assert isinstance(session_column, str), "session_column must be a string!"
         substring_to_remove = "session"
         # -----------------------------------------------------------
-        for idx in df.index:
-            session = df.loc[idx, session_column]
-            df.loc[idx, f"{session_column[:-len(substring_to_remove)].strip()}waist_to_hip_ratio"] = \
-                df.loc[idx, f"48-{session}"] / df.loc[idx, f"49-{session}"]
+        whr = session_column.replace(substring_to_remove, "waist_to_hip_ratio")
+
+        df[whr] = df.apply(lambda row: row[f"48-{row[session_column]}"]/row[f"49-{row[session_column]}"], axis=1)
         
         return df
 
@@ -147,23 +146,20 @@ class StrokeFeaturesComputing:
         assert isinstance(session_column, str), "session_column must be a string!"
         substring_to_remove = "session"
         # -----------------------------------------------------------
+        age = session_column.replace(substring_to_remove, "age")
         for idx in df.index:
             session = df.loc[idx, session_column]
-            if session == "0.0":
-                df.loc[idx, f"{session_column[:-len(substring_to_remove)].strip()}Age"] = \
-                df.loc[idx, f"Age1stVisit"]
-            elif session == "1.0":
-                df.loc[idx, f"{session_column[:-len(substring_to_remove)].strip()}Age"] = \
-                df.loc[idx, f"AgeRepVisit"]
-            elif session == "2.0":
-                df.loc[idx, f"{session_column[:-len(substring_to_remove)].strip()}Age"] = \
-                df.loc[idx, f"AgeAtScan"]
-            elif session == "3.0":
-                df.loc[idx, f"{session_column[:-len(substring_to_remove)].strip()}Age"] = \
-                df.loc[idx, f"AgeAt2ndScan"]
-
+            if session == 0.0:
+                df.loc[idx, age] = df.loc[idx, "Age1stVisit"]
+            elif session == 1.0:
+                df.loc[idx, age] = df.loc[idx, "AgeRepVisit"]
+            elif session == 2.0:
+                df.loc[idx, age] = df.loc[idx, "AgeAtScan"]
+            elif session == 3.0:
+                df.loc[idx, age] = df.loc[idx, "AgeAt2ndScan"]
+        
         return df    
-    
+
 ###############################################################################
     def calculate_days(self, df):
         """Calculate coressponding Height
@@ -186,11 +182,10 @@ class StrokeFeaturesComputing:
         assert isinstance(session_column, str), "session_column must be a string!"
         substring_to_remove = "session"
         # -----------------------------------------------------------
-        for idx in df.index:
-            session = df.loc[idx, session_column]        
-            df.loc[idx, f"{session_column[:-len(substring_to_remove)].strip()}days"] = \
-                df.loc[idx, f"followup_days-{session}"]
-            
+        days = session_column.replace(substring_to_remove, "days")
+       
+        df[days] = df.apply(lambda row: row[f"followup_days-{row[session_column]}"], axis=1)
+
         return df
 
 ###############################################################################    

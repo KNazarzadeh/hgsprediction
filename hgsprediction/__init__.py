@@ -4,7 +4,8 @@
 from .load_data import stroke_load_data
 
 # Save Stroke Preprocessed Data
-from .save_data import save_preprocessed_data
+from .save_data import save_preprocessed_data, \
+                       save_preprocessed_pre_post_data
 # Data Preprocessing
 from .data_preprocessing import stroke_data_preprocessor
 

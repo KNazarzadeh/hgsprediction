@@ -49,7 +49,7 @@ def load_original_data(population, mri_status):
 
 ###############################################################################
 # Load preprocessed data
-def load_preprocessed_data(population, mri_status, stroke_cohort):
+def load_original_preprocessed_data(population, mri_status):
     """Get data from the preprocessed csv file.
     Parameters
     ----------
@@ -75,12 +75,51 @@ def load_preprocessed_data(population, mri_status, stroke_cohort):
         f"{population}",
         "preprocessed_data",
         f"{mri_status}_{population}",
-        f"{stroke_cohort}_data",
+        "original_preprocessed_data",
     )
 
     file_path = os.path.join(
         folder_path,
-        f"{stroke_cohort}_data.csv")
+        "original_preprocessed_data.csv")
+    
+    df = pd.read_csv(file_path, sep=',', index_col=0)
+  
+    return df
+
+###############################################################################
+# Load preprocessed data
+def load_preprocessed_pre_post_data(population, mri_status, session_column):
+    """Get data from the preprocessed csv file.
+    Parameters
+    ----------
+    motor : str
+     Name of the motor which to be analyse.
+    population: str
+        Name of the population which to  to be analyse
+    mri_status: str
+        MRI status which data to be  to be analyse.
+
+    Returns
+    -------
+    df : pandas.DataFrame
+        DataFrame of data specified.
+    """
+    folder_path = os.path.join(
+        "/data",
+        "project",
+        "stroke_ukb",
+        "knazarzadeh",
+        "project_hgsprediction",
+        "data_hgs",
+        f"{population}",
+        "preprocessed_data",
+        f"{mri_status}_{population}",
+        f"{session_column}_data",
+    )
+
+    file_path = os.path.join(
+        folder_path,
+        f"{session_column}_data.csv")
     
     df = pd.read_csv(file_path, sep=',', index_col=0)
   

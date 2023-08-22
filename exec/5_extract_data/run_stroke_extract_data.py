@@ -13,6 +13,7 @@ mri_status = sys.argv[2]
 stroke_cohort = sys.argv[3]
 visit_session = sys.argv[4]
 feature_type = sys.argv[5]
+target = sys.argv[6]
 
 if visit_session == "1":
     session_column = f"1st_{stroke_cohort}_session"
@@ -25,16 +26,7 @@ elif visit_session == "4":
 
 df = stroke_load_data.load_preprocessed_pre_post_data(population, mri_status, session_column)
 
-
-data_processor = StrokeFeaturesComputing(df, mri_status, feature_type, stroke_cohort, visit_session)
-
-# Call all functions inside the class
-# FEATURE ENGINEERING
-df = data_processor.calculate_bmi(df)
-df = data_processor.calculate_height(df)
-df = data_processor.calculate_waist_to_hip_ratio(df)
-df = data_processor.calculate_age(df)
-df = data_processor.calculate_days(df)
-
 print("===== Done! =====")
 embed(globals(), locals())
+# extract--> features
+# extract ---> target
