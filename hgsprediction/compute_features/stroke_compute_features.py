@@ -188,7 +188,34 @@ class StrokeFeaturesComputing:
 
         return df
 
-###############################################################################    
+###############################################################################
+    def calculate_gender(self, df):
+            """Calculate coressponding gender
+            and add "gender" column to dataframe
+
+            Parameters
+            ----------
+            df : dataframe
+                The dataframe that desired to analysis
+
+            Return
+            ----------
+            df : dataframe
+                with extra column for: waist_to_hip_ratio
+            """
+            # Assign corresponding session number from the Class:
+            session_column = self.session_column
+            
+            assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
+            assert isinstance(session_column, str), "session_column must be a string!"
+            substring_to_remove = "session"
+            # -----------------------------------------------------------
+            gender = session_column.replace(substring_to_remove, "gender")
+
+            df[gender] = df.apply(lambda row: row[f"31-0.0"], axis=1)
+            
+            return df
+###############################################################################
     def calculate_neuroticism_score(self, df):
         """Calculate neuroticism score
         and add "neuroticism_score" column to dataframe

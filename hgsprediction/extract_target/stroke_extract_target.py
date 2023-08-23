@@ -48,7 +48,43 @@ class StrokeExtractTarget:
         elif visit_session == "4":
             self.session_column = f"4th_{stroke_cohort}_session"
 ###############################################################################
-    def extract_sum_hgs(self, df):
+# This class extract all required targets from data:
+    def extract_target(self, df):
+        
+        # Assign corresponding session number from the Class:
+        session_column = self.session_column
+        target = self.target
+        
+        assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
+        assert isinstance(session_column, str), "session_column must be a string!"
+        target_list = []
+        
+        if target == "hgs_L+R":
+            target_list = self.extract_sum_hgs()
+                
+        elif target == "hgs_left":
+            target_list = self.extract_left_hgs()
+
+        elif target == "hgs_right":
+            target_list = self.extract_right_hgs()
+            
+        elif target == "hgs_dominant":
+            target_list = self.extract_dominant_hgs()
+            
+        elif target == "hgs_nondominant":
+            target_list = self.extract_nondominant_hgs()
+            
+        elif target == "hgs_LI":
+            target_list = self.extract_laterality_index_hgs()
+            
+        elif target == "hgs_L-R":
+            target_list = self.extract_sub_hgs()        
+        
+        df = df[target_list]
+        
+        return df, target_list
+###############################################################################
+    def extract_sum_hgs(self):
         """Calculate sum of Handgrips
         and add "hgs(L+R)" column to dataframe
 
@@ -65,19 +101,17 @@ class StrokeExtractTarget:
         # Assign corresponding session number from the Class:
         session_column = self.session_column
         
-        assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
+
         assert isinstance(session_column, str), "session_column must be a string!"
         # -----------------------------------------------------------
         substring_to_remove = "session"
         # Add a new column 'new_column'
         hgs_sum = session_column.replace(substring_to_remove, "hgs_L+R")
 
-        df = df[hgs_sum]
-
-        return df
+        return hgs_sum
 
 ###############################################################################
-    def extract_left_hgs(self, df):
+    def extract_left_hgs(self):
         """Calculate right and add "hgs(left)" column to dataframe
 
         Parameters
@@ -94,18 +128,17 @@ class StrokeExtractTarget:
         # Assign corresponding session number from the Class:
         session_column = self.session_column
         
-        assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
+
         assert isinstance(session_column, str), "session_column must be a string!"
         # -----------------------------------------------------------
         substring_to_remove = "session"
         # Add a new column 'new_column'
         hgs_left = session_column.replace(substring_to_remove, "hgs_left")
   
-        df = df[hgs_left]
-        return df
+        return hgs_left
 
 ###############################################################################
-    def extract_right_hgs(self, df):
+    def extract_right_hgs(self):
         """Calculate right and add "hgs(right)" column to dataframe
 
         Parameters
@@ -122,17 +155,17 @@ class StrokeExtractTarget:
         # Assign corresponding session number from the Class:
         session_column = self.session_column
         
-        assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
+
         assert isinstance(session_column, str), "session_column must be a string!"
         # -----------------------------------------------------------
         substring_to_remove = "session"
         # Add a new column 'new_column'
         hgs_right = session_column.replace(substring_to_remove, "hgs_right")
-        df = df[hgs_right]
-        return df
+
+        return hgs_right
 
 ###############################################################################
-    def extract_sub_hgs(self, df):
+    def extract_sub_hgs(self):
         """Calculate subtraction of Handgrips
         and add "hgs(L-R)" column to dataframe
 
@@ -149,19 +182,17 @@ class StrokeExtractTarget:
         # Assign corresponding session number from the Class:
         session_column = self.session_column
         
-        assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
+
         assert isinstance(session_column, str), "session_column must be a string!"
         # -----------------------------------------------------------
         substring_to_remove = "session"
         # Add a new column 'new_column'
         hgs_sub = session_column.replace(substring_to_remove, "hgs_L-R")
 
-        df = df[hgs_sub]
-
-        return df
+        return hgs_sub
 
 ###############################################################################
-    def extract_laterality_index_hgs(self, df):
+    def extract_laterality_index_hgs(self):
         """Calculate Laterality Index and add "hgs(LI)" column to dataframe
 
         Parameters
@@ -178,18 +209,16 @@ class StrokeExtractTarget:
         # Assign corresponding session number from the Class:
         session_column = self.session_column
         
-        assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
+
         assert isinstance(session_column, str), "session_column must be a string!"
         # -----------------------------------------------------------
         substring_to_remove = "session"
         hgs_LI = session_column.replace(substring_to_remove, "hgs_LI")
 
-        df = df[hgs_LI]
-
-        return df
+        return hgs_LI
 
 ###############################################################################
-    def extract_dominant_hgs(self, df):
+    def extract_dominant_hgs(self):
         """Calculate dominant handgrip
         and add "hgs_dominant" column to dataframe
 
@@ -206,19 +235,17 @@ class StrokeExtractTarget:
         # Assign corresponding session number from the Class:
         session_column = self.session_column
         
-        assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
+
         assert isinstance(session_column, str), "session_column must be a string!"
         # -----------------------------------------------------------
         substring_to_remove = "session"
         # Add a new column 'new_column'
         hgs_dominant = session_column.replace(substring_to_remove, "hgs_dominant")
-        
-        df = df[hgs_dominant]
-        
-        return df
+                
+        return hgs_dominant
     
     ###############################################################################
-    def extract_nondominant_hgs(self, df):
+    def extract_nondominant_hgs(self):
         """Calculate dominant handgrip
         and add "hgs_dominant" column to dataframe
 
@@ -235,13 +262,11 @@ class StrokeExtractTarget:
         # Assign corresponding session number from the Class:
         session_column = self.session_column
         
-        assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
+
         assert isinstance(session_column, str), "session_column must be a string!"
         # -----------------------------------------------------------
         substring_to_remove = "session"
         # Add a new column 'new_column'
         hgs_nondominant = session_column.replace(substring_to_remove, "hgs_nondominant")
-        
-        df = df[hgs_nondominant]
-        
-        return df
+                
+        return hgs_nondominant

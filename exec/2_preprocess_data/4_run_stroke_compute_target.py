@@ -22,7 +22,7 @@ elif visit_session == "4":
     session_column = f"4th_{stroke_cohort}_session"
             
             
-df = stroke_load_data.load_preprocessed_pre_post_data(population, mri_status, session_column)
+df = stroke_load_data.load_computed_features_data(population, mri_status, session_column)
 
 data_processor = StrokeTargetComputing(df, mri_status, stroke_cohort, visit_session)
 
@@ -42,12 +42,8 @@ df = data_processor.calculate_sub_hgs(df)
 # elif target == "hgs_LI":
 df = data_processor.calculate_laterality_index_hgs(df)
 
-stroke_save_data.save_preprocessed_pre_post_data(
-    df,
-    population,
-    mri_status,
-    session_column,
-)
+stroke_save_data.save_computed_targets_data(df,population, mri_status, session_column)
+
 print("===== Done! =====")
 embed(globals(), locals())
 

@@ -4,7 +4,7 @@ import sys
 
 from hgsprediction.load_data import stroke_load_data
 from hgsprediction.data_preprocessing import stroke_data_preprocessor
-from hgsprediction.save_data import save_preprocessed_data
+from hgsprediction.save_data import stroke_save_data
 
 from ptpython.repl import embed
 # print("===== Done! =====")
@@ -34,11 +34,11 @@ df_pre_stroke = data_processor.extract_pre_stroke_df(df_preprocessed)
 df_longitudinal_stroke = data_processor.extract_longitudinal_stroke_df(df_preprocessed)
 
 ###############################################################################
-save_preprocessed_data(df_preprocessed, population, mri_status, stroke_cohort="original_preprocessed")
+stroke_save_data.save_main_preprocessed_data(df_preprocessed, population, mri_status, stroke_cohort="original_preprocessed")
 
-save_preprocessed_data(df_post_stroke, population, mri_status, stroke_cohort="post-stroke")
-save_preprocessed_data(df_pre_stroke, population, mri_status, stroke_cohort="pre-stroke")
-save_preprocessed_data(df_longitudinal_stroke, population, mri_status, stroke_cohort="longitudinal-sroke")
+stroke_save_data.save_main_preprocessed_data(df_post_stroke, population, mri_status, stroke_cohort="post-stroke")
+stroke_save_data.save_main_preprocessed_data(df_pre_stroke, population, mri_status, stroke_cohort="pre-stroke")
+stroke_save_data.save_main_preprocessed_data(df_longitudinal_stroke, population, mri_status, stroke_cohort="longitudinal-sroke")
 
 print("===== Done! =====")
 embed(globals(), locals())

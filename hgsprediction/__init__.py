@@ -4,8 +4,7 @@
 from .load_data import stroke_load_data
 
 # Save Stroke Preprocessed Data
-from .save_data import save_preprocessed_data, \
-                       save_preprocessed_pre_post_data
+from .save_data import stroke_save_data
 # Data Preprocessing
 from .data_preprocessing import stroke_data_preprocessor
 
@@ -15,6 +14,8 @@ from .compute_features import HealthyFeaturesComputing, \
 # Target Computing
 from .compute_target import HealthyTargetComputing, \
                             StrokeTargetComputing
+                            
+from .extract_features import stroke_extract_features
 
 from hgsprediction.input_arguments import parse_args, input_arguments
 from hgsprediction.load_imaging_data import load_imaging_data

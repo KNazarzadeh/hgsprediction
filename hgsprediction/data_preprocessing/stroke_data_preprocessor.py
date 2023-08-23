@@ -415,13 +415,45 @@ class StrokeValidateDataPreprocessor:
             self.session_column = f"3rd_{stroke_cohort}_session"
         elif visit_session == "4":
             self.session_column = f"4th_{stroke_cohort}_session"
+################################ EXTRACT DATA ##############################
+# The main goal of data validation is to verify that the data is 
+# accurate, reliable, and suitable for the intended analysis.
+###############################################################################
+    def extract_data(self, df):
+            """Exclude all subjects who had Dominant HGS < 4 and != NaN:
+
+            Parameters
+            ----------
+            df : dataframe
+                The dataframe that desired to analysis
+
+            Return
+            ----------
+            df : dataframe
+            """        
+            # Assign corresponding session number from the Class:
+            session_column = self.session_column
+            
+            assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
+            assert isinstance(session_column, str), "session_column must be a string!"
+            # -----------------------------------------------------------
+            if df[session_column].isna().sum() < len(df):
+                df = df[df[session_column]>=0]
+                
+            elif df[session_column].isna().sum() == len(df):
+                # Drop all rows from the DataFrame
+                df = pd.DataFrame(columns=df.columns)
+                # Display message to the user
+                print(f"******* No patient has assessed for {session_column} *******")
+
+            return df, session_column
 
 ################################ DATA VALIDATION ##############################
 # The main goal of data validation is to verify that the data is 
 # accurate, reliable, and suitable for the intended analysis.
 ###############################################################################
     def validate_handgrips(self, df):
-        """Exclude all subjects who had Dominant HGS < 4:
+        """Exclude all subjects who had Dominant HGS < 4 and != NaN:
 
         Parameters
         ----------
@@ -440,10 +472,8 @@ class StrokeValidateDataPreprocessor:
         # -----------------------------------------------------------
         substring_to_remove = "session"
         if df[session_column].isna().sum() < len(df):
-            df = df[df[session_column]>=0]
             # Calculate Dominant HGS by
             # Calling the modules
-            
             df = self.remove_missing_hgs(df)
             df = self.calculate_dominant_nondominant_hgs(df)
             dominant_col = session_column.replace(substring_to_remove, "hgs_dominant")

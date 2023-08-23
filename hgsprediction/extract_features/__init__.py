@@ -1,1 +1,1 @@
-from .features_extractor import features_extractor
+from .stroke_extract_features import StrokeExtractFeatures
