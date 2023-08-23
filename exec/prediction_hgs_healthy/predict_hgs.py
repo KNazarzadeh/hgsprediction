@@ -18,7 +18,7 @@ from hgsprediction.load_data.load_healthy.load_train_data import load_preprocess
 ####### Data Extraction #######
 from hgsprediction.data_extraction import data_extractor, run_data_extraction
 ####### Features Extraction #######
-from hgsprediction.extract_features import features_extractor
+from hgsprediction.extract_features import should_delete
 ########################### Target Extraction ###########################
 from hgsprediction.extract_target import target_extractor
 # Calculation of Heuristic C for Linear SVM model
@@ -63,7 +63,7 @@ print("===== Done! =====")
 embed(globals(), locals())
 data_extracted = run_data_extraction.data_extractor(df_train, mri_status, gender, feature_type, target)
 
-X = features_extractor(data_extracted, mri_status, feature_type)
+X = should_delete(data_extracted, mri_status, feature_type)
 y = target_extractor(data_extracted, target)
 print("===== Done! =====")
 embed(globals(), locals())

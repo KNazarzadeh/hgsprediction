@@ -1,7 +1,8 @@
 from .stroke_load_data import load_original_data, \
                               load_main_preprocessed_data, \
                               load_validated_hgs_data, \
-                              load_computed_targets_data
+                              load_computed_targets_data, \
+                              load_extracted_data
 
 
 

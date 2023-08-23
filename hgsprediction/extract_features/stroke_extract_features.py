@@ -5,7 +5,6 @@ from ptpython.repl import embed
 ###############################################################################
 class StrokeExtractFeatures:
     def __init__(self, 
-                 df, 
                  mri_status,
                  stroke_cohort, 
                  visit_session,
@@ -14,16 +13,13 @@ class StrokeExtractFeatures:
 
         Parameters
         ----------
-        df : dataframe
-            The dataframe that desired to analysis
+
         """
-        self.df = df
         self.mri_status = mri_status
         self.stroke_cohort = stroke_cohort
         self.visit_session = visit_session
         self.feature_type = feature_type
         
-        assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
         assert isinstance(mri_status, str), "mri_status must be a string!"
         assert isinstance(stroke_cohort, str), "stroke_cohort must be a string!"
         assert isinstance(visit_session, str), "visit_session must be a integer!"
@@ -38,15 +34,16 @@ class StrokeExtractFeatures:
             self.session_column = f"4th_{stroke_cohort}_session"
 ###############################################################################
     # This class extract all required features from data:
-    def extract_features(self, df):
+    def extract_features(self):
         
         # Assign corresponding session number from the Class:
         session_column = self.session_column
         feature_type = self.feature_type
         
-        assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
         assert isinstance(session_column, str), "session_column must be a string!"
+        
         features = []
+        
         if feature_type == "anthropometrics":
             features = self.extract_anthropometrics_features()
                 
@@ -67,10 +64,8 @@ class StrokeExtractFeatures:
                         
         # elif feature_type == "anthropometrics_behavioral_gender":
         #     features = self.extract_anthropometric_features() + self.extract_behavioral_features() + self.extract_gender_features()
-        
-        df = df[features]
-        
-        return df, features
+                
+        return features
 ###############################################################################
     def extract_anthropometrics_features(self):
         # Assign corresponding session number from the Class:
@@ -126,13 +121,10 @@ class StrokeExtractFeatures:
 
         Parameters
         ----------
-        df : dataframe
-            The dataframe that desired to analysis
 
         Return
         ----------
-        df : dataframe
-            with extra column for: Age
+
         """
         # Assign corresponding session number from the Class:
         session_column = self.session_column

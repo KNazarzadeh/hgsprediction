@@ -49,13 +49,12 @@ class StrokeExtractTarget:
             self.session_column = f"4th_{stroke_cohort}_session"
 ###############################################################################
 # This class extract all required targets from data:
-    def extract_target(self, df):
+    def extract_target(self):
         
         # Assign corresponding session number from the Class:
         session_column = self.session_column
         target = self.target
         
-        assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
         assert isinstance(session_column, str), "session_column must be a string!"
         target_list = []
         
@@ -80,9 +79,7 @@ class StrokeExtractTarget:
         elif target == "hgs_L-R":
             target_list = self.extract_sub_hgs()        
         
-        df = df[target_list]
-        
-        return df, target_list
+        return target_list
 ###############################################################################
     def extract_sum_hgs(self):
         """Calculate sum of Handgrips

@@ -8,7 +8,6 @@ from ptpython.repl import embed
 # print("===== Done! =====")
 # embed(globals(), locals())
 def load_best_model_trained(
-    population,
     gender,
     feature_type,
     target,
@@ -34,7 +33,7 @@ def load_best_model_trained(
             "knazarzadeh",
             "project_hgsprediction",
             "results_hgsprediction",
-            f"{population}",
+            "healthy",
             "nonmri",
             f"{gender}",
             f"{feature_type}",
