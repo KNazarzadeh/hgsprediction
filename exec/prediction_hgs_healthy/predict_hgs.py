@@ -16,9 +16,9 @@ from hgsprediction.input_arguments import parse_args, input_arguments
 # Load Processed Train set (after data validation, feature engineering)
 from hgsprediction.load_data.load_healthy.load_train_data import load_preprocessed_train_df, load_primary_nonmri_train_set_df, load_primary_mri_df
 ####### Data Extraction #######
-from hgsprediction.data_extraction import data_extractor, run_data_extraction
+from hgsprediction.extract_data import data_extractor, run_data_extraction
 ####### Features Extraction #######
-from hgsprediction.extract_features import should_delete
+from hgsprediction.old_define_features import should_delete
 ########################### Target Extraction ###########################
 from hgsprediction.extract_target import target_extractor
 # Calculation of Heuristic C for Linear SVM model

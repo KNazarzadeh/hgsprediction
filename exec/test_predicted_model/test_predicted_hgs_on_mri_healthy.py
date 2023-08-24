@@ -8,8 +8,8 @@ from hgsprediction.input_arguments import parse_args, input_arguments
 
 from hgsprediction.load_trained_model import load_best_model_trained
 from hgsprediction.load_data.load_healthy import load_mri_data_for_anthropometrics
-from hgsprediction.data_extraction import data_extractor, run_data_extraction
-from hgsprediction.extract_features import should_delete
+from hgsprediction.extract_data import data_extractor, run_data_extraction
+from hgsprediction.old_define_features import should_delete
 from hgsprediction.extract_target import target_extractor
 from hgsprediction.LinearSVRHeuristicC_zscore import LinearSVRHeuristicC_zscore as svrhc
 from hgsprediction.save_results import save_extracted_mri_data, \

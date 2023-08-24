@@ -1,1 +1,0 @@
-from .stroke_extract_features import StrokeExtractFeatures

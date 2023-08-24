@@ -2,7 +2,7 @@ import sys
 import os
 import pandas as pd
 from hgsprediction.load_data import stroke_load_data
-from hgsprediction.extract_features import stroke_extract_features
+from hgsprediction.old_define_features import stroke_define_features
 from hgsprediction.extract_target import stroke_extract_target
 from hgsprediction.save_data import stroke_save_data
 from ptpython.repl import embed
@@ -34,7 +34,7 @@ for gender in ["female", "male"]:
     if gender == "male":
         df = df_original[df_original["31-0.0"] == 1.0]
 
-    feature_extractor = stroke_extract_features.StrokeExtractFeatures(df, mri_status, stroke_cohort, visit_session, feature_type)
+    feature_extractor = stroke_define_features.StrokeExtractFeatures(df, mri_status, stroke_cohort, visit_session, feature_type)
     target_extractor = stroke_extract_target.StrokeExtractTarget(df, mri_status, stroke_cohort, visit_session, target)
 
     feature_list = feature_extractor.extract_features()

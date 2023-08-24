@@ -88,7 +88,7 @@ def load_main_preprocessed_data(population, mri_status):
 
 ###############################################################################
 # Load preprocessed data
-def load_validated_hgs_data(population, mri_status, session_column):
+def load_validated_hgs_data(population, mri_status, stroke_cohort, visit_session):
     """Get data from the preprocessed csv file.
     Parameters
     ----------
@@ -104,6 +104,16 @@ def load_validated_hgs_data(population, mri_status, session_column):
     df : pandas.DataFrame
         DataFrame of data specified.
     """
+    if visit_session == "1":
+            session_column = f"1st_{stroke_cohort}_session"
+    elif visit_session == "2":
+        session_column = f"2nd_{stroke_cohort}_session"
+    elif visit_session == "3":
+        session_column = f"3rd_{stroke_cohort}_session"
+    elif visit_session == "4":
+        session_column = f"4th_{stroke_cohort}_session"
+        
+        
     folder_path = os.path.join(
         "/data",
         "project",
@@ -127,7 +137,7 @@ def load_validated_hgs_data(population, mri_status, session_column):
 
 ###############################################################################
 # Load preprocessed data
-def load_preprocessed_data(population, mri_status, session_column):
+def load_preprocessed_data(population, mri_status, stroke_cohort, visit_session):
     """Get data from the preprocessed csv file.
     Parameters
     ----------
@@ -143,6 +153,15 @@ def load_preprocessed_data(population, mri_status, session_column):
     df : pandas.DataFrame
         DataFrame of data specified.
     """
+    if visit_session == "1":
+            session_column = f"1st_{stroke_cohort}_session"
+    elif visit_session == "2":
+        session_column = f"2nd_{stroke_cohort}_session"
+    elif visit_session == "3":
+        session_column = f"3rd_{stroke_cohort}_session"
+    elif visit_session == "4":
+        session_column = f"4th_{stroke_cohort}_session"
+        
     folder_path = os.path.join(
         "/data",
         "project",
@@ -168,7 +187,8 @@ def load_preprocessed_data(population, mri_status, session_column):
 def load_extracted_data(
     population,
     mri_status,
-    session_column,
+    stroke_cohort,
+    visit_session,
     feature_type,
     target,
     gender,
@@ -187,6 +207,15 @@ def load_extracted_data(
     mri_status: str
         MRI status which data to be  to be analyse.
     """
+    if visit_session == "1":
+            session_column = f"1st_{stroke_cohort}_session"
+    elif visit_session == "2":
+        session_column = f"2nd_{stroke_cohort}_session"
+    elif visit_session == "3":
+        session_column = f"3rd_{stroke_cohort}_session"
+    elif visit_session == "4":
+        session_column = f"4th_{stroke_cohort}_session"
+    
     folder_path = os.path.join(
         "/data",
         "project",

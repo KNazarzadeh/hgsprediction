@@ -6,7 +6,7 @@ import sys
 from hgsprediction.input_arguments import parse_args, input_arguments
 from hgsprediction.load_trained_model import load_best_model_trained
 from hgsprediction.prepare_stroke.prepare_stroke_data import prepare_stroke
-from hgsprediction.extract_features import stroke_extract_features
+from hgsprediction.old_define_features import stroke_define_features
 from hgsprediction.extract_target import stroke_extract_target
 from hgsprediction.load_data import stroke_load_data
 
@@ -59,38 +59,27 @@ target = sys.argv[6]
 #                             )
 # print(male_best_model_trained)
 ##############################################################################
-if visit_session == "1":
-    session_column = f"1st_{stroke_cohort}_session"
-elif visit_session == "2":
-    session_column = f"2nd_{stroke_cohort}_session"
-elif visit_session == "3":
-    session_column = f"3rd_{stroke_cohort}_session"
-elif visit_session == "4":
-    session_column = f"4th_{stroke_cohort}_session"
+
 
 # load data
+df_original = stroke_load_data.load_preprocessed_data(population, mri_status, session_column)
 
-# # Separate data for females and males
-# female_data = data[data['gender'] == 'female']
-# male_data = data[data['gender'] == 'male']
+# Separate data for females and males
+df_female = df_original[df_original["31-0.0"] == 0.0]
+df_male = df_original[df_original["31-0.0"] == 1.0]
 
 # # Define features and target variable
-# features = ['feature1', 'feature2', 'feature3']
-# target = 'target_variable'
+# X = ['feature1', 'feature2', 'feature3']
+# y = 'target_variable'
 
 df_female = stroke_load_data.load_extracted_data(population, mri_status, session_column, feature_type, target, "female")
 df_male = stroke_load_data.load_extracted_data(population, mri_status, session_column, feature_type, target, "male")
 
 # rename columns to trained model format
-feature_extractor = stroke_extract_features.StrokeExtractFeatures(feature_type)
+feature_extractor = stroke_define_features.StrokeExtractFeatures(feature_type)
 target_extractor = stroke_extract_target.StrokeExtractTarget(target)
 
-feature_list = feature_extractor.extract_features()
-extracted_features = df[feature_list]
-target_list = target_extractor.extract_target()
-extracted_target = df[target_list]
-X = feature_extractor.extract_features()
-y = target_extractor.extract_target()
+df_extracted = 
 
 
 # stroke_all_columns, df_female, df_male, X, y = prepare_stroke(target)

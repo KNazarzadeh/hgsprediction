@@ -15,7 +15,7 @@ from .compute_features import HealthyFeaturesComputing, \
 from .compute_target import HealthyTargetComputing, \
                             compute_target
                             
-from .extract_features import stroke_extract_features
+from .old_define_features import stroke_define_features
 
 from hgsprediction.input_arguments import parse_args, input_arguments
 from hgsprediction.load_imaging_data import load_imaging_data
