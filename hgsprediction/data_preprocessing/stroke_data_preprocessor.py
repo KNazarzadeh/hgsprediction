@@ -290,6 +290,8 @@ class StrokeMainDataPreprocessor:
         # ensuring consistent indexing for further analysis or operations.
         preprocessed_df = merged_df.reindex(df.index)
         
+        preprocessed_df = self.remove_nan_columns(preprocessed_df)
+        
         return preprocessed_df
 
 ###############################################################################
@@ -382,6 +384,28 @@ class StrokeMainDataPreprocessor:
         longitudinal_stroke_df = df[~df.index.isin(merged_df.index)]
         
         return longitudinal_stroke_df
+
+############################## Remove NaN coulmns #############################
+# Remove columns if their values are all NAN
+###############################################################################
+# Remove columns that all values are NaN
+    def remove_nan_columns(self, df):
+        """Remove columns with all NAN values
+      
+        Parameters
+        ----------
+        df : dataframe
+            The dataframe that desired to analysis
+
+        Return
+        ----------
+        df : dataframe
+        """ 
+        
+        nan_cols = df.columns[df.isna().all()].tolist()
+        df = df.drop(nan_cols, axis=1)
+        
+        return df
 
 ###############################################################################
 class StrokeValidateDataPreprocessor:

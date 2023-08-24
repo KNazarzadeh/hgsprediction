@@ -68,6 +68,16 @@ elif visit_session == "3":
 elif visit_session == "4":
     session_column = f"4th_{stroke_cohort}_session"
 
+# load data
+
+# # Separate data for females and males
+# female_data = data[data['gender'] == 'female']
+# male_data = data[data['gender'] == 'male']
+
+# # Define features and target variable
+# features = ['feature1', 'feature2', 'feature3']
+# target = 'target_variable'
+
 df_female = stroke_load_data.load_extracted_data(population, mri_status, session_column, feature_type, target, "female")
 df_male = stroke_load_data.load_extracted_data(population, mri_status, session_column, feature_type, target, "male")
 

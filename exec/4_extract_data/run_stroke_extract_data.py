@@ -48,5 +48,6 @@ for gender in ["female", "male"]:
     
     stroke_save_data.save_extracted_data(extracted_data, population, mri_status, session_column, feature_type, target, gender)
 
+
 print("===== Done! =====")
 embed(globals(), locals())

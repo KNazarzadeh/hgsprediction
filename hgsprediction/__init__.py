@@ -10,10 +10,10 @@ from .data_preprocessing import stroke_data_preprocessor
 
 # Features Computing
 from .compute_features import HealthyFeaturesComputing, \
-                              StrokeFeaturesComputing
+                              compute_features
 # Target Computing
 from .compute_target import HealthyTargetComputing, \
-                            StrokeTargetComputing
+                            compute_target
                             
 from .extract_features import stroke_extract_features
 

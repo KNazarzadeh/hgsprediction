@@ -26,7 +26,7 @@ data_processor = stroke_data_preprocessor.StrokeValidateDataPreprocessor(df,
 extracted_df, session_column = data_processor.extract_data(df)
 hgs_validated_df, session_column = data_processor.validate_handgrips(extracted_df)
 
-stroke_save_data.save_extracted_pre_post_data(extracted_df, population, mri_status, session_column)
+stroke_save_data.save_original_extracted_pre_post_data(extracted_df, population, mri_status, session_column)
 stroke_save_data.save_validated_hgs_data(hgs_validated_df, population, mri_status, session_column)
 
 print("===== Done! =====")
