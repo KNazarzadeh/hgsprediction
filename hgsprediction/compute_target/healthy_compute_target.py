@@ -15,34 +15,38 @@ from ptpython.repl import embed
 ###############################################################################
 ###############################################################################
 # This class extract all required features from data:
-def compute_target(df, session_column, target):
+def compute_target(df, mri_status, target):
 
     assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
-    assert isinstance(session_column, str ), "session_column must be a string!"    
+    assert isinstance(mri_status, str ), "mri_status must be a string!"    
     assert isinstance(target, str ), "target must be a string!"
+    if mri_status == "nonmri":
+        session = "0"
+    elif mri_status == "mri":
+        session = "2"
 
     if target == "hgs_L+R":
-        df = calculate_sum_hgs(df, session_column)
+        df = calculate_sum_hgs(df, session)
             
     elif target == "hgs_left":
-        df = calculate_left_hgs(df, session_column)
+        df = calculate_left_hgs(df, session)
 
     elif target == "hgs_right":
-        df = calculate_right_hgs(df, session_column)
+        df = calculate_right_hgs(df, session)
 
     elif target in ["hgs_dominant", "hgs_nondominant"]:
-        df = calculate_dominant_nondominant_hgs(df, session_column)
+        df = calculate_dominant_nondominant_hgs(df, session)
     
     elif target == "hgs_L-R":
-        df = calculate_sub_hgs(df, session_column)
+        df = calculate_sub_hgs(df, session)
         
     elif target == "hgs_LI":
-        df = calculate_laterality_index_hgs(df, session_column)
+        df = calculate_laterality_index_hgs(df, session)
             
     return df
 ###############################################################################
 ###############################################################################
-def calculate_sum_hgs(df, session_column):
+def calculate_sum_hgs(df, session):
     """Calculate sum of Handgrips
     and add "hgs(L+R)" column to dataframe
 
@@ -56,24 +60,22 @@ def calculate_sum_hgs(df, session_column):
     df : dataframe
         with calculating extra column for: (HGS Left + HGS Right)
     """
-
     assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
-    assert isinstance(session_column, str), "session_column must be a string!"
+    assert isinstance(session, str), "session must be a string!"
     # -----------------------------------------------------------
-    substring_to_remove = "session"
     # Add a new column 'new_column'
-    hgs_sum = session_column.replace(substring_to_remove, "hgs_L+R")
+    hgs_sum = f"hgs_L+R-{session}.0"
     
     # Add new column "hgs_L+R" by the following process: 
     # hgs_left field-ID: 46
     # hgs_right field-ID: 47
     # Addition of Handgrips (Left + Right)
-    df[hgs_sum] = df.apply(lambda row: row[f"46-{row[session_column]}"]+row[f"47-{row[session_column]}"], axis=1)
+    df[hgs_sum] = df.apply(lambda row: row[f"46-{row[session]}"]+row[f"47-{row[session]}"], axis=1)
 
     return df
 
 ###############################################################################
-def calculate_left_hgs(df, session_column):
+def calculate_left_hgs(df, session):
     """Calculate right and add "hgs(left)" column to dataframe
 
     Parameters
@@ -89,18 +91,17 @@ def calculate_left_hgs(df, session_column):
     """
 
     assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
-    assert isinstance(session_column, str), "session_column must be a string!"
+    assert isinstance(session, str), "session must be a string!"
     # -----------------------------------------------------------
-    substring_to_remove = "session"
     # Add a new column 'new_column'
-    hgs_left = session_column.replace(substring_to_remove, "hgs_left")
+    hgs_left = f"hgs_left-{session}.0"
         
-    df[hgs_left] = df.apply(lambda row: row[f"46-{row[session_column]}"], axis=1)
+    df[hgs_left] = df.apply(lambda row: row[f"46-{row[session]}"], axis=1)
 
     return df
 
 ###############################################################################
-def calculate_right_hgs(df, session_column):
+def calculate_right_hgs(df, session):
     """Calculate right and add "hgs(right)" column to dataframe
 
     Parameters
@@ -116,17 +117,17 @@ def calculate_right_hgs(df, session_column):
     """
 
     assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
-    assert isinstance(session_column, str), "session_column must be a string!"
+    assert isinstance(session, str), "session must be a string!"
     # -----------------------------------------------------------
-    substring_to_remove = "session"
+    
     # Add a new column 'new_column'
-    hgs_right = session_column.replace(substring_to_remove, "hgs_right")
-    df[hgs_right] = df.apply(lambda row: row[f"47-{row[session_column]}"], axis=1)
+    hgs_right = f"hgs_right-{session}.0"
+    df[hgs_right] = df.apply(lambda row: row[f"47-{row[session]}"], axis=1)
 
     return df
 
 ###############################################################################
-def calculate_sub_hgs(df, session_column):
+def calculate_sub_hgs(df, session):
     """Calculate subtraction of Handgrips
     and add "hgs(L-R)" column to dataframe
 
@@ -142,22 +143,21 @@ def calculate_sub_hgs(df, session_column):
     """
 
     assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
-    assert isinstance(session_column, str), "session_column must be a string!"
+    assert isinstance(session, str), "session must be a string!"
     # -----------------------------------------------------------
-    substring_to_remove = "session"
     # Add a new column 'new_column'
-    hgs_sub = session_column.replace(substring_to_remove, "hgs_L-R")
+    hgs_sub = f"hgs_L-R-{session}.0"
     
     # Add new column "hgs_L-R" by the following process: 
     # hgs_left field-ID: 46
     # hgs_right field-ID: 47
     # Subtraction of Handgrips (Left - Right)
-    df[hgs_sub] = df.apply(lambda row: row[f"46-{row[session_column]}"]-row[f"47-{row[session_column]}"], axis=1)
+    df[hgs_sub] = df.apply(lambda row: row[f"46-{row[session]}"]-row[f"47-{row[session]}"], axis=1)
 
     return df
 
 ###############################################################################
-def calculate_laterality_index_hgs(df, session_column):
+def calculate_laterality_index_hgs(df, session):
     """Calculate Laterality Index and add "hgs(LI)" column to dataframe
 
     Parameters
@@ -173,13 +173,13 @@ def calculate_laterality_index_hgs(df, session_column):
     """
 
     assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
-    assert isinstance(session_column, str), "session_column must be a string!"
+    assert isinstance(session, str), "session must be a string!"
     # -----------------------------------------------------------
-    substring_to_remove = "session"
+    
     # Add a new column 'new_column'
-    hgs_sub = session_column.replace(substring_to_remove, "hgs_L-R")
-    hgs_sum = session_column.replace(substring_to_remove, "hgs_L+R")
-    hgs_LI = session_column.replace(substring_to_remove, "hgs_LI")
+    hgs_sub = f"hgs_L-R-{session}.0"
+    hgs_sum = f"hgs_L+R-{session}.0"
+    hgs_LI = f"hgs_LI-{session}.0"
     
     df = calculate_sub_hgs(df)
     df = calculate_sum_hgs(df)
@@ -190,7 +190,7 @@ def calculate_laterality_index_hgs(df, session_column):
     return df
 
 ###############################################################################
-def calculate_dominant_nondominant_hgs(df, session_column):
+def calculate_dominant_nondominant_hgs(df, session):
     """Calculate dominant handgrip
     and add "hgs_dominant" column to dataframe
 
@@ -206,12 +206,12 @@ def calculate_dominant_nondominant_hgs(df, session_column):
     """
 
     assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
-    assert isinstance(session_column, str), "session_column must be a string!"
+    assert isinstance(session, str), "session must be a string!"
     # -----------------------------------------------------------
-    substring_to_remove = "session"
+    
     # Add a new column 'new_column'
-    hgs_dominant = session_column.replace(substring_to_remove, "hgs_dominant")
-    hgs_nondominant = session_column.replace(substring_to_remove, "hgs_nondominant")
+    hgs_dominant = f"hgs_dominant-{session}.0"
+    hgs_nondominant = f"hgs_nondominant-{session}.0"
     
     # hgs_left field-ID: 46
     # hgs_right field-ID: 47
@@ -226,7 +226,7 @@ def calculate_dominant_nondominant_hgs(df, session_column):
     # If handedness is equal to 1
     # Right hand is Dominant
     # Find handedness equal to 1:        
-    if df[session_column].isin([0.0, 1.0, 3.0]).any():
+    if session == "0.0":
         # Add and new column "hgs_dominant"
         # And assign Right hand HGS value
         df.loc[df["1707-0.0"] == 1.0, hgs_dominant] = df.loc[df["1707-0.0"] == 1.0, "47-0.0"]
@@ -251,7 +251,7 @@ def calculate_dominant_nondominant_hgs(df, session_column):
         # And assign lowest HGS value among Right and Left HGS:
         df.loc[df["1707-0.0"].isin([3.0, -3.0, np.nan]), hgs_dominant] = df[["46-0.0", "47-0.0"]].max(axis=1)
         df.loc[df["1707-0.0"].isin([3.0, -3.0, np.nan]), hgs_nondominant] = df[["46-0.0", "47-0.0"]].min(axis=1)
-    elif df[session_column].isin([2.0]).any():
+    elif session == "2.0":
         df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"] == 1.0, hgs_dominant] = \
             df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"] == 1.0, "47-0.0"]
         df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"] == 1.0, hgs_nondominant] = \

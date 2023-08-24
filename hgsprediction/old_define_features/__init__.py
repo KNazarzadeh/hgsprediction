@@ -1,1 +1,1 @@
-from .stroke_define_features import StrokeExtractFeatures
+from .stroke_define_features import define_features

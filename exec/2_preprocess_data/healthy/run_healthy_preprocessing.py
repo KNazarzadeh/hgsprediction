@@ -1,9 +1,9 @@
 
-from hgsprediction.data_preprocessing import healthy_data_preprocessor, DataPreprocessor
+from hgsprediction.data_preprocessing import HealthyDataPreprocessor
 
 def run_healthy_preprocessing(df, session):
     
-    data_processor = DataPreprocessor(df, session)
+    data_processor = HealthyDataPreprocessor(df, session)
 
     # Call functions inside the class
     # CHECK HGS AVAILABILITY

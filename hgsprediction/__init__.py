@@ -1,5 +1,13 @@
 """Provide imports for the hgsprediction package."""
+############### HEALTHY FUNCTIONS ###############
+# Load Data
+from .load_data import healthy_load_data
+# Preprocessing Data
+from .data_preprocessing import HealthyDataPreprocessor
 
+
+
+############### STROKE FUNCTIONS ###############
 # Load Stroke Data
 from .load_data import stroke_load_data
 
