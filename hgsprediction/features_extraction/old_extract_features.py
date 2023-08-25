@@ -160,7 +160,7 @@ class ExtractFeatures:
             # ====================== Body size measures ======================
             '21001',  # Body mass index (BMI)
             '50',  # Standing height
-            'waist_to_hip_ratio',  # Waist to Hip circumference Ratio
+            'WHR',  # Waist to Hip circumference Ratio
         ]
 
         return anthropometry_features

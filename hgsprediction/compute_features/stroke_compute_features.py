@@ -16,15 +16,18 @@ def compute_features(df, session_column, feature_type):
     elif feature_type == "height":
         df = calculate_height(df, session_column)
 
-    elif feature_type == "waist_to_hip_ratio":
-        df = calculate_waist_to_hip_ratio(df, session_column)
+    elif feature_type == "WHR":
+        df = calculate_WHR(df, session_column)
 
     elif feature_type == "age":
         df = calculate_age(df, session_column)
         
     elif feature_type == "days":
         df = calculate_days(df, session_column)
-        
+    
+    elif feature_type == "gender":
+        df = calculate_gender(df, session_column)
+
     # elif feature_type == "behavioral":
     #     features = ca()   
                     
@@ -90,9 +93,9 @@ def calculate_height(df, session_column):
 
 
 ###############################################################################
-def calculate_waist_to_hip_ratio(df, session_column):
-    """Calculate coressponding waist_to_hip_ratio
-    and add "waist_to_hip_ratio" column to dataframe
+def calculate_WHR(df, session_column):
+    """Calculate coressponding WHR
+    and add "WHR" column to dataframe
 
     Parameters
     ----------
@@ -102,7 +105,7 @@ def calculate_waist_to_hip_ratio(df, session_column):
     Return
     ----------
     df : dataframe
-        with extra column for: waist_to_hip_ratio
+        with extra column for: WHR
     """
     # Assign corresponding session number from the Class:
     
@@ -110,7 +113,7 @@ def calculate_waist_to_hip_ratio(df, session_column):
     assert isinstance(session_column, str), "session_column must be a string!"
     substring_to_remove = "session"
     # -----------------------------------------------------------
-    whr = session_column.replace(substring_to_remove, "waist_to_hip_ratio")
+    whr = session_column.replace(substring_to_remove, "WHR")
 
     df[whr] = df.apply(lambda row: row[f"48-{row[session_column]}"]/row[f"49-{row[session_column]}"], axis=1)
     
@@ -192,7 +195,7 @@ def calculate_gender(df, session_column):
         Return
         ----------
         df : dataframe
-            with extra column for: waist_to_hip_ratio
+            with extra column for: WHR
         """
         # Assign corresponding session number from the Class:
             

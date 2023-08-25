@@ -50,13 +50,13 @@ class DefineFeatures:
         anthropometric_features = [
             "bmi",      # '21001' --> BMI
             "height",   #'50' --> Standing Height
-            "waist_to_hip_ratio",  # 48/49 --> Waist circumference/ Hip circumference
+            "WHR",  # 48/49 --> Waist circumference/ Hip circumference
             ]
         
         anthropometric_age_features = [
         "bmi",      # '21001' --> BMI
         "height",   #'50' --> Standing Height
-        "waist_to_hip_ratio",  # 48/49 --> Waist circumference/ Hip circumference
+        "WHR",  # 48/49 --> Waist circumference/ Hip circumference
         "age",      # 21003 --> Age when attended assessment centre	
         ]
     

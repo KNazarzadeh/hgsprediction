@@ -38,7 +38,7 @@ def define_anthropometrics_features():
         # ====================== Body size measures ======================
         "bmi",     # '21001',  # Body mass index (BMI)
         "height",  # '50',  # Standing height
-        "waist_to_hip_ratio",  # Waist to Hip circumference Ratio
+        "WHR",  # Waist to Hip circumference Ratio
     ]
     
     return anthropometric_features

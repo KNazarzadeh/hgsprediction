@@ -79,7 +79,7 @@ class ExtractFeatures:
             # ====================== Body size measures ======================
             '21001',  # Body mass index (BMI)
             '50',  # Standing height
-            'waist_to_hip_ratio',  # Waist to Hip circumference Ratio
+            'WHR',  # Waist to Hip circumference Ratio
         ]
         return anthropometric_features
     
@@ -103,7 +103,7 @@ class ExtractFeatures:
             # ====================== Body size measures ======================
             '21001',  # Body mass index (BMI)
             '50',  # Standing height
-            'waist_to_hip_ratio',  # Waist to Hip circumference Ratio
+            'WHR',  # Waist to Hip circumference Ratio
             # ============================ Gender ============================
             '31',
             ]
@@ -128,7 +128,7 @@ class ExtractFeatures:
             # ====================== Body size measures ======================
             '21001',  # Body mass index (BMI)
             '50',  # Standing height
-            'waist_to_hip_ratio',  # Waist to Hip circumference Ratio
+            'WHR',  # Waist to Hip circumference Ratio
             # ============================= Age ==============================
             '21003',
             ]

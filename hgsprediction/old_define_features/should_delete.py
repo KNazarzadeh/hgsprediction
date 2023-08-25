@@ -99,13 +99,13 @@ class StrokeFeaturesExtractor:
         # Add a new column 'new_column'
         bmi = session_column.replace(substring_to_remove, "bmi")
         height = session_column.replace(substring_to_remove, "height")
-        whr = session_column.replace(substring_to_remove, "waist_to_hip_ratio")
+        whr = session_column.replace(substring_to_remove, "WHR")
 
         anthropometric_features = [[
             # ====================== Body size measures ======================
             bmi,     # '21001',  # Body mass index (BMI)
             height,  # '50',  # Standing height
-            whr,     #'waist_to_hip_ratio',  # Waist to Hip circumference Ratio
+            whr,     #'WHR',  # Waist to Hip circumference Ratio
         ]]
         return anthropometric_features
         

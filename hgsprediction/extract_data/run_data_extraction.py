@@ -3,6 +3,7 @@ from ptpython.repl import embed
 # print("===== Done! =====")
 # embed(globals(), locals())
 def data_extractor(df, mri_status, gender, feature_type, target):
+
     if gender == "female":
         df = df[df['31-0.0']==0]
     elif gender == "male":
@@ -95,7 +96,7 @@ def extract_anthropometric_features(mri_status):
         # ====================== Body size measures ======================
         f'21001-{session}.0',  # Body mass index (BMI)
         f'50-{session}.0',  # Standing height
-        f'waist_to_hip_ratio-{session}.0',  # Waist to Hip circumference Ratio
+        f'WHR-{session}.0',  # Waist to Hip circumference Ratio
     ]
     return anthropometric_features
 

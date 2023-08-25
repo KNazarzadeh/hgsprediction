@@ -155,13 +155,13 @@ def predict_hgs(
     df = df.dropna(subset=X)
 
     df_tmp = df[X]
-    df_tmp = df_tmp.rename(columns={f"1_{stroke_status}_age": 'Age1stVisit', f'1_{stroke_status}_bmi': '21001-0.0', f'1_{stroke_status}_height':'50-0.0', f'1_{stroke_status}_waist_hip_ratio': 'waist_to_hip_ratio-0.0'})
+    df_tmp = df_tmp.rename(columns={f"1_{stroke_status}_age": 'Age1stVisit', f'1_{stroke_status}_bmi': '21001-0.0', f'1_{stroke_status}_height':'50-0.0', f'1_{stroke_status}_waist_hip_ratio': 'WHR-0.0'})
     df_tmp = pd.concat([df_tmp, df[y],df['31-0.0']], axis=1)
 
     female_df = df_tmp[df_tmp['31-0.0']==0]
     male_df = df_tmp[df_tmp['31-0.0']==1]
 
-    X = ['Age1stVisit', '21001-0.0', '50-0.0', 'waist_to_hip_ratio-0.0']
+    X = ['Age1stVisit', '21001-0.0', '50-0.0', 'WHR-0.0']
     
     return X, y, female_df, male_df
 

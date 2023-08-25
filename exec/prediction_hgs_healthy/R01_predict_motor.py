@@ -128,7 +128,7 @@ data = add_new_cols.validate_handgrips(data)
 # Preprocess data
 data = add_new_cols.preprocess_behaviours(data)
 data = add_new_cols.calculate_qualification(data)
-data = add_new_cols.calculate_waist_to_hip_ratio(data)
+data = add_new_cols.calculate_WHR(data)
 data = add_new_cols.sum_handgrips(data)
 data = add_new_cols.calculate_neuroticism_score(data)
 data = add_new_cols.calculate_anxiety_score(data)

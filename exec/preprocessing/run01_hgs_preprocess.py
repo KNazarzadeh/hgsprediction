@@ -46,7 +46,7 @@ embed(globals(), locals())
 # # Preprocess data
 # df_train_set = add_new_cols.preprocess_behaviours(df_hgs)
 # df_train_set = add_new_cols.calculate_qualification(df_train_set)
-# df_train_set = add_new_cols.calculate_waist_to_hip_ratio(df_train_set)
+# df_train_set = add_new_cols.calculate_WHR(df_train_set)
 # df_train_set = add_new_cols.calculate_neuroticism_score(df_train_set)
 # df_train_set = add_new_cols.calculate_anxiety_score(df_train_set)
 # df_train_set = add_new_cols.calculate_depression_score(df_train_set)

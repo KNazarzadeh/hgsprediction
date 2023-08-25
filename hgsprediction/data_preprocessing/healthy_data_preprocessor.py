@@ -284,7 +284,7 @@ class HealthyDataPreprocessor:
 # Preprocess features or Handling Outliers
 # more meaningful insights and patterns for machine learning models.
 ###############################################################################
-    def calculate_waist_to_hip_ratio(self, df):
+    def calculate_WHR(self, df):
         """Calculate and add "Waist to Hip Ratio" column to dataframe
 
         Parameters
@@ -303,11 +303,11 @@ class HealthyDataPreprocessor:
         assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
         assert isinstance(session, int), "session must be a int!"
         # ------------------------------------
-        # Add new column "waist_to_hip_ratio" by the following process: 
+        # Add new column "WHR" by the following process: 
         # Waist circumference field-ID: 48
         # Hip circumference field-ID: 49
         # Calculating Waist/Hip
-        df.loc[:, f"waist_to_hip_ratio-{session}.0"] = \
+        df.loc[:, f"WHR-{session}.0"] = \
             (df.loc[:, f"48-{session}.0"].astype(str).astype(float)).div(
                 df.loc[:, f"49-{session}.0"].astype(str).astype(float))
 
@@ -1194,7 +1194,7 @@ def run_healthy_preprocessing(data, data_processor=None):
     data = data_processor.validate_handgrips(data)
     # FEATURE ENGINEERING
     data = data_processor.calculate_qualification(data)
-    data = data_processor.calculate_waist_to_hip_ratio(data)
+    data = data_processor.calculate_WHR(data)
     data = data_processor.calculate_neuroticism_score(data)
     data = data_processor.calculate_anxiety_score(data)
     data = data_processor.calculate_depression_score(data)

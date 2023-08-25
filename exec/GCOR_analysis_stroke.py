@@ -300,13 +300,13 @@ mri_features = mri_features.dropna(subset=y)
 mri_features = mri_features.dropna(subset=X)
 
 new_data = mri_features[X]
-new_data = new_data.rename(columns={'post_age': 'Age1stVisit', 'post_bmi': '21001-0.0', 'post_height':'50-0.0', 'post_waist_hip_ratio': 'waist_to_hip_ratio-0.0'})
+new_data = new_data.rename(columns={'post_age': 'Age1stVisit', 'post_bmi': '21001-0.0', 'post_height':'50-0.0', 'post_waist_hip_ratio': 'WHR-0.0'})
 new_data = pd.concat([new_data, mri_features[y],mri_features['31-0.0']], axis=1)
 
 df_test_female = new_data[new_data['31-0.0']==0]
 df_test_male = new_data[new_data['31-0.0']==1]
 
-X = ['Age1stVisit', '21001-0.0', '50-0.0', 'waist_to_hip_ratio-0.0']
+X = ['Age1stVisit', '21001-0.0', '50-0.0', 'WHR-0.0']
 
 ###############################################################################
 # Both gender

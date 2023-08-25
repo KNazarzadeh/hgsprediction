@@ -26,29 +26,30 @@ def compute_features(df, mri_status, feature_type):
     elif mri_status == "mri":
         session = "2"
 
-    if feature_type == "anthropometrics":
+    if feature_type == "bmi":
         df = calculate_bmi(df, session)
-        df = calculate_height(df, session)
-        df = calculate_waist_to_hip_ratio(df, session)
-
-    elif feature_type == "anthropometrics_age":
+            
+    elif feature_type == "height":
         df = calculate_height(df, session)
 
-    elif feature_type == "waist_to_hip_ratio":
-        df = calculate_waist_to_hip_ratio(df, session)
+    elif feature_type == "WHR":
+        df = calculate_WHR(df, session)
 
     elif feature_type == "age":
         df = calculate_age(df, session)
         
     elif feature_type == "gender":
         df = calculate_gender(df, session)
-        
-    elif feature_type == "behavioral":
-        df =    
                     
-    # elif feature_type == "anthropometrics_behavioral_gender":
-    #     features = extract_anthropometric_features() + extract_behavioral_features() + extract_gender_features()
-            
+    elif feature_type == "behavioral":
+        df = calculate_behavioral(df, session)
+
+    elif feature_type == "qualification":
+        df = calculate_qualification
+        
+    elif feature_type == "socioeconomic_status":
+        df = calculate_socioeconomic_status(df, session)
+
     return df
 
 ###############################################################################
@@ -105,7 +106,7 @@ def calculate_height(df, session):
     return df
 
 ###############################################################################
-def calculate_waist_to_hip_ratio(df, session):
+def calculate_WHR(df, session):
     """Calculate and add "Waist to Hip Ratio" column to dataframe
 
     Parameters
@@ -122,11 +123,11 @@ def calculate_waist_to_hip_ratio(df, session):
     assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
     assert isinstance(session, str), "session must be a str!"
     # ------------------------------------
-    # Add new column "waist_to_hip_ratio" by the following process: 
+    # Add new column "WHR" by the following process: 
     # Waist circumference field-ID: 48
     # Hip circumference field-ID: 49
     # Calculating Waist/Hip
-    whr = f"waist_to_hip_ratio-{session}.0" 
+    whr = f"WHR-{session}.0" 
     df[whr] = df.apply(lambda row: row[f"48-{session}.0"]/row[f"49-{session}.0"], axis=1)
 
     return df
@@ -171,13 +172,14 @@ def calculate_gender(df, session):
         Return
         ----------
         df : dataframe
-            with extra column for: waist_to_hip_ratio
+            with extra column for: WHR
         """
         assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
         assert isinstance(session, str), "session must be a string!"
+        session = 0
             # -----------------------------------------------------------
-        gender = f"gender-{session}.0"
-        df[gender] = df.apply(lambda row: row[f"31-0.0"], axis=1)
+        gender = f"gender"
+        df[gender] = df.apply(lambda row: row[f"31-{session}.0"], axis=1)
         
         return df
 
@@ -557,128 +559,8 @@ def calculate_cidi_score(df, session):
 # Preprocess features or Handling Outliers
 # more meaningful insights and patterns for machine learning models.
 ###############################################################################
-def preprocess_behaviours(df, session):
-    """Preprocess Behavioural Phenotypes
-    
-    Parameters
-    ----------
-    df : dataframe
-        The dataframe that desired to analysis
+def calculate_life_satisfaction(df, session):
 
-    Return
-    ----------
-    df : dataframe
-    """  
-    
-    assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
-    assert isinstance(session, str), "session must be a str!"
-    # -----------------------------------------------------------
-    # -------  Phynotypes without Data-Coding -------
-    # The following behavioural don't have Data-Coding:
-    # -------  Fluid intelligence task -------
-    # '20016', Fluid intelligence score
-    # -----------------------------------------------
-    # -------  Reaction Time task -------
-    # '20023', Mean time to correctly identify matches
-    # -----------------------------------------------
-    # -------  Pairs matching task -------
-    #  A value of 0 indicates the participant made no mistakes. 
-    # '399',  # Number of incorrect matches in round
-    # -----------------------------------------------
-    # -------  Trail making task -------
-    # cognitive in clinic
-    # Data-Coding: 1990
-    #           0 --> Trail not completed
-    # '6348',  # Duration to complete numeric path (trail #1) 
-    # '6350',  # Duration to complete alphanumeric path (trail #2)
-    # ------------------------------------
-    # cognitive online --> No data-Coding
-    # '20156',  # Duration to complete numeric path (trail #1)
-    # '20157',  # Duration to complete alphanumeric path (trail #2)
-    # ------------------------------------
-    # I used '20156' and '20157' in place of '6348' and '6350'
-    # Because '6348' and '6350' tasks taken only for MRI visits(instance 2&3)
-    # And non-MRI healthy data don't contain this task.
-    # '20156' and '20157' not contain 0 value.
-    # -----------------------------------------------
-    # ------- symbol digit matches -------
-    # cognitive in clinic
-    # Data-Coding: 6361
-    #           0	Did not make any correct matches
-    # '23323',  # Number of symbol digit matches attempted --> Data-Coding: 6361
-    #           Number of symbol digit matches attempted before the participant timed-out.
-    # '23324',  # Number of symbol digit matches made correctly --> No Data-Coding
-    #           This is the number of symbols correctly matched to digits.
-    # ------------------------------------
-    # cognitive online --> No data-Coding
-    # '20195',  # Number of symbol digit matches attempted
-    # '20159',  # Number of symbol digit matches made correctly
-    # ------------------------------------
-    # I used '20195' and '20159' in place of '6348' and '6350'
-    # Because '23323' and '23324' tasks taken only for MRI visits(instance 2&3)
-    # And non-MRI healthy data don't contain this task.
-    
-    #######################################################
-    # -------  Numeric memory task -------
-    # '4282',  # Maximum digits remembered correctly
-    # Data-Coding: 100696
-    #           -1 --> Abandoned
-    # ------------------------------------
-    # Longest number correctly recalled during the numeric memory test. 
-    # A value of -1 is recorded if the participant chose to abandon 
-    # the test before completing the first round. So, Replace (-1) with NaN
-    # ------------------------------------
-    df.loc[:,f"4282-{session}.0"] = \
-        df.loc[:,f"4282-{session}.0"].replace(-1, np.NaN)
-    
-    #######################################################
-    # -------  Pairs matching task ---------
-    # cognitive in clinic
-    # '400',  # Time to complete round
-    # Data-Coding: 402
-    #           0 --> represents "Test not completed".
-    # ------------------------------------
-    # Defined-instances run from 0 to 3, 
-    # Task ran 3 run on each instances:
-    for i in range(1, 4):
-        df.loc[:,f"400-{session}.{i}"] = \
-            df.loc[:,f"400-{session}.{i}"].replace(0, np.NaN)
-    # We need to add a new columns to remove session number
-    # for matching column names for prediction process.
-    for i in range(1, 4):
-        df.loc[:, f"400-{i}"] = \
-            df.loc[:, f"400-{session}.{i}"]
-    # ------------------------------------
-    # Number of incorrect matches in round
-    # This feild doen't have Data-coding
-    # But we need to add a new columns to remove session number
-    # for matching column names for prediction process.
-    for i in range(1, 4):
-        df.loc[:, f"399-{i}"] = \
-            df.loc[:, f"399-{session}.{i}"]
-    #######################################################
-    # ------- Prospective memory result -------
-    # '20018',  # Prospective memory result
-    # Data-Coding: 18
-    #           0 --> Instruction not recalled, either skipped or incorrect
-    #           1 --> Correct recall on first attempt
-    #           2 --> Correct recall on second attempt
-    # ------------------------------------
-    # Replace value of 2 with 0 --> Based on Data-Coding 18 and BMC paper
-    # Github link: https://github.com/Jiang-brain/
-    #              Grip-strength-association/blob/
-    #              main/association_grip_strength_behavior.m
-    # Because:
-    # this field condenses the results of the prospective memory test into 3 groups.
-    # It does not distinguish between people who, at the first attempt, 
-    # followed the on-screen instruction (thereby giving an incorrect result) and 
-    # people who remembered to ignore the instruction 
-    # but did not correctly recall what to do instead. 
-    # ------------------------------------
-    df.loc[:, f"20018-{session}.0"] = \
-        df.loc[:, f"20018-{session}.0"].replace(2, 0)
-    
-    #######################################################
     # ------- Life satisfaction -------
     # Data-Coding: 100478
     #           1	Extremely happy
@@ -701,40 +583,24 @@ def preprocess_behaviours(df, session):
     #           -1	Do not know
     #           -3	Prefer not to answer
     # ------------------------------------
-    # '4526',  # Happiness --> Data-Coding 100478
-    # '4559',  # Family relationship satisfaction --> Data-Coding 100478
-    # '4537',  # Work/job satisfaction --> Data-Coding 100479
     # '4548',  # Health satisfaction --> Data-Coding 100478
+    # '4559',  # Family relationship satisfaction --> Data-Coding 100478
     # '4570',  # Friendships satisfaction --> Data-Coding 100478
     # '4581',  # Financial situation satisfaction --> Data-Coding 100478
-    # ------------------------------------
-    # Replace Happiness less than 0
-    # with NaN based on Data-Coding 100478
-    # index = np.where(df.loc[:, f"4526-{session}.0"] < 0)[0]
-    index = df[df.loc[:, f"4526-{session}.0"] < 0].index
-    df.loc[index, f"4526-{session}.0"] = np.NaN
-    # ------------------------------------
-    # Replace Family relationship satisfaction less than 0
-    # with NaN based on Data-Coding 100478    
-    # index = np.where(df.loc[:, f"4559-{session}.0"] < 0)[0]
-    index = df[df.loc[:, f"4559-{session}.0"] < 0].index
-    df.loc[index, f"4559-{session}.0"] = np.NaN
-    # ------------------------------------
-    # https://github.com/Jiang-brain/Grip-strength-association/blob/3d3952ffb661e5e8a774b397f428a43dbe58f665/association_grip_strength_behavior.m#L75
-    # Replace Work/job satisfaction less than 0 and more than 6
-    # with NaN based on Data-Coding 100479
-    # index = np.where(
-    #     (df.loc[:, f"4537-{session}.0"] < 0) | \
-    #         (df.loc[:, f"4537-{session}.0"] > 6))[0]
-    index = df[(df.loc[:, f"4537-{session}.0"] < 0) | \
-        (df.loc[:, f"4537-{session}.0"] > 6)].index        
-    df.loc[index, f"4537-{session}.0"] = np.NaN
+    # '4537',  # Work/job satisfaction --> Data-Coding 100479
+    # '4526',  # Happiness --> Data-Coding 100478
     # ------------------------------------
     # Replace Health satisfaction less than 0
     # with NaN based on Data-Coding 100478    
     # index = np.where(df.loc[:, f"4548-{session}.0"] < 0)[0]
     index = df[df.loc[:, f"4548-{session}.0"] < 0].index
     df.loc[index, f"4548-{session}.0"] = np.NaN
+    # ------------------------------------
+    # Replace Family relationship satisfaction less than 0
+    # with NaN based on Data-Coding 100478    
+    # index = np.where(df.loc[:, f"4559-{session}.0"] < 0)[0]
+    index = df[df.loc[:, f"4559-{session}.0"] < 0].index
+    df.loc[index, f"4559-{session}.0"] = np.NaN 
     # ------------------------------------
     # Replace Friendships satisfaction less than 0
     # with NaN based on Data-Coding 100478    
@@ -747,12 +613,48 @@ def preprocess_behaviours(df, session):
     # index = np.where(df.loc[:, f"4581-{session}.0"] < 0)[0]
     index = df[df.loc[:, f"4581-{session}.0"] < 0].index        
     df.loc[index, f"4581-{session}.0"] = np.NaN
+    # ------------------------------------
+    # https://github.com/Jiang-brain/Grip-strength-association/blob/3d3952ffb661e5e8a774b397f428a43dbe58f665/association_grip_strength_behavior.m#L75
+    # Replace Work/job satisfaction less than 0 and more than 6
+    # with NaN based on Data-Coding 100479
+    # index = np.where(
+    #     (df.loc[:, f"4537-{session}.0"] < 0) | \
+    #         (df.loc[:, f"4537-{session}.0"] > 6))[0]
+    index = df[(df.loc[:, f"4537-{session}.0"] < 0) | (df.loc[:, f"4537-{session}.0"] > 6)].index        
+    df.loc[index, f"4537-{session}.0"] = np.NaN
+    # ------------------------------------
+    # Replace Happiness less than 0
+    # with NaN based on Data-Coding 100478
+    # index = np.where(df.loc[:, f"4526-{session}.0"] < 0)[0]
+    index = df[df.loc[:, f"4526-{session}.0"] < 0].index
+    df.loc[index, f"4526-{session}.0"] = np.NaN
+    #######################################################
+    # feild (1)
+    health_satisfaction = f"health_satisfaction-{session}.0"
+    # feild (2)    
+    family_satisfaction = f"family_satisfaction-{session}.0"
+    # feild (3)
+    friendship_satisfaction = f"friendship_satisfaction-{session}.0"
+    # feild (4)
+    financial_satisfaction = f"financial_satisfaction-{session}.0"
+    # feild (5)
+    job_satisfaction = f"job_satisfaction-{session}.0"
+    # feild (6)
+    happiness = f"happiness-{session}.0"
+
+    df[health_satisfaction] =  df.apply(lambda row: row[f"4548-{session}.0"], axis=1)
+    df[family_satisfaction] =  df.apply(lambda row: row[f"4559-{session}.0"], axis=1)
+    df[friendship_satisfaction] =  df.apply(lambda row: row[f"4570-{session}.0"], axis=1)
+    df[financial_satisfaction] =  df.apply(lambda row: row[f"4581-{session}.0"], axis=1)
+    df[job_satisfaction] =  df.apply(lambda row: row[f"4537-{session}.0"], axis=1)
+    df[happiness] =  df.apply(lambda row: row[f"4526-{session}.0"], axis=1)
     
+    return df
+###############################################################################
+def calculate_well_being(df, session):
     ############ Subjective well-being ###############
-    # The only available session for Subjective well-being
-    # is session 0
-    if session == 2:
-        session = 0
+    # Available only in session 0
+    session = 0
     # ------- Subjective well-being -------
     # Data-Coding: 537
     #           -818	Prefer not to answer
@@ -783,7 +685,7 @@ def preprocess_behaviours(df, session):
     index = df[df.loc[:, f"20458-{session}.0"] < 0].index
     df.loc[index, f"20458-{session}.0"] = np.NaN
     # ------------------------------------
-    # Replace General happiness with own health less than 0
+    # Replace happiness with own health less than 0
     # with NaN based on Data-Coding 537    
     # index = np.where(df.loc[:, f"20459-{session}.0"] < 0)[0]
     index = df[df.loc[:, f"20459-{session}.0"] < 0].index
@@ -794,11 +696,263 @@ def preprocess_behaviours(df, session):
     # index = np.where(df.loc[:, f"20460-{session}.0"] < 0)[0]
     index = df[df.loc[:, f"20460-{session}.0"] < 0].index
     df.loc[index, f"20460-{session}.0"] = np.NaN
-
     #######################################################
+    # feild (1)
+    general_happiness = f"general_happiness-{session}.0"
+    # feild (2) 
+    health_happiness = f"health_happiness-{session}.0"
+    # feild (3) 
+    life_meaningful = f"life_meaningful-{session}.0"
+
+    df[general_happiness] =  df.apply(lambda row: row[f"20458-{session}.0"], axis=1)
+    df[health_happiness] =  df.apply(lambda row: row[f"20459-{session}.0"], axis=1)
+    df[life_meaningful] =  df.apply(lambda row: row[f"20460-{session}.0"], axis=1)
     
     return df
 
+###############################################################################
+def calculate_cognitive_functioning(df, session):
+    """Preprocess Behavioural Phenotypes
+    
+    Parameters
+    ----------
+    df : dataframe
+        The dataframe that desired to analysis
+
+    Return
+    ----------
+    df : dataframe
+    """  
+    assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
+    assert isinstance(session, str), "session must be a str!"
+    #######################################################
+    ################## COGNITIVE FUNCTIONING ##############
+    #######################################################
+    # -------  Phynotypes without Data-Coding -------
+    # The following behavioural don't have Data-Coding:
+    # -------  Fluid intelligence task -------
+    # '20016', Fluid intelligence score
+    # -----------------------------------------------
+    # -------  Reaction Time task -------
+    # '20023', Mean time to correctly identify matches
+    #######################################################
+    # ------- Prospective memory result -------
+    # '20018',  # Prospective memory result
+    # Data-Coding: 18
+    #           0 --> Instruction not recalled, either skipped or incorrect
+    #           1 --> Correct recall on first attempt
+    #           2 --> Correct recall on second attempt
+    # ------------------------------------
+    # Replace value of 2 with 0 --> Based on Data-Coding 18 and BMC paper
+    # Github link: https://github.com/Jiang-brain/
+    #              Grip-strength-association/blob/
+    #              main/association_grip_strength_behavior.m
+    # Because:
+    # this field condenses the results of the prospective memory test into 3 groups.
+    # It does not distinguish between people who, at the first attempt, 
+    # followed the on-screen instruction (thereby giving an incorrect result) and 
+    # people who remembered to ignore the instruction 
+    # but did not correctly recall what to do instead. 
+    # ------------------------------------
+    df.loc[:, f"20018-{session}.0"] = df.loc[:, f"20018-{session}.0"].replace(2, 0)
+    #######################################################
+    # -------  Numeric memory task -------
+    # '4282',  # Maximum digits remembered correctly
+    # Data-Coding: 100696
+    #           -1 --> Abandoned
+    # ------------------------------------
+    # Longest number correctly recalled during the numeric memory test. 
+    # A value of -1 is recorded if the participant chose to abandon 
+    # the test before completing the first round. So, Replace (-1) with NaN
+    # ------------------------------------
+    df.loc[:,f"4282-{session}.0"] = df.loc[:,f"4282-{session}.0"].replace(-1, np.NaN)
+    #######################################################
+    # -------  Trail making task -------
+    # MRI Sessions
+    # cognitive in clinic
+    # Data-Coding: 1990
+    #           0 --> Trail not completed
+    # '6348',  # Duration to complete numeric path (trail #1) 
+    # '6350',  # Duration to complete alphanumeric path (trail #2)
+    # ------------------------------------
+    # non-MRI Sessions
+    # cognitive online --> No data-Coding
+    # '20156',  # Duration to complete numeric path (trail #1)
+    # '20157',  # Duration to complete alphanumeric path (trail #2)
+    # ------------------------------------
+    # I used '20156' and '20157' in place of '6348' and '6350'
+    # Because '6348' and '6350' tasks taken only for MRI visits(instance 2&3)
+    # And non-MRI healthy data don't contain this task.
+    # '20156' and '20157' not contain 0 value.
+    # ------------------------------------
+    if session == "0":
+        df.loc[:,f"20156-{session}.0"] = df.loc[:,f"20156-{session}.0"].replace(0, np.NaN)
+        df.loc[:,f"20157-{session}.0"] = df.loc[:,f"20157-{session}.0"].replace(0, np.NaN)
+    elif session == "2":
+        df.loc[:,f"6348-{session}.0"] = df.loc[:,f"6348-{session}.0"].replace(0, np.NaN)
+        df.loc[:,f"6350-{session}.0"] = df.loc[:,f"6350-{session}.0"].replace(0, np.NaN)
+    #######################################################
+    # ------- symbol digit matches -------
+    # MRI sessions
+    # cognitive in clinic
+    # Data-Coding: 6361
+    #           0	Did not make any correct matches
+    # '23323',  # Number of symbol digit matches attempted --> Data-Coding: 6361
+    #           Number of symbol digit matches attempted before the participant timed-out.
+    # '23324',  # Number of symbol digit matches made correctly --> No Data-Coding
+    #           This is the number of symbols correctly matched to digits.
+    # ------------------------------------
+    # non-MRI sessions
+    # cognitive online --> No data-Coding
+    # '20195',  # Number of symbol digit matches attempted
+    # '20159',  # Number of symbol digit matches made correctly
+    # ------------------------------------
+    # I used '20195' and '20159' in place of '6348' and '6350'
+    # Because '23323' and '23324' tasks taken only for MRI visits(instance 2&3)
+    # And non-MRI healthy data don't contain this task.
+    #######################################################
+    # -------  Pairs matching task -------
+    # Defined-instances run from 0 to 3, 
+    # Task has 3 matches on each instances:
+    # match 1 --> 3 pairs of symbol cards
+    # match 2 --> 6 pairs of symbol cards 
+    # match 3 --> 8 pairs of symbol cards
+    # -----------------------------------------------
+    #  A value of 0 indicates the participant made no mistakes.
+    # Number of incorrect matches in round
+    # This feild doen't have Data-coding
+    # '399',  # Number of incorrect matches in round
+    # -----------------------------------------------
+    # cognitive in clinic
+    # '400',  # Time to complete round
+    # Data-Coding: 402
+    #           0 --> represents "Test not completed".
+    # ------------------------------------
+    for i in range(1, 4):
+        df.loc[:,f"400-{session}.{i}"] = df.loc[:,f"400-{session}.{i}"].replace(0, np.NaN)    
+    #######################################################
+    # cognitive (1)
+    fluid_intelligence = f"fluid_intelligence-{session}.0"
+    # cognitive (2)
+    reaction_time = f"reaction_time-{session}.0"
+    # cognitive (3)
+    prospective_memory = f"prospective_memory-{session}.0"
+    # cognitive (4)
+    numeric_memory_Max_digits =  f"numeric_memory_Max_digits-{session}.0"
+    # cognitive (5)
+    trail_making_duration_numeric = f"trail_making_duration_numeric-{session}.0"
+    # cognitive (6)
+    trail_making_duration_alphanumeric = f"trail_making_duration_alphanumeric-{session}.0"       
+    # cognitive (7)
+    symbol_digit_matches_attempted = f"symbol_digit_matches_attempted-{session}.0"
+    # cognitive (8)
+    symbol_digit_matches_corrected = f"symbol_digit_matches_corrected-{session}.0"
+    # cognitive (9)
+    pairs_matching_incorrected_number_3pairs = f"pairs_matching_incorrected_number_3pairs-{session}.0"
+    # cognitive (10)
+    pairs_matching_incorrected_number_6pairs = f"pairs_matching_incorrected_number_6pairs-{session}.0"
+    # cognitive (11)
+    pairs_matching_completed_time_3pairs = f"pairs_matching_completed_time_3pairs-{session}.0"
+    # cognitive (12)
+    pairs_matching_completed_time_6pairs = f"pairs_matching_completed_time_6pairs-{session}.0"
+    
+    # -------  Fluid intelligence task -------
+    # '20016', Fluid intelligence score
+    df[fluid_intelligence] =  df.apply(lambda row: row[f"20016-{session}.0"], axis=1)
+    # -------  Reaction Time task -------
+    # '20023', Mean time to correctly identify matches
+    df[reaction_time] =  df.apply(lambda row: row[f"20023-{session}.0"], axis=1)
+    # ------- Prospective memory result -------
+    # '20018',  # Prospective memory result
+    df[prospective_memory] =  df.apply(lambda row: row[f"20018-{session}.0"], axis=1)
+    # -------  Numeric memory task -------
+    # '4282',  # Maximum digits remembered correctly
+    df[numeric_memory_Max_digits] =  df.apply(lambda row: row[f"4282-{session}.0"], axis=1)
+    # -------  Pairs matching task -------
+    # Defined-instances run from 0 to 3, 
+    # Task has 3 matches on each instances:
+    # match 1 --> 3 pairs of symbol cards
+    # match 2 --> 6 pairs of symbol cards 
+    # match 3 --> 8 pairs of symbol cards
+    # -----------------------------------------------
+    # '399',  # Number of incorrect matches in round
+    # *** (399-3) Not available for non-MRI and MRI.
+    df[pairs_matching_incorrected_number_3pairs] =  df.apply(lambda row: row[f"300-{session}.1"], axis=1)
+    df[pairs_matching_incorrected_number_6pairs] =  df.apply(lambda row: row[f"300-{session}.2"], axis=1)
+    # '400',  # Time to complete round
+    # *** (400-3) Not available for non-MRI and MRI.
+    df[pairs_matching_completed_time_3pairs] =  df.apply(lambda row: row[f"400-{session}.1"], axis=1)
+    df[pairs_matching_completed_time_6pairs] =  df.apply(lambda row: row[f"400-{session}.2"], axis=1)
+
+    if session == "0":
+        # -------  Trail making task -------
+        # non-MRI Sessions
+        # '20156',  # Duration to complete numeric path (trail #1)
+        # '20157',  # Duration to complete alphanumeric path (trail #2)
+        df[trail_making_duration_numeric] =  df.apply(lambda row: row[f"20156-{session}.0"], axis=1)
+        df[trail_making_duration_alphanumeric] =  df.apply(lambda row: row[f"20157-{session}.0"], axis=1)
+        # ------- symbol digit matches -------
+        # non-MRI fields
+        # '20195',  # Number of symbol digit matches attempted
+        # '20159',  # Number of symbol digit matches made correctly
+        df[symbol_digit_matches_attempted] =  df.apply(lambda row: row[f"20195-{session}.0"], axis=1)
+        df[symbol_digit_matches_corrected] =  df.apply(lambda row: row[f"20159-{session}.0"], axis=1)
+        
+    elif session == "2":
+        # -------  Trail making task -------
+        # MRI Sessions
+        # '6348',  # Duration to complete numeric path (trail #1) 
+        # '6350',  # Duration to complete alphanumeric path (trail #2)
+        df[trail_making_duration_numeric] =  df.apply(lambda row: row[f"6348-{session}.0"], axis=1)
+        df[trail_making_duration_alphanumeric] =  df.apply(lambda row: row[f"6350-{session}.0"], axis=1)
+        # ------- symbol digit matches -------
+        # MRI fields
+        # '23323',  # Number of symbol digit matches attempted --> Data-Coding: 6361
+        # '23324',  # Number of symbol digit matches made correctly --> No Data-Coding
+        df[symbol_digit_matches_attempted] =  df.apply(lambda row: row[f"23323-{session}.0"], axis=1)
+        df[symbol_digit_matches_corrected] =  df.apply(lambda row: row[f"23324-{session}.0"], axis=1)
+    
+    #########################################################
+    ############## Missing Feilds for non-MRI ##############
+    ############# out of 30 behavioral features #############
+    # (13,14) -------  Pairs matching task ---------
+    # *** (399-3, 400-3) Not available for non-MRI and MRI.
+    # *** Because, these tasks aren't available for non-MRI. 
+    # *** So, ignored these tasks on MRI data analysis too.
+    # -------------------------------------------------------          
+    # (15) -------  Matrix pattern completion task -------
+    # *** Not available for our non-MRI data
+    # *** So, didn't use for MRI data too
+    # '6373',  # Number of puzzles correctly solved
+    # -------------------------------------------------------              
+    # (16) -------  Tower rearranging task -------
+    # *** Not available for our non-MRI data
+    # *** So, didn't use for MRI data too                
+    # '21004',  # Number of puzzles correct
+    # -------------------------------------------------------          
+    # (17) -------  Paired associate learning task -------
+    # *** Not available for our non-MRI data
+    # *** So, didn't use for MRI data too                
+    # '20197',  # Number of word pairs correctly associated
+    
+    return df
+###############################################################################
+def calculate_behavioral(df, session):
+    # Totally 25 fields:
+    # (N=12)
+    df = calculate_cognitive_functioning(df, session)
+    # (N=4)
+    df = calculate_depression_score(df, session)
+    df = calculate_anxiety_score(df, session)
+    df = calculate_cidi_score(df, session)
+    df = calculate_neuroticism_score(df, session)
+    # (N=6)
+    df = calculate_life_satisfaction(df, session)
+    # (N=3)
+    df = calculate_well_being(df, session)
+    
+    return df
+    
 ###############################################################################
 def calculate_qualification(df, session):
     """Calculate maximum qualification
@@ -860,14 +1014,38 @@ def calculate_qualification(df, session):
         index_no_answer = df[df.loc[:,f"6138-{session}.{i}"] == -3.0].index
         df.loc[index_no_answer, f"6138-{session}.{i}"] = np.NaN
     # Calculate Maximum Qualification
-    max_qualification = \
-        df.loc[:,df.columns.str.startswith(f"6138-{session}.")].max(axis=1)
+    max_qualification = df.loc[:,df.columns.str.startswith(f"6138-{session}.")].max(axis=1)
     # Add new column for qualification with Maximum value
     df.loc[:, "qualification"] = max_qualification
 
     return df
 
 ###############################################################################
+def calculate_socioeconomic_status(df, session):
+    """Calculate Townsend deprivation index at recruitment score
+    and add "Townsend deprivation index at recruitment score (TDI_score)" column
+    to dataframe
+
+    Parameters
+    ----------
+    df : dataframe
+        The dataframe that desired to analysis
+
+    Return
+    ----------
+    df : dataframe
+        with extra column for: TDI_score
+    """
+    assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
+    assert isinstance(session, str), "session must be a str!"
+    
+    session = 0
+    # ------------------------------------
+    # Townsend deprivation index at recruitment
+    tdi_score = f"TDI_score"
+    df[tdi_score] = df.apply(lambda row: row[f"22189-0.0"], axis=1)
+    
+    return df
 ############################## Remove NaN coulmns #############################
 # Remove columns if their values are all NAN
 ###############################################################################

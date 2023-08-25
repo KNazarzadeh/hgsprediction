@@ -204,14 +204,14 @@ def prepare_stroke(target):
 
 
     # new_data = mri_features[X]
-    # new_data = new_data.rename(columns={'post_age': 'Age', 'post_bmi': '21001', 'post_height':'50', 'post_waist_hip_ratio': 'waist_to_hip_ratio'})
+    # new_data = new_data.rename(columns={'post_age': 'Age', 'post_bmi': '21001', 'post_height':'50', 'post_waist_hip_ratio': 'WHR'})
     # new_data = pd.concat([new_data, mri_features[y],mri_features['31-0.0']], axis=1)
 
-    mri_features = mri_features.rename(columns={'post_age': 'Age', 'post_bmi': '21001', 'post_height':'50', 'post_waist_hip_ratio': 'waist_to_hip_ratio'})
+    mri_features = mri_features.rename(columns={'post_age': 'Age', 'post_bmi': '21001', 'post_height':'50', 'post_waist_hip_ratio': 'WHR'})
     
     df_test_female = mri_features[mri_features['31-0.0']==0]
     df_test_male = mri_features[mri_features['31-0.0']==1]
 
-    X = ['21001', '50', 'waist_to_hip_ratio', 'Age']
+    X = ['21001', '50', 'WHR', 'Age']
 
     return mri_features, df_test_female, df_test_male, X, y

@@ -39,7 +39,7 @@ data_processor = DataPreprocessor(df_test,mri_status="mri")
 data = data_processor.validate_handgrips(data)
 # FEATURE ENGINEERING
 data = data_processor.calculate_qualification(data)
-data = data_processor.calculate_waist_to_hip_ratio(data)
+data = data_processor.calculate_WHR(data)
 data = data_processor.sum_handgrips(data)
 data = data_processor.calculate_left_hgs(data)
 data = data_processor.calculate_right_hgs(data)
