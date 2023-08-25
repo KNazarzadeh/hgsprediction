@@ -500,13 +500,13 @@ class StrokeValidateDataPreprocessor:
             # Calling the modules
             df = self.remove_missing_hgs(df)
             df = self.calculate_dominant_nondominant_hgs(df)
-            dominant_col = session_column.replace(substring_to_remove, "hgs_dominant")
+            hgs_dominant = session_column.replace(substring_to_remove, "hgs_dominant")
             # ------------------------------------
             # Exclude all subjects who had Dominant HGS < 4:
             # The condition is applied to "hgs_dominant" columns
             # And then reset_index the new dataframe:
             # df = df[df.loc[:, f"{session_column[:, len(substring_to_remove)].strip()}hgs_dominant"] >=4]
-            df = df[df[dominant_col] >= 4 & ~df[dominant_col].isna()]
+            df = df[df[hgs_dominant] >= 4 & ~df[hgs_dominant].isna()]
         
         elif df[session_column].isna().sum() == len(df):
             # Drop all rows from the DataFrame
@@ -564,8 +564,8 @@ class StrokeValidateDataPreprocessor:
         # -----------------------------------------------------------
         substring_to_remove = "session"
         # Add a new column 'new_column'
-        dominant_col = session_column.replace(substring_to_remove, "hgs_dominant")
-        nondominant_col = session_column.replace(substring_to_remove, "hgs_nondominant")
+        hgs_dominant = session_column.replace(substring_to_remove, "hgs_dominant")
+        hgs_nondominant = session_column.replace(substring_to_remove, "hgs_nondominant")
         
         # hgs_left field-ID: 46
         # hgs_right field-ID: 47
@@ -583,15 +583,15 @@ class StrokeValidateDataPreprocessor:
         if df[session_column].isin([0.0, 1.0, 3.0]).any():
             # Add and new column "hgs_dominant"
             # And assign Right hand HGS value
-            df.loc[df["1707-0.0"] == 1.0, dominant_col] = df.loc[df["1707-0.0"] == 1.0, "47-0.0"]
-            df.loc[df["1707-0.0"] == 1.0, nondominant_col] = df.loc[df["1707-0.0"] == 1.0, "46-0.0"]
+            df.loc[df["1707-0.0"] == 1.0, hgs_dominant] = df.loc[df["1707-0.0"] == 1.0, "47-0.0"]
+            df.loc[df["1707-0.0"] == 1.0, hgs_nondominant] = df.loc[df["1707-0.0"] == 1.0, "46-0.0"]
             # If handedness is equal to 2
             # Right hand is Non-Dominant
             # Find handedness equal to 2:
             # Add and new column "hgs_dominant"
             # And assign Left hand HGS value:  
-            df.loc[df["1707-0.0"] == 2.0, dominant_col] = df.loc[df["1707-0.0"] == 2.0, "46-0.0"]
-            df.loc[df["1707-0.0"] == 2.0, nondominant_col] = df.loc[df["1707-0.0"] == 2.0, "47-0.0"]
+            df.loc[df["1707-0.0"] == 2.0, hgs_dominant] = df.loc[df["1707-0.0"] == 2.0, "46-0.0"]
+            df.loc[df["1707-0.0"] == 2.0, hgs_nondominant] = df.loc[df["1707-0.0"] == 2.0, "47-0.0"]
             # ------------------------------------
             # If handedness is equal to:
             # 3 (Use both right and left hands equally) OR
@@ -603,30 +603,51 @@ class StrokeValidateDataPreprocessor:
             # And assign Highest HGS value among Right and Left HGS:
             # Add and new column "hgs_dominant"
             # And assign lowest HGS value among Right and Left HGS:
-            df.loc[df["1707-0.0"].isin([3.0, -3.0, np.nan]), dominant_col] = df[["46-0.0", "47-0.0"]].max(axis=1)
-            df.loc[df["1707-0.0"].isin([3.0, -3.0, np.nan]), nondominant_col] = df[["46-0.0", "47-0.0"]].min(axis=1)
+            df.loc[df["1707-0.0"].isin([3.0, -3.0, np.nan]), hgs_dominant] = df[["46-0.0", "47-0.0"]].max(axis=1)
+            df.loc[df["1707-0.0"].isin([3.0, -3.0, np.nan]), hgs_nondominant] = df[["46-0.0", "47-0.0"]].min(axis=1)
         elif df[session_column].isin([2.0]).any():
-            df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"] == 1.0, dominant_col] = \
+            df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"] == 1.0, hgs_dominant] = \
                 df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"] == 1.0, "47-0.0"]
-            df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"] == 1.0, nondominant_col] = \
+            df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"] == 1.0, hgs_nondominant] = \
                 df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"] == 1.0, "46-0.0"]
                 
-            df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"] == 2.0, dominant_col] = \
+            df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"] == 2.0, hgs_dominant] = \
                 df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"] == 2.0, "46-0.0"]
-            df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"] == 2.0, nondominant_col] = \
+            df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"] == 2.0, hgs_nondominant] = \
                 df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"] == 2.0, "47-0.0"]
                 
-            df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"].isin([3.0, -3.0, np.NaN]), dominant_col] = \
+            df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"].isin([3.0, -3.0, np.NaN]), hgs_dominant] = \
                 df[["46-0.0", "47-0.0"]].max(axis=1)
-            df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"].isin([3.0, -3.0, np.NaN]), nondominant_col] = \
+            df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"].isin([3.0, -3.0, np.NaN]), hgs_nondominant] = \
                 df[["46-0.0", "47-0.0"]].min(axis=1)
     
-            df.loc[df["1707-2.0"] == 1.0, dominant_col] = df.loc[df["1707-2.0"] == 1.0, "47-2.0"]
-            df.loc[df["1707-2.0"] == 1.0, nondominant_col] = df.loc[df["1707-2.0"] == 1.0, "46-2.0"]
-            df.loc[df["1707-2.0"] == 2.0, dominant_col] = df.loc[df["1707-2.0"] == 2.0, "46-2.0"]
-            df.loc[df["1707-2.0"] == 2.0, nondominant_col] = df.loc[df["1707-2.0"] == 2.0, "47-2.0"]
+            df.loc[df["1707-2.0"] == 1.0, hgs_dominant] = df.loc[df["1707-2.0"] == 1.0, "47-2.0"]
+            df.loc[df["1707-2.0"] == 1.0, hgs_nondominant] = df.loc[df["1707-2.0"] == 1.0, "46-2.0"]
+            df.loc[df["1707-2.0"] == 2.0, hgs_dominant] = df.loc[df["1707-2.0"] == 2.0, "46-2.0"]
+            df.loc[df["1707-2.0"] == 2.0, hgs_nondominant] = df.loc[df["1707-2.0"] == 2.0, "47-2.0"]
             
             
         return df
 
 ###############################################################################
+############################## Remove NaN coulmns #############################
+# Remove columns if their values are all NAN
+###############################################################################
+# Remove columns that all values are NaN
+    def remove_nan_columns(self, df):
+        """Remove columns with all NAN values
+      
+        Parameters
+        ----------
+        df : dataframe
+            The dataframe that desired to analysis
+
+        Return
+        ----------
+        df : dataframe
+        """ 
+        
+        nan_cols = df.columns[df.isna().all()].tolist()
+        df = df.drop(nan_cols, axis=1)
+        
+        return df

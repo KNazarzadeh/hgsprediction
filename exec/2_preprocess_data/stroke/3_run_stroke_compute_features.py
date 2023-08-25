@@ -1,10 +1,8 @@
 import sys
-import os
 import pandas as pd
 from hgsprediction.load_data import stroke_load_data
-from hgsprediction.compute_features import compute_features
+from hgsprediction.compute_features import stroke_compute_features
 from hgsprediction.save_data import stroke_save_data
-from hgsprediction.compute_target import StrokeTargetComputing
 from ptpython.repl import embed
 # print("===== Done! =====")
 # embed(globals(), locals())
@@ -28,6 +26,6 @@ elif visit_session == "4":
 df = stroke_load_data.load_validated_hgs_data(population, mri_status, session_column)
 
 
-df = compute_features(df, session_column, feature_type)
+df = stroke_compute_features.compute_features(df, session_column, feature_type)
 
 stroke_save_data.save_preprocessed_data(df, population, mri_status, session_column)

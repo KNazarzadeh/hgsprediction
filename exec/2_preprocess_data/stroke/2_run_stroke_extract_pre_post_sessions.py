@@ -24,6 +24,9 @@ data_processor = stroke_data_preprocessor.StrokeValidateDataPreprocessor(df,
                                                             stroke_cohort, 
                                                             visit_session)
 extracted_df, session_column = data_processor.extract_data(df)
+# Remove all columns with all NaN values
+extracted_data = data_processor.remove_nan_columns(extracted_df)
+
 hgs_validated_df, session_column = data_processor.validate_handgrips(extracted_df)
 
 stroke_save_data.save_original_extracted_pre_post_data(extracted_df, population, mri_status, session_column)

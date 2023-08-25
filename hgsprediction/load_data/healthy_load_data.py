@@ -66,6 +66,46 @@ def load_primary_nonmri_train_set_df(
     return df_train
 
 ###############################################################################
+def load_preprocessed_train_data(
+    population,
+    mri_status,
+):
+    """
+    Load train set after binned process.
+    90 percent train from the binned data.
+    Parameters
+    ----------
+    population: str
+        Specifies the population.
+    mri_status: str
+        Specifies the MRI status.
+    Return
+    ----------    
+    df : pandas.DataFrame
+        DataFrame that should be save in specific folder.
+    """
+    folder_path = os.path.join(
+        "/data",
+        "project",
+        "stroke_ukb",
+        "knazarzadeh",
+        "project_hgsprediction",
+        "results_hgsprediction",
+        f"{population}",
+        f"{mri_status}",
+        "preprocessed_train_data",
+    )
+    # Define the csv file path to load
+    file_path = os.path.join(
+        folder_path,
+        f"preprocessed_train_data.csv")
+    # Load the dataframe from csv file path
+    df = pd.read_csv(file_path, sep=',', index_col=0)
+    
+    return df
+###############################################################################
+###############################################################################
+###############################################################################
 def load_preprocessed_train_df(
     population,
     mri_status,
@@ -151,3 +191,42 @@ def load_primary_mri_df(
     return df_train
 
 ###############################################################################
+###############################################################################
+###############################################################################
+def load_preprocessed_train_data(
+    population,
+    mri_status,
+):
+    """
+    Load train set after binned process.
+    90 percent train from the binned data.
+    Parameters
+    ----------
+    population: str
+        Specifies the population.
+    mri_status: str
+        Specifies the MRI status.
+    Return
+    ----------    
+    df : pandas.DataFrame
+        DataFrame that should be save in specific folder.
+    """
+    folder_path = os.path.join(
+        "/data",
+        "project",
+        "stroke_ukb",
+        "knazarzadeh",
+        "project_hgsprediction",
+        "results_hgsprediction",
+        f"{population}",
+        f"{mri_status}",
+        "preprocessed_train_set",
+    )
+    # Define the csv file path to load
+    file_path = os.path.join(
+        folder_path,
+        f"preprocessed_train_data.csv")
+    # Load the dataframe from csv file path
+    df = pd.read_csv(file_path, sep=',', index_col=0)
+    
+    return df

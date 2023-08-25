@@ -4,24 +4,26 @@
 from .load_data import healthy_load_data
 # Preprocessing Data
 from .data_preprocessing import HealthyDataPreprocessor
-
-
+# Features Computing
+from .compute_features import healthy_compute_features
+# Target Computing
+from .compute_target import healthy_compute_target
+# Save Data
+from .save_data import healthy_save_data
 
 ############### STROKE FUNCTIONS ###############
 # Load Stroke Data
 from .load_data import stroke_load_data
-
-# Save Stroke Preprocessed Data
-from .save_data import stroke_save_data
 # Data Preprocessing
 from .data_preprocessing import stroke_data_preprocessor
-
 # Features Computing
-from .compute_features import HealthyFeaturesComputing, \
-                              compute_features
+from .compute_features import stroke_compute_features
 # Target Computing
-from .compute_target import HealthyTargetComputing, \
-                            compute_target
+from .compute_target import stroke_compute_target
+# Save Stroke Data
+from .save_data import stroke_save_data
+
+
                             
 from .old_define_features import stroke_define_features
 

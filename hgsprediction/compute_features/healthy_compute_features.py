@@ -25,16 +25,10 @@ def compute_features(df, mri_status, feature_type):
         session = "0"
     elif mri_status == "mri":
         session = "2"
-
-    if feature_type == "bmi":
-        df = calculate_bmi(df, session)
+    # -----------------------------------------------------------
+    if feature_type == "anthropometrics":
+        df = calculate_anthropometrics(df, session)
             
-    elif feature_type == "height":
-        df = calculate_height(df, session)
-
-    elif feature_type == "WHR":
-        df = calculate_WHR(df, session)
-
     elif feature_type == "age":
         df = calculate_age(df, session)
         
@@ -57,6 +51,29 @@ def compute_features(df, mri_status, feature_type):
 # Creating new columns/features/targets from existing data
 # Preprocess features or Handling Outliers
 # more meaningful insights and patterns for machine learning models.
+###############################################################################
+def calculate_anthropometrics(df, session):
+    df = calculate_bmi(df, session)
+    df = calculate_height(df, session)
+    df = calculate_WHR(df, session)
+    
+    return df
+###############################################################################
+def calculate_behavioral(df, session):
+    # Totally 25 fields:
+    # (N=12)
+    df = calculate_cognitive_functioning(df, session)
+    # (N=4)
+    df = calculate_depression_score(df, session)
+    df = calculate_anxiety_score(df, session)
+    df = calculate_cidi_score(df, session)
+    df = calculate_neuroticism_score(df, session)
+    # (N=6)
+    df = calculate_life_satisfaction(df, session)
+    # (N=3)
+    df = calculate_well_being(df, session)
+    
+    return df
 ###############################################################################
 def calculate_bmi(df, session):
     """Calculate coressponding BMI
@@ -934,22 +951,6 @@ def calculate_cognitive_functioning(df, session):
     # *** Not available for our non-MRI data
     # *** So, didn't use for MRI data too                
     # '20197',  # Number of word pairs correctly associated
-    
-    return df
-###############################################################################
-def calculate_behavioral(df, session):
-    # Totally 25 fields:
-    # (N=12)
-    df = calculate_cognitive_functioning(df, session)
-    # (N=4)
-    df = calculate_depression_score(df, session)
-    df = calculate_anxiety_score(df, session)
-    df = calculate_cidi_score(df, session)
-    df = calculate_neuroticism_score(df, session)
-    # (N=6)
-    df = calculate_life_satisfaction(df, session)
-    # (N=3)
-    df = calculate_well_being(df, session)
     
     return df
     
