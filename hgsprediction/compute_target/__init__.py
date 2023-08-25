@@ -1,2 +1,2 @@
-from .Healthy_compute_target import HealthyTargetComputing
+from .healthy_compute_target import compute_target
 from .stroke_compute_target import compute_target

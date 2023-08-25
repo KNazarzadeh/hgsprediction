@@ -1,19 +1,22 @@
 
 import sys
 import pandas as pd
-from hgsprediction.load_data.load_healthy.load_train_data import load_preprocessed_train_df
+from hgsprediction.load_data import healthy_load_data
 from hgsprediction.data_preprocessing import HealthyDataPreprocessor
 from hgsprediction.save_data import healthy_save_data
-
+from ptpython.repl import embed
+# print("===== Done! =====")
+# embed(globals(), locals())
 filename = sys.argv[0]
 population = sys.argv[1]
 mri_status = sys.argv[2]
 
 
-df_train = load_preprocessed_train_df(population, mri_status)
+df_train = healthy_load_data.load_original_binned_train_data(population, mri_status)
 
 data_processor = HealthyDataPreprocessor(df_train, mri_status)
-
+print("===== Done! =====")
+embed(globals(), locals())
 # CHECK HGS AVAILABILITY
 df = data_processor.check_hgs_availability(df_train)
 # DATA VALIDATION

@@ -2,7 +2,8 @@
 
 from .healthy_load_data import load_preprocessed_train_df, \
                                load_primary_mri_df, \
-                               load_primary_nonmri_train_set_df
+                               load_original_preprocessed_train_data, \
+                               load_original_binned_train_data
 
 
 from .stroke_load_data import load_original_data, \

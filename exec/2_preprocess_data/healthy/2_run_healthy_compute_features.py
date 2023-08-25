@@ -11,7 +11,7 @@ filename = sys.argv[0]
 population = sys.argv[1]
 mri_status = sys.argv[2]
 feature_type = sys.argv[3]
-        
+
 df = healthy_load_data.load_preprocessed_train_data(population, mri_status)
 
 df = healthy_compute_features.compute_features(df, mri_status, feature_type)

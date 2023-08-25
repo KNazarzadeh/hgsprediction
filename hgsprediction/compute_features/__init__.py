@@ -1,2 +1,2 @@
-from .healthy_compute_features import HealthyFeaturesComputing
+from .healthy_compute_features import compute_features
 from .stroke_compute_features import compute_features
