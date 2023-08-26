@@ -62,8 +62,6 @@ def calculate_anthropometrics(df, session):
 def calculate_behavioral(df, session):
     # Totally 25 fields:
     # (N=12)
-    print("===== Done! =====")
-    embed(globals(), locals())
     df = calculate_cognitive_functioning(df, session)
     # (N=4)
     df = calculate_depression_score(df, session)
@@ -749,12 +747,19 @@ def calculate_cognitive_functioning(df, session):
     #######################################################
     # -------  Phynotypes without Data-Coding -------
     # The following behavioural don't have Data-Coding:
+    # cognitive (1)
     # -------  Fluid intelligence task -------
     # '20016', Fluid intelligence score
+    fluid_intelligence = f"fluid_intelligence-{session}.0"
+    df[:, fluid_intelligence] =  df.loc[:, f"20016-{session}.0"]
     # -----------------------------------------------
+    # cognitive (2)
     # -------  Reaction Time task -------
     # '20023', Mean time to correctly identify matches
+    reaction_time = f"reaction_time-{session}.0"
+    df.loc[:, reaction_time] =  df.loc[:, f"20023-{session}.0"]
     #######################################################
+    # cognitive (3)
     # ------- Prospective memory result -------
     # '20018',  # Prospective memory result
     # Data-Coding: 18
@@ -773,8 +778,10 @@ def calculate_cognitive_functioning(df, session):
     # people who remembered to ignore the instruction 
     # but did not correctly recall what to do instead. 
     # ------------------------------------
-    df.loc[:, f"20018-{session}.0"] = df.loc[:, f"20018-{session}.0"].replace(2, 0)
+    prospective_memory = f"prospective_memory-{session}.0"
+    df.loc[:, prospective_memory] = df.loc[:, f"20018-{session}.0"].replace(2, 0)
     #######################################################
+    # cognitive (4)
     # -------  Numeric memory task -------
     # '4282',  # Maximum digits remembered correctly
     # Data-Coding: 100696
@@ -784,8 +791,10 @@ def calculate_cognitive_functioning(df, session):
     # A value of -1 is recorded if the participant chose to abandon 
     # the test before completing the first round. So, Replace (-1) with NaN
     # ------------------------------------
-    df.loc[:,f"4282-{session}.0"] = df.loc[:,f"4282-{session}.0"].replace(-1, np.NaN)
+    numeric_memory_Max_digits =  f"numeric_memory_Max_digits-{session}.0"
+    df.loc[:, numeric_memory_Max_digits] =  df.loc[:,f"4282-{session}.0"].replace(-1, np.NaN)
     #######################################################
+    # cognitive (5,6)
     # -------  Trail making task -------
     # MRI Sessions
     # cognitive in clinic
@@ -804,13 +813,18 @@ def calculate_cognitive_functioning(df, session):
     # And non-MRI healthy data don't contain this task.
     # '20156' and '20157' not contain 0 value.
     # ------------------------------------
+    # cognitive (5)
+    trail_making_duration_numeric = f"trail_making_duration_numeric-{session}.0"
+    # cognitive (6)
+    trail_making_duration_alphanumeric = f"trail_making_duration_alphanumeric-{session}.0"
     if session == "0":
-        df.loc[:,f"20156-{session}.0"] = df.loc[:,f"20156-{session}.0"].replace(0, np.NaN)
-        df.loc[:,f"20157-{session}.0"] = df.loc[:,f"20157-{session}.0"].replace(0, np.NaN)
+        df.loc[:,trail_making_duration_numeric] = df.loc[:,f"20156-{session}.0"].replace(0, np.NaN)
+        df.loc[:,trail_making_duration_alphanumeric] = df.loc[:,f"20157-{session}.0"].replace(0, np.NaN)
     elif session == "2":
-        df.loc[:,f"6348-{session}.0"] = df.loc[:,f"6348-{session}.0"].replace(0, np.NaN)
-        df.loc[:,f"6350-{session}.0"] = df.loc[:,f"6350-{session}.0"].replace(0, np.NaN)
+        df[trail_making_duration_numeric] =  df.loc[:,f"6348-{session}.0"].replace(0, np.NaN)
+        df[trail_making_duration_alphanumeric] =  df.loc[:,f"6350-{session}.0"].replace(0, np.NaN)
     #######################################################
+    # cognitive(7,8)
     # ------- symbol digit matches -------
     # MRI sessions
     # cognitive in clinic
@@ -829,7 +843,19 @@ def calculate_cognitive_functioning(df, session):
     # I used '20195' and '20159' in place of '6348' and '6350'
     # Because '23323' and '23324' tasks taken only for MRI visits(instance 2&3)
     # And non-MRI healthy data don't contain this task.
+    # ------------------------------------
+    # cognitive (7)
+    symbol_digit_matches_attempted = f"symbol_digit_matches_attempted-{session}.0"
+    # cognitive (8)
+    symbol_digit_matches_corrected = f"symbol_digit_matches_corrected-{session}.0"
+    if session == "0":
+        df.loc[:, symbol_digit_matches_attempted] =  df.loc[:, f"20195-{session}.0"]
+        df.loc[:, symbol_digit_matches_corrected] =  df.loc[:, f"20159-{session}.0"]
+    elif session == "2":
+        df.loc[:, symbol_digit_matches_attempted] =  df.loc[:, f"23323-{session}.0"]
+        df.loc[:, symbol_digit_matches_corrected] =  df.loc[:, f"23324-{session}.0"]
     #######################################################
+    # cognitive(9,10,11,12)
     # -------  Pairs matching task -------
     # Defined-instances run from 0 to 3, 
     # Task has 3 matches on each instances:
@@ -849,23 +875,6 @@ def calculate_cognitive_functioning(df, session):
     # ------------------------------------
     for i in range(1, 3):
         df.loc[:,f"400-{session}.{i}"] = df.loc[:,f"400-{session}.{i}"].replace(0, np.NaN)    
-    #######################################################
-    # cognitive (1)
-    fluid_intelligence = f"fluid_intelligence-{session}.0"
-    # cognitive (2)
-    reaction_time = f"reaction_time-{session}.0"
-    # cognitive (3)
-    prospective_memory = f"prospective_memory-{session}.0"
-    # cognitive (4)
-    numeric_memory_Max_digits =  f"numeric_memory_Max_digits-{session}.0"
-    # cognitive (5)
-    trail_making_duration_numeric = f"trail_making_duration_numeric-{session}.0"
-    # cognitive (6)
-    trail_making_duration_alphanumeric = f"trail_making_duration_alphanumeric-{session}.0"       
-    # cognitive (7)
-    symbol_digit_matches_attempted = f"symbol_digit_matches_attempted-{session}.0"
-    # cognitive (8)
-    symbol_digit_matches_corrected = f"symbol_digit_matches_corrected-{session}.0"
     # cognitive (9)
     pairs_matching_incorrected_number_3pairs = f"pairs_matching_incorrected_number_3pairs-{session}.0"
     # cognitive (10)
@@ -875,62 +884,14 @@ def calculate_cognitive_functioning(df, session):
     # cognitive (12)
     pairs_matching_completed_time_6pairs = f"pairs_matching_completed_time_6pairs-{session}.0"
     
-    # -------  Fluid intelligence task -------
-    # '20016', Fluid intelligence score
-    df[fluid_intelligence] =  df.apply(lambda row: row[f"20016-{session}.0"], axis=1)
-    # -------  Reaction Time task -------
-    # '20023', Mean time to correctly identify matches
-    df[reaction_time] =  df.apply(lambda row: row[f"20023-{session}.0"], axis=1)
-    # ------- Prospective memory result -------
-    # '20018',  # Prospective memory result
-    df[prospective_memory] =  df.apply(lambda row: row[f"20018-{session}.0"], axis=1)
-    # -------  Numeric memory task -------
-    # '4282',  # Maximum digits remembered correctly
-    df[numeric_memory_Max_digits] =  df.apply(lambda row: row[f"4282-{session}.0"], axis=1)
-    # -------  Pairs matching task -------
-    # Defined-instances run from 0 to 3, 
-    # Task has 3 matches on each instances:
-    # match 1 --> 3 pairs of symbol cards
-    # match 2 --> 6 pairs of symbol cards 
-    # match 3 --> 8 pairs of symbol cards
-    # -----------------------------------------------
     # '399',  # Number of incorrect matches in round
     # *** (399-3) Not available for non-MRI and MRI.
-    df[pairs_matching_incorrected_number_3pairs] =  df.apply(lambda row: row[f"399-{session}.1"], axis=1)
-    df[pairs_matching_incorrected_number_6pairs] =  df.apply(lambda row: row[f"399-{session}.2"], axis=1)
+    df.loc[:, pairs_matching_incorrected_number_3pairs] =  df.loc[:, f"399-{session}.1"]
+    df.loc[:, pairs_matching_incorrected_number_6pairs] =  df.loc[:, f"399-{session}.2"]
     # '400',  # Time to complete round
     # *** (400-3) Not available for non-MRI and MRI.
-    df[pairs_matching_completed_time_3pairs] =  df.apply(lambda row: row[f"400-{session}.1"], axis=1)
-    df[pairs_matching_completed_time_6pairs] =  df.apply(lambda row: row[f"400-{session}.2"], axis=1)
-
-    if session == "0":
-        # -------  Trail making task -------
-        # non-MRI Sessions
-        # '20156',  # Duration to complete numeric path (trail #1)
-        # '20157',  # Duration to complete alphanumeric path (trail #2)
-        df[trail_making_duration_numeric] =  df.apply(lambda row: row[f"20156-{session}.0"], axis=1)
-        df[trail_making_duration_alphanumeric] =  df.apply(lambda row: row[f"20157-{session}.0"], axis=1)
-        # ------- symbol digit matches -------
-        # non-MRI fields
-        # '20195',  # Number of symbol digit matches attempted
-        # '20159',  # Number of symbol digit matches made correctly
-        df[symbol_digit_matches_attempted] =  df.apply(lambda row: row[f"20195-{session}.0"], axis=1)
-        df[symbol_digit_matches_corrected] =  df.apply(lambda row: row[f"20159-{session}.0"], axis=1)
-        
-    elif session == "2":
-        # -------  Trail making task -------
-        # MRI Sessions
-        # '6348',  # Duration to complete numeric path (trail #1) 
-        # '6350',  # Duration to complete alphanumeric path (trail #2)
-        df[trail_making_duration_numeric] =  df.apply(lambda row: row[f"6348-{session}.0"], axis=1)
-        df[trail_making_duration_alphanumeric] =  df.apply(lambda row: row[f"6350-{session}.0"], axis=1)
-        # ------- symbol digit matches -------
-        # MRI fields
-        # '23323',  # Number of symbol digit matches attempted --> Data-Coding: 6361
-        # '23324',  # Number of symbol digit matches made correctly --> No Data-Coding
-        df[symbol_digit_matches_attempted] =  df.apply(lambda row: row[f"23323-{session}.0"], axis=1)
-        df[symbol_digit_matches_corrected] =  df.apply(lambda row: row[f"23324-{session}.0"], axis=1)
-    
+    df.loc[:, pairs_matching_completed_time_3pairs] =  df.loc[:, f"400-{session}.1"].replace(0, np.NaN) 
+    df.loc[:, pairs_matching_completed_time_6pairs] =  df.loc[:, f"400-{session}.2"].replace(0, np.NaN)
     #########################################################
     ############## Missing Feilds for non-MRI ##############
     ############# out of 30 behavioral features #############
