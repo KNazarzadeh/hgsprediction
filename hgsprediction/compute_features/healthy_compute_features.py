@@ -62,6 +62,8 @@ def calculate_anthropometrics(df, session):
 def calculate_behavioral(df, session):
     # Totally 25 fields:
     # (N=12)
+    print("===== Done! =====")
+    embed(globals(), locals())
     df = calculate_cognitive_functioning(df, session)
     # (N=4)
     df = calculate_depression_score(df, session)
@@ -193,7 +195,7 @@ def calculate_gender(df, session):
         """
         assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
         assert isinstance(session, str), "session must be a string!"
-        session = 0
+        session = "0"
             # -----------------------------------------------------------
         gender = f"gender"
         df[gender] = df.apply(lambda row: row[f"31-{session}.0"], axis=1)
@@ -299,7 +301,7 @@ def calculate_depression_score(df, session):
     """
     # Assign corresponding session number from the Class:
     # The only aailable session for Depression is 0:
-    session = 0
+    session = "0"
 
     assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
     assert isinstance(session, str), "session must be a str!"
@@ -377,7 +379,7 @@ def calculate_anxiety_score(df, session):
     """
     # Assign corresponding session number from the Class:
     # The only aailable session for Anxiety is 0:
-    session = 0
+    session = "0"
 
     assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
     assert isinstance(session, str), "session must be a str!"
@@ -449,7 +451,7 @@ def calculate_cidi_score(df, session):
     """
     # Assign corresponding session number from the Class:
     # The only aailable session for CIDI is 0:
-    session = 0
+    session = "0"
 
     assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
     assert isinstance(session, str), "session must be a str!"
@@ -671,7 +673,7 @@ def calculate_life_satisfaction(df, session):
 def calculate_well_being(df, session):
     ############ Subjective well-being ###############
     # Available only in session 0
-    session = 0
+    session = "0"
     # ------- Subjective well-being -------
     # Data-Coding: 537
     #           -818	Prefer not to answer
@@ -845,7 +847,7 @@ def calculate_cognitive_functioning(df, session):
     # Data-Coding: 402
     #           0 --> represents "Test not completed".
     # ------------------------------------
-    for i in range(1, 4):
+    for i in range(1, 3):
         df.loc[:,f"400-{session}.{i}"] = df.loc[:,f"400-{session}.{i}"].replace(0, np.NaN)    
     #######################################################
     # cognitive (1)
@@ -894,8 +896,8 @@ def calculate_cognitive_functioning(df, session):
     # -----------------------------------------------
     # '399',  # Number of incorrect matches in round
     # *** (399-3) Not available for non-MRI and MRI.
-    df[pairs_matching_incorrected_number_3pairs] =  df.apply(lambda row: row[f"300-{session}.1"], axis=1)
-    df[pairs_matching_incorrected_number_6pairs] =  df.apply(lambda row: row[f"300-{session}.2"], axis=1)
+    df[pairs_matching_incorrected_number_3pairs] =  df.apply(lambda row: row[f"399-{session}.1"], axis=1)
+    df[pairs_matching_incorrected_number_6pairs] =  df.apply(lambda row: row[f"399-{session}.2"], axis=1)
     # '400',  # Time to complete round
     # *** (400-3) Not available for non-MRI and MRI.
     df[pairs_matching_completed_time_3pairs] =  df.apply(lambda row: row[f"400-{session}.1"], axis=1)
@@ -1040,7 +1042,7 @@ def calculate_socioeconomic_status(df, session):
     assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
     assert isinstance(session, str), "session must be a str!"
     
-    session = 0
+    session = "0"
     # ------------------------------------
     # Townsend deprivation index at recruitment
     tdi_score = f"TDI_score"

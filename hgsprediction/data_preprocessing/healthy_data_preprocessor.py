@@ -97,7 +97,7 @@ class HealthyDataPreprocessor:
         # Exclude all subjects who had Dominant HGS < 4:
         # The condition is applied to "hgs_dominant" columns
         # And then reset_index the new dataframe:
-        df = df[df.loc[:, hgs_dominant] >= 4 & ~df.loc[:, hgs_dominant].isna()]
+        df = df[(df.loc[:, hgs_dominant] >= 4) & (~df.loc[:, hgs_dominant].isna())]
 
         return df
 
@@ -139,7 +139,7 @@ class HealthyDataPreprocessor:
         # If handedness is equal to 1
         # Right hand is Dominant
         # Find handedness equal to 1:        
-        if session == "0.0":
+        if session == "0":
             # Add and new column "hgs_dominant"
             # And assign Right hand HGS value
             df.loc[df["1707-0.0"] == 1.0, hgs_dominant] = df.loc[df["1707-0.0"] == 1.0, "47-0.0"]
@@ -165,7 +165,7 @@ class HealthyDataPreprocessor:
             df.loc[df["1707-0.0"].isin([3.0, -3.0, np.nan]), hgs_dominant] = df[["46-0.0", "47-0.0"]].max(axis=1)
             df.loc[df["1707-0.0"].isin([3.0, -3.0, np.nan]), hgs_nondominant] = df[["46-0.0", "47-0.0"]].min(axis=1)
             
-        elif session == "2.0":
+        elif session == "2":
             df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"] == 1.0, hgs_dominant] = \
                 df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"] == 1.0, "47-0.0"]
             df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"] == 1.0, hgs_nondominant] = \
