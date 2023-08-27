@@ -70,7 +70,7 @@ def calculate_sum_hgs(df, session):
     # hgs_left field-ID: 46
     # hgs_right field-ID: 47
     # Addition of Handgrips (Left + Right)
-    df[hgs_sum] = df.apply(lambda row: row[f"46-{row[session]}"]+row[f"47-{row[session]}"], axis=1)
+    df.loc[:, hgs_sum] = df.loc[:, f"46-{session}.0"]+df.loc[:, f"47-{session}.0"]
 
     return df
 
@@ -96,7 +96,7 @@ def calculate_left_hgs(df, session):
     # Add a new column 'new_column'
     hgs_left = f"hgs_left-{session}.0"
         
-    df[hgs_left] = df.apply(lambda row: row[f"46-{row[session]}"], axis=1)
+    df.loc[:, hgs_left] = df.loc[:, f"46-{session}.0"]
 
     return df
 
@@ -122,7 +122,7 @@ def calculate_right_hgs(df, session):
     
     # Add a new column 'new_column'
     hgs_right = f"hgs_right-{session}.0"
-    df[hgs_right] = df.apply(lambda row: row[f"47-{row[session]}"], axis=1)
+    df.loc[:, hgs_right] = df.loc[:, f"47-{session}.0"]
 
     return df
 
@@ -152,7 +152,7 @@ def calculate_sub_hgs(df, session):
     # hgs_left field-ID: 46
     # hgs_right field-ID: 47
     # Subtraction of Handgrips (Left - Right)
-    df[hgs_sub] = df.apply(lambda row: row[f"46-{row[session]}"]-row[f"47-{row[session]}"], axis=1)
+    df.loc[:, hgs_sub] = df.loc[:, f"46-{session}.0"] - df.loc[:, f"47-{session}.0"]
 
     return df
 
@@ -181,11 +181,10 @@ def calculate_laterality_index_hgs(df, session):
     hgs_sum = f"hgs_L+R-{session}.0"
     hgs_LI = f"hgs_LI-{session}.0"
     
-    df = calculate_sub_hgs(df)
-    df = calculate_sum_hgs(df)
+    df = calculate_sub_hgs(df, session)
+    df = calculate_sum_hgs(df, session)
     
-    # df.loc[:, hgs_LI] = df_sub.loc[:, hgs_sub] / df_sum.loc[:, hgs_sum]
-    df[hgs_LI] = df.apply(lambda row: row[hgs_sub]/row[hgs_sum], axis=1)
+    df.loc[:, hgs_LI] = df.loc[:, hgs_sub] / df.loc[:, hgs_sum]
 
     return df
 

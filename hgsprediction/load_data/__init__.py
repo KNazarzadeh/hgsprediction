@@ -1,7 +1,8 @@
 
 
-from .healthy_load_data import load_preprocessed_train_data, \
-                               load_original_binned_train_data
+from .healthy_load_data import load_original_binned_train_data, \
+                               load_validate_hgs_train_data
+                               
 
 
 from .stroke_load_data import load_original_data, \

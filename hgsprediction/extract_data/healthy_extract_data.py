@@ -2,34 +2,25 @@ import pandas as pd
 import numpy as np
 
 
-def extract_data(mri_status, features, target):
+def extract_data(df, mri_status, features, target):
     
-    if mri_status == "nonmri":
-        prefix = f"_0.0"
-    elif mri_status == "mri":
-        prefix = f"_2.0"
-
-    features_list = []
-    target_list = []
-
-    for item in features:
-        features_list.append(item + prefix)
-        
-    for item in target:
-        target_list.append(item + prefix)    
-        
-    df = pd.concat([df[features_list], df[target_list]], axis=1)
-
+    features_columns = [col for col in df.columns if any(col.startswith(item) for item in features)]
+    target_columns = [col for col in df.columns if col.startswith(target)]
+    
+    df = pd.concat([df[features_columns], df[target_columns]], axis=1)
+    
     df = rename_column_names(df, mri_status)               
 
+    df = df.dropna()
+    
     return df
 
 def rename_column_names(df, mri_status):
     
     if mri_status == "nonmri":
-        prefix = f"_0.0"
+        prefix = "-0.0"
     elif mri_status == "mri":
-        prefix = f"_2.0"
+        prefix = "-2.0"
 
     df.columns = df.columns.str.replace(prefix, '')
     

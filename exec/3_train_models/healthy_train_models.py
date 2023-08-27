@@ -16,7 +16,7 @@ from hgsprediction.input_arguments import parse_args, input_arguments
 # Load Processed Train set (after data validation, feature engineering)
 from hgsprediction.load_data import healthy_load_data
 ####### Data Extraction #######
-from hgsprediction.extract_data import data_extractor, run_data_extraction
+from hgsprediction.extract_data import healthy_extract_data
 ####### Features Extraction #######
 from hgsprediction.define_features import define_features
 # Calculation of Heuristic C for Linear SVM model
@@ -30,9 +30,8 @@ from sklearn.model_selection import RepeatedKFold
 from sklearn.metrics import r2_score
 # IMPORT SAVE FUNCTIONS
 import pickle
-from hgsprediction.save_results import save_extracted_nonmri_data, \
-                                       save_best_model_trained, \
-                                       save_scores_trained
+from hgsprediction.save_results import save_trained_model_results
+
 #--------------------------------------------------------------------------#
 from ptpython.repl import embed
 # print("===== Done! =====")
@@ -45,29 +44,16 @@ motor, population, mri_status, feature_type, target, gender, model_name, \
     confound_status, cv_repeats_number, cv_folds_number = input_arguments(args)
 
 ###############################################################################
-df_train = healthy_load_data.load_preprocessed_train_df(population, mri_status)
+df_train = healthy_load_data.load_preprocessed_train_data(population, mri_status, gender)
 
-print("===== Done! =====")
-embed(globals(), locals())
-df_nonmri = load_primary_nonmri_train_set_df(
-    population,
-    gender,
-    mri_status,
-)
-mri_status="mri"
-df_mri = load_primary_mri_df(
-    population,
-    gender,
-    mri_status,
-)
-print("===== Done! =====")
-embed(globals(), locals())
-data_extracted = run_data_extraction.data_extractor(df_train, mri_status, gender, feature_type, target)
+features = define_features(feature_type)
 
-X = define(data_extracted, mri_status, feature_type)
-y = target_extractor(data_extracted, target)
-print("===== Done! =====")
-embed(globals(), locals())
+data_extracted = healthy_extract_data.extract_data(df_train, mri_status, features, target)
+
+X = features
+y = target
+
+
 ###############################################################################
 # Define model and model parameters:
 if model_name == "linear_svm":
@@ -104,7 +90,10 @@ df_test_score.columns.name = 'K-fold splits'
 print(df_test_score)
 ###############################################################################
 df_prediction_scores = pd.DataFrame()
-df_dict = {}
+# Define dataframe as the result of dataframe of list of dataframes 
+df_validation_prediction_hgs = pd.DataFrame()
+# Define list for list of dataframes
+list_of_dfs = []
 for idx, (train_val_index, validation_index) \
         in enumerate(cv.split(data_extracted)):
     repeat = scores_trained['repeat'][idx]
@@ -117,16 +106,24 @@ for idx, (train_val_index, validation_index) \
     score = r2_score(y_true, y_pred)
     df_prediction_scores.loc[f'{repeat}', f'{fold}'] = score
     df_tmp = data_extracted.iloc[validation_index].assign(hgs_pred=y_pred.values)
-    df_dict[idx] = df_tmp
+    repeat_label = f"Repeat {repeat}"
+    fold_label = f"Fold {fold}"
+    df_tmp.columns.name = f"Repeat:{repeat_label} - K-fold:{fold_label}"
+    # List of DataFrames
+    list_of_dfs.append(df_tmp)
+    # Concatenate the DataFrames vertically with MultiIndex columns
+    df_validation_prediction_hgs = pd.concat(list_of_dfs, axis=0, keys=[df.columns.name for df in list_of_dfs])
 df_prediction_scores.index.name = 'Repeats'
 df_prediction_scores.columns.name = 'K-fold splits'
 
+# For access to each dataframe use the following code:
+# for example --> df_header1 = df_validation_prediction_hgs.xs('repeat:Repeat 0 - k-fold:Fold 0')
 print(df_prediction_scores)
 
 ###############################################################################
 # SAVE THE RESULTS
 ###############################################################################
-save_extracted_nonmri_data(
+save_trained_model_results.save_extracted_nonmri_data(
     data_extracted,
     population,
     mri_status,
@@ -135,7 +132,7 @@ save_extracted_nonmri_data(
     feature_type,
     target)
 ###############################################################################
-save_best_model_trained(
+save_trained_model_results.save_best_model_trained(
     model_trained,
     population,
     mri_status,
@@ -146,10 +143,58 @@ save_best_model_trained(
     model_name,
     cv_repeats_number,
     cv_folds_number)
-
+# ###############################################################################
+# df_estimators_models = pd.DataFrame()
+# list_of_estimators = []
+# for rep in range(cv_repeats_number):
+#     for fol in range(cv_folds_number):
+#         df_tmp = df_estimators.iloc[rep,fol]
+#         repeat_label = f"Repeat {repeat}"
+#         fold_label = f"Fold {fold}"
+#         df_tmp.columns.name = f"Repeat:{repeat_label} - K-fold:{fold_label}"
+#         # List of DataFrames
+#         list_of_estimators.append(df_tmp)
+#         # Concatenate the DataFrames vertically with MultiIndex columns
+#         df_estimators_models = pd.concat(list_of_estimators, axis=0, keys=[df.columns.name for df in list_of_estimators])
+        
+# save_trained_model_results.save_estimators_trained(
+#     df_estimators,
+#     population,
+#     mri_status,
+#     confound_status,
+#     gender,
+#     feature_type,
+#     target,
+#     model_name,
+#     cv_repeats_number,
+#     cv_folds_number)
 ################################################################################
-save_scores_trained(
+save_trained_model_results.save_scores_trained(
     scores_trained,
+    population,
+    mri_status,
+    confound_status,
+    gender,
+    feature_type,
+    target,
+    model_name,
+    cv_repeats_number,
+    cv_folds_number)
+################################################################################
+save_trained_model_results.save_test_scores_trained(
+    df_test_score,
+    population,
+    mri_status,
+    confound_status,
+    gender,
+    feature_type,
+    target,
+    model_name,
+    cv_repeats_number,
+    cv_folds_number)
+################################################################################
+save_trained_model_results.save_prediction_hgs_on_validation_set(
+    df_validation_prediction_hgs,
     population,
     mri_status,
     confound_status,

@@ -26,14 +26,11 @@ def compute_features(df, mri_status, feature_type):
     elif mri_status == "mri":
         session = "2"
     # -----------------------------------------------------------
+    df = calculate_age(df, session)
+    df = calculate_gender(df, session)
+
     if feature_type == "anthropometrics":
         df = calculate_anthropometrics(df, session)
-            
-    elif feature_type == "age":
-        df = calculate_age(df, session)
-        
-    elif feature_type == "gender":
-        df = calculate_gender(df, session)
                     
     elif feature_type == "behavioral":
         df = calculate_behavioral(df, session)
@@ -94,7 +91,7 @@ def calculate_bmi(df, session):
     # -----------------------------------------------------------
     # Add a new column 'new_column'
     bmi = f"bmi-{session}.0" 
-    df[bmi] = df.apply(lambda row: row[f"21001-{session}.0"], axis=1)
+    df.loc[:, bmi] = df.loc[:, f"21001-{session}.0"]
 
     return df
 
@@ -118,7 +115,7 @@ def calculate_height(df, session):
     assert isinstance(session, str), "session must be a string!"
     # -----------------------------------------------------------
     height = f"height-{session}.0"
-    df[height] = df.apply(lambda row: row[f"50-{session}.0"], axis=1)
+    df.loc[:, height] = df.loc[:, f"50-{session}.0"]
 
     return df
 
@@ -144,8 +141,8 @@ def calculate_WHR(df, session):
     # Waist circumference field-ID: 48
     # Hip circumference field-ID: 49
     # Calculating Waist/Hip
-    whr = f"WHR-{session}.0" 
-    df[whr] = df.apply(lambda row: row[f"48-{session}.0"]/row[f"49-{session}.0"], axis=1)
+    whr = f"waist_to_hip_ratio-{session}.0" 
+    df.loc[:, whr] = df.loc[:, f"48-{session}.0"]/df.loc[:, f"49-{session}.0"]
 
     return df
 
@@ -168,11 +165,10 @@ def calculate_age(df, session):
     assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
     assert isinstance(session, str), "session must be a string!"
     # -----------------------------------------------------------
-    age = f"age-{session}.0"
     if session == "0":
-        df.loc[:, age] = df.loc[:, "Age1stVisit"]
+        df.loc[:, "age"] = df.loc[:, "Age1stVisit"]
     elif session == "2":
-        df.loc[:, age] = df.loc[:, "AgeAtScan"]
+        df.loc[:, "age"] = df.loc[:, "AgeAtScan"]
     
     return df    
 
@@ -193,10 +189,8 @@ def calculate_gender(df, session):
         """
         assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
         assert isinstance(session, str), "session must be a string!"
-        session = "0"
             # -----------------------------------------------------------
-        gender = f"gender"
-        df[gender] = df.apply(lambda row: row[f"31-{session}.0"], axis=1)
+        df.loc[:, "gender"] = df.loc[:, "31-0.0"]
         
         return df
 
@@ -608,63 +602,54 @@ def calculate_life_satisfaction(df, session):
     # '4526',  # Happiness --> Data-Coding 100478
     # ------------------------------------
     # Replace Health satisfaction less than 0
-    # with NaN based on Data-Coding 100478    
-    # index = np.where(df.loc[:, f"4548-{session}.0"] < 0)[0]
-    index = df[df.loc[:, f"4548-{session}.0"] < 0].index
-    df.loc[index, f"4548-{session}.0"] = np.NaN
+    # with NaN based on Data-Coding 100478
+    # feild (1)
+    health_satisfaction = f"health_satisfaction-{session}.0"
+    df.loc[:, health_satisfaction] =  df.loc[:, f"4548-{session}.0"]      
+    # index = df[df.loc[:, f"4548-{session}.0"] < 0].index
+    index = df[df.loc[:, health_satisfaction] < 0].index
+    df.loc[index, health_satisfaction] = np.NaN
     # ------------------------------------
     # Replace Family relationship satisfaction less than 0
-    # with NaN based on Data-Coding 100478    
-    # index = np.where(df.loc[:, f"4559-{session}.0"] < 0)[0]
-    index = df[df.loc[:, f"4559-{session}.0"] < 0].index
-    df.loc[index, f"4559-{session}.0"] = np.NaN 
+    # with NaN based on Data-Coding 100478   
+    # feild (2)    
+    family_satisfaction = f"family_satisfaction-{session}.0" 
+    df.loc[:, family_satisfaction] =  df.loc[:, f"4559-{session}.0"]    
+    index = df[df.loc[:, family_satisfaction] < 0].index
+    df.loc[index, family_satisfaction] = np.NaN 
     # ------------------------------------
     # Replace Friendships satisfaction less than 0
     # with NaN based on Data-Coding 100478    
-    # index = np.where(df.loc[:, f"4570-{session}.0"] < 0)[0]
-    index = df[df.loc[:, f"4570-{session}.0"] < 0].index
-    df.loc[index, f"4570-{session}.0"] = np.NaN
+    # feild (3)
+    friendship_satisfaction = f"friendship_satisfaction-{session}.0"
+    df.loc[:, friendship_satisfaction] =  df.loc[:, f"4570-{session}.0"]    
+    index = df[df.loc[:, friendship_satisfaction] < 0].index
+    df.loc[index, friendship_satisfaction] = np.NaN
     # ------------------------------------
     # Replace Financial situation satisfaction less than 0
     # with NaN based on Data-Coding 100478    
-    # index = np.where(df.loc[:, f"4581-{session}.0"] < 0)[0]
-    index = df[df.loc[:, f"4581-{session}.0"] < 0].index        
-    df.loc[index, f"4581-{session}.0"] = np.NaN
+    # feild (4)
+    financial_satisfaction = f"financial_satisfaction-{session}.0"
+    df.loc[:, financial_satisfaction] =  df.loc[:, f"4581-{session}.0"]    
+    index = df[df.loc[:, financial_satisfaction] < 0].index        
+    df.loc[index, financial_satisfaction] = np.NaN
     # ------------------------------------
     # https://github.com/Jiang-brain/Grip-strength-association/blob/3d3952ffb661e5e8a774b397f428a43dbe58f665/association_grip_strength_behavior.m#L75
     # Replace Work/job satisfaction less than 0 and more than 6
     # with NaN based on Data-Coding 100479
-    # index = np.where(
-    #     (df.loc[:, f"4537-{session}.0"] < 0) | \
-    #         (df.loc[:, f"4537-{session}.0"] > 6))[0]
-    index = df[(df.loc[:, f"4537-{session}.0"] < 0) | (df.loc[:, f"4537-{session}.0"] > 6)].index        
-    df.loc[index, f"4537-{session}.0"] = np.NaN
+    # feild (5)
+    job_satisfaction = f"job_satisfaction-{session}.0"
+    df.loc[:, job_satisfaction] =  df.loc[:, f"4537-{session}.0"]    
+    index = df[(df.loc[:, job_satisfaction] < 0) | (df.loc[:, job_satisfaction] > 6)].index        
+    df.loc[index, job_satisfaction] = np.NaN
     # ------------------------------------
     # Replace Happiness less than 0
     # with NaN based on Data-Coding 100478
-    # index = np.where(df.loc[:, f"4526-{session}.0"] < 0)[0]
-    index = df[df.loc[:, f"4526-{session}.0"] < 0].index
-    df.loc[index, f"4526-{session}.0"] = np.NaN
-    #######################################################
-    # feild (1)
-    health_satisfaction = f"health_satisfaction-{session}.0"
-    # feild (2)    
-    family_satisfaction = f"family_satisfaction-{session}.0"
-    # feild (3)
-    friendship_satisfaction = f"friendship_satisfaction-{session}.0"
-    # feild (4)
-    financial_satisfaction = f"financial_satisfaction-{session}.0"
-    # feild (5)
-    job_satisfaction = f"job_satisfaction-{session}.0"
     # feild (6)
     happiness = f"happiness-{session}.0"
-
-    df[health_satisfaction] =  df.apply(lambda row: row[f"4548-{session}.0"], axis=1)
-    df[family_satisfaction] =  df.apply(lambda row: row[f"4559-{session}.0"], axis=1)
-    df[friendship_satisfaction] =  df.apply(lambda row: row[f"4570-{session}.0"], axis=1)
-    df[financial_satisfaction] =  df.apply(lambda row: row[f"4581-{session}.0"], axis=1)
-    df[job_satisfaction] =  df.apply(lambda row: row[f"4537-{session}.0"], axis=1)
-    df[happiness] =  df.apply(lambda row: row[f"4526-{session}.0"], axis=1)
+    df.loc[:, happiness] =  df.loc[:, f"4526-{session}.0"]    
+    index = df[df.loc[:, happiness] < 0].index
+    df.loc[index, happiness] = np.NaN
     
     return df
 ###############################################################################
@@ -697,33 +682,31 @@ def calculate_well_being(df, session):
     # '20460',  # Belief that own life is meaningful --> Data-Coding 538
     # ------------------------------------
     # Replace General happiness less than 0
-    # with NaN based on Data-Coding 537    
-    # index = np.where(df.loc[:, f"20458-{session}.0"] < 0)[0]
-    index = df[df.loc[:, f"20458-{session}.0"] < 0].index
-    df.loc[index, f"20458-{session}.0"] = np.NaN
-    # ------------------------------------
-    # Replace happiness with own health less than 0
-    # with NaN based on Data-Coding 537    
-    # index = np.where(df.loc[:, f"20459-{session}.0"] < 0)[0]
-    index = df[df.loc[:, f"20459-{session}.0"] < 0].index
-    df.loc[index, f"20459-{session}.0"] = np.NaN
-    # ------------------------------------
-    # Replace Belief that own life is meaningful less than 0
-    # with NaN based on Data-Coding 538   
-    # index = np.where(df.loc[:, f"20460-{session}.0"] < 0)[0]
-    index = df[df.loc[:, f"20460-{session}.0"] < 0].index
-    df.loc[index, f"20460-{session}.0"] = np.NaN
-    #######################################################
+    # with NaN based on Data-Coding 537 
     # feild (1)
     general_happiness = f"general_happiness-{session}.0"
-    # feild (2) 
+    df.loc[:, general_happiness] =  df.loc[:, f"20458-{session}.0"] 
+    index = df[df.loc[:, general_happiness] < 0].index  
+    # index = df[df.loc[:, f"20458-{session}.0"] < 0].index
+    df.loc[index, general_happiness] = np.NaN
+    # ------------------------------------
+    # Replace happiness with own health less than 0
+    # with NaN based on Data-Coding 537
+    # feild (2)
     health_happiness = f"health_happiness-{session}.0"
+    df.loc[:, health_happiness] =  df.loc[:, f"20459-{session}.0"]
+    # index = df[df.loc[:, f"20459-{session}.0"] < 0].index
+    index = df[df.loc[:, health_happiness] < 0].index
+    df.loc[index, health_happiness] = np.NaN
+    # ------------------------------------
+    # Replace Belief that own life is meaningful less than 0
+    # with NaN based on Data-Coding 538
     # feild (3) 
-    life_meaningful = f"life_meaningful-{session}.0"
-
-    df[general_happiness] =  df.apply(lambda row: row[f"20458-{session}.0"], axis=1)
-    df[health_happiness] =  df.apply(lambda row: row[f"20459-{session}.0"], axis=1)
-    df[life_meaningful] =  df.apply(lambda row: row[f"20460-{session}.0"], axis=1)
+    belief_life_meaningful = f"belief_life_meaningful-{session}.0"
+    df.loc[:, belief_life_meaningful] =  df.loc[:, f"20460-{session}.0"]
+    # index = df[df.loc[:, f"20460-{session}.0"] < 0].index
+    index = df[df.loc[:, belief_life_meaningful] < 0].index
+    df.loc[index, belief_life_meaningful] = np.NaN
     
     return df
 
@@ -751,7 +734,7 @@ def calculate_cognitive_functioning(df, session):
     # -------  Fluid intelligence task -------
     # '20016', Fluid intelligence score
     fluid_intelligence = f"fluid_intelligence-{session}.0"
-    df[:, fluid_intelligence] =  df.loc[:, f"20016-{session}.0"]
+    df.loc[:, fluid_intelligence] =  df.loc[:, f"20016-{session}.0"]
     # -----------------------------------------------
     # cognitive (2)
     # -------  Reaction Time task -------
@@ -821,8 +804,8 @@ def calculate_cognitive_functioning(df, session):
         df.loc[:,trail_making_duration_numeric] = df.loc[:,f"20156-{session}.0"].replace(0, np.NaN)
         df.loc[:,trail_making_duration_alphanumeric] = df.loc[:,f"20157-{session}.0"].replace(0, np.NaN)
     elif session == "2":
-        df[trail_making_duration_numeric] =  df.loc[:,f"6348-{session}.0"].replace(0, np.NaN)
-        df[trail_making_duration_alphanumeric] =  df.loc[:,f"6350-{session}.0"].replace(0, np.NaN)
+        df.loc[:, trail_making_duration_numeric] =  df.loc[:,f"6348-{session}.0"].replace(0, np.NaN)
+        df.loc[:, trail_making_duration_alphanumeric] =  df.loc[:,f"6350-{session}.0"].replace(0, np.NaN)
     #######################################################
     # cognitive(7,8)
     # ------- symbol digit matches -------
@@ -872,9 +855,7 @@ def calculate_cognitive_functioning(df, session):
     # '400',  # Time to complete round
     # Data-Coding: 402
     #           0 --> represents "Test not completed".
-    # ------------------------------------
-    for i in range(1, 3):
-        df.loc[:,f"400-{session}.{i}"] = df.loc[:,f"400-{session}.{i}"].replace(0, np.NaN)    
+    # ------------------------------------  
     # cognitive (9)
     pairs_matching_incorrected_number_3pairs = f"pairs_matching_incorrected_number_3pairs-{session}.0"
     # cognitive (10)
@@ -934,7 +915,8 @@ def calculate_qualification(df, session):
     """
     assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
     assert isinstance(session, str), "session must be a str!"
-                
+    print("===== Done! =====")
+    embed(globals(), locals())            
     # ------- Qualification -------
     # '6138', Qualifications
     # Data-coding: 100305
@@ -953,7 +935,7 @@ def calculate_qualification(df, session):
         # And Replace with '1.0' value
         # index_college = np.where(
         #     df.loc[:,f"6138-{session}.{i}"] == 1.0)[0]
-        index_college = df[df.loc[:,f"6138-{session}.{i}"] == 1.0].index
+        index_college = df[df.loc[:, f"6138-{session}.{i}"] == 1.0].index
         df.loc[index_college, f"6138-{session}.{i}"] = 1.0
         # Find No College or University degree
         # And Replace with '0.0' value:
@@ -1006,8 +988,8 @@ def calculate_socioeconomic_status(df, session):
     session = "0"
     # ------------------------------------
     # Townsend deprivation index at recruitment
-    tdi_score = f"TDI_score"
-    df[tdi_score] = df.apply(lambda row: row[f"22189-0.0"], axis=1)
+    tdi_score = "TDI_score"
+    df.loc[:, tdi_score] = df.loc[:, "22189-0.0"]
     
     return df
 ############################## Remove NaN coulmns #############################

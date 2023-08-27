@@ -11,6 +11,9 @@ from .compute_target import healthy_compute_target
 # Save Data
 from .save_data import healthy_save_data
 
+from .extract_data import healthy_extract_data
+
+from .save_results import save_trained_model_results
 ############### STROKE FUNCTIONS ###############
 # Load Stroke Data
 from .load_data import stroke_load_data

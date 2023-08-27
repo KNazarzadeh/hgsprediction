@@ -3,10 +3,11 @@ import pandas as pd
 from ptpython.repl import embed
 
 
-def save_validate_hgs_data(
+def save_validate_hgs_train_data(
     df,
     population,
     mri_status,
+    gender,
 ):
     """
     Save data to csv file.
@@ -32,6 +33,7 @@ def save_validate_hgs_data(
         f"{population}",
         "preprocessed_train_data",
         f"{mri_status}_{population}",
+        f"{gender}",
     )
 
     if(not os.path.isdir(folder_path)):
@@ -48,6 +50,7 @@ def save_preprocessed_train_data(
     df,
     population,
     mri_status,
+    gender,
 ):
     """
     Save data to csv file.
@@ -73,6 +76,7 @@ def save_preprocessed_train_data(
         f"{population}",
         "preprocessed_train_data",
         f"{mri_status}_{population}",
+        f"{gender}",
     )
 
     if(not os.path.isdir(folder_path)):
@@ -84,3 +88,4 @@ def save_preprocessed_train_data(
     
     df.to_csv(file_path, sep=',', index=True)
   
+  ###############################################################################

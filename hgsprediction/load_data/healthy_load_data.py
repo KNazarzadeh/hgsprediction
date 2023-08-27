@@ -46,9 +46,10 @@ def load_original_binned_train_data(
     return df_train
 
 ###############################################################################
-def load_preprocessed_train_data(
+def load_validate_hgs_train_data(
     population,
     mri_status,
+    gender,
 ):
     """
     Load train set after binned process.
@@ -74,6 +75,48 @@ def load_preprocessed_train_data(
         f"{population}",
         "preprocessed_train_data",
         f"{mri_status}_{population}",
+        f"{gender}",
+    )
+
+    file_path = os.path.join(
+        folder_path,
+        f"validate_hgs_data.csv")
+    # Load the dataframe from csv file path
+    df = pd.read_csv(file_path, sep=',', index_col=0, low_memory=False)
+    
+    return df
+
+###############################################################################
+def load_preprocessed_train_data(
+    population,
+    mri_status,
+    gender,
+):
+    """
+    Load train set after binned process.
+    90 percent train from the binned data.
+    Parameters
+    ----------
+    population: str
+        Specifies the population.
+    mri_status: str
+        Specifies the MRI status.
+    Return
+    ----------    
+    df : pandas.DataFrame
+        DataFrame that should be save in specific folder.
+    """
+    folder_path = os.path.join(
+        "/data",
+        "project",
+        "stroke_ukb",
+        "knazarzadeh",
+        "project_hgsprediction",
+        "data_hgs",
+        f"{population}",
+        "preprocessed_train_data",
+        f"{mri_status}_{population}",
+        f"{gender}",
     )
 
     file_path = os.path.join(
