@@ -36,7 +36,7 @@ def compute_features(df, mri_status, feature_type):
         df = calculate_behavioral(df, session)
 
     elif feature_type == "qualification":
-        df = calculate_qualification
+        df = calculate_qualification(df, session)
         
     elif feature_type == "socioeconomic_status":
         df = calculate_socioeconomic_status(df, session)

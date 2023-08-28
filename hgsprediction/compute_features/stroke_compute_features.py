@@ -8,25 +8,24 @@ from ptpython.repl import embed
 def compute_features(df, session_column, feature_type):
 
     assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
+    assert isinstance(session_column, str ), "session_column must be a string!"
     assert isinstance(feature_type, str ), "feature_type must be a string!"
+    # -----------------------------------------------------------
+    df = calculate_days(df, session_column)
+    df = calculate_age(df, session_column)
+    df = calculate_gender(df, session_column)
 
-    if feature_type == "bmi":
-        df = calculate_bmi(df, session_column)
-            
-    elif feature_type == "height":
-        df = calculate_height(df, session_column)
+    if feature_type == "anthropometrics":
+        df = calculate_anthropometrics(df, session_column)
+                    
+    # elif feature_type == "behavioral":
+    #     df = calculate_behavioral(df, session_column)
 
-    elif feature_type == "WHR":
-        df = calculate_WHR(df, session_column)
-
-    elif feature_type == "age":
-        df = calculate_age(df, session_column)
+    # elif feature_type == "qualification":
+    #     df = calculate_qualification(df, session_column)
         
-    elif feature_type == "days":
-        df = calculate_days(df, session_column)
-    
-    elif feature_type == "gender":
-        df = calculate_gender(df, session_column)
+    # elif feature_type == "socioeconomic_status":
+    #     df = calculate_socioeconomic_status(df, session_column)
 
     # elif feature_type == "behavioral":
     #     features = ca()   
@@ -35,6 +34,35 @@ def compute_features(df, session_column, feature_type):
     #     features = extract_anthropometric_features() + extract_behavioral_features() + extract_gender_features()
             
     return df
+###############################################################################
+###############################################################################
+############################## FFEATURE ENGINEERING ###########################
+# Creating new columns/features/targets from existing data
+# Preprocess features or Handling Outliers
+# more meaningful insights and patterns for machine learning models.
+###############################################################################
+def calculate_anthropometrics(df, session_column):
+    df = calculate_bmi(df, session_column)
+    df = calculate_height(df, session_column)
+    df = calculate_WHR(df, session_column)
+    
+    return df
+###############################################################################
+# def calculate_behavioral(df, session_column):
+#     # Totally 25 fields:
+#     # (N=12)
+#     df = calculate_cognitive_functioning(df, session_column)
+#     # (N=4)
+#     df = calculate_depression_score(df, session_column)
+#     df = calculate_anxiety_score(df, session_column)
+#     df = calculate_cidi_score(df, session_column)
+#     df = calculate_neuroticism_score(df, session_column)
+#     # (N=6)
+#     df = calculate_life_satisfaction(df, session_column)
+#     # (N=3)
+#     df = calculate_well_being(df, session_column)
+    
+#     return df
 ###############################################################################
 ###############################################################################
 def calculate_bmi(df, session_column):
@@ -113,7 +141,7 @@ def calculate_WHR(df, session_column):
     assert isinstance(session_column, str), "session_column must be a string!"
     substring_to_remove = "session"
     # -----------------------------------------------------------
-    whr = session_column.replace(substring_to_remove, "WHR")
+    whr = session_column.replace(substring_to_remove, "waist_to_hip_ratio")
 
     df[whr] = df.apply(lambda row: row[f"48-{row[session_column]}"]/row[f"49-{row[session_column]}"], axis=1)
     

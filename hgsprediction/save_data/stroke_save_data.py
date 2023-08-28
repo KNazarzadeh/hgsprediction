@@ -52,6 +52,7 @@ def save_original_extracted_pre_post_data(
     population,
     mri_status,
     session_column,
+    gender,
 ):
     """
     Save data to csv file.
@@ -78,6 +79,7 @@ def save_original_extracted_pre_post_data(
         "preprocessed_data",
         f"{mri_status}_{population}",
         f"{session_column}_data",
+        f"{gender}",
     )
 
     if(not os.path.isdir(folder_path)):
@@ -85,7 +87,7 @@ def save_original_extracted_pre_post_data(
 
     file_path = os.path.join(
         folder_path,
-        f"{session_column}_original_extracted_data.csv")
+        f"{session_column}_original_extracted_pre_post_data.csv")
     
     df.to_csv(file_path, sep=',', index=True)
 
@@ -95,6 +97,7 @@ def save_validated_hgs_data(
     population,
     mri_status,
     session_column,
+    gender,
 ):
     """
     Save data to csv file.
@@ -121,6 +124,7 @@ def save_validated_hgs_data(
         "preprocessed_data",
         f"{mri_status}_{population}",
         f"{session_column}_data",
+        f"{gender}",
     )
 
     if(not os.path.isdir(folder_path)):
@@ -138,6 +142,7 @@ def save_preprocessed_data(
     population,
     mri_status,
     session_column,
+    gender,
 ):
     """
     Save data to csv file.
@@ -164,6 +169,7 @@ def save_preprocessed_data(
         "preprocessed_data",
         f"{mri_status}_{population}",
         f"{session_column}_data",
+        f"{gender}",
     )
 
     if(not os.path.isdir(folder_path)):

@@ -14,6 +14,8 @@ from .save_data import healthy_save_data
 from .extract_data import healthy_extract_data
 
 from .save_results import save_trained_model_results
+
+from .load_results import load_trained_models
 ############### STROKE FUNCTIONS ###############
 # Load Stroke Data
 from .load_data import stroke_load_data
@@ -26,13 +28,14 @@ from .compute_target import stroke_compute_target
 # Save Stroke Data
 from .save_data import stroke_save_data
 
+from .extract_data import stroke_extract_data
 
+# from .plots import plot_correlation_hgs
                             
 from .old_define_features import stroke_define_features
 
 from hgsprediction.input_arguments import parse_args, input_arguments
 from hgsprediction.load_imaging_data import load_imaging_data
-from hgsprediction.load_trained_model import load_best_model_trained
 from hgsprediction.prepare_stroke.prepare_stroke_data import prepare_stroke
 
 
