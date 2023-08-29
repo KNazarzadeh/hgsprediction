@@ -1,1 +1,1 @@
-from .save_disease_plots.save_plot import save_plots
+from .stroke_save_correlations_plot import save_correlations_plot

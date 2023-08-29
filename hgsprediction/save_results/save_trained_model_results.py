@@ -6,7 +6,7 @@ from ptpython.repl import embed
 # print("===== Done! =====")
 # embed(globals(), locals())
 ###############################################################################
-def save_extracted_nonmri_data(
+def save_extracted_data_to_train_model(
     df,
     population,
     mri_status,
@@ -43,11 +43,11 @@ def save_extracted_nonmri_data(
         "results_hgsprediction",
         f"{population}",
         f"{mri_status}",
-        f"{gender}",
         f"{feature_type}",
         f"{target}",
         f"{confound}",
-        f"data_ready_for_prediction",
+        f"data_ready_to_train_models",
+        f"{gender}",
     )
     if(not os.path.isdir(folder_path)):
         os.makedirs(folder_path)
@@ -55,7 +55,7 @@ def save_extracted_nonmri_data(
     # Define the csv file path to save
     file_path = os.path.join(
         folder_path,
-        f"data_extracted.csv")
+        f"data_extracted_to_train_models.csv")
     # Save the dataframe to csv file path
     df.to_csv(file_path, sep=',', index="SubjectID")
 
@@ -86,12 +86,12 @@ def save_best_model_trained(
             "results_hgsprediction",
             f"{population}",
             f"{mri_status}",
-            f"{gender}",
             f"{feature_type}",
             f"{target}",
             f"{confound}",
             f"{model_name}",
             f"{n_repeats}_repeats_{n_folds}_folds",
+            f"{gender}",
             "best_model_trained",
         )
         
@@ -107,7 +107,7 @@ def save_best_model_trained(
         pickle.dump(model_trained, f)
 ###############################################################################
 def save_estimators_trained(
-    estimators_trained,
+    df_estimators,
     population,
     mri_status,
     confound_status,
@@ -133,12 +133,12 @@ def save_estimators_trained(
             "results_hgsprediction",
             f"{population}",
             f"{mri_status}",
-            f"{gender}",
             f"{feature_type}",
             f"{target}",
             f"{confound}",
             f"{model_name}",
             f"{n_repeats}_repeats_{n_folds}_folds",
+            f"{gender}",
             "estimators_trained",
         )
         
@@ -150,8 +150,12 @@ def save_estimators_trained(
         folder_path,
         f"estimators_trained.pkl")
     # Save the model to disk
-    with open(file_path, 'wb') as f:
-        pickle.dump(estimators_trained, f)
+    # Flatten the DataFrame and save cells as pickle
+    cells = df_estimators.values.flatten()  # Flatten the DataFrame into a 1D array
+    with open(file_path, 'wb') as pickle_file:
+        for cell_value in cells:
+            pickle.dump(cell_value, pickle_file)
+
 ###############################################################################     
 def save_scores_trained(
     df,
@@ -180,12 +184,12 @@ def save_scores_trained(
             "results_hgsprediction",
             f"{population}",
             f"{mri_status}",
-            f"{gender}",
             f"{feature_type}",
             f"{target}",
             f"{confound}",
             f"{model_name}",
             f"{n_repeats}_repeats_{n_folds}_folds",
+            f"{gender}",
             "scores_trained",
         )
         
@@ -229,12 +233,12 @@ def save_test_scores_trained(
             "results_hgsprediction",          
             f"{population}",
             f"{mri_status}",
-            f"{gender}",
             f"{feature_type}",
             f"{target}",
             f"{confound}",
             f"{model_name}",
             f"{n_repeats}_repeats_{n_folds}_folds",
+            f"{gender}",
             "test_scores_trained",
         )
         
@@ -278,12 +282,12 @@ def save_prediction_hgs_on_validation_set(
             "results_hgsprediction",
             f"{population}",
             f"{mri_status}",
-            f"{gender}",
             f"{feature_type}",
             f"{target}",
             f"{confound}",
             f"{model_name}",
             f"{n_repeats}_repeats_{n_folds}_folds",
+            f"{gender}",
             "prediction_hgs_on_validation_set_trained",
         )
         

@@ -123,7 +123,7 @@ print(df_prediction_scores)
 ###############################################################################
 # SAVE THE RESULTS
 ###############################################################################
-save_trained_model_results.save_extracted_nonmri_data(
+save_trained_model_results.save_extracted_data_to_train_model(
     data_extracted,
     population,
     mri_status,
@@ -131,6 +131,8 @@ save_trained_model_results.save_extracted_nonmri_data(
     gender,
     feature_type,
     target)
+print("===== Done! =====")
+embed(globals(), locals())
 ###############################################################################
 save_trained_model_results.save_best_model_trained(
     model_trained,
@@ -143,31 +145,18 @@ save_trained_model_results.save_best_model_trained(
     model_name,
     cv_repeats_number,
     cv_folds_number)
-# ###############################################################################
-# df_estimators_models = pd.DataFrame()
-# list_of_estimators = []
-# for rep in range(cv_repeats_number):
-#     for fol in range(cv_folds_number):
-#         df_tmp = df_estimators.iloc[rep,fol]
-#         repeat_label = f"Repeat {repeat}"
-#         fold_label = f"Fold {fold}"
-#         df_tmp.columns.name = f"Repeat:{repeat_label} - K-fold:{fold_label}"
-#         # List of DataFrames
-#         list_of_estimators.append(df_tmp)
-#         # Concatenate the DataFrames vertically with MultiIndex columns
-#         df_estimators_models = pd.concat(list_of_estimators, axis=0, keys=[df.columns.name for df in list_of_estimators])
-        
-# save_trained_model_results.save_estimators_trained(
-#     df_estimators,
-#     population,
-#     mri_status,
-#     confound_status,
-#     gender,
-#     feature_type,
-#     target,
-#     model_name,
-#     cv_repeats_number,
-#     cv_folds_number)
+###############################################################################      
+save_trained_model_results.save_estimators_trained(
+    df_estimators,
+    population,
+    mri_status,
+    confound_status,
+    gender,
+    feature_type,
+    target,
+    model_name,
+    cv_repeats_number,
+    cv_folds_number)
 ################################################################################
 save_trained_model_results.save_scores_trained(
     scores_trained,
