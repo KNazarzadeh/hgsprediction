@@ -19,11 +19,11 @@ elif mri_status == "mri":
 data_processor = HealthyDataPreprocessor(df, mri_status)
 # CHECK HGS AVAILABILITY
 df = data_processor.check_hgs_availability(df)
-print("===== Done! =====")
-embed(globals(), locals())
+
 # DATA VALIDATION
 df = data_processor.validate_handgrips(df)
-
+print("===== Done! =====")
+embed(globals(), locals())
 # Remove all columns with all NaN values
 df = data_processor.remove_nan_columns(df)
 print("===== Done! =====")
