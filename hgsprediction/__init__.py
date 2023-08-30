@@ -31,10 +31,11 @@ from .save_data import stroke_save_data
 from .extract_data import stroke_extract_data
 from .predict_hgs import stroke_predict_hgs
 from .predict_hgs import calculate_spearman_hgs_correlation
-from .save_results import save_spearman_results
-# from .plots import plot_correlations
-from .save_plot import save_correlations_plot
-from .save_results import save_hgs_predicted_results                            
+from .save_results import save_spearman_correlation_results, save_spearman_correlation_results_mri_records_sessions_only
+from .load_results import load_hgs_predicted_results, load_hgs_predicted_results_mri_records_sessions_only
+from .plots import plot_correlations
+from .save_plot import save_correlations_plot, save_correlations_plot_mri_records_sessions_only
+from .save_results import save_hgs_predicted_results, save_hgs_predicted_results_mri_records_sessions_only                       
 from .old_define_features import stroke_define_features
 
 from hgsprediction.input_arguments import parse_args, input_arguments

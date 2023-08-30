@@ -5,8 +5,9 @@ from ptpython.repl import embed
 # print("===== Done! =====")
 # embed(globals(), locals())
 
-def save_hgs_predicted_results(
-    df,
+def save_spearman_correlation_results(
+    df_corr,
+    df_pvalue,
     population,
     mri_status,
     session_column,
@@ -30,7 +31,7 @@ def save_hgs_predicted_results(
             f"{target}",
             f"{model_name}",
             f"{gender}",
-            "hgs_predicted_results",
+            "spearman_hgs_correlations",
         )
         
     if(not os.path.isdir(folder_path)):
@@ -39,13 +40,18 @@ def save_hgs_predicted_results(
     # Define the csv file path to save
     file_path = os.path.join(
         folder_path,
-        f"hgs_predicted_results.csv")
+        f"correlation_coefficient.csv")
     
-    df.to_csv(file_path, sep=',', index=True)
-
-##############################################################################    
-def save_hgs_predicted_results_mri_records_sessions_only(
-    df,
+    df_corr.to_csv(file_path, sep=',', index=True)
+    # Define the csv file path to save
+    file_path = os.path.join(
+        folder_path,
+        f"p_values.csv")
+    df_pvalue.to_csv(file_path, sep=',', index=True)
+##############################################################################
+def save_spearman_correlation_results_mri_records_sessions_only(
+    df_corr,
+    df_pvalue,
     population,
     mri_status,
     session_column,
@@ -70,7 +76,7 @@ def save_hgs_predicted_results_mri_records_sessions_only(
             f"{target}",
             f"{model_name}",
             f"{gender}",
-            "hgs_predicted_results",
+            "spearman_hgs_correlations",
         )
         
     if(not os.path.isdir(folder_path)):
@@ -79,6 +85,11 @@ def save_hgs_predicted_results_mri_records_sessions_only(
     # Define the csv file path to save
     file_path = os.path.join(
         folder_path,
-        f"hgs_predicted_results.csv")
-    
-    df.to_csv(file_path, sep=',', index=True)
+        f"correlation_coefficient.csv")
+
+    df_corr.to_csv(file_path, sep=',', index=True)
+    # Define the csv file path to save
+    file_path = os.path.join(
+        folder_path,
+        f"p_values.csv")
+    df_pvalue.to_csv(file_path, sep=',', index=True)

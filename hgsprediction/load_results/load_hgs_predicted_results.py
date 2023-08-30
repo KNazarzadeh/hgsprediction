@@ -5,8 +5,7 @@ from ptpython.repl import embed
 # print("===== Done! =====")
 # embed(globals(), locals())
 
-def save_hgs_predicted_results(
-    df,
+def load_hgs_predicted_results(
     population,
     mri_status,
     session_column,
@@ -32,20 +31,18 @@ def save_hgs_predicted_results(
             f"{gender}",
             "hgs_predicted_results",
         )
-        
-    if(not os.path.isdir(folder_path)):
-        os.makedirs(folder_path)
 
     # Define the csv file path to save
     file_path = os.path.join(
         folder_path,
         f"hgs_predicted_results.csv")
     
-    df.to_csv(file_path, sep=',', index=True)
+    df = pd.read_csv (file_path, sep=',', index_col=0)
+    
+    return df
 
-##############################################################################    
-def save_hgs_predicted_results_mri_records_sessions_only(
-    df,
+
+def load_hgs_predicted_results_mri_records_sessions_only(
     population,
     mri_status,
     session_column,
@@ -72,13 +69,12 @@ def save_hgs_predicted_results_mri_records_sessions_only(
             f"{gender}",
             "hgs_predicted_results",
         )
-        
-    if(not os.path.isdir(folder_path)):
-        os.makedirs(folder_path)
 
     # Define the csv file path to save
     file_path = os.path.join(
         folder_path,
         f"hgs_predicted_results.csv")
     
-    df.to_csv(file_path, sep=',', index=True)
+    df = pd.read_csv (file_path, sep=',', index_col=0)
+    
+    return df

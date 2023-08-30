@@ -29,7 +29,8 @@ elif visit_session == "4":
 
 df = stroke_load_data.load_preprocessed_data(population, mri_status, session_column, gender)
 
-
+print("===== Done! =====")
+embed(globals(), locals())
 df = stroke_compute_target.compute_target(df, session_column, target)
 
 df_female = df[df["31-0.0"]==0.0]

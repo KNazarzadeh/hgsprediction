@@ -1,1 +1,1 @@
-from .stroke_save_correlations_plot import save_correlations_plot
+from .stroke_save_correlations_plot import save_correlations_plot, save_correlations_plot_mri_records_sessions_only

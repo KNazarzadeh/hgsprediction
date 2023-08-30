@@ -166,26 +166,25 @@ class HealthyDataPreprocessor:
             df.loc[df["1707-0.0"].isin([3.0, -3.0, np.nan]), hgs_nondominant] = df[["46-0.0", "47-0.0"]].min(axis=1)
             
         elif session == "2":
-            df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"] == 1.0, hgs_dominant] = \
-                df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"] == 1.0, "47-0.0"]
-            df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"] == 1.0, hgs_nondominant] = \
-                df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"] == 1.0, "46-0.0"]
+            index = df[df.loc[:, "1707-2.0"] == 1.0].index
+            df.loc[index, hgs_dominant] = df.loc[index, "47-2.0"]
+            df.loc[index, hgs_nondominant] = df.loc[index, "46-2.0"]
+            index = df[df.loc[:, "1707-2.0"] == 2.0].index
+            df.loc[index, hgs_dominant] = df.loc[index, "46-2.0"]
+            df.loc[index, hgs_nondominant] = df.loc[index, "47-2.0"]
                 
-            df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"] == 2.0, hgs_dominant] = \
-                df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"] == 2.0, "46-0.0"]
-            df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"] == 2.0, hgs_nondominant] = \
-                df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"] == 2.0, "47-0.0"]
-                
-            df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"].isin([3.0, -3.0, np.NaN]), hgs_dominant] = \
-                df[["46-0.0", "47-0.0"]].max(axis=1)
-            df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"].isin([3.0, -3.0, np.NaN]), hgs_nondominant] = \
-                df[["46-0.0", "47-0.0"]].min(axis=1)
+            index = df[df.loc[:, "1707-2.0"].isin([3.0, -3.0, np.NaN])].index
+            filtered_df = df.loc[index, :]
+            inx = filtered_df[filtered_df.loc[:, "1707-0.0"] == 1.0].index
+            df.loc[inx, hgs_dominant] = df.loc[inx, "47-0.0"]
+            df.loc[inx, hgs_nondominant] = df.loc[inx, "46-0.0"]
+            inx = filtered_df[filtered_df.loc[:, "1707-0.0"] == 2.0].index
+            df.loc[inx, hgs_dominant] = df.loc[inx, "46-0.0"]
+            df.loc[inx, hgs_nondominant] = df.loc[inx, "47-0.0"]
+            inx = filtered_df[filtered_df.loc[:, "1707-0.0"].isin([3.0, -3.0, np.NaN])].index
+            df.loc[inx, hgs_dominant] = df.loc[[inx, "46-0.0", "47-0.0"]].max(axis=1)
+            df.loc[inx, hgs_nondominant] = df.loc[[inx, "46-0.0", "47-0.0"]].min(axis=1)
 
-            df.loc[df["1707-2.0"] == 1.0, hgs_dominant] = df.loc[df["1707-2.0"] == 1.0, "47-2.0"]
-            df.loc[df["1707-2.0"] == 1.0, hgs_nondominant] = df.loc[df["1707-2.0"] == 1.0, "46-2.0"]
-            df.loc[df["1707-2.0"] == 2.0, hgs_dominant] = df.loc[df["1707-2.0"] == 2.0, "46-2.0"]
-            df.loc[df["1707-2.0"] == 2.0, hgs_nondominant] = df.loc[df["1707-2.0"] == 2.0, "47-2.0"]
-                
         return df
     
 ###############################################################################

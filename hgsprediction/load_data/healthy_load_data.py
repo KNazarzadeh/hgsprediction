@@ -126,12 +126,10 @@ def load_preprocessed_train_data(
     df = pd.read_csv(file_path, sep=',', index_col=0, low_memory=False)
     
     return df
+
 ###############################################################################
-###############################################################################
-###############################################################################
-def load_primary_mri_df(
+def load_original_data(
     population,
-    gender,
     mri_status,
 ):
     """
@@ -148,27 +146,24 @@ def load_primary_mri_df(
     mri_status: str
         MRI status which data to be  to be analyse.
     """
-
     folder_path = os.path.join(
         "/data",
         "project",
         "stroke_ukb",
         "knazarzadeh",
-        "GIT_repositories",
-        "motor_ukb",
-        "data_ukb",
+        "project_hgsprediction",
         "data_hgs",
         f"{population}",
         "original_data",
-        f"{mri_status}_healthy",
+        f"{mri_status}_{population}",
     )
-    if gender == "both_gender":
-        # Define the csv file path to load
-        file_path = os.path.join(
-            folder_path,
-            f"{mri_status}_{population}.csv")
-        # Load the dataframe from csv file path
-        # Specify 'Name' as the index column
-        # df_train = pd.read_csv(file_path, sep=',', index_col="SubjectID")
-        df_train = pd.read_csv(file_path, sep=',')
-    return df_train
+    
+    # Define the csv file path to load
+    file_path = os.path.join(
+        folder_path,
+        f"{mri_status}_{population}.csv")
+    
+    # Load the dataframe from csv file path
+    df = pd.read_csv(file_path, sep=',', index_col=0, low_memory=False)
+    
+    return df

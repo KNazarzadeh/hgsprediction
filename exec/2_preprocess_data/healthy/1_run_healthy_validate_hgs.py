@@ -11,18 +11,23 @@ filename = sys.argv[0]
 population = sys.argv[1]
 mri_status = sys.argv[2]
 
+if mri_status == "nonmri":
+    df = healthy_load_data.load_original_binned_train_data(population, mri_status)
+elif mri_status == "mri":
+    df = healthy_load_data.load_original_data(population, mri_status)
 
-df_train = healthy_load_data.load_original_binned_train_data(population, mri_status)
-
-data_processor = HealthyDataPreprocessor(df_train, mri_status)
+data_processor = HealthyDataPreprocessor(df, mri_status)
 # CHECK HGS AVAILABILITY
-df = data_processor.check_hgs_availability(df_train)
+df = data_processor.check_hgs_availability(df)
+print("===== Done! =====")
+embed(globals(), locals())
 # DATA VALIDATION
 df = data_processor.validate_handgrips(df)
 
 # Remove all columns with all NaN values
 df = data_processor.remove_nan_columns(df)
-
+print("===== Done! =====")
+embed(globals(), locals())
 df_female = df[df["31-0.0"]==0.0]
 df_male = df[df["31-0.0"]==1.0]
 

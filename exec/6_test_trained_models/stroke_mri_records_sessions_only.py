@@ -9,8 +9,8 @@ from hgsprediction.define_features import define_features
 from hgsprediction.extract_data import stroke_extract_data
 from hgsprediction.predict_hgs import stroke_predict_hgs
 from hgsprediction.predict_hgs import calculate_spearman_hgs_correlation
-from hgsprediction.save_results import save_spearman_correlation_results
-from hgsprediction.save_results import save_hgs_predicted_results
+from hgsprediction.save_results import save_spearman_correlation_results_mri_records_sessions_only
+from hgsprediction.save_results import save_hgs_predicted_results_mri_records_sessions_only
 
 from hgsprediction.prepare_stroke.prepare_stroke_data import prepare_stroke
 from hgsprediction.old_define_features import stroke_define_features
@@ -81,9 +81,7 @@ print(male_best_model_trained)
 ##############################################################################
 # load data
 df = stroke_load_data.load_preprocessed_data(population, mri_status, session_column, "both_gender")
-
-# # df_female = df_female[(df_female["1st_post-stroke_session"]==2.0) | (df_female["1st_post-stroke_session"]== 3.0)]
-# # df_male = df_male[(df_male["1st_post-stroke_session"]==2.0) | (df_male["1st_post-stroke_session"]== 3.0)]
+df = df[(df["1st_post-stroke_session"]==2.0) | (df["1st_post-stroke_session"]== 3.0)]
 
 features = define_features(feature_type)
 df_extracted = stroke_extract_data.extract_data(df, stroke_cohort, visit_session, features, target)
@@ -102,7 +100,7 @@ print(df_male)
 df_both_gender = pd.concat([df_female, df_male], axis=0)
 print(df_both_gender)
 
-save_hgs_predicted_results(
+save_hgs_predicted_results_mri_records_sessions_only(
     df_both_gender,
     population,
     mri_status,
@@ -113,7 +111,7 @@ save_hgs_predicted_results(
     "both_gender",
 )
 
-save_hgs_predicted_results(
+save_hgs_predicted_results_mri_records_sessions_only(
     df_female,
     population,
     mri_status,
@@ -124,7 +122,7 @@ save_hgs_predicted_results(
     "female",
 )
 
-save_hgs_predicted_results(
+save_hgs_predicted_results_mri_records_sessions_only(
     df_male,
     population,
     mri_status,
@@ -142,7 +140,7 @@ df_corr, df_pvalue = calculate_spearman_hgs_correlation(df_both_gender, y_axis, 
 df_female_corr, df_female_pvalue = calculate_spearman_hgs_correlation(df_female, y_axis, x_axis)
 df_male_corr, df_male_pvalue = calculate_spearman_hgs_correlation(df_male, y_axis, x_axis)
 
-save_spearman_correlation_results(
+save_spearman_correlation_results_mri_records_sessions_only(
     df_corr,
     df_pvalue,
     population,
@@ -152,7 +150,7 @@ save_spearman_correlation_results(
     feature_type,
     target,
     "both_gender")
-save_spearman_correlation_results(
+save_spearman_correlation_results_mri_records_sessions_only(
     df_female_corr,
     df_female_pvalue,
     population,
@@ -162,7 +160,7 @@ save_spearman_correlation_results(
     feature_type,
     target,
     "female")
-save_spearman_correlation_results(
+save_spearman_correlation_results_mri_records_sessions_only(
     df_male_corr,
     df_male_pvalue,
     population,

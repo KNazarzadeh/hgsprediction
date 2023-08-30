@@ -6,9 +6,9 @@ import sys
 from hgsprediction.load_results import load_trained_models
 from hgsprediction.predict_hgs import calculate_spearman_hgs_correlation
 from hgsprediction.save_results import save_spearman_correlation_results
-from hgsprediction.load_results import load_hgs_predicted_results
-from hgsprediction.load_results import load_spearman_correlation_results
-from hgsprediction.save_plot.stroke_save_correlations_plot import save_correlations_plot
+from hgsprediction.load_results import load_hgs_predicted_results, load_hgs_predicted_results_mri_records_sessions_only
+from hgsprediction.load_results import load_spearman_correlation_results, load_spearman_correlation_results_mri_records_sessions_only
+from hgsprediction.save_plot.stroke_save_correlations_plot import save_correlations_plot, save_correlations_plot_mri_records_sessions_only
 from hgsprediction.plots.plot_correlations import plot_hgs_correlations
 
 from ptpython.repl import embed
@@ -39,7 +39,7 @@ elif visit_session == "4":
     session_column = f"4th_{stroke_cohort}_session"
 
 ###############################################################################
-df = load_hgs_predicted_results(population,
+df = load_hgs_predicted_results_mri_records_sessions_only(population,
     mri_status,
     session_column,
     model_name,
@@ -48,7 +48,7 @@ df = load_hgs_predicted_results(population,
     gender,
 )
 
-df_corr, df_pvalue = load_spearman_correlation_results (population,
+df_corr, df_pvalue = load_spearman_correlation_results_mri_records_sessions_only (population,
     mri_status,
     session_column,
     model_name,
@@ -58,8 +58,9 @@ df_corr, df_pvalue = load_spearman_correlation_results (population,
 )
 print("===== Done! =====")
 embed(globals(), locals())
+
 ###############################################################################
-file_path = save_correlations_plot(
+file_path = save_correlations_plot_mri_records_sessions_only(
     x,
     y,
     population,

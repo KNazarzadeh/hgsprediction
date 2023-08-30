@@ -1,1 +1,1 @@
-# from .plot_correlations import plot_correlations
+from .plot_hgs_correlations import plot_hgs_correlations

@@ -1,1 +1,4 @@
 from .load_trained_models import load_best_model_trained
+
+from .load_hgs_predicted_results import load_hgs_predicted_results, load_hgs_predicted_results_mri_records_sessions_only
+from .load_hgs_spearman_correlation_results import load_spearman_correlation_results, load_spearman_correlation_results_mri_records_sessions_only
