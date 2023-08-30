@@ -4,7 +4,13 @@ import numpy as np
 
 def extract_data(df, mri_status, features, target):
     
-    features_columns = [col for col in df.columns if any(col.startswith(item) for item in features)]
+    features_list = features
+    add_extra_features = ["age", "gender"]
+    for item in add_extra_features:
+        if item not in features:
+           features_list = [item] + features_list
+
+    features_columns = [col for col in df.columns if any(col.startswith(item) for item in features_list)]
     target_columns = [col for col in df.columns if col.startswith(target)]
     
     df = pd.concat([df[features_columns], df[target_columns]], axis=1)

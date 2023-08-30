@@ -10,7 +10,7 @@ from hgsprediction.extract_data import stroke_extract_data
 from hgsprediction.predict_hgs import stroke_predict_hgs
 from hgsprediction.predict_hgs import calculate_spearman_hgs_correlation
 from hgsprediction.save_results import save_spearman_results
-
+from hgsprediction.save_results import save_hgs_predicted_results
 
 from hgsprediction.prepare_stroke.prepare_stroke_data import prepare_stroke
 from hgsprediction.old_define_features import stroke_define_features
@@ -82,16 +82,11 @@ print(male_best_model_trained)
 # load data
 df = stroke_load_data.load_preprocessed_data(population, mri_status, session_column, "both_gender")
 
-# df_female = stroke_load_data.load_preprocessed_data(population, mri_status, session_column, "female")
 # # df_female = df_female[(df_female["1st_post-stroke_session"]==2.0) | (df_female["1st_post-stroke_session"]== 3.0)]
-# df_male = stroke_load_data.load_preprocessed_data(population, mri_status, session_column, "male")
 # # df_male = df_male[(df_male["1st_post-stroke_session"]==2.0) | (df_male["1st_post-stroke_session"]== 3.0)]
 
 features = define_features(feature_type)
 df_extracted = stroke_extract_data.extract_data(df, stroke_cohort, visit_session, features, target)
-
-# data_extracted_female = stroke_extract_data.extract_data(df_female, stroke_cohort, visit_session, features, target)
-# data_extracted_male = stroke_extract_data.extract_data(df_male, stroke_cohort, visit_session, features, target)
 
 X = features
 y = target
@@ -108,6 +103,8 @@ df_both_gender = pd.concat([df_female, df_male], axis=0)
 print(df_both_gender)
 
 
+print("===== Done! =====")
+embed(globals(), locals())
 ##############################################################################
 y_axis = ["actual", "predicted", "actual-predicted"]
 x_axis = ["actual", "predicted", "years"]
@@ -115,6 +112,41 @@ df_corr, df_pvalue = calculate_spearman_hgs_correlation(df_both_gender, y_axis, 
 df_female_corr, df_female_pvalue = calculate_spearman_hgs_correlation(df_female, y_axis, x_axis)
 df_male_corr, df_male_pvalue = calculate_spearman_hgs_correlation(df_male, y_axis, x_axis)
 
+save_hgs_predicted_results(
+    df_both_gender,
+    population,
+    mri_status,
+    session_column,
+    model_name,
+    feature_type,
+    target,
+    "both_gender",
+)
+
+save_hgs_predicted_results(
+    df_female,
+    population,
+    mri_status,
+    session_column,
+    model_name,
+    feature_type,
+    target,
+    "female",
+)
+
+save_hgs_predicted_results(
+    df_male,
+    population,
+    mri_status,
+    session_column,
+    model_name,
+    feature_type,
+    target,
+    "male",
+)
+
+print("===== Done! =====")
+embed(globals(), locals())
 save_spearman_results(
     df_corr,
     df_pvalue,
@@ -150,25 +182,25 @@ save_spearman_results(
 print("===== Done! =====")
 embed(globals(), locals())
 
-# file_path = stroke_save_correlations_plot(
-#     x,
-#     y,
-#     population,
-#     mri_status,
-#     session_column,
-#     model_name,
-#     feature_type,
-#     target,
-#     gender,
-# )
-# plot = plot_correlations(data=data_extracted_female,
-#                         x="years",
-#                         y="hgs_predicted",
-#                         x_label="Post-stroke years",
-#                         y_label="Predicted",
-#                         target=target.replace('_', ' ').upper(),
-#                         gender,)
-# plot.show()
-# plot.savefig(file_path)
-# plot.close()
+file_path = stroke_save_correlations_plot(
+    x,
+    y,
+    population,
+    mri_status,
+    session_column,
+    model_name,
+    feature_type,
+    target,
+    gender,
+)
+plot = plot_correlations(data=data_extracted_female,
+                        x="years",
+                        y="hgs_predicted",
+                        x_label="Post-stroke years",
+                        y_label="Predicted",
+                        target=target.replace('_', ' ').upper(),
+                        gender,)
+plot.show()
+plot.savefig(file_path)
+plot.close()
 

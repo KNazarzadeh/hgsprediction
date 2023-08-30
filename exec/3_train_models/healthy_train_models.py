@@ -53,7 +53,6 @@ data_extracted = healthy_extract_data.extract_data(df_train, mri_status, feature
 X = features
 y = target
 
-
 ###############################################################################
 # Define model and model parameters:
 if model_name == "linear_svm":
@@ -131,8 +130,7 @@ save_trained_model_results.save_extracted_data_to_train_model(
     gender,
     feature_type,
     target)
-print("===== Done! =====")
-embed(globals(), locals())
+
 ###############################################################################
 save_trained_model_results.save_best_model_trained(
     model_trained,

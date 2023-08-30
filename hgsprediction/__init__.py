@@ -34,7 +34,7 @@ from .predict_hgs import calculate_spearman_hgs_correlation
 from .save_results import save_spearman_results
 # from .plots import plot_correlations
 from .save_plot import save_correlations_plot
-                            
+from .save_results import save_hgs_predicted_results                            
 from .old_define_features import stroke_define_features
 
 from hgsprediction.input_arguments import parse_args, input_arguments

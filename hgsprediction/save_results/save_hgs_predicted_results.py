@@ -6,9 +6,8 @@ from ptpython.repl import embed
 # print("===== Done! =====")
 # embed(globals(), locals())
 
-def save_correlations_plot(
-    x,
-    y,
+def save_hgs_predicted_results(
+    df,
     population,
     mri_status,
     session_column,
@@ -32,7 +31,7 @@ def save_correlations_plot(
             f"{target}",
             f"{model_name}",
             f"{gender}",
-            "hgs_correlations",
+            "hgs_predicted_results",
         )
         
     if(not os.path.isdir(folder_path)):
@@ -41,6 +40,6 @@ def save_correlations_plot(
     # Define the csv file path to save
     file_path = os.path.join(
         folder_path,
-        f"{y}_vs_{x}.png")
+        f"hgs_predicted_results.png")
     
     return file_path

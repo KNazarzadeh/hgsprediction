@@ -7,3 +7,4 @@ from .save_test_prediction_results import save_extracted_mri_data, \
                                           
                                           
 from .save_spearman_results import save_spearman_results
+from .save_hgs_predicted_results import save_hgs_predicted_results
