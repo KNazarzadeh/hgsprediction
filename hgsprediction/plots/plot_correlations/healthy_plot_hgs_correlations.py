@@ -195,6 +195,49 @@ def plot_hgs_correlations_hexbin_plot(df,
     df_female = df[df["gender"] == 0]
     df_male = df[df["gender"] == 1]
 ##############################################################################
+    fig, axs=plt.subplots(2,2,figsize=(8,6), gridspec_kw={'hspace': 0, 
+                                                            'wspace': 0,
+                                                            'width_ratios': [5, 1],
+                                                            'height_ratios': [1, 5]})
+
+    # Upper part charts
+    sns.jointplot(df_male, x=x, y=y, kind='hex', gridsize=20, color='blue', ax=axs[0,0])
+    sns.jointplot(df_female, x=x, y=y, kind='hex', gridsize=20, color='red', ax=axs[0,0])
+
+    axs[0,0].axis("off")
+    axs[0,1].axis("off")
+    axs[1,1].axis("off")
+
+    # Right part charts
+    sns.distplot(data[data.Gender=="Male"].Peso, bins=10, ax=axs[1,1], color="LightBlue", vertical=True)
+    sns.distplot(data[data.Gender!="Male"].Peso, bins=10, ax=axs[1,1], color="lightcoral", vertical=True)
+
+    # Linear regression for the middle plot
+    sns.regplot(x="Altura", y="Peso", data=data[data.Gender=="Male"], color='blue', marker='+', ax=axs[1,0], scatter=False)
+    sns.regplot(x="Altura", y="Peso", data=data[data.Gender!="Male"], color='magenta', marker='+', ax=axs[1,0], scatter=False)
+
+    # KDE middle part
+    sns.kdeplot(data[data.Gender=="Male"].Altura,data[data.Gender=="Male"].Peso, 
+                shade=True,shade_lowest=False, cmap="Blues", ax=axs[1,0])
+    sns.kdeplot(data[data.Gender!="Male"].Altura,data[data.Gender!="Male"].Peso, 
+                shade=True,shade_lowest=False, cmap="Reds", ax=axs[1,0])
+    file_path = save_correlations_plot(
+        x,
+        y,
+        population,
+        mri_status,
+        model_name,
+        feature_type,
+        target,
+        "both_gender")
+
+    plt.show()
+    plt.savefig(file_path)
+    plt.close()
+    print("===== Done! =====")
+    embed(globals(), locals())
+    
+    
     fig, ax = plt.subplots()
     # # Adjust 'labelsize' as needed
     # plt.tick_params(axis='both', labelsize=20)
