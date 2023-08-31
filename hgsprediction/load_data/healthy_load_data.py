@@ -46,7 +46,7 @@ def load_original_binned_train_data(
     return df_train
 
 ###############################################################################
-def load_validate_hgs_train_data(
+def load_validate_hgs_data(
     population,
     mri_status,
     gender,
@@ -73,21 +73,21 @@ def load_validate_hgs_train_data(
         "project_hgsprediction",
         "data_hgs",
         f"{population}",
-        "preprocessed_train_data",
+        "preprocessed_data",
         f"{mri_status}_{population}",
-        f"{gender}",
+        "validated_hgs_data",
     )
 
     file_path = os.path.join(
         folder_path,
-        f"validate_hgs_data.csv")
+        f"{gender}_validate_hgs_data.csv")
     # Load the dataframe from csv file path
     df = pd.read_csv(file_path, sep=',', index_col=0, low_memory=False)
     
     return df
 
 ###############################################################################
-def load_preprocessed_train_data(
+def load_preprocessed_data(
     population,
     mri_status,
     gender,
@@ -114,14 +114,14 @@ def load_preprocessed_train_data(
         "project_hgsprediction",
         "data_hgs",
         f"{population}",
-        "preprocessed_train_data",
+        "preprocessed_data",
         f"{mri_status}_{population}",
-        f"{gender}",
+        "preprocessed_data",
     )
 
     file_path = os.path.join(
         folder_path,
-        f"preprocessed_data.csv")
+        f"{gender}_preprocessed_data.csv")
     # Load the dataframe from csv file path
     df = pd.read_csv(file_path, sep=',', index_col=0, low_memory=False)
     

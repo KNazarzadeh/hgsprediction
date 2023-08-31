@@ -7,7 +7,7 @@ from hgsprediction.input_arguments import parse_args, input_arguments
 from hgsprediction.load_results import load_trained_models
 from hgsprediction.define_features import define_features
 from hgsprediction.extract_data import stroke_extract_data
-from hgsprediction.predict_hgs import stroke_predict_hgs
+from hgsprediction.predict_hgs import predict_hgs
 from hgsprediction.predict_hgs import calculate_spearman_hgs_correlation
 from hgsprediction.save_results import save_spearman_correlation_results
 from hgsprediction.save_results import save_hgs_predicted_results
@@ -24,7 +24,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # from hgsprediction.plots import plot_correlations
-from hgsprediction.save_plot import stroke_save_correlations_plot
+from hgsprediction.save_plot.save_correlations_plot import stroke_save_correlations_plot
 
 
 from ptpython.repl import embed
@@ -94,8 +94,8 @@ y = target
 df_female = df_extracted[df_extracted["gender"] == 0]
 df_male = df_extracted[df_extracted["gender"] == 1]
 
-df_female = stroke_predict_hgs.predict_hgs(df_female, X, y, female_best_model_trained)
-df_male = stroke_predict_hgs.predict_hgs(df_male, X, y, male_best_model_trained)
+df_female = predict_hgs(df_female, X, y, female_best_model_trained)
+df_male = predict_hgs(df_male, X, y, male_best_model_trained)
 print(df_female)
 print(df_male)
 

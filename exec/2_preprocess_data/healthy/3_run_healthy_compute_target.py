@@ -10,14 +10,18 @@ from ptpython.repl import embed
 filename = sys.argv[0]
 population = sys.argv[1]
 mri_status = sys.argv[2]
-gender = sys.argv[3]
-target = sys.argv[4]
+target = sys.argv[3]
         
-df = healthy_load_data.load_preprocessed_train_data(population, mri_status, gender)
+df = healthy_load_data.load_preprocessed_data(population, mri_status, "both_gender")
 
 df = healthy_compute_target.compute_target(df, mri_status, target)
 
-healthy_save_data.save_preprocessed_train_data(df, population, mri_status, gender)
+df_female = df[df["31-0.0"]==0.0]
+df_male = df[df["31-0.0"]==1.0]
+
+healthy_save_data.save_preprocessed_data(df_female, population, mri_status, "female")
+healthy_save_data.save_preprocessed_data(df_male, population, mri_status, "male")
+healthy_save_data.save_preprocessed_data(df, population, mri_status, "both_gender")
 
 print("===== Done! =====")
 embed(globals(), locals())

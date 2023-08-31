@@ -1,0 +1,2 @@
+from .load_hgs_predicted_results import load_hgs_predicted_results
+from .load_hgs_spearman_correlation_results import load_spearman_correlation_results

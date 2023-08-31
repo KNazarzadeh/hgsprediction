@@ -8,14 +8,19 @@ from .data_preprocessing import HealthyDataPreprocessor
 from .compute_features import healthy_compute_features
 # Target Computing
 from .compute_target import healthy_compute_target
+from .compute_extra_column import healthy_compute_extra_column
 # Save Data
 from .save_data import healthy_save_data
 
 from .extract_data import healthy_extract_data
 
-from .save_results import save_trained_model_results
+from .save_results.healthy import save_hgs_predicted_results, save_spearman_correlation_results, save_trained_model_results
 
 from .load_results import load_trained_models
+from .load_results.healthy import load_hgs_predicted_results, load_spearman_correlation_results
+
+from .save_plot.save_correlations_plot import healthy_save_correlations_plot
+from .plots.plot_correlations import healthy_plot_hgs_correlations
 ############### STROKE FUNCTIONS ###############
 # Load Stroke Data
 from .load_data import stroke_load_data
@@ -29,18 +34,24 @@ from .compute_target import stroke_compute_target
 from .save_data import stroke_save_data
 
 from .extract_data import stroke_extract_data
-from .predict_hgs import stroke_predict_hgs
 from .predict_hgs import calculate_spearman_hgs_correlation
-from .save_results import save_spearman_correlation_results, save_spearman_correlation_results_mri_records_sessions_only
-from .load_results import load_hgs_predicted_results, load_hgs_predicted_results_mri_records_sessions_only
+from .load_results.stroke import load_hgs_predicted_results, load_hgs_predicted_results_mri_records_sessions_only
 from .plots import plot_correlations
 from .save_plot import save_correlations_plot, save_correlations_plot_mri_records_sessions_only
-from .save_results import save_hgs_predicted_results, save_hgs_predicted_results_mri_records_sessions_only                       
+
+from .save_results.stroke import save_hgs_predicted_results, save_spearman_correlation_results
+                       
 from .old_define_features import stroke_define_features
 
-from hgsprediction.input_arguments import parse_args, input_arguments
-from hgsprediction.load_imaging_data import load_imaging_data
-from hgsprediction.prepare_stroke.prepare_stroke_data import prepare_stroke
+
+
+from .predict_hgs import predict_hgs
+
+
+
+# from hgsprediction.input_arguments import parse_args, input_arguments
+# from hgsprediction.load_imaging_data import load_imaging_data
+# from hgsprediction.prepare_stroke.prepare_stroke_data import prepare_stroke
 
 
 

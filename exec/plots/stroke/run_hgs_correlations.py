@@ -8,7 +8,7 @@ from hgsprediction.predict_hgs import calculate_spearman_hgs_correlation
 from hgsprediction.save_results import save_spearman_correlation_results
 from hgsprediction.load_results import load_hgs_predicted_results
 from hgsprediction.load_results import load_spearman_correlation_results
-from hgsprediction.save_plot.stroke_save_correlations_plot import save_correlations_plot
+from hgsprediction.save_plot.save_correlations_plot.stroke_save_correlations_plot import save_correlations_plot
 from hgsprediction.plots.plot_correlations import plot_hgs_correlations
 
 from ptpython.repl import embed

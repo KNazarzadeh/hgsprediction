@@ -19,21 +19,17 @@ elif mri_status == "mri":
 data_processor = HealthyDataPreprocessor(df, mri_status)
 # CHECK HGS AVAILABILITY
 df = data_processor.check_hgs_availability(df)
-
 # DATA VALIDATION
 df = data_processor.validate_handgrips(df)
-print("===== Done! =====")
-embed(globals(), locals())
 # Remove all columns with all NaN values
 df = data_processor.remove_nan_columns(df)
-print("===== Done! =====")
-embed(globals(), locals())
+
 df_female = df[df["31-0.0"]==0.0]
 df_male = df[df["31-0.0"]==1.0]
 
-healthy_save_data.save_validate_hgs_train_data(df_female, population, mri_status,"female")
-healthy_save_data.save_validate_hgs_train_data(df_male, population, mri_status,"male")
-healthy_save_data.save_validate_hgs_train_data(df, population, mri_status,"both_gender")
+healthy_save_data.save_validate_hgs_data(df_female, population, mri_status,"female")
+healthy_save_data.save_validate_hgs_data(df_male, population, mri_status,"male")
+healthy_save_data.save_validate_hgs_data(df, population, mri_status,"both_gender")
 
 
 print("===== Done! =====")

@@ -17,10 +17,10 @@ def extract_data(df, stroke_cohort, visit_session, features, target):
     target_columns = [col for col in df.columns if col.endswith(target)]
 
     df = pd.concat([df[features_columns], df[target_columns]], axis=1)
-
+    
+    df = df.dropna(subset=[col for col in df.columns if any(item in col for item in features)])
+    
     df = rename_column_names(df, stroke_cohort, visit_session) 
-
-    df = df.dropna()
     
     return df
 

@@ -30,7 +30,7 @@ from sklearn.model_selection import RepeatedKFold
 from sklearn.metrics import r2_score
 # IMPORT SAVE FUNCTIONS
 import pickle
-from hgsprediction.save_results import save_trained_model_results
+from hgsprediction.save_results.healthy import save_trained_model_results
 
 #--------------------------------------------------------------------------#
 from ptpython.repl import embed

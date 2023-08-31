@@ -1,2 +1,2 @@
-from .stroke_predict_hgs import predict_hgs
+from .predict_hgs import predict_hgs
 from .calculate_spearman_hgs_correlation import calculate_spearman_hgs_correlation
