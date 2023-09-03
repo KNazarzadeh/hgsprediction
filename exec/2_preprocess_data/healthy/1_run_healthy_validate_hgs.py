@@ -26,7 +26,8 @@ df = data_processor.remove_nan_columns(df)
 
 df_female = df[df["31-0.0"]==0.0]
 df_male = df[df["31-0.0"]==1.0]
-
+print("===== Done! =====")
+embed(globals(), locals())
 healthy_save_data.save_validate_hgs_data(df_female, population, mri_status,"female")
 healthy_save_data.save_validate_hgs_data(df_male, population, mri_status,"male")
 healthy_save_data.save_validate_hgs_data(df, population, mri_status,"both_gender")

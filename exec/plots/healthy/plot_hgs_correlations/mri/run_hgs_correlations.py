@@ -42,6 +42,37 @@ df_corr, df_pvalue = load_spearman_correlation_results (population,
     target,
     "both_gender",
 )
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Sample data
+data = sns.load_dataset("iris")
+
+# Define x and y variables
+x = "sepal_length"
+y = "sepal_width"
+
+# Create a JointGrid
+g = sns.JointGrid(data=data, x=x, y=y)
+
+# Hexbin plot 1
+joint1 = sns.jointplot(data=data, x=x, y=y, kind="hex", color="blue", ax=g.ax_joint)
+
+# Hexbin plot 2
+joint2 = sns.jointplot(data=data, x=x, y=y, kind="hex", color="red", ax=joint1.ax_joint)
+
+# Close the empty scatter plots created by jointplot
+joint1.ax_joint.get_children()[0].remove()
+# joint2.ax_joint.get_children()[0].remove()
+
+# Add marginal histograms or KDE plots
+# sns.histplot(data=data, x=x, ax=g.ax_marg_x, color="lightgray", kde=True)
+# sns.histplot(data=data, y=y, ax=g.ax_marg_y, color="lightgray", kde=True)
+
+# Show the plot
+plt.show()
+
+plt.savefig("xc.png")
 ###############################################################################
 healthy_plot_hgs_correlations.plot_hgs_correlations_hexbin_plot(
     df, 

@@ -30,7 +30,6 @@ target = sys.argv[4]
 model_name = sys.argv[5]
 
 ###############################################################################
-
 female_best_model_trained = load_trained_models.load_best_model_trained(
                                 "healthy",
                                 "nonmri",
