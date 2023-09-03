@@ -142,6 +142,10 @@ df_corr, df_pvalue = calculate_spearman_hgs_correlation(df_both_gender, y_axis, 
 df_female_corr, df_female_pvalue = calculate_spearman_hgs_correlation(df_female, y_axis, x_axis)
 df_male_corr, df_male_pvalue = calculate_spearman_hgs_correlation(df_male, y_axis, x_axis)
 
+print(df_corr)
+print(df_female_corr)
+print(df_male_corr)
+
 save_spearman_correlation_results(
     df_corr,
     df_pvalue,

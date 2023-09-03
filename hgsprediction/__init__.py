@@ -34,6 +34,7 @@ from .compute_target import stroke_compute_target
 from .save_data import stroke_save_data
 
 from .extract_data import stroke_extract_data
+from .compute_extra_column import stroke_compute_extra_column
 from .predict_hgs import calculate_spearman_hgs_correlation
 from .load_results.stroke import load_hgs_predicted_results, load_hgs_predicted_results_mri_records_sessions_only
 from .plots import plot_correlations

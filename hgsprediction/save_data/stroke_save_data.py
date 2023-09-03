@@ -79,15 +79,15 @@ def save_original_extracted_pre_post_data(
         "preprocessed_data",
         f"{mri_status}_{population}",
         f"{session_column}_data",
-        f"{gender}",
-    )
+        "original_extracted_pre_post_data",
+)
 
     if(not os.path.isdir(folder_path)):
         os.makedirs(folder_path)
 
     file_path = os.path.join(
         folder_path,
-        f"{session_column}_original_extracted_pre_post_data.csv")
+        f"{gender}_{session_column}_original_extracted_pre_post_data.csv")
     
     df.to_csv(file_path, sep=',', index=True)
 
@@ -124,7 +124,7 @@ def save_validated_hgs_data(
         "preprocessed_data",
         f"{mri_status}_{population}",
         f"{session_column}_data",
-        f"{gender}",
+        "validated_hgs_data",
     )
 
     if(not os.path.isdir(folder_path)):
@@ -132,7 +132,7 @@ def save_validated_hgs_data(
 
     file_path = os.path.join(
         folder_path,
-        f"{session_column}_validated_hgs_data.csv")
+        f"{gender}_{session_column}_validated_hgs_data.csv")
     
     df.to_csv(file_path, sep=',', index=True)
   
@@ -169,7 +169,7 @@ def save_preprocessed_data(
         "preprocessed_data",
         f"{mri_status}_{population}",
         f"{session_column}_data",
-        f"{gender}",
+        "preprocessed_data"
     )
 
     if(not os.path.isdir(folder_path)):
@@ -177,7 +177,7 @@ def save_preprocessed_data(
 
     file_path = os.path.join(
         folder_path,
-        f"{session_column}_preprocessed_data.csv")
+        f"{gender}_{session_column}_preprocessed_data.csv")
     
     df.to_csv(file_path, sep=',', index=True)
 
@@ -218,7 +218,7 @@ def save_extracted_data(
         f"{session_column}_data",
         f"{feature_type}",
         f"{target}",
-        f"{gender}",
+        "extracted_data",
     )
 
     if(not os.path.isdir(folder_path)):
@@ -226,7 +226,7 @@ def save_extracted_data(
 
     file_path = os.path.join(
         folder_path,
-        f"{session_column}_extracted_data.csv")
+        f"{gender}_{session_column}_extracted_data.csv")
     
     df.to_csv(file_path, sep=',', index=True)
 

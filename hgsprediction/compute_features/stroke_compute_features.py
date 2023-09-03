@@ -14,6 +14,7 @@ def compute_features(df, session_column, feature_type):
     df = calculate_days(df, session_column)
     df = calculate_age(df, session_column)
     df = calculate_gender(df, session_column)
+    df = calculate_handedness(df, session_column)
 
     if feature_type == "anthropometrics":
         df = calculate_anthropometrics(df, session_column)
@@ -236,6 +237,68 @@ def calculate_gender(df, session_column):
         df[gender] = df.apply(lambda row: row[f"31-0.0"], axis=1)
         
         return df
+    
+###############################################################################
+def calculate_handedness(df, session_column):
+    """Calculate sum of Handgrips
+    and add "hgs(L+R)" column to dataframe
+
+    Parameters
+    ----------
+    df : dataframe
+        The dataframe that desired to analysis
+
+    Return
+    ----------
+    df : dataframe
+        with calculating extra column for: (HGS Left + HGS Right)
+    """
+    assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
+    assert isinstance(session_column, str), "session_column must be a string!"
+    substring_to_remove = "session"
+    # -----------------------------------------------------------
+    handedness = session_column.replace(substring_to_remove, "handedness")
+    # -----------------------------------------------------------   
+    # hgs_left field-ID: 46
+    # hgs_right field-ID: 47
+    # ------------------------------------
+    # ------- Handedness Field-ID: 1707
+    # Data-Coding: 100430
+    #           1	Right-handed
+    #           2	Left-handed
+    #           3	Use both right and left hands equally
+    #           -3	Prefer not to answer
+    # ------------------------------------
+    # If handedness is equal to 1
+    # Right hand is Dominant
+    # Find handedness equal to 1:        
+    index = df[df.loc[:, session_column].isin([0.0, 1.0, 3.0])].index
+    filtered_df = df.loc[index, :]
+    idx = filtered_df[filtered_df.loc[:, "1707-0.0"] == 1.0].index
+    df.loc[idx, handedness] = 1.0
+    idx = filtered_df[filtered_df.loc[:, "1707-0.0"] == 2.0].index
+    df.loc[idx, handedness] = 2.0
+    idx = filtered_df[filtered_df.loc[:, "1707-0.0"].isin([3.0, -3.0, np.NaN])].index
+    df.loc[idx, handedness] = 3.0    
+    # ------------------------------------
+    index = df[df.loc[:, session_column] == 2.0].index
+    filtered_df = df.loc[index, :]
+    idx = filtered_df[filtered_df.loc[:, "1707-2.0"] == 1.0].index
+    df.loc[idx, handedness] = 1.0
+    idx = filtered_df[filtered_df.loc[:, "1707-2.0"] == 2.0].index
+    df.loc[idx, handedness] = 2.0
+    idx = filtered_df[filtered_df.loc[:, "1707-2.0"].isin([3.0, -3.0, np.NaN])].index
+    df_tmp = filtered_df.loc[idx, :]
+    idx_tmp = df_tmp[df_tmp.loc[:, "1707-0.0"] == 1.0].index
+    df.loc[idx_tmp, handedness] = 1.0
+    idx_tmp = df_tmp[df_tmp.loc[:, "1707-0.0"] == 2.0].index
+    df.loc[idx_tmp, handedness] = 2.0
+    idx_tmp = df_tmp[df_tmp.loc[:, "1707-0.0"].isin([3.0, -3.0, np.NaN])].index
+    df.loc[idx_tmp, handedness] = 3.0
+        
+
+    return df
+
 ###############################################################################
 def calculate_neuroticism_score(df, session_column):
     """Calculate neuroticism score

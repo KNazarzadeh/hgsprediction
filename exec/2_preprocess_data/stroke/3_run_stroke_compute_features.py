@@ -30,7 +30,8 @@ df = stroke_compute_features.compute_features(df, session_column, feature_type)
 
 df_female = df[df["31-0.0"]==0.0]
 df_male = df[df["31-0.0"]==1.0]
-
+print("===== Done! =====")
+embed(globals(), locals())
 stroke_save_data.save_preprocessed_data(df, population, mri_status, session_column, "both_gender")
 stroke_save_data.save_preprocessed_data(df_female, population, mri_status, session_column, "female")
 stroke_save_data.save_preprocessed_data(df_male, population, mri_status, session_column, "male")

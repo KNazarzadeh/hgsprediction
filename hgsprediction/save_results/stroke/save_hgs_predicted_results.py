@@ -29,7 +29,6 @@ def save_hgs_predicted_results(
             f"{feature_type}",
             f"{target}",
             f"{model_name}",
-            f"{gender}",
             "hgs_predicted_results",
         )
         
@@ -39,7 +38,7 @@ def save_hgs_predicted_results(
     # Define the csv file path to save
     file_path = os.path.join(
         folder_path,
-        f"hgs_predicted_results.csv")
+        f"{gender}_hgs_predicted_results.csv")
     
     df.to_csv(file_path, sep=',', index=True)
 
@@ -69,7 +68,6 @@ def save_hgs_predicted_results_mri_records_sessions_only(
             f"{feature_type}",
             f"{target}",
             f"{model_name}",
-            f"{gender}",
             "hgs_predicted_results",
         )
         
@@ -79,6 +77,6 @@ def save_hgs_predicted_results_mri_records_sessions_only(
     # Define the csv file path to save
     file_path = os.path.join(
         folder_path,
-        f"hgs_predicted_results.csv")
+        f"{gender}_hgs_predicted_results.csv")
     
     df.to_csv(file_path, sep=',', index=True)

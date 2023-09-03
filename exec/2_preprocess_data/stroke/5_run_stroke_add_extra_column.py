@@ -3,7 +3,7 @@ import os
 import pandas as pd
 from hgsprediction.load_data import stroke_load_data
 from hgsprediction.save_data import stroke_save_data
-from hgsprediction.compute_target import stroke_compute_target
+from hgsprediction.compute_extra_column import stroke_compute_extra_column
 
 from ptpython.repl import embed
 # print("===== Done! =====")
@@ -12,10 +12,9 @@ from ptpython.repl import embed
 filename = sys.argv[0]
 population = sys.argv[1]
 mri_status = sys.argv[2]
-gender = sys.argv[3]
-stroke_cohort = sys.argv[4]
-visit_session = sys.argv[5]
-target = sys.argv[6]
+stroke_cohort = sys.argv[3]
+visit_session = sys.argv[4]
+extra_column = sys.argv[5]
 
 
 if visit_session == "1":
@@ -27,11 +26,11 @@ elif visit_session == "3":
 elif visit_session == "4":
     session_column = f"4th_{stroke_cohort}_session"
 
-df = stroke_load_data.load_preprocessed_data(population, mri_status, session_column, gender)
+df = stroke_load_data.load_preprocessed_data(population, mri_status, session_column, "both_gender")
 
-# print("===== Done! =====")
-# embed(globals(), locals())
-df = stroke_compute_target.compute_target(df, session_column, target)
+print("===== Done! =====")
+embed(globals(), locals())
+df = stroke_compute_extra_column.compute_extra_column(df, session_column, extra_column)
 
 df_female = df[df["31-0.0"]==0.0]
 df_male = df[df["31-0.0"]==1.0]

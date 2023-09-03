@@ -35,6 +35,8 @@ hgs_validated_df, session_column = data_processor.validate_handgrips(extracted_p
 hgs_validated_df_female, session_column = data_processor.validate_handgrips(extracted_pre_post_data_female)
 hgs_validated_df_male, session_column = data_processor.validate_handgrips(extracted_pre_post_data_male)
 
+print("===== Done! =====")
+embed(globals(), locals())
 
 stroke_save_data.save_validated_hgs_data(hgs_validated_df, population, mri_status, session_column, "both_gender")
 stroke_save_data.save_validated_hgs_data(hgs_validated_df_female, population, mri_status, session_column, "female")

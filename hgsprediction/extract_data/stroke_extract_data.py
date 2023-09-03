@@ -7,7 +7,7 @@ from ptpython.repl import embed
 def extract_data(df, stroke_cohort, visit_session, features, target):
     
     features_list = features
-    add_extra_features = ["gender", "age", "days"]
+    add_extra_features = ["gender", "age", "days", "years", "handedness"]
     for item in add_extra_features:
         if item not in features:
            features_list = [item] + features_list

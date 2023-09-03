@@ -579,53 +579,62 @@ class StrokeValidateDataPreprocessor:
         # ------------------------------------
         # If handedness is equal to 1
         # Right hand is Dominant
-        # Find handedness equal to 1:        
-        if df[session_column].isin([0.0, 1.0, 3.0]).any():
-            # Add and new column "hgs_dominant"
-            # And assign Right hand HGS value
-            df.loc[df["1707-0.0"] == 1.0, hgs_dominant] = df.loc[df["1707-0.0"] == 1.0, "47-0.0"]
-            df.loc[df["1707-0.0"] == 1.0, hgs_nondominant] = df.loc[df["1707-0.0"] == 1.0, "46-0.0"]
-            # If handedness is equal to 2
-            # Right hand is Non-Dominant
-            # Find handedness equal to 2:
-            # Add and new column "hgs_dominant"
-            # And assign Left hand HGS value:  
-            df.loc[df["1707-0.0"] == 2.0, hgs_dominant] = df.loc[df["1707-0.0"] == 2.0, "46-0.0"]
-            df.loc[df["1707-0.0"] == 2.0, hgs_nondominant] = df.loc[df["1707-0.0"] == 2.0, "47-0.0"]
-            # ------------------------------------
-            # If handedness is equal to:
-            # 3 (Use both right and left hands equally) OR
-            # -3 (handiness is not available/Prefer not to answer) OR
-            # NaN value
-            # Dominant will be the Highest Handgrip score from both hands.
-            # Find handedness equal to 3, -3 or NaN:
-            # Add and new column "hgs_dominant"
-            # And assign Highest HGS value among Right and Left HGS:
-            # Add and new column "hgs_dominant"
-            # And assign lowest HGS value among Right and Left HGS:
-            df.loc[df["1707-0.0"].isin([3.0, -3.0, np.nan]), hgs_dominant] = df[["46-0.0", "47-0.0"]].max(axis=1)
-            df.loc[df["1707-0.0"].isin([3.0, -3.0, np.nan]), hgs_nondominant] = df[["46-0.0", "47-0.0"]].min(axis=1)
-        elif df[session_column].isin([2.0]).any():
-            df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"] == 1.0, hgs_dominant] = \
-                df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"] == 1.0, "47-0.0"]
-            df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"] == 1.0, hgs_nondominant] = \
-                df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"] == 1.0, "46-0.0"]
-                
-            df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"] == 2.0, hgs_dominant] = \
-                df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"] == 2.0, "46-0.0"]
-            df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"] == 2.0, hgs_nondominant] = \
-                df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"] == 2.0, "47-0.0"]
-                
-            df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"].isin([3.0, -3.0, np.NaN]), hgs_dominant] = \
-                df[["46-0.0", "47-0.0"]].max(axis=1)
-            df.loc[df["1707-2.0"].isin([3.0, -3.0, np.NaN]) & df["1707-0.0"].isin([3.0, -3.0, np.NaN]), hgs_nondominant] = \
-                df[["46-0.0", "47-0.0"]].min(axis=1)
-    
-            df.loc[df["1707-2.0"] == 1.0, hgs_dominant] = df.loc[df["1707-2.0"] == 1.0, "47-2.0"]
-            df.loc[df["1707-2.0"] == 1.0, hgs_nondominant] = df.loc[df["1707-2.0"] == 1.0, "46-2.0"]
-            df.loc[df["1707-2.0"] == 2.0, hgs_dominant] = df.loc[df["1707-2.0"] == 2.0, "46-2.0"]
-            df.loc[df["1707-2.0"] == 2.0, hgs_nondominant] = df.loc[df["1707-2.0"] == 2.0, "47-2.0"]
-            
+        # Find handedness equal to 1:
+        index = df[df.loc[:, session_column] == 0.0].index
+        filtered_df = df.loc[index, :]
+        idx = filtered_df[filtered_df.loc[:, "1707-0.0"] == 1.0].index
+        df.loc[idx, hgs_dominant] = df.loc[idx, "47-0.0"]
+        df.loc[idx, hgs_nondominant] = df.loc[idx, "46-0.0"]
+        idx = filtered_df[filtered_df.loc[:, "1707-0.0"] == 2.0].index
+        df.loc[idx, hgs_dominant] = df.loc[idx, "46-0.0"]
+        df.loc[idx, hgs_nondominant] = df.loc[idx, "47-0.0"]
+        idx = filtered_df[filtered_df.loc[:, "1707-0.0"].isin([3.0, -3.0, np.NaN])].index
+        df.loc[idx, hgs_dominant] = df.loc[idx, ["46-0.0", "47-0.0"]].max(axis=1)
+        df.loc[idx, hgs_nondominant] = df.loc[idx, ["46-0.0", "47-0.0"]].min(axis=1)
+        # ------------------------------------
+        index = df[df.loc[:, session_column] == 1.0].index
+        filtered_df = df.loc[index, :]
+        idx = filtered_df[filtered_df.loc[:, "1707-0.0"] == 1.0].index
+        df.loc[idx, hgs_dominant] = df.loc[idx, "47-1.0"]
+        df.loc[idx, hgs_nondominant] = df.loc[idx, "46-1.0"]
+        idx = filtered_df[filtered_df.loc[:, "1707-0.0"] == 2.0].index
+        df.loc[idx, hgs_dominant] = df.loc[idx, "46-1.0"]
+        df.loc[idx, hgs_nondominant] = df.loc[idx, "47-1.0"]
+        idx = filtered_df[filtered_df.loc[:, "1707-0.0"].isin([3.0, -3.0, np.NaN])].index
+        df.loc[idx, hgs_dominant] = df.loc[idx, ["46-1.0", "47-1.0"]].max(axis=1)
+        df.loc[idx, hgs_nondominant] = df.loc[idx, ["46-1.0", "47-1.0"]].min(axis=1)
+        # ------------------------------------
+        index = df[df.loc[:, session_column] == 3.0].index
+        filtered_df = df.loc[index, :]
+        idx = filtered_df[filtered_df.loc[:, "1707-0.0"] == 1.0].index
+        df.loc[idx, hgs_dominant] = df.loc[idx, "47-3.0"]
+        df.loc[idx, hgs_nondominant] = df.loc[idx, "46-3.0"]
+        idx = filtered_df[filtered_df.loc[:, "1707-0.0"] == 2.0].index
+        df.loc[idx, hgs_dominant] = df.loc[idx, "46-3.0"]
+        df.loc[idx, hgs_nondominant] = df.loc[idx, "47-3.0"]
+        idx = filtered_df[filtered_df.loc[:, "1707-0.0"].isin([3.0, -3.0, np.NaN])].index
+        df.loc[idx, hgs_dominant] = df.loc[idx, ["46-3.0", "47-3.0"]].max(axis=1)
+        df.loc[idx, hgs_nondominant] = df.loc[idx, ["46-3.0", "47-3.0"]].min(axis=1)
+        # ------------------------------------
+        index = df[df.loc[:, session_column] == 2.0].index
+        filtered_df = df.loc[index, :]
+        idx = filtered_df[filtered_df.loc[:, "1707-2.0"] == 1.0].index
+        df.loc[idx, hgs_dominant] = df.loc[idx, "47-2.0"]
+        df.loc[idx, hgs_nondominant] = df.loc[idx, "46-2.0"]
+        idx = filtered_df[filtered_df.loc[:, "1707-2.0"] == 2.0].index
+        df.loc[idx, hgs_dominant] = df.loc[idx, "46-2.0"]
+        df.loc[idx, hgs_nondominant] = df.loc[idx, "47-2.0"]
+        idx = filtered_df[filtered_df.loc[:, "1707-2.0"].isin([3.0, -3.0, np.NaN])].index
+        df_tmp = filtered_df.loc[idx, :]
+        idx_tmp = df_tmp[df_tmp.loc[:, "1707-0.0"] == 1.0].index
+        df.loc[idx_tmp, hgs_dominant] = df.loc[idx_tmp, "47-2.0"]
+        df.loc[idx_tmp, hgs_nondominant] = df.loc[idx_tmp, "46-2.0"]
+        idx_tmp = df_tmp[df_tmp.loc[:, "1707-0.0"] == 2.0].index
+        df.loc[idx_tmp, hgs_dominant] = df.loc[idx_tmp, "46-2.0"]
+        df.loc[idx_tmp, hgs_nondominant] = df.loc[idx_tmp, "47-2.0"]
+        idx_tmp = df_tmp[df_tmp.loc[:, "1707-0.0"].isin([3.0, -3.0, np.NaN])].index
+        df.loc[idx_tmp, hgs_dominant] = df.loc[idx_tmp, ["46-2.0", "47-2.0"]].max(axis=1)
+        df.loc[idx_tmp, hgs_nondominant] = df.loc[idx_tmp, ["46-2.0", "47-2.0"]].min(axis=1)
             
         return df
 

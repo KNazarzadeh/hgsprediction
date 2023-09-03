@@ -116,12 +116,12 @@ def load_validated_hgs_data(population, mri_status, session_column, gender):
         "preprocessed_data",
         f"{mri_status}_{population}",
         f"{session_column}_data",
-        f"{gender}",
-    )
+        "validated_hgs_data",
+)
 
     file_path = os.path.join(
         folder_path,
-        f"{session_column}_validated_hgs_data.csv")
+        f"{gender}_{session_column}_validated_hgs_data.csv")
     
     df = pd.read_csv(file_path, sep=',', index_col=0)
   
@@ -157,12 +157,12 @@ def load_preprocessed_data(population, mri_status, session_column, gender):
         "preprocessed_data",
         f"{mri_status}_{population}",
         f"{session_column}_data",
-        f"{gender}",
+        "preprocessed_data",
     )
 
     file_path = os.path.join(
         folder_path,
-        f"{session_column}_preprocessed_data.csv")
+        f"{gender}_{session_column}_preprocessed_data.csv")
     
     df = pd.read_csv(file_path, sep=',', index_col=0)
   
@@ -214,12 +214,12 @@ def load_extracted_data(
         f"{session_column}_data",
         f"{feature_type}",
         f"{target}",
-        f"{gender}",
+        "extracted_data",
     )
 
     file_path = os.path.join(
         folder_path,
-        f"{session_column}_extracted_data.csv")
+        f"{gender}_{session_column}_extracted_data.csv")
     
     df = pd.read_csv(file_path, sep=',', index_col=0)
     
