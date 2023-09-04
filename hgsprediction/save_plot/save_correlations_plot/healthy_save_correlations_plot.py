@@ -6,6 +6,7 @@ from ptpython.repl import embed
 # embed(globals(), locals())
 
 def save_correlations_plot(
+    plot_type,
     x,
     y,
     population,
@@ -29,6 +30,7 @@ def save_correlations_plot(
             f"{target}",
             f"{model_name}",
             "hgs_correlations_plots",
+            f"{plot_type}",
             f"{y}_vs_{x}",
         )
         
@@ -41,3 +43,5 @@ def save_correlations_plot(
         f"{gender}_{y}_vs_{x}.png")
         
     return file_path
+
+##############################################################################
