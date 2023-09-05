@@ -31,15 +31,13 @@ df_preprocessed = data_processor.preprocess_stroke_df(df)
 df_preprocessed = data_processor.calculate_dominant_nondominant_hgs(df_preprocessed)
 # Remove all columns with all NaN values
 df_preprocessed = data_processor.remove_nan_columns(df_preprocessed)
-print("===== Done! =====")
-embed(globals(), locals())
+
 ###############################################################################
 df_post_stroke = data_processor.extract_post_stroke_df(df_preprocessed)
 df_pre_stroke = data_processor.extract_pre_stroke_df(df_preprocessed)
 df_longitudinal_stroke = data_processor.extract_longitudinal_stroke_df(df_preprocessed)
 ###############################################################################
 stroke_save_data.save_main_preprocessed_data(df_preprocessed, population, mri_status, stroke_group="total-stroke")
-
 stroke_save_data.save_main_preprocessed_data(df_post_stroke, population, mri_status, stroke_group="only_post-stroke")
 stroke_save_data.save_main_preprocessed_data(df_pre_stroke, population, mri_status, stroke_group="only_pre-stroke")
 stroke_save_data.save_main_preprocessed_data(df_longitudinal_stroke, population, mri_status, stroke_group="only_longitudinal-stroke")

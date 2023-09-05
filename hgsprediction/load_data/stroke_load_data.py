@@ -75,13 +75,13 @@ def load_main_preprocessed_data(population, mri_status, stroke_group):
         f"{population}",
         "preprocessed_data",
         f"{mri_status}_{population}",
-        "main_preprocessed_data",
         f"{stroke_group}_data",
+        "primary_preprocess_data",
     )
 
     file_path = os.path.join(
         folder_path,
-        f"{stroke_group}_data.csv")
+        f"primary_preprocess_{stroke_group}_data.csv")
     
     df = pd.read_csv(file_path, sep=',', index_col=0)
   
@@ -89,7 +89,7 @@ def load_main_preprocessed_data(population, mri_status, stroke_group):
 
 ###############################################################################
 # Load preprocessed data
-def load_validated_hgs_data(population, mri_status, session_column, gender):
+def load_validated_hgs_data(population, mri_status, session_column, stroke_cohort, gender):
     """Get data from the preprocessed csv file.
     Parameters
     ----------
@@ -116,6 +116,7 @@ def load_validated_hgs_data(population, mri_status, session_column, gender):
         f"{population}",
         "preprocessed_data",
         f"{mri_status}_{population}",
+        f"all_{stroke_cohort}_session_data", 
         f"{session_column}_data",
         "validated_hgs_data",
 )
@@ -130,7 +131,7 @@ def load_validated_hgs_data(population, mri_status, session_column, gender):
 
 ###############################################################################
 # Load preprocessed data
-def load_preprocessed_data(population, mri_status, session_column, gender):
+def load_preprocessed_data(population, mri_status, session_column, stroke_cohort, gender):
     """Get data from the preprocessed csv file.
     Parameters
     ----------
@@ -157,6 +158,7 @@ def load_preprocessed_data(population, mri_status, session_column, gender):
         f"{population}",
         "preprocessed_data",
         f"{mri_status}_{population}",
+        f"all_{stroke_cohort}_session_data",                
         f"{session_column}_data",
         "preprocessed_data",
     )

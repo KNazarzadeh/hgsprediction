@@ -35,7 +35,7 @@ def save_main_preprocessed_data(
         "preprocessed_data",
         f"{mri_status}_{population}",
         f"{stroke_group}_data",
-        "original_preprocessed_data",
+        "primary_preprocess_data",
     )
 
     if(not os.path.isdir(folder_path)):
@@ -43,7 +43,7 @@ def save_main_preprocessed_data(
 
     file_path = os.path.join(
         folder_path,
-        f"{stroke_group}_data.csv")
+        f"primary_preprocess_{stroke_group}_data.csv")
     
     df.to_csv(file_path, sep=',', index=True)
   
@@ -53,6 +53,7 @@ def save_original_extracted_pre_post_data(
     population,
     mri_status,
     session_column,
+    stroke_cohort,
     gender,
 ):
     """
@@ -79,6 +80,7 @@ def save_original_extracted_pre_post_data(
         f"{population}",
         "preprocessed_data",
         f"{mri_status}_{population}",
+        f"all_{stroke_cohort}_session_data",
         f"{session_column}_data",
         "original_extracted_pre_post_data",
 )
@@ -98,6 +100,7 @@ def save_validated_hgs_data(
     population,
     mri_status,
     session_column,
+    stroke_cohort,
     gender,
 ):
     """
@@ -124,6 +127,7 @@ def save_validated_hgs_data(
         f"{population}",
         "preprocessed_data",
         f"{mri_status}_{population}",
+        f"all_{stroke_cohort}_session_data",
         f"{session_column}_data",
         "validated_hgs_data",
     )
@@ -143,6 +147,7 @@ def save_preprocessed_data(
     population,
     mri_status,
     session_column,
+    stroke_cohort,
     gender,
 ):
     """
@@ -169,6 +174,7 @@ def save_preprocessed_data(
         f"{population}",
         "preprocessed_data",
         f"{mri_status}_{population}",
+        f"all_{stroke_cohort}_session_data",        
         f"{session_column}_data",
         "preprocessed_data"
     )
@@ -263,9 +269,8 @@ def save_preprocessed_longitudinal_data(
         f"{population}",
         "preprocessed_data",
         f"{mri_status}_{population}",
-        "longitudinal_processed_data",
-        f"{session_column}_data",
-        "preprocessed_data"
+        "only_longitudinal-stroke_data",
+        f"{session_column}_data",  
     )
 
     if(not os.path.isdir(folder_path)):
@@ -273,7 +278,7 @@ def save_preprocessed_longitudinal_data(
 
     file_path = os.path.join(
         folder_path,
-        f"{gender}_{session_column}_longitudinal_processed_data.csv")
+        f"{gender}_longitudinal_data.csv")
     
     df.to_csv(file_path, sep=',', index=True)
 
