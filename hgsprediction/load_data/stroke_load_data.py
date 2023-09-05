@@ -49,7 +49,7 @@ def load_original_data(population, mri_status):
 
 ###############################################################################
 # Load preprocessed data
-def load_main_preprocessed_data(population, mri_status):
+def load_main_preprocessed_data(population, mri_status, stroke_group):
     """Get data from the preprocessed csv file.
     Parameters
     ----------
@@ -75,12 +75,13 @@ def load_main_preprocessed_data(population, mri_status):
         f"{population}",
         "preprocessed_data",
         f"{mri_status}_{population}",
-        "original_preprocessed_data",
+        "main_preprocessed_data",
+        f"{stroke_group}_data",
     )
 
     file_path = os.path.join(
         folder_path,
-        "original_preprocessed_data.csv")
+        f"{stroke_group}_data.csv")
     
     df = pd.read_csv(file_path, sep=',', index_col=0)
   

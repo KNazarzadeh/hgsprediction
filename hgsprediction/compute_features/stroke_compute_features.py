@@ -11,10 +11,11 @@ def compute_features(df, session_column, feature_type):
     assert isinstance(session_column, str ), "session_column must be a string!"
     assert isinstance(feature_type, str ), "feature_type must be a string!"
     # -----------------------------------------------------------
-    df = calculate_days(df, session_column)
-    df = calculate_age(df, session_column)
     df = calculate_gender(df, session_column)
-    df = calculate_handedness(df, session_column)
+    df = calculate_age(df, session_column)
+    df = calculate_handedness(df, session_column)    
+    df = calculate_days(df, session_column)
+    df = calculate_years(df, session_column)
 
     if feature_type == "anthropometrics":
         df = calculate_anthropometrics(df, session_column)
@@ -208,6 +209,33 @@ def calculate_days(df, session_column):
     days = session_column.replace(substring_to_remove, "days")
     
     df[days] = df.apply(lambda row: row[f"followup_days-{row[session_column]}"], axis=1)
+
+    return df
+
+###############################################################################
+def calculate_years(df, session_column):
+    """Calculate sum of Handgrips
+    and add "hgs(L+R)" column to dataframe
+
+    Parameters
+    ----------
+    df : dataframe
+        The dataframe that desired to analysis
+
+    Return
+    ----------
+    df : dataframe
+        with calculating extra column for: (HGS Left + HGS Right)
+    """
+    assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
+    assert isinstance(session_column, str), "session_column must be a string!"
+    # -----------------------------------------------------------
+    substring_to_remove = "session"
+    # Add a new column 'new_column'
+    days = session_column.replace(substring_to_remove, "days")
+    years = session_column.replace(substring_to_remove, "years")
+    
+    df.loc[:, years] = df.loc[:, days]/365
 
     return df
 

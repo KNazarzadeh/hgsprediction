@@ -181,8 +181,8 @@ def calculate_laterality_index_hgs(df, session_column):
     hgs_sum = session_column.replace(substring_to_remove, "hgs_L+R")
     hgs_LI = session_column.replace(substring_to_remove, "hgs_LI")
     
-    df = calculate_sub_hgs(df)
-    df = calculate_sum_hgs(df)
+    df = calculate_sub_hgs(df, session_column)
+    df = calculate_sum_hgs(df, session_column)
     
     # df.loc[:, hgs_LI] = df_sub.loc[:, hgs_sub] / df_sum.loc[:, hgs_sum]
     df[hgs_LI] = df.apply(lambda row: row[hgs_sub]/row[hgs_sum], axis=1)
