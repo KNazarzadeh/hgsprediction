@@ -117,13 +117,13 @@ legend.get_texts()[1].set_text(f"Post-stroke: N={len(df)}")
 plt.tight_layout()
 
 add_median_labels(ax)
-
+# medians = melted_df.groupby(['hgs_category', 'stroke_cohort'])['value'].median()
 plt.show()
 plt.savefig("hh.png")
 plt.close()
 ###############################################################################
 # Define a custom palette with two blue colors
-custom_palette = sns.color_palette(['#29AB87', '#BC544B'])  # You can use any hex color codes you prefer
+custom_palette = sns.color_palette(['#800080', '#000080'])  # You can use any hex color codes you prefer
 # Create the boxplot for 'hgs_category' and 'gender'
 plt.figure(figsize=(12, 6))
 sns.set(style="whitegrid")
@@ -141,7 +141,7 @@ plt.xticks(range(len(xticks_labels)), xticks_labels)
 
 # Add labels and title
 plt.xlabel("HGS targets", fontsize=20, fontweight="bold")
-plt.ylabel("HGs values", fontsize=20, fontweight="bold")
+plt.ylabel("HGS values", fontsize=20, fontweight="bold")
 plt.title(f"HGS values for genders - {feature_type}", fontsize=20)
 legend = plt.legend(title="Gender", loc="upper left")  # Add legend
 # Modify individual legend labels
@@ -152,6 +152,7 @@ legend.get_texts()[1].set_text(f"Male: N={len(df[df['31-0.0']==1.0])}")
 plt.tight_layout()
 
 add_median_labels(ax)
+# medians = melted_df.groupby(['combine_hgs_stroke_cohort_category', 'gender'])['value'].median()
 
 plt.show()
 plt.savefig("hhfm.png")

@@ -3,7 +3,6 @@ import pandas as pd
 import numpy as np
 import sys
 
-from hgsprediction.input_arguments import parse_args, input_arguments
 from hgsprediction.load_results import load_trained_models
 from hgsprediction.define_features import define_features
 from hgsprediction.extract_data import stroke_extract_data
@@ -11,10 +10,6 @@ from hgsprediction.predict_hgs import predict_hgs
 from hgsprediction.predict_hgs import calculate_spearman_hgs_correlation
 from hgsprediction.save_results import save_spearman_correlation_results
 from hgsprediction.save_results import save_hgs_predicted_results
-
-from hgsprediction.prepare_stroke.prepare_stroke_data import prepare_stroke
-from hgsprediction.old_define_features import stroke_define_features
-from hgsprediction.extract_target import stroke_extract_target
 from hgsprediction.load_data import stroke_load_data
 from hgsprediction.load_results import load_trained_models
 
@@ -78,15 +73,37 @@ male_best_model_trained = load_trained_models.load_best_model_trained(
                                 5,
                             )
 print(male_best_model_trained)
+
 ##############################################################################
 # load data
-df = stroke_load_data.load_preprocessed_data(population, mri_status, session_column, "both_gender")
+stroke_cohort = "pre-post-stroke"
+if visit_session == "1":
+    session_column = f"1st_{stroke_cohort}_session"
+elif visit_session == "2":
+    session_column = f"2nd_{stroke_cohort}_session"
+elif visit_session == "3":
+    session_column = f"3rd_{stroke_cohort}_session"
+elif visit_session == "4":
+    session_column = f"4th_{stroke_cohort}_session"
+df_longitudinal = stroke_load_data.load_preprocessed_longitudinal_data(population, mri_status, session_column, "both_gender")
+
+stroke_cohort = "pre-stroke"
+if visit_session == "1":
+    session_column = f"1st_{stroke_cohort}_session"
+elif visit_session == "2":
+    session_column = f"2nd_{stroke_cohort}_session"
+elif visit_session == "3":
+    session_column = f"3rd_{stroke_cohort}_session"
+elif visit_session == "4":
+    session_column = f"4th_{stroke_cohort}_session"
+df = stroke_load_data.load_preprocessed_data(population, mri_status, session_column, stroke_cohort, gender="both_gender")
 
 # # df_female = df_female[(df_female["1st_post-stroke_session"]==2.0) | (df_female["1st_post-stroke_session"]== 3.0)]
 # # df_male = df_male[(df_male["1st_post-stroke_session"]==2.0) | (df_male["1st_post-stroke_session"]== 3.0)]
+df_same_subjects = df[df.index.isin(df_longitudinal.index)]
 
 features = define_features(feature_type)
-df_extracted = stroke_extract_data.extract_data(df, stroke_cohort, visit_session, features, target)
+df_extracted = stroke_extract_data.extract_data(df_same_subjects, stroke_cohort, visit_session, features, target)
 
 X = features
 y = target
