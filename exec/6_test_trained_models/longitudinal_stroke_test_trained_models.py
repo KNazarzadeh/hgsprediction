@@ -76,15 +76,15 @@ X = features
 y = target
 
 df_merged = pd.DataFrame()
-for stroke_subgroup in ["pre-stroke", "post_stroke"]:
+for stroke_subgroup in ["pre-stroke", "post-stroke"]:
     df_extracted = df_longitudinal[[col for col in df_longitudinal.columns if stroke_subgroup in col]]
     df_extracted = stroke_extract_data.extract_data(df_extracted, stroke_subgroup, visit_session, features, target)
 
     df_female = df_extracted[df_extracted["gender"] == 0]
     df_male = df_extracted[df_extracted["gender"] == 1]
-
-    df_female = predict_hgs(df_female, X, y, female_best_model_trained)
-    df_male = predict_hgs(df_male, X, y, male_best_model_trained) 
+    
+    df_female = predict_hgs(df_female, X, y, female_best_model_trained, target)
+    df_male = predict_hgs(df_male, X, y, male_best_model_trained, target) 
     if visit_session == "1":
         # Define the string to add
         prefix = f"1st_{stroke_subgroup}_"
@@ -93,10 +93,18 @@ for stroke_subgroup in ["pre-stroke", "post_stroke"]:
         df_male.columns = [prefix + col for col in df_male.columns]
 
     df_both_gender = pd.concat([df_female, df_male], axis=0)
-    df_merged = pd.concat([df_merged, df_both_gender], axis=1, join="inner")
+    df_merged = pd.concat([df_merged, df_both_gender], axis=1)
+
+df_merged = df_merged.dropna()
+if df_merged['1st_pre-stroke_gender'].astype(float).equals((df_merged['1st_post-stroke_gender'].astype(float))):
+    df_merged.insert(0, "gender", df_merged["1st_pre-stroke_gender"])
+    df_merged = df_merged.drop(columns=['1st_pre-stroke_gender', '1st_post-stroke_gender'])
+
+df_female = df_merged[df_merged["gender"] == 0]
+df_male = df_merged[df_merged["gender"] == 1]
 
 save_hgs_predicted_results(
-    df_both_gender,
+    df_merged,
     population,
     mri_status,
     session_column,
@@ -131,44 +139,50 @@ save_hgs_predicted_results(
 ##############################################################################
 y_axis = ["actual", "predicted", "actual-predicted"]
 x_axis = ["actual", "predicted", "years"]
-df_corr, df_pvalue = calculate_spearman_hgs_correlation(df_both_gender, y_axis, x_axis)
-df_female_corr, df_female_pvalue = calculate_spearman_hgs_correlation(df_female, y_axis, x_axis)
-df_male_corr, df_male_pvalue = calculate_spearman_hgs_correlation(df_male, y_axis, x_axis)
-pd.options.display.float_format = '{:.3f}'.format
-print(df_corr)
-print(df_female_corr)
-print(df_male_corr)
+for stroke_subgroup in ["pre-stroke", "post-stroke"]:
+    df_extracted = df_merged[[col for col in df_merged.columns if stroke_subgroup in col]]
+    df_extracted.loc[:, "gender"] = df_merged.loc[:, "gender"]
+    df_corr, df_pvalue = calculate_spearman_hgs_correlation(df_extracted, y_axis, x_axis)
+    df_female_corr, df_female_pvalue = calculate_spearman_hgs_correlation(df_extracted[df_extracted["gender"]==0], y_axis, x_axis)
+    df_male_corr, df_male_pvalue = calculate_spearman_hgs_correlation(df_extracted[df_extracted["gender"]==1], y_axis, x_axis)
 
-save_spearman_correlation_results(
-    df_corr,
-    df_pvalue,
-    population,
-    mri_status,
-    session_column,
-    model_name,
-    feature_type,
-    target,
-    "both_gender")
-save_spearman_correlation_results(
-    df_female_corr,
-    df_female_pvalue,
-    population,
-    mri_status,
-    session_column,
-    model_name,
-    feature_type,
-    target,
-    "female")
-save_spearman_correlation_results(
-    df_male_corr,
-    df_male_pvalue,
-    population,
-    mri_status,
-    session_column,
-    model_name,
-    feature_type,
-    target,
-    "male")
+    print(df_corr.applymap(lambda x: '{:.3f}'.format(x)))
+    print(df_female_corr.applymap(lambda x: '{:.3f}'.format(x)))
+    print(df_male_corr.applymap(lambda x: '{:.3f}'.format(x)))
+
+    save_spearman_correlation_results(
+        df_corr,
+        df_pvalue,
+        population,
+        mri_status,
+        session_column,
+        model_name,
+        feature_type,
+        target,
+        stroke_subgroup,
+        "both_gender")
+    save_spearman_correlation_results(
+        df_female_corr,
+        df_female_pvalue,
+        population,
+        mri_status,
+        session_column,
+        model_name,
+        feature_type,
+        target,
+        stroke_subgroup,
+        "female")
+    save_spearman_correlation_results(
+        df_male_corr,
+        df_male_pvalue,
+        population,
+        mri_status,
+        session_column,
+        model_name,
+        feature_type,
+        target,
+        stroke_subgroup,
+        "male")
 
 
 print("===== Done! =====")

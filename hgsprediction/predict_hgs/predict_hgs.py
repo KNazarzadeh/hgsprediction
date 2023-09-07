@@ -5,13 +5,13 @@ import pandas as pd
 from scipy.stats import spearmanr
 
 
-def predict_hgs(df, X, y, best_model_trained):
+def predict_hgs(df, X, y, best_model_trained, target):
     
     # y_True
-    df["hgs_actual"] = df[y]
+    df.loc[:, f"{target}_actual"] = df.loc[:, y]
     # y_predicted
-    df["hgs_predicted"] = best_model_trained.predict(df[X])
+    df.loc[:, f"{target}_predicted"] = best_model_trained.predict(df.loc[:, X])
     # error: (actual-predicted)
-    df["hgs_(actual-predicted)"] =  df["hgs_actual"] - df["hgs_predicted"]
+    df.loc[:, f"{target}_(actual-predicted)"] =  df.loc[:, f"{target}_actual"] - df.loc[:, f"{target}_predicted"]
     
     return df

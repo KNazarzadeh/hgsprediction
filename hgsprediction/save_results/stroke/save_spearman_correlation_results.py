@@ -14,39 +14,67 @@ def save_spearman_correlation_results(
     model_name,
     feature_type,
     target,
+    stroke_subgroup,
     gender,
 ):
-    # Assuming that you have already trained and instantiated the model as `model`
-    folder_path = os.path.join(
-            "/data",
-            "project",
-            "stroke_ukb",
-            "knazarzadeh",
-            "project_hgsprediction",  
-            "results_hgsprediction",
-            f"{population}",
-            f"{mri_status}",
-            f"{session_column}",
-            f"{feature_type}",
-            f"{target}",
-            f"{model_name}",
-            f"{gender}",
-            "spearman_hgs_correlations",
-        )
-        
-    if(not os.path.isdir(folder_path)):
-        os.makedirs(folder_path)
+    if "longitudinal-stroke" in session_column:
+            # Assuming that you have already trained and instantiated the model as `model`
+        folder_path = os.path.join(
+                "/data",
+                "project",
+                "stroke_ukb",
+                "knazarzadeh",
+                "project_hgsprediction",  
+                "results_hgsprediction",
+                f"{population}",
+                f"{mri_status}",
+                f"{session_column}",
+                f"{feature_type}",
+                f"{target}",
+                f"{model_name}",
+                "spearman_hgs_correlations",
+                f"{stroke_subgroup}",
+            )
+            
+        if(not os.path.isdir(folder_path)):
+            os.makedirs(folder_path)
 
-    # Define the csv file path to save
-    file_path = os.path.join(
-        folder_path,
-        f"correlation_coefficient.csv")
-    
+        # Define the csv file path to save
+        file_path = os.path.join(
+            folder_path,
+            f"{gender}_correlation_coefficient.csv")
+
+    else:   
+        # Assuming that you have already trained and instantiated the model as `model`
+        folder_path = os.path.join(
+                "/data",
+                "project",
+                "stroke_ukb",
+                "knazarzadeh",
+                "project_hgsprediction",  
+                "results_hgsprediction",
+                f"{population}",
+                f"{mri_status}",
+                f"{session_column}",
+                f"{feature_type}",
+                f"{target}",
+                f"{model_name}",
+                "spearman_hgs_correlations",
+            )
+            
+        if(not os.path.isdir(folder_path)):
+            os.makedirs(folder_path)
+
+        # Define the csv file path to save
+        file_path = os.path.join(
+            folder_path,
+            f"{gender}_correlation_coefficient.csv")
+        
     df_corr.to_csv(file_path, sep=',', index=True)
     # Define the csv file path to save
     file_path = os.path.join(
         folder_path,
-        f"p_values.csv")
+        f"{gender}_p_values.csv")
     df_pvalue.to_csv(file_path, sep=',', index=True)
 ##############################################################################
 def save_spearman_correlation_results_mri_records_sessions_only(
