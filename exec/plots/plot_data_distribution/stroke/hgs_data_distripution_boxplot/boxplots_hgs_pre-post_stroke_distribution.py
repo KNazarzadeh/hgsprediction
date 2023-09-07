@@ -5,11 +5,6 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import matplotlib.patheffects as path_effects
 from hgsprediction.load_data import stroke_load_data
-from hgsprediction.define_features import define_features
-from hgsprediction.extract_data import stroke_extract_data
-from hgsprediction.predict_hgs import predict_hgs
-from hgsprediction.load_results import load_trained_models
-
 
 from ptpython.repl import embed
 # print("===== Done! =====")
@@ -20,7 +15,6 @@ population = sys.argv[1]
 mri_status = sys.argv[2]
 visit_session = sys.argv[3]
 feature_type = sys.argv[4]
-target = sys.argv[5]
 
 stroke_cohort = "pre-post-stroke"
 if visit_session == "1":
@@ -33,88 +27,7 @@ elif visit_session == "4":
     session_column = f"4th_{stroke_cohort}_session"
 
 ###############################################################################
-###############################################################################
-
-female_best_model_trained = load_trained_models.load_best_model_trained(
-                                "healthy",
-                                "nonmri",
-                                0,
-                                "female",
-                                feature_type,
-                                target,
-                                "linear_svm",
-                                10,
-                                5,
-                            )
-
-print(female_best_model_trained)
-
-male_best_model_trained = load_trained_models.load_best_model_trained(
-                                "healthy",
-                                "nonmri",
-                                0,
-                                "male",
-                                feature_type,
-                                target,
-                                "linear_svm",
-                                10,
-                                5,
-                            )
-print(male_best_model_trained)
-
-##############################################################################
-df_longitudinal = stroke_load_data.load_preprocessed_longitudinal_data(population, mri_status, session_column, "both_gender")
-stroke_cohort = "post-stroke"
-if visit_session == "1":
-    session_column = f"1st_{stroke_cohort}_session"
-elif visit_session == "2":
-    session_column = f"2nd_{stroke_cohort}_session"
-elif visit_session == "3":
-    session_column = f"3rd_{stroke_cohort}_session"
-elif visit_session == "4":
-    session_column = f"4th_{stroke_cohort}_session"
-df_post = stroke_load_data.load_preprocessed_data(population, mri_status, session_column, stroke_cohort, gender="both_gender")
-
-stroke_cohort = "pre-stroke"
-if visit_session == "1":
-    session_column = f"1st_{stroke_cohort}_session"
-elif visit_session == "2":
-    session_column = f"2nd_{stroke_cohort}_session"
-elif visit_session == "3":
-    session_column = f"3rd_{stroke_cohort}_session"
-elif visit_session == "4":
-    session_column = f"4th_{stroke_cohort}_session"
-df_pre = stroke_load_data.load_preprocessed_data(population, mri_status, session_column, stroke_cohort, gender="both_gender")
-
-features = define_features(feature_type)
-
-
-X = features
-y = target
-for istroke in ["post-stroke", "pre-stroke"]:
-    if istroke == "post-stroke":
-        df_extracted = stroke_extract_data.extract_data(df_post, istroke, visit_session, features, target)
-    elif  istroke == "pre-stroke":
-        df_extracted = stroke_extract_data.extract_data(df_pre, istroke, visit_session, features, target)
-    df_female = df_extracted[df_extracted["gender"] == 0]
-    df_male = df_extracted[df_extracted["gender"] == 1]
-
-    df_female = predict_hgs(df_female, X, y, female_best_model_trained)
-    df_male = predict_hgs(df_male, X, y, male_best_model_trained)
-
-    print(df_female)
-    print(df_male)
-
-    df_both_gender = pd.concat([df_female, df_male], axis=0)
-    df_both_gender["stroke_cohort"] = istroke
-    
-df_both_gender["hgs_category"] = target
-
-print(df_both_gender)
-
-
-print("===== Done! =====")
-embed(globals(), locals())
+df = stroke_load_data.load_preprocessed_longitudinal_data(population, mri_status, session_column, "both_gender")
 
 ###############################################################################
 # Assuming you have a DataFrame 'df' with the specified columns

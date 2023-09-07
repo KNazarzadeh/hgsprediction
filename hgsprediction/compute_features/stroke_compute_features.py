@@ -47,7 +47,7 @@ def calculate_anthropometrics(df, session_column):
     df = calculate_bmi(df, session_column)
     df = calculate_height(df, session_column)
     df = calculate_WHR(df, session_column)
-    
+
     return df
 ###############################################################################
 # def calculate_behavioral(df, session_column):

@@ -36,15 +36,6 @@ feature_type = sys.argv[5]
 target = sys.argv[6]
 model_name = sys.argv[7]
 
-if visit_session == "1":
-    session_column = f"1st_{stroke_cohort}_session"
-elif visit_session == "2":
-    session_column = f"2nd_{stroke_cohort}_session"
-elif visit_session == "3":
-    session_column = f"3rd_{stroke_cohort}_session"
-elif visit_session == "4":
-    session_column = f"4th_{stroke_cohort}_session"
-
 ###############################################################################
 
 female_best_model_trained = load_trained_models.load_best_model_trained(
@@ -76,48 +67,33 @@ print(male_best_model_trained)
 
 ##############################################################################
 # load data
-stroke_cohort = "pre-post-stroke"
 if visit_session == "1":
     session_column = f"1st_{stroke_cohort}_session"
-elif visit_session == "2":
-    session_column = f"2nd_{stroke_cohort}_session"
-elif visit_session == "3":
-    session_column = f"3rd_{stroke_cohort}_session"
-elif visit_session == "4":
-    session_column = f"4th_{stroke_cohort}_session"
-df_longitudinal = stroke_load_data.load_preprocessed_longitudinal_data(population, mri_status, session_column, "both_gender")
-
-stroke_cohort = "post-stroke"
-if visit_session == "1":
-    session_column = f"1st_{stroke_cohort}_session"
-elif visit_session == "2":
-    session_column = f"2nd_{stroke_cohort}_session"
-elif visit_session == "3":
-    session_column = f"3rd_{stroke_cohort}_session"
-elif visit_session == "4":
-    session_column = f"4th_{stroke_cohort}_session"
-df = stroke_load_data.load_preprocessed_data(population, mri_status, session_column, stroke_cohort, gender="both_gender")
-
-# # df_female = df_female[(df_female["1st_post-stroke_session"]==2.0) | (df_female["1st_post-stroke_session"]== 3.0)]
-# # df_male = df_male[(df_male["1st_post-stroke_session"]==2.0) | (df_male["1st_post-stroke_session"]== 3.0)]
-df_same_subjects = df[df.index.isin(df_longitudinal.index)]
+df_longitudinal = stroke_load_data.load_preprocessed_data(population, mri_status, session_column, stroke_cohort)
 
 features = define_features(feature_type)
-df_extracted = stroke_extract_data.extract_data(df_same_subjects, stroke_cohort, visit_session, features, target)
-
 X = features
 y = target
 
-df_female = df_extracted[df_extracted["gender"] == 0]
-df_male = df_extracted[df_extracted["gender"] == 1]
+df_merged = pd.DataFrame()
+for stroke_subgroup in ["pre-stroke", "post_stroke"]:
+    df_extracted = df_longitudinal[[col for col in df_longitudinal.columns if stroke_subgroup in col]]
+    df_extracted = stroke_extract_data.extract_data(df_extracted, stroke_subgroup, visit_session, features, target)
 
-df_female = predict_hgs(df_female, X, y, female_best_model_trained)
-df_male = predict_hgs(df_male, X, y, male_best_model_trained)
-print(df_female)
-print(df_male)
+    df_female = df_extracted[df_extracted["gender"] == 0]
+    df_male = df_extracted[df_extracted["gender"] == 1]
 
-df_both_gender = pd.concat([df_female, df_male], axis=0)
-print(df_both_gender)
+    df_female = predict_hgs(df_female, X, y, female_best_model_trained)
+    df_male = predict_hgs(df_male, X, y, male_best_model_trained) 
+    if visit_session == "1":
+        # Define the string to add
+        prefix = f"1st_{stroke_subgroup}_"
+        # Add the suffix to all column names
+        df_female.columns = [prefix + col for col in df_female.columns]
+        df_male.columns = [prefix + col for col in df_male.columns]
+
+    df_both_gender = pd.concat([df_female, df_male], axis=0)
+    df_merged = pd.concat([df_merged, df_both_gender], axis=1, join="inner")
 
 save_hgs_predicted_results(
     df_both_gender,
