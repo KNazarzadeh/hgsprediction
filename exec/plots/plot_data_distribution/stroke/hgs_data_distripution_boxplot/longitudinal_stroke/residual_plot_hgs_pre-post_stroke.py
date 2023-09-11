@@ -88,7 +88,7 @@ embed(globals(), locals())
 # Create a scatter plot of residuals vs. predicted values
 fig, ax = plt.subplots(1,2, figsize=(12, 10))
 ax0 = sns.histplot(data=df_longitudinal, x=predicted_pre, y=residuals_pre, hue="gender", palette=custom_palette, kde="True")
-ax1 = sns.scatterplot(data=df_longitudinal, x=predicted_post, y=residuals_post, hue="gender", palette=custom_palette, ax=ax[1])
+# ax1 = sns.scatterplot(data=df_longitudinal, x=predicted_post, y=residuals_post, hue="gender", palette=custom_palette, ax=ax[1])
 
 ax0.axhline(y=0, color='red', linestyle='--', linewidth=1.5)  # Add a horizontal line at y=0 for reference
 ax1.axhline(y=0, color='red', linestyle='--', linewidth=1.5)  # Add a horizontal line at y=0 for reference
