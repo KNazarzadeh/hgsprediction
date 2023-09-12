@@ -92,8 +92,7 @@ for yaxis_target in ["actual", "predicted", "(actual-predicted)"]:
     plt.figure(figsize=(10, 6))  # Adjust the figure size if needed
     sns.set(style="whitegrid")
     # sns.set_context("poster", font_scale=1.25)
-    ax = sns.boxplot(x="hgs_category", y="value", hue="stroke_cohort", data=melted_df, palette=custom_palette)
-
+    ax = sns.boxplot(x="hgs_category", y="value", hue="stroke_cohort", data=melted_df, palette=custom_palette)    
     # Add labels and title
     plt.xlabel("HGS targets", fontsize=20, fontweight="bold")
     plt.ylabel(f"{yaxis_target.capitalize()} HGS values", fontsize=20, fontweight="bold")

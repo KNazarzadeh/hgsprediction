@@ -29,6 +29,23 @@ residuals_post = df_longitudinal[f"1st_post-stroke_{target}_(actual-predicted)"]
 
 predicted_pre = df_longitudinal[f"1st_pre-stroke_{target}_predicted"]
 predicted_post = df_longitudinal[f"1st_post-stroke_{target}_predicted"]
+predic_merge = pd.concat([predicted_pre, predicted_post], axis=1)
+predic_merge.columns = ["Pre-stroke", "Post-stroke"]
+
+
+# Define a custom palette with two blue colors
+custom_palette = sns.color_palette(['#95CADB', '#008ECC'])  # You can use any hex color codes you prefer
+
+# Create the boxplot with the custom palette
+plt.figure(figsize=(10, 6))  # Adjust the figure size if needed
+sns.set(style="whitegrid")
+# sns.set_context("poster", font_scale=1.25)
+sns.boxplot(predic_merge,palette="Set2", orient="h")
+sns.stripplot(x="day", y="total_bill", hue="smoker", data=tips, palette="GnBu", dodge=True, ax=ax, ec='k', linewidth=1)
+plt.show()
+plt.savefig("hh.png")
+print("===== Done! =====")
+embed(globals(), locals())
 
 # Calculate Spearman correlation coefficient
 # spearman_corr, _ = spearmanr(actual_values, predicted_values)
