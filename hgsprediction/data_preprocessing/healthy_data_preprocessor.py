@@ -15,7 +15,7 @@ from ptpython.repl import embed
 
 ###############################################################################
 class HealthyDataPreprocessor:
-    def __init__(self, df, mri_status):
+    def __init__(self, df, mri_status, session):
         """Preprocess data, Calculate and Add new columns to dataframe
 
         Parameters
@@ -25,14 +25,15 @@ class HealthyDataPreprocessor:
         """
         self.df = df
         self.mri_status = mri_status
+        self.session = session
         
         assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
         assert isinstance(mri_status, str), "df must be a string!"
         
-        if mri_status == "nonmri":
-            self.session = "0"
-        elif mri_status == "mri":
-            self.session = "2"
+        # if mri_status == "nonmri":
+        #     self.session = "0"
+        # elif mri_status == "mri":
+        #     self.session = "2"
 ############################# CHECK HGS AVAILABILITY ##########################
 # The main goal of check HGS availability is to check if the right and left HGS
 # be available for each session.
@@ -139,18 +140,18 @@ class HealthyDataPreprocessor:
         # If handedness is equal to 1
         # Right hand is Dominant
         # Find handedness equal to 1:        
-        if session == "0":
+        if session in ["0", "3"]:
             # Add and new column "hgs_dominant"
             # And assign Right hand HGS value
-            df.loc[df["1707-0.0"] == 1.0, hgs_dominant] = df.loc[df["1707-0.0"] == 1.0, "47-0.0"]
-            df.loc[df["1707-0.0"] == 1.0, hgs_nondominant] = df.loc[df["1707-0.0"] == 1.0, "46-0.0"]
+            df.loc[df["1707-0.0"] == 1.0, hgs_dominant] = df.loc[df["1707-0.0"] == 1.0, f"47-{session}.0"]
+            df.loc[df["1707-0.0"] == 1.0, hgs_nondominant] = df.loc[df["1707-0.0"] == 1.0, f"46-{session}.0"]
             # If handedness is equal to 2
             # Right hand is Non-Dominant
             # Find handedness equal to 2:
             # Add and new column "hgs_dominant"
             # And assign Left hand HGS value:  
-            df.loc[df["1707-0.0"] == 2.0, hgs_dominant] = df.loc[df["1707-0.0"] == 2.0, "46-0.0"]
-            df.loc[df["1707-0.0"] == 2.0, hgs_nondominant] = df.loc[df["1707-0.0"] == 2.0, "47-0.0"]
+            df.loc[df["1707-0.0"] == 2.0, hgs_dominant] = df.loc[df["1707-0.0"] == 2.0, f"46-{session}.0"]
+            df.loc[df["1707-0.0"] == 2.0, hgs_nondominant] = df.loc[df["1707-0.0"] == 2.0, f"47-{session}.0"]
             # ------------------------------------
             # If handedness is equal to:
             # 3 (Use both right and left hands equally) OR
@@ -162,8 +163,8 @@ class HealthyDataPreprocessor:
             # And assign Highest HGS value among Right and Left HGS:
             # Add and new column "hgs_dominant"
             # And assign lowest HGS value among Right and Left HGS:
-            df.loc[df["1707-0.0"].isin([3.0, -3.0, np.nan]), hgs_dominant] = df[["46-0.0", "47-0.0"]].max(axis=1)
-            df.loc[df["1707-0.0"].isin([3.0, -3.0, np.nan]), hgs_nondominant] = df[["46-0.0", "47-0.0"]].min(axis=1)
+            df.loc[df["1707-0.0"].isin([3.0, -3.0, np.nan]), hgs_dominant] = df[[f"46-{session}.0", f"47-{session}.0"]].max(axis=1)
+            df.loc[df["1707-0.0"].isin([3.0, -3.0, np.nan]), hgs_nondominant] = df[[f"46-{session}.0", f"47-{session}.0"]].min(axis=1)
             
         elif session == "2":
             index = df[df.loc[:, "1707-2.0"] == 1.0].index

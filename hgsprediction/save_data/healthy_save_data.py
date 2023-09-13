@@ -7,6 +7,7 @@ def save_validate_hgs_data(
     df,
     population,
     mri_status,
+    session,
     gender,
 ):
     """
@@ -34,6 +35,7 @@ def save_validate_hgs_data(
         "preprocessed_data",
         f"{mri_status}_{population}",
         "validated_hgs_data",
+        f"{session}_session_ukb"
     )
 
     if(not os.path.isdir(folder_path)):
@@ -50,6 +52,7 @@ def save_preprocessed_data(
     df,
     population,
     mri_status,
+    session,
     gender,
 ):
     """
@@ -77,6 +80,7 @@ def save_preprocessed_data(
         "preprocessed_data",
         f"{mri_status}_{population}",
         "preprocessed_data",
+        f"{session}_session_ukb",
     )
 
     if(not os.path.isdir(folder_path)):

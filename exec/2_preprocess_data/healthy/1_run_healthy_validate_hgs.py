@@ -10,13 +10,14 @@ from ptpython.repl import embed
 filename = sys.argv[0]
 population = sys.argv[1]
 mri_status = sys.argv[2]
+session = sys.argv[3]
 
 if mri_status == "nonmri":
     df = healthy_load_data.load_original_binned_train_data(population, mri_status)
 elif mri_status == "mri":
     df = healthy_load_data.load_original_data(population, mri_status)
 
-data_processor = HealthyDataPreprocessor(df, mri_status)
+data_processor = HealthyDataPreprocessor(df, mri_status, session)
 # CHECK HGS AVAILABILITY
 df = data_processor.check_hgs_availability(df)
 # DATA VALIDATION
@@ -28,9 +29,9 @@ df_female = df[df["31-0.0"]==0.0]
 df_male = df[df["31-0.0"]==1.0]
 print("===== Done! =====")
 embed(globals(), locals())
-healthy_save_data.save_validate_hgs_data(df_female, population, mri_status,"female")
-healthy_save_data.save_validate_hgs_data(df_male, population, mri_status,"male")
-healthy_save_data.save_validate_hgs_data(df, population, mri_status,"both_gender")
+healthy_save_data.save_validate_hgs_data(df_female, population, mri_status, session, "female")
+healthy_save_data.save_validate_hgs_data(df_male, population, mri_status, session, "male")
+healthy_save_data.save_validate_hgs_data(df, population, mri_status, session, "both_gender")
 
 
 print("===== Done! =====")

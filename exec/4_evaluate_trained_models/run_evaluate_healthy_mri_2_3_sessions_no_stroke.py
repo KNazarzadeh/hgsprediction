@@ -28,6 +28,7 @@ mri_status = sys.argv[2]
 feature_type = sys.argv[3]
 target = sys.argv[4]
 model_name = sys.argv[5]
+session = sys.argv[6]
 
 ###############################################################################
 female_best_model_trained = load_trained_models.load_best_model_trained(
@@ -58,12 +59,11 @@ male_best_model_trained = load_trained_models.load_best_model_trained(
 print(male_best_model_trained)
 ##############################################################################
 # load data
-df = healthy_load_data.load_preprocessed_data(population, mri_status, "both_gender")
+df = healthy_load_data.load_preprocessed_data(population, mri_status, session, gender="both_gender")
 
-print("===== Done! =====")
-embed(globals(), locals())
 features = define_features(feature_type)
-df_extracted = healthy_extract_data.extract_data(df,mri_status, features, target)
+
+df_extracted = healthy_extract_data.extract_data(df, mri_status, features, target, session)
 
 X = features
 y = target
@@ -71,16 +71,15 @@ y = target
 df_female = df_extracted[df_extracted["gender"] == 0]
 df_male = df_extracted[df_extracted["gender"] == 1]
 
-df_female = predict_hgs(df_female, X, y, female_best_model_trained)
-df_male = predict_hgs(df_male, X, y, male_best_model_trained)
+df_female = predict_hgs(df_female, X, y, female_best_model_trained, target)
+df_male = predict_hgs(df_male, X, y, male_best_model_trained, target)
 
 print(df_female)
 print(df_male)
 
 df_both_gender = pd.concat([df_female, df_male], axis=0)
 print(df_both_gender)
-print("===== Done! =====")
-embed(globals(), locals())
+
 save_hgs_predicted_results(
     df_both_gender,
     population,
@@ -89,6 +88,7 @@ save_hgs_predicted_results(
     feature_type,
     target,
     "both_gender",
+    session,
 )
 
 save_hgs_predicted_results(
@@ -99,6 +99,7 @@ save_hgs_predicted_results(
     feature_type,
     target,
     "female",
+    session,
 )
 
 save_hgs_predicted_results(
@@ -109,6 +110,7 @@ save_hgs_predicted_results(
     feature_type,
     target,
     "male",
+    session,
 )
 
 ##############################################################################
@@ -128,7 +130,9 @@ save_spearman_correlation_results(
     model_name,
     feature_type,
     target,
-    "both_gender")
+    "both_gender",
+    session,
+)
 save_spearman_correlation_results(
     df_female_corr,
     df_female_pvalue,
@@ -137,7 +141,9 @@ save_spearman_correlation_results(
     model_name,
     feature_type,
     target,
-    "female")
+    "female",
+    session,
+)
 save_spearman_correlation_results(
     df_male_corr,
     df_male_pvalue,
@@ -146,7 +152,9 @@ save_spearman_correlation_results(
     model_name,
     feature_type,
     target,
-    "male")
+    "male",
+    session,
+)
 
 
 print("===== Done! =====")

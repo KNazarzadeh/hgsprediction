@@ -15,15 +15,15 @@ from ptpython.repl import embed
 ###############################################################################
 ###############################################################################
 # This class extract all required features from data:
-def compute_target(df, mri_status, target):
+def compute_target(df, mri_status, session, target):
 
     assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
     assert isinstance(mri_status, str ), "mri_status must be a string!"    
     assert isinstance(target, str ), "target must be a string!"
-    if mri_status == "nonmri":
-        session = "0"
-    elif mri_status == "mri":
-        session = "2"
+    # if mri_status == "nonmri":
+    #     session = "0"
+    # elif mri_status == "mri":
+    #     session = "2"
 
     if target == "hgs_L+R":
         df = calculate_sum_hgs(df, session)
@@ -189,7 +189,7 @@ def calculate_laterality_index_hgs(df, session):
     return df
 
 ###############################################################################
-def calculate_dominant_nondominant_hgs(df, session):
+def calculate_dominant_nondominant_hgs(self, df, session):
     """Calculate dominant handgrip
     and add "hgs_dominant" column to dataframe
 
@@ -203,7 +203,8 @@ def calculate_dominant_nondominant_hgs(df, session):
     df : dataframe
         with extra column for: Dominant hand Handgrip strength
     """
-
+    session = self.session
+    
     assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
     assert isinstance(session, str), "session must be a string!"
     # -----------------------------------------------------------
@@ -225,18 +226,18 @@ def calculate_dominant_nondominant_hgs(df, session):
     # If handedness is equal to 1
     # Right hand is Dominant
     # Find handedness equal to 1:        
-    if session == "0":
+    if session in ["0", "3"]:
         # Add and new column "hgs_dominant"
         # And assign Right hand HGS value
-        df.loc[df["1707-0.0"] == 1.0, hgs_dominant] = df.loc[df["1707-0.0"] == 1.0, "47-0.0"]
-        df.loc[df["1707-0.0"] == 1.0, hgs_nondominant] = df.loc[df["1707-0.0"] == 1.0, "46-0.0"]
+        df.loc[df["1707-0.0"] == 1.0, hgs_dominant] = df.loc[df["1707-0.0"] == 1.0, f"47-{session}.0"]
+        df.loc[df["1707-0.0"] == 1.0, hgs_nondominant] = df.loc[df["1707-0.0"] == 1.0, f"46-{session}.0"]
         # If handedness is equal to 2
         # Right hand is Non-Dominant
         # Find handedness equal to 2:
         # Add and new column "hgs_dominant"
         # And assign Left hand HGS value:  
-        df.loc[df["1707-0.0"] == 2.0, hgs_dominant] = df.loc[df["1707-0.0"] == 2.0, "46-0.0"]
-        df.loc[df["1707-0.0"] == 2.0, hgs_nondominant] = df.loc[df["1707-0.0"] == 2.0, "47-0.0"]
+        df.loc[df["1707-0.0"] == 2.0, hgs_dominant] = df.loc[df["1707-0.0"] == 2.0, f"46-{session}.0"]
+        df.loc[df["1707-0.0"] == 2.0, hgs_nondominant] = df.loc[df["1707-0.0"] == 2.0, f"47-{session}.0"]
         # ------------------------------------
         # If handedness is equal to:
         # 3 (Use both right and left hands equally) OR
@@ -248,8 +249,8 @@ def calculate_dominant_nondominant_hgs(df, session):
         # And assign Highest HGS value among Right and Left HGS:
         # Add and new column "hgs_dominant"
         # And assign lowest HGS value among Right and Left HGS:
-        df.loc[df["1707-0.0"].isin([3.0, -3.0, np.nan]), hgs_dominant] = df[["46-0.0", "47-0.0"]].max(axis=1)
-        df.loc[df["1707-0.0"].isin([3.0, -3.0, np.nan]), hgs_nondominant] = df[["46-0.0", "47-0.0"]].min(axis=1)
+        df.loc[df["1707-0.0"].isin([3.0, -3.0, np.nan]), hgs_dominant] = df[[f"46-{session}.0", f"47-{session}.0"]].max(axis=1)
+        df.loc[df["1707-0.0"].isin([3.0, -3.0, np.nan]), hgs_nondominant] = df[[f"46-{session}.0", f"47-{session}.0"]].min(axis=1)
         
     elif session == "2":
         index = df[df.loc[:, "1707-2.0"] == 1.0].index
@@ -270,7 +271,7 @@ def calculate_dominant_nondominant_hgs(df, session):
         inx = filtered_df[filtered_df.loc[:, "1707-0.0"].isin([3.0, -3.0, np.NaN])].index
         df.loc[inx, hgs_dominant] = df.loc[inx, ["46-2.0", "47-2.0"]].max(axis=1)
         df.loc[inx, hgs_nondominant] = df.loc[inx, ["46-2.0", "47-2.0"]].min(axis=1)
-    
+
     return df
 
 ###############################################################################

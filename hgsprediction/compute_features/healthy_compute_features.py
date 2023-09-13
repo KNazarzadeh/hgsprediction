@@ -15,19 +15,20 @@ from ptpython.repl import embed
 
 ###############################################################################
 # This class extract all required features from data:
-def compute_features(df, mri_status, feature_type):
+def compute_features(df, mri_status, feature_type, session):
 
     assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
     assert isinstance(mri_status, str ), "mri_status must be a string!"
     assert isinstance(feature_type, str ), "feature_type must be a string!"
 
-    if mri_status == "nonmri":
-        session = "0"
-    elif mri_status == "mri":
-        session = "2"
+    # if mri_status == "nonmri":
+    #     session = "0"
+    # elif mri_status == "mri":
+    #     session = "2"
     # -----------------------------------------------------------
     df = calculate_age(df, session)
     df = calculate_gender(df, session)
+    df = calculate_handedness(df, session)
 
     if feature_type == "anthropometrics":
         df = calculate_anthropometrics(df, session)
@@ -169,7 +170,8 @@ def calculate_age(df, session):
         df.loc[:, "age"] = df.loc[:, "Age1stVisit"]
     elif session == "2":
         df.loc[:, "age"] = df.loc[:, "AgeAtScan"]
-    
+    elif session == "3":
+        df.loc[:, "age"] = df.loc[:, "AgeAt2ndScan"]
     return df    
 
 ###############################################################################
@@ -193,6 +195,82 @@ def calculate_gender(df, session):
         df.loc[:, "gender"] = df.loc[:, "31-0.0"]
         
         return df
+
+###############################################################################
+def calculate_handedness(df, session):
+    """Calculate dominant handgrip
+    and add "handedness" column to dataframe
+
+    Parameters
+    ----------
+    df : dataframe
+        The dataframe that desired to analysis
+
+    Return
+    ----------
+    df : dataframe
+        with extra column for: Dominant hand Handgrip strength
+    """
+    # session = self.session
+    
+    assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
+    assert isinstance(session, str), "session must be a string!"
+    # -----------------------------------------------------------
+    
+    # Add a new column 'new_column'
+    handedness = f"handedness-{session}.0"    
+    # hgs_left field-ID: 46
+    # hgs_right field-ID: 47
+    # ------------------------------------
+    # ------- Handedness Field-ID: 1707
+    # Data-Coding: 100430
+    #           1	Right-handed
+    #           2	Left-handed
+    #           3	Use both right and left hands equally
+    #           -3	Prefer not to answer
+    # ------------------------------------
+    # If handedness is equal to 1
+    # Right hand is Dominant
+    # Find handedness equal to 1:        
+    if session in ["0", "3"]:
+        # Add and new column "handedness"
+        # And assign Right hand HGS value
+        df.loc[df["1707-0.0"] == 1.0, handedness] = 1.0
+        # If handedness is equal to 2
+        # Right hand is Non-Dominant
+        # Find handedness equal to 2:
+        # Add and new column "handedness"
+        # And assign Left hand HGS value:  
+        df.loc[df["1707-0.0"] == 2.0, handedness] = 2.0
+        # ------------------------------------
+        # If handedness is equal to:
+        # 3 (Use both right and left hands equally) OR
+        # -3 (handiness is not available/Prefer not to answer) OR
+        # NaN value
+        # Dominant will be the Highest Handgrip score from both hands.
+        # Find handedness equal to 3, -3 or NaN:
+        # Add and new column "handedness"
+        # And assign Highest HGS value among Right and Left HGS:
+        # Add and new column "handedness"
+        # And assign lowest HGS value among Right and Left HGS:
+        df.loc[df["1707-0.0"].isin([3.0, -3.0, np.nan]), handedness] = 3.0
+        
+    elif session == "2":
+        index = df[df.loc[:, "1707-2.0"] == 1.0].index
+        df.loc[index, handedness] = 1.0
+        index = df[df.loc[:, "1707-2.0"] == 2.0].index
+        df.loc[index, handedness] = 2.0
+            
+        index = df[df.loc[:, "1707-2.0"].isin([3.0, -3.0, np.NaN])].index
+        filtered_df = df.loc[index, :]
+        inx = filtered_df[filtered_df.loc[:, "1707-0.0"] == 1.0].index
+        df.loc[inx, handedness] = 1.0
+        inx = filtered_df[filtered_df.loc[:, "1707-0.0"] == 2.0].index
+        df.loc[inx, handedness] = 2.0
+        inx = filtered_df[filtered_df.loc[:, "1707-0.0"].isin([3.0, -3.0, np.NaN])].index
+        df.loc[inx, handedness] = 3.0
+
+    return df
 
 ###############################################################################
 def calculate_neuroticism_score(df, session):

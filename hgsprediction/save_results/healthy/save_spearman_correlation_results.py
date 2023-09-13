@@ -14,6 +14,7 @@ def save_spearman_correlation_results(
     feature_type,
     target,
     gender,
+    session,
 ):
     # Assuming that you have already trained and instantiated the model as `model`
     folder_path = os.path.join(
@@ -25,6 +26,7 @@ def save_spearman_correlation_results(
             "results_hgsprediction",
             f"{population}",
             f"{mri_status}",
+            f"{session}_session_ukb",
             f"{feature_type}",
             f"{target}",
             f"{model_name}",

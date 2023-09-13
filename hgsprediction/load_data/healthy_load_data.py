@@ -49,6 +49,7 @@ def load_original_binned_train_data(
 def load_validate_hgs_data(
     population,
     mri_status,
+    session,
     gender,
 ):
     """
@@ -76,6 +77,7 @@ def load_validate_hgs_data(
         "preprocessed_data",
         f"{mri_status}_{population}",
         "validated_hgs_data",
+        f"{session}_session_ukb",
     )
 
     file_path = os.path.join(
@@ -90,6 +92,7 @@ def load_validate_hgs_data(
 def load_preprocessed_data(
     population,
     mri_status,
+    session,
     gender,
 ):
     """
@@ -117,6 +120,7 @@ def load_preprocessed_data(
         "preprocessed_data",
         f"{mri_status}_{population}",
         "preprocessed_data",
+        f"{session}_session_ukb",
     )
 
     file_path = os.path.join(
