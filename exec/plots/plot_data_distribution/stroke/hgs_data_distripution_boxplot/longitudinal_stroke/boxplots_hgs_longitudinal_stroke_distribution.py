@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patheffects as path_effects
 from hgsprediction.load_data import stroke_load_data
 from hgsprediction.load_results import stroke
+import statsmodels.api as sm
 
 from ptpython.repl import embed
 # print("===== Done! =====")
@@ -105,7 +106,7 @@ for yaxis_target in ["actual", "predicted", "(actual-predicted)"]:
         plt.yticks(np.arange(0, 120, 10))
     # Show the plot
     plt.legend(title="stroke cohort", loc="upper left")  # Add legend
-    legend = plt.legend(title="Gender", loc="upper left")  # Add legend
+    legend = plt.legend(title="Stroke cohort", loc="upper left")  # Add legend
     # Modify individual legend labels
     legend.get_texts()[0].set_text(f"Pre-stroke: N={len(df_longitudinal)}")
     legend.get_texts()[1].set_text(f"Post-stroke: N={len(df_longitudinal)}")
@@ -115,7 +116,7 @@ for yaxis_target in ["actual", "predicted", "(actual-predicted)"]:
     add_median_labels(ax)
     # medians = melted_df.groupby(['hgs_category', 'stroke_cohort'])['value'].median()
     plt.show()
-    plt.savefig(f"{yaxis_target}_hgs_both_gender.png")
+    plt.savefig(f"{population}_{yaxis_target}_hgs_both_gender.png")
     plt.close()
     ###############################################################################
     # Define a custom palette with two blue colors
@@ -153,12 +154,11 @@ for yaxis_target in ["actual", "predicted", "(actual-predicted)"]:
     # medians = melted_df.groupby(['combine_hgs_stroke_cohort_category', 'gender'])['value'].median()
 
     plt.show()
-    plt.savefig(f"{yaxis_target}_hgs_female_male_separated.png")
+    plt.savefig(f"{population}_{yaxis_target}_hgs_female_male_separated.png")
     plt.close()
-
-
-
 print("===== Done! =====")
 embed(globals(), locals())
+###############################################################################
+
 
 

@@ -5,7 +5,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import matplotlib.patheffects as path_effects
 from hgsprediction.load_data import stroke_load_data
-from hgsprediction.load_results import stroke
+from hgsprediction.load_results import healthy
 
 from ptpython.repl import embed
 # print("===== Done! =====")
@@ -18,31 +18,30 @@ model_name = sys.argv[3]
 feature_type = sys.argv[4]
 target = sys.argv[5]
 
-stroke_cohort = "longitudinal-stroke"
-session_column = f"1st_{stroke_cohort}_session"
-df_longitudinal = stroke.load_hgs_predicted_results(population, mri_status, session_column, model_name, feature_type, target, "both_gender")
-    
-selected_cols = [col for col in df_longitudinal.columns if any(item in col for item in ["actual", "predicted"])]
-df_selected = df_longitudinal[selected_cols]
+df_2 = healthy.load_hgs_predicted_results(population,
+    mri_status,
+    model_name,
+    feature_type,
+    target,
+    "both_gender",
+    session="2",
+)
 
-df_selected.insert(0, "gender", df_longitudinal["gender"])
+df_3 = healthy.load_hgs_predicted_results(population,
+    mri_status,
+    model_name,
+    feature_type,
+    target,
+    "both_gender",
+    session="3",
+)
 
-###############################################################################
-def add_median_labels(ax, fmt='.1f'):
-    lines = ax.get_lines()
-    boxes = [c for c in ax.get_children() if type(c).__name__ == 'PathPatch']
-    lines_per_box = int(len(lines) / len(boxes))
-    for median in lines[4:len(lines):lines_per_box]:
-        x, y = (data.mean() for data in median.get_data())
-        # choose value depending on horizontal or vertical plot orientation
-        value = x if (median.get_xdata()[1] - median.get_xdata()[0]) == 0 else y
-        text = ax.text(x, y, f'{value:{fmt}}', ha='center', va='center',  color='white', fontsize=10)
-                    #    fontweight='bold',
-        # create median-colored border around white text for contrast
-        text.set_path_effects([
-            path_effects.Stroke(linewidth=3, foreground=median.get_color()),
-            path_effects.Normal(),
-        ])
+df_2_intersection = df_2[df_2.index.isin(df_3.index)]
+df_3_intersection = df_3[df_3.index.isin(df_2.index)]
+
+df_2_intersection.loc[:, "scan_session"] = "1st scan session"
+df_3_intersection.loc[:, "scan_session"] = "2nd scans ession"
+
 ###############################################################################
  # Create the boxplot with the custom palette
 fig, ax = plt.subplots(1, 2, figsize=(15, 10))  # Adjust the figure size if needed
@@ -52,44 +51,19 @@ custom_palette = sns.color_palette(['#95CADB', '#008ECC'])  # You can use any he
 hue_pallete = sns.color_palette(['#DA70D6', 'blue'])  
 # Create a list of column groups
 for index, yaxis_target in enumerate(["actual", "predicted"]):
-    column_groups = [[f"1st_pre-stroke_{target}_{yaxis_target}", f"1st_post-stroke_{target}_{yaxis_target}"]]
-    # df = df_selected[column_groups]
-    # df.columns = ["Pre-stroke", "post_stroke"]
-    # Initialize an empty list to store the melted DataFrames
-    melted_dfs = []
-    # Iterate through column groups and create melted DataFrames
-    for group_columns in column_groups:
-        # Melt the DataFrame for the current group
-        melted_group = pd.melt(df_selected, id_vars=["gender"], value_vars=group_columns, var_name="variable", ignore_index=False)        
-        # Create 'stroke_cohort' based on 'variable'        
-        melted_group['stroke_cohort'] = melted_group['variable'].apply(lambda x: 'Pre-stroke' if 'pre-stroke' in x else ('Post-stroke' if 'post-stroke' in x else None))
-        
-        # Create 'gender' based on 'gender' column
-        melted_group['gender'] = melted_group["gender"].map({0: 'female', 1: 'male'})
-        
-        # Drop the original 'variable' column
-        # melted_group.drop(columns=["gender"], inplace=True)
-        
-        # Append the melted DataFrame to the list
-        melted_dfs.append(melted_group)
+    df_merged = pd.concat([df_2_intersection[["gender", "scan_session", f"{target}_{yaxis_target}"]], df_3_intersection[["gender", "scan_session", f"{target}_{yaxis_target}"]]])
 
-    # Concatenate the melted DataFrames into one without ignoring the original indexes
-    melted_df = pd.concat(melted_dfs, ignore_index=False)
-
-    print(melted_df)
     ###############################################################################
-    sns.boxplot(x="stroke_cohort", y="value", data=melted_df, palette=custom_palette, ax=ax[index])
-    sns.stripplot(x="stroke_cohort", y="value", data=melted_df,hue="gender", palette=hue_pallete, jitter=False, linewidth=1, ax=ax[index])
-    sns.lineplot(data=melted_df, x="stroke_cohort", y="value",  hue="gender", estimator=None, units="SubjectID", markers=True, color="grey", palette=hue_pallete, linewidth=1, legend=False, ax=ax[index])
-    print(index, yaxis_target)
-    print(column_groups)
-    
+    sns.boxplot(x="scan_session", y=f"{target}_{yaxis_target}", data=df_merged, palette=custom_palette, ax=ax[index])
+    sns.stripplot(x="scan_session", y=f"{target}_{yaxis_target}", data=df_merged, hue="gender", palette=hue_pallete, jitter=False, linewidth=1, ax=ax[index])
+    sns.lineplot(data=df_merged, x="scan_session", y=f"{target}_{yaxis_target}",  hue="gender", estimator=None, units="SubjectID", markers=True, color="grey", palette=hue_pallete, linewidth=1, legend=False, ax=ax[index])
+
     if yaxis_target == "actual":
         ax[index].set_title(f"Actual HGS", fontsize=20, fontweight="bold")
     elif yaxis_target == "predicted":
         ax[1].set_title("Predicted HGS", fontsize=20, fontweight="bold")
 
-fig.suptitle(f"Pre- and Post- stroke Actual vs Predicted values - (N={len(df_longitudinal)})\nTarget={target}, Features=Anthropometrics and Age", fontsize=16, fontweight="bold")
+fig.suptitle(f"Actual vs Predicted values - (N={len(df_2_intersection)})\nTarget={target}, Features=Anthropometrics and Age", fontsize=16, fontweight="bold")
 
 fig.text(0.04, 0.5, 'HGS Values', va='center', rotation='vertical', fontsize=20, fontweight="bold")
 ax[0].set_xlabel("")
@@ -118,8 +92,8 @@ legend0 = ax[0].legend(title="Gender", loc="upper right")  # Add legend
 legend1= ax[1].legend(title="Gender", loc="upper right")  # Add legend
 
 # Modify individual legend labels
-female_n = len(df_longitudinal[df_longitudinal["gender"]==0])
-male_n = len(df_longitudinal[df_longitudinal["gender"]==1])
+female_n = len(df_2_intersection[df_2_intersection["gender"]==0])
+male_n = len(df_2_intersection[df_2_intersection["gender"]==1])
 
 legend0.get_texts()[0].set_text(f"Female: N={female_n}")
 legend0.get_texts()[1].set_text(f"Male: N={male_n}")
