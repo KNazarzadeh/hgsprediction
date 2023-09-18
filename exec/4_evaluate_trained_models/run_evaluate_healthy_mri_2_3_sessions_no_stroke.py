@@ -65,6 +65,8 @@ features = define_features(feature_type)
 
 df_extracted = healthy_extract_data.extract_data(df, mri_status, features, target, session)
 
+print("===== Done! =====")
+embed(globals(), locals())
 X = features
 y = target
 

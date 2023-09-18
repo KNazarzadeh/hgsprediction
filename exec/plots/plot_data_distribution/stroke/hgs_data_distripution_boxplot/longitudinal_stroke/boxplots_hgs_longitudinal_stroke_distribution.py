@@ -30,6 +30,8 @@ for target in ["hgs_L+R", "hgs_left", "hgs_right"]:
     df_combined = pd.concat([df_combined, df_selected], axis=1)    
 
 df_combined.insert(0, "gender", df_longitudinal["gender"])
+print("===== Done! =====")
+embed(globals(), locals())
 
 ###############################################################################
 def add_median_labels(ax, fmt='.1f'):

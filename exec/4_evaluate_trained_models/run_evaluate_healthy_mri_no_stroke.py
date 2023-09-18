@@ -28,6 +28,7 @@ mri_status = sys.argv[2]
 feature_type = sys.argv[3]
 target = sys.argv[4]
 model_name = sys.argv[5]
+session = sys.argv[6]
 
 ###############################################################################
 female_best_model_trained = load_trained_models.load_best_model_trained(
@@ -58,7 +59,7 @@ male_best_model_trained = load_trained_models.load_best_model_trained(
 print(male_best_model_trained)
 ##############################################################################
 # load data
-df = healthy_load_data.load_preprocessed_data(population, mri_status, "both_gender")
+df = healthy_load_data.load_preprocessed_data(population, mri_status, session, "both_gender")
 
 print("===== Done! =====")
 embed(globals(), locals())
