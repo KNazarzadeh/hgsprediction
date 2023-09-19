@@ -32,12 +32,12 @@ def load_best_model_trained(
             "results_hgsprediction",
             f"{population}",
             f"{mri_status}",
-            f"{gender}",
             f"{feature_type}",
             f"{target}",
             f"{confound}",
             f"{model_name}",
             f"{n_repeats}_repeats_{n_folds}_folds",
+            f"{gender}",
             "best_model_trained",
         )
 

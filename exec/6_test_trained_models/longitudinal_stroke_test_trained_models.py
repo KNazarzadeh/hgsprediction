@@ -94,6 +94,7 @@ for stroke_subgroup in ["pre-stroke", "post-stroke"]:
 
     df_both_gender = pd.concat([df_female, df_male], axis=0)
     df_merged = pd.concat([df_merged, df_both_gender], axis=1)
+    
 print("===== Done! =====")
 embed(globals(), locals())
 df_merged = df_merged.dropna()
@@ -103,7 +104,8 @@ if df_merged['1st_pre-stroke_gender'].astype(float).equals((df_merged['1st_post-
 
 df_female = df_merged[df_merged["gender"] == 0]
 df_male = df_merged[df_merged["gender"] == 1]
-
+print("===== Done! =====")
+embed(globals(), locals())
 save_hgs_predicted_results(
     df_merged,
     population,

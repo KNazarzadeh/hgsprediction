@@ -12,7 +12,8 @@ def extract_data(df, stroke_cohort, visit_session, features, target):
         if item not in features:
            features_list = [item] + features_list
 
-    features_columns = [col for col in df.columns if any(item in col for item in features_list)]
+    # features_columns = [col for col in df.columns if any(item in col for item in features_list)]
+    features_columns = [col for col in df.columns if (col.endswith(item) for item in features_list)]
 
     target_columns = [col for col in df.columns if col.endswith(target)]
 

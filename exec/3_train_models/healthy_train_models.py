@@ -43,12 +43,13 @@ args = parse_args()
 motor, population, mri_status, feature_type, target, gender, model_name, \
     confound_status, cv_repeats_number, cv_folds_number = input_arguments(args)
 
+session="0"
 ###############################################################################
-df_train = healthy_load_data.load_preprocessed_train_data(population, mri_status, gender)
+df_train = healthy_load_data.load_preprocessed_data(population, mri_status, session, gender)
 
 features = define_features(feature_type)
 
-data_extracted = healthy_extract_data.extract_data(df_train, mri_status, features, target)
+data_extracted = healthy_extract_data.extract_data(df_train, mri_status, features, target, session)
 
 X = features
 y = target
