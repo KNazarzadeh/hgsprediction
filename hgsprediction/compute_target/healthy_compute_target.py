@@ -189,7 +189,7 @@ def calculate_laterality_index_hgs(df, session):
     return df
 
 ###############################################################################
-def calculate_dominant_nondominant_hgs(self, df, session):
+def calculate_dominant_nondominant_hgs(df, session):
     """Calculate dominant handgrip
     and add "hgs_dominant" column to dataframe
 
@@ -203,7 +203,6 @@ def calculate_dominant_nondominant_hgs(self, df, session):
     df : dataframe
         with extra column for: Dominant hand Handgrip strength
     """
-    session = self.session
     
     assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
     assert isinstance(session, str), "session must be a string!"

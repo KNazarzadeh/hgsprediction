@@ -10,12 +10,13 @@ from ptpython.repl import embed
 filename = sys.argv[0]
 population = sys.argv[1]
 mri_status = sys.argv[2]
-feature_type = sys.argv[3]
-session = sys.argv[4]
+# feature_type = sys.argv[3]
+session = sys.argv[3]
 
 df = healthy_load_data.load_validate_hgs_data(population, mri_status, session, "both_gender")
 
-df = healthy_compute_features.compute_features(df, mri_status, feature_type, session)
+# df = healthy_compute_features.compute_features(df, mri_status, feature_type, session)
+df = healthy_compute_features.compute_features(df, mri_status, session)
 
 df_female = df[df["31-0.0"]==0.0]
 df_male = df[df["31-0.0"]==1.0]
