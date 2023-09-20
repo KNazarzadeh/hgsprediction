@@ -6,15 +6,23 @@ from ptpython.repl import embed
 
 def extract_data(df, stroke_cohort, visit_session, features, target):
     
+    if visit_session == "1":
+        prefix = "1st"
+    elif visit_session == "2":
+        prefix = "2nd"
+    elif visit_session == "3":
+        prefix = "3rd"
+    elif visit_session == "4":
+        prefix = "4th"
+        
     features_list = features
     add_extra_features = ["gender", "age", "days", "years", "handedness", "dominant", "stroke_subtype"]
     for item in add_extra_features:
         if item not in features:
            features_list = [item] + features_list
 
-    # features_columns = [col for col in df.columns if any(item in col for item in features_list)]
-    features_columns = [col for col in df.columns if (col.endswith(item) for item in features_list)]
-
+    features_columns = [col for col in df.columns if any(col.startswith(prefix) and col.endswith(item) for item in features_list)]
+    
     target_columns = [col for col in df.columns if col.endswith(target)]
 
     df = pd.concat([df[features_columns], df[target_columns]], axis=1)

@@ -118,7 +118,7 @@ for yaxis_target in ["actual", "predicted", "(actual-predicted)"]:
     add_median_labels(ax)
     # medians = melted_df.groupby(['hgs_category', 'stroke_cohort'])['value'].median()
     plt.show()
-    plt.savefig(f"{population}_{yaxis_target}_hgs_both_gender.png")
+    plt.savefig(f"{population}_{feature_type}_{yaxis_target}_hgs_both_gender.png")
     plt.close()
     ###############################################################################
     # Define a custom palette with two blue colors
@@ -156,7 +156,8 @@ for yaxis_target in ["actual", "predicted", "(actual-predicted)"]:
     # medians = melted_df.groupby(['combine_hgs_stroke_cohort_category', 'gender'])['value'].median()
 
     plt.show()
-    plt.savefig(f"{population}_{yaxis_target}_hgs_female_male_separated.png")
+    
+    plt.savefig(f"{population}_{feature_type}_{yaxis_target}_hgs_female_male_separated.png")
     plt.close()
 print("===== Done! =====")
 embed(globals(), locals())

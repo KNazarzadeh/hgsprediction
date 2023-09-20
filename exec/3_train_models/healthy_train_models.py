@@ -53,7 +53,8 @@ data_extracted = healthy_extract_data.extract_data(df_train, mri_status, feature
 
 X = features
 y = target
-
+print("===== Done! =====")
+embed(globals(), locals())
 ###############################################################################
 # Define model and model parameters:
 if model_name == "linear_svm":
@@ -120,6 +121,41 @@ df_prediction_scores.columns.name = 'K-fold splits'
 # for example --> df_header1 = df_validation_prediction_hgs.xs('repeat:Repeat 0 - k-fold:Fold 0')
 print(df_prediction_scores)
 
+##### Train loss vs. Validation Loss ###########
+# # Simulated data (replace with your actual data)
+# num_repeats = len(df_prediction_scores)
+# num_folds = len(df_prediction_scores.columns)
+# num_epochs = 100
+
+# # Initialize arrays to store loss data
+# train_losses = np.zeros((num_repeats, num_folds, num_epochs))
+# val_losses = np.zeros((num_repeats, num_folds, num_epochs))
+
+# for repeat in range(num_repeats):
+#     for fold in range(num_folds):
+#         # Simulate training and validation loss data for this repeat and fold
+#         train_losses[repeat, fold, :] = np.random.rand(num_epochs) * (1 - repeat / num_repeats)
+#         val_losses[repeat, fold, :] = np.random.rand(num_epochs) * (1 - repeat / num_repeats)
+
+# # Calculate average train and validation loss across all repeats and folds
+# avg_train_loss = np.mean(train_losses, axis=(0, 1))
+# avg_val_loss = np.mean(val_losses, axis=(0, 1))
+
+# # Create a plot
+# plt.figure(figsize=(10, 6))
+# plt.plot(range(num_epochs), avg_train_loss, label='Average Training Loss', marker='o')
+# plt.plot(range(num_epochs), avg_val_loss, label='Average Validation Loss', marker='o')
+
+# # Add labels and a legend
+# plt.xlabel('Epochs')
+# plt.ylabel('Loss')
+# plt.title('Average Training vs. Validation Loss')
+# plt.legend()
+
+# # Show the plot
+# plt.grid(True)
+# plt.show()
+# plt.savefig("hh.png")
 ###############################################################################
 # SAVE THE RESULTS
 ###############################################################################

@@ -12,7 +12,8 @@ def extract_data(df, mri_status, features, target, session):
            features_list = [item] + features_list
 
     features_columns = [col for col in df.columns if any(item in col for item in features_list)]
-    target_columns = [col for col in df.columns if col.startswith(target)]
+    # target_columns = [col for col in df.columns if col.startswith(target)]
+    target_columns = [col for col in df.columns if col.startswith(target) and target not in col]
     
     df = pd.concat([df[features_columns], df[target_columns]], axis=1)
     
