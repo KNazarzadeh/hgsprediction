@@ -40,19 +40,19 @@ df_female = df_longitudinal[df_longitudinal["gender"]==0]
 df_male = df_longitudinal[df_longitudinal["gender"]==1]
 for idx, row in df_female.iterrows():
     x_values = [row["1st_pre-stroke_age"], row["1st_post-stroke_age"]]
-    y_values = [row["1st_pre-stroke_hgs_L+R_actual"], row["1st_post-stroke_hgs_L+R_actual"]]
+    y_values = [row[f"1st_pre-stroke_{target}_actual"], row[f"1st_post-stroke_{target}_actual"]]
     ax[0].plot(x_values, y_values, marker='o', color="#800080")
 for idx, row in df_male.iterrows():
     x_values = [row["1st_pre-stroke_age"], row["1st_post-stroke_age"]]
-    y_values = [row["1st_pre-stroke_hgs_L+R_actual"], row["1st_post-stroke_hgs_L+R_actual"]]
+    y_values = [row[f"1st_pre-stroke_{target}_actual"], row[f"1st_post-stroke_{target}_actual"]]
     ax[0].plot(x_values, y_values, marker='o', color="#000080")
 for idx, row in df_female.iterrows():
     x_values = [row["1st_pre-stroke_age"], row["1st_post-stroke_age"]]
-    y_values = [row["1st_pre-stroke_hgs_L+R_predicted"], row["1st_post-stroke_hgs_L+R_predicted"]]
+    y_values = [row[f"1st_pre-stroke_{target}_predicted"], row[f"1st_post-stroke_{target}_predicted"]]
     ax[1].plot(x_values, y_values, marker='o', color="#800080")
 for idx, row in df_male.iterrows():
     x_values = [row["1st_pre-stroke_age"], row["1st_post-stroke_age"]]
-    y_values = [row["1st_pre-stroke_hgs_L+R_predicted"], row["1st_post-stroke_hgs_L+R_predicted"]]
+    y_values = [row[f"1st_pre-stroke_{target}_predicted"], row[f"1st_post-stroke_{target}_predicted"]]
     ax[1].plot(x_values, y_values, marker='o', color="#000080")
 
 # Set labels and title
@@ -81,7 +81,7 @@ ax[1].legend()
 
 # Show the plot
 plt.show()
-plt.savefig("hgs_age.png")
+plt.savefig(f"hgs_age_{target}.png")
 plt.close()
 
 print("===== Done! =====")
