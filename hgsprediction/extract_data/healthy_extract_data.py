@@ -12,12 +12,13 @@ def extract_data(df, mri_status, features, target, session):
            features_list = [item] + features_list
 
     features_columns = [col for col in df.columns if any(item in col for item in features_list)]
-    # target_columns = [col for col in df.columns if col.startswith(target)]
-    target_columns = [col for col in df.columns if col.startswith(target) and target not in col]
+    target_columns = [col for col in df.columns if col.startswith(target)]
     
     df = pd.concat([df[features_columns], df[target_columns]], axis=1)
     
     df = df.dropna(subset=[col for col in df.columns if any(item in col for item in features)])
+    
+    df = df.loc[:, ~df.columns.duplicated()]
 
     df = rename_column_names(df, mri_status, session)               
 

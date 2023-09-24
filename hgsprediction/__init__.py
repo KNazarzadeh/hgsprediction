@@ -48,7 +48,9 @@ from .old_define_features import stroke_define_features
 
 from .predict_hgs import predict_hgs
 
-
+from .predict_hgs import calculate_spearman_hgs_correlation_on_brain_correlations
+from .save_results import save_data_overlap_hgs_predicted_brain_correlations_results,\
+                          save_spearman_correlation_on_brain_correlations_results
 
 # from hgsprediction.input_arguments import parse_args, input_arguments
 # from hgsprediction.load_imaging_data import load_imaging_data

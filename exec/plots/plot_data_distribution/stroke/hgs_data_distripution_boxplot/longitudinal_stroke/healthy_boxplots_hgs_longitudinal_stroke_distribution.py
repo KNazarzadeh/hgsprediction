@@ -4,7 +4,6 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 import matplotlib.patheffects as path_effects
-from hgsprediction.load_data import stroke_load_data
 from hgsprediction.load_results import healthy
 import statsmodels.api as sm
 
