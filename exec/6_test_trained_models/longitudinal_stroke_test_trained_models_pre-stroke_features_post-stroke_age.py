@@ -12,6 +12,7 @@ from hgsprediction.save_results import save_spearman_correlation_results
 from hgsprediction.save_results import save_hgs_predicted_results
 from hgsprediction.load_data import stroke_load_data
 from hgsprediction.load_results import load_trained_models
+import plotly.express as px
 
 
 from scipy.stats import spearmanr
@@ -113,6 +114,8 @@ df_male_corr, df_male_pvalue = calculate_spearman_hgs_correlation(df_both_gender
 print(df_corr.applymap(lambda x: '{:.3f}'.format(x)))
 print(df_female_corr.applymap(lambda x: '{:.3f}'.format(x)))
 print(df_male_corr.applymap(lambda x: '{:.3f}'.format(x)))
+
+weights = [df_corr,'BMI', 'Height', 'waist_to_hip_ratio']
 
 
 print("===== Done! =====")
