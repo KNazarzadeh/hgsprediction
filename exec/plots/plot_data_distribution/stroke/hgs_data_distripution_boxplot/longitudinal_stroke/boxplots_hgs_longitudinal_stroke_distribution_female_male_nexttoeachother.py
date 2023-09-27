@@ -50,75 +50,6 @@ def add_median_labels(ax, fmt='.1f'):
 # print("===== Done! =====")
 # embed(globals(), locals())
 ###############################################################################
-# Create a list of column groups
-for yaxis_target in ["actual", "predicted", "(actual-predicted)"]:
-    column_groups = [
-    ("HGS Left", [f"1st_pre-stroke_hgs_left_{yaxis_target}", f"1st_post-stroke_hgs_left_{yaxis_target}"]),
-    ("HGS Right", [f"1st_pre-stroke_hgs_right_{yaxis_target}", f"1st_post-stroke_hgs_right_{yaxis_target}"]),
-    ("HGS L+R", [f"1st_pre-stroke_hgs_L+R_{yaxis_target}", f"1st_post-stroke_hgs_L+R_{yaxis_target}"])
-    ]
-
-    # Initialize an empty list to store the melted DataFrames
-    melted_dfs = []
-    # Iterate through column groups and create melted DataFrames
-    for group_name, group_columns in column_groups:
-        # Melt the DataFrame for the current group
-        melted_group = pd.melt(df_combined, id_vars=["gender"], value_vars=group_columns, var_name="variable", ignore_index=False)
-        
-        # Create 'hgs_category' based on 'group_name'
-        melted_group['hgs_category'] = group_name
-        
-        # Create 'stroke_cohort' based on 'variable'        
-        melted_group['stroke_cohort'] = melted_group['variable'].apply(lambda x: 'Pre-stroke' if 'pre-stroke' in x else ('Post-stroke' if 'post-stroke' in x else None))             
-        # Add a new column based on the combination of 'hgs_category' and 'stroke_cohort'
-        melted_group['combine_hgs_stroke_cohort_category'] = group_name + '-' + melted_group['stroke_cohort']
-        
-        # Create 'gender' based on 'gender' column
-        melted_group['gender'] = melted_group["gender"].map({0: 'female', 1: 'male'})
-        
-        # Drop the original 'variable' column
-        # melted_group.drop(columns=["gender"], inplace=True)
-        
-        # Append the melted DataFrame to the list
-        melted_dfs.append(melted_group)
-
-    # Concatenate the melted DataFrames into one without ignoring the original indexes
-    melted_df = pd.concat(melted_dfs, ignore_index=False)
-
-    print(melted_df)
-    ###############################################################################
-    # Define a custom palette with two blue colors
-    custom_palette = sns.color_palette(['#95CADB', '#008ECC'])  # You can use any hex color codes you prefer
-
-    # Create the boxplot with the custom palette
-    plt.figure(figsize=(10, 6))  # Adjust the figure size if needed
-    sns.set(style="whitegrid")
-    # sns.set_context("poster", font_scale=1.25)
-    ax = sns.boxplot(x="hgs_category", y="value", hue="stroke_cohort", data=melted_df, palette=custom_palette)    
-    # Add labels and title
-    plt.xlabel("HGS targets", fontsize=20, fontweight="bold")
-    plt.ylabel(f"{yaxis_target.capitalize()} HGS values", fontsize=20, fontweight="bold")
-    plt.title(f"pre-stroke and post-stroke HGS values - {feature_type}", fontsize=20)
-
-    ymin , ymax = ax.get_ylim()
-    if yaxis_target == "(actual-predicted)":
-        plt.yticks(np.arange(-40, 50, 10))
-    else:
-        plt.yticks(np.arange(0, 120, 10))
-    # Show the plot
-    plt.legend(title="stroke cohort", loc="upper left")  # Add legend
-    legend = plt.legend(title="Stroke cohort", loc="upper left")  # Add legend
-    # Modify individual legend labels
-    legend.get_texts()[0].set_text(f"Pre-stroke: N={len(df_longitudinal)}")
-    legend.get_texts()[1].set_text(f"Post-stroke: N={len(df_longitudinal)}")
-
-    plt.tight_layout()
-
-    add_median_labels(ax)
-    # medians = melted_df.groupby(['hgs_category', 'stroke_cohort'])['value'].median()
-    plt.show()
-    plt.savefig(f"{population}_{feature_type}_{yaxis_target}_hgs_both_gender.png")
-    plt.close()
 ###############################################################################
 ###############################################################################
 # Create a list of column groups
@@ -161,28 +92,26 @@ for yaxis_target in ["actual", "predicted", "(actual-predicted)"]:
     ###############################################################################
     # Define a custom palette with two blue colors
     # Create a custom palette dictionary based on the values of the x-axis variable
-    custom_palette = sns.color_palette(['#800080', '#000080'])  # You can use any hex color codes you prefer
+    custom_palette = sns.color_palette(['#a851ab', '#005c95'])  # You can use any hex color codes you prefer
     plt.figure(figsize=(12, 6))
     sns.set(style="whitegrid")
-    # Define a dictionary to map tick labels to box colors
-    # x_labels = ["HGS Left-female", "HGS Left-male", "HGS Right-female", "HGS Right-male", "HGS L+R-female", "HGS L+R-male"]
-    # colors = {"HGS Left-female-Pre-stroke": "red", 
-    #           "HGS Left-male-Pre-stroke": "blue",
-    #           'HGS Left-female-Post-stroke': "red", 
-    #           'HGS Left-male-Post-stroke': "blue",
-    #         'HGS Right-female-Pre-stroke': "red", 
-    #         'HGS Right-male-Pre-stroke': "blue",
-    #         'HGS Right-female-Post-stroke': "red", 
-    #         'HGS Right-male-Post-stroke': "blue",
-    #         'HGS L+R-female-Pre-stroke': "red", 
-    #         'HGS L+R-male-Pre-stroke': "blue",
-    #         'HGS L+R-female-Post-stroke': "red",
-    #         'HGS L+R-male-Post-stroke': "blue", 
-    #         }
-    # melted_df['combine_hgs_gender_hue'] = melted_df['combine_hgs_gender'] + '-' + melted_df['stroke_cohort']
-    # palette = [colors[label] for label in melted_df['combine_hgs_gender_hue'].unique()]
-    # ax = sns.boxplot(x="combine_hgs_gender", y="value", data=melted_df, hue="stroke_cohort", palette=custom_palette)
-    ax = sns.boxplot(x="combine_hgs_stroke_cohort_category", y="value", data=melted_df, hue="gender", palette=custom_palette)
+    ax = sns.boxplot(x="combine_hgs_gender", y="value", data=melted_df, hue="stroke_cohort", palette=custom_palette)
+    # ax = sns.boxplot(x="combine_hgs_stroke_cohort_category", y="value", data=melted_df, hue="gender", palette=custom_palette)
+
+    # Select which box you want to change    
+    ax.patches[1].set_facecolor('#a851ab')
+    ax.patches[3].set_facecolor('#a851ab')
+    ax.patches[4].set_facecolor('#005c95')
+    ax.patches[5].set_facecolor('#005c95')
+    ax.patches[6].set_facecolor('#a851ab')
+    ax.patches[7].set_facecolor('#a851ab')
+    ax.patches[8].set_facecolor('#005c95')
+    ax.patches[9].set_facecolor('#005c95')
+    ax.patches[10].set_facecolor('#a851ab')
+    ax.patches[11].set_facecolor('#a851ab')
+    ax.patches[12].set_facecolor('#005c95')
+    ax.patches[13].set_facecolor('#005c95')
+
     # Optionally, you can set the x-axis labels to be more readable
     if yaxis_target == "(actual-predicted)":
         plt.yticks(np.arange(-40, 50, 10))
@@ -201,8 +130,9 @@ for yaxis_target in ["actual", "predicted", "(actual-predicted)"]:
     plt.xlabel("HGS targets", fontsize=20, fontweight="bold")
     plt.ylabel(f"{yaxis_target.capitalize()} HGS values", fontsize=20, fontweight="bold")
     plt.title(f"HGS values for genders - {feature_type}", fontsize=20)
+    # ax.get_legend().remove()
     legend = plt.legend(title="Gender", loc="upper left")  # Add legend
-    # Modify individual legend labels
+    # # Modify individual legend labels
     legend.get_texts()[0].set_text(f"Female: N={len(df_longitudinal[df_longitudinal['gender']==0])}")
     legend.get_texts()[1].set_text(f"Male: N={len(df_longitudinal[df_longitudinal['gender']==1])}")
 
@@ -213,11 +143,8 @@ for yaxis_target in ["actual", "predicted", "(actual-predicted)"]:
     # medians = melted_df.groupby(['combine_hgs_stroke_cohort_category', 'gender'])['value'].median()
 
     plt.show()
-    plt.savefig("aaa.png")
-print("===== Done! =====")
-embed(globals(), locals())
-    # plt.savefig(f"{population}_{feature_type}_{yaxis_target}_hgs_female_male_separated.png")
-    # plt.close()
+    plt.savefig(f"femalemale_nexttoeachother_{population}_{feature_type}_{yaxis_target}_hgs_female_male_separated.png")
+    plt.close()
 print("===== Done! =====")
 embed(globals(), locals())
 ###############################################################################
