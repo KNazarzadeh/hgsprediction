@@ -55,6 +55,7 @@ for item in df_selected["gender"].unique():
     # Define a custom palette with two blue colors
     custom_palette = sns.color_palette(['#B7E4C7', '#FFB0C4'])  # You can use any hex color codes you prefer
     # Create the boxplot with the custom palette
+    sns.set(style="whitegrid")
     fig, ax = plt.subplots(1, 2, figsize=(15, 10))  # Adjust the figure size if needed
     sns.set(style="whitegrid")
     # Define a custom palette with two blue colors
@@ -83,6 +84,7 @@ for item in df_selected["gender"].unique():
         sns.boxplot(x="stroke_cohort", y="value", data=melted_df, palette=custom_palette, ax=ax[index])
         sns.stripplot(x="stroke_cohort", y="value", data=melted_df, color=rgb_color, jitter=False, linewidth=0, size=7, ax=ax[index])
         sns.lineplot(data=melted_df, x="stroke_cohort", y="value", estimator=None, units="SubjectID", markers=True, color=rgb_color, linewidth=1, legend=False, ax=ax[index])
+        sns.set(style="whitegrid")
         print(index, yaxis_target)
         print(column_groups)
         

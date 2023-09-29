@@ -36,7 +36,8 @@ for target in ["hgs_left", "hgs_right", "hgs_L+R"]:
         "both_gender",
         session="3",
     )
-    
+    print("===== Done! =====")
+    embed(globals(), locals())
     df_2_intersection = df_2[df_2.index.isin(df_3.index)]
     df_3_intersection = df_3[df_3.index.isin(df_2.index)]
 
