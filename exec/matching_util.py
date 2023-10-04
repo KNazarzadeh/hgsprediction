@@ -1,7 +1,13 @@
+import sys
 import numpy as np
 import pandas as pd
 from psmpy import PsmPy
+from hgsprediction.load_results import healthy
+from hgsprediction.load_results import stroke
 
+from ptpython.repl import embed
+# print("===== Done! =====")
+# embed(globals(), locals())
 def match(data, target, confound, m, seed=None):
     '''
     Generates a matched sample of size m from data.
@@ -46,3 +52,46 @@ def match(data, target, confound, m, seed=None):
     index = psm.df_matched['index'].values
     
     return index
+
+
+filename = sys.argv[0]
+population = sys.argv[1]
+mri_status = sys.argv[2]
+model_name = sys.argv[3]
+feature_type = sys.argv[4]
+target = sys.argv[5]
+
+df_2 = healthy.load_hgs_predicted_results(population,
+    mri_status,
+    model_name,
+    feature_type,
+    target,
+    "both_gender",
+    session="2",
+)
+stroke_cohort = "longitudinal-stroke"
+session_column = f"1st_{stroke_cohort}_session"
+df_longitudinal = stroke.load_hgs_predicted_results("stroke", mri_status, session_column, model_name, feature_type, target, "both_gender")
+    
+# Set a random seed for reproducibility
+np.random.seed(47)
+my_data = df_2.copy()
+print("===== Done! =====")
+embed(globals(), locals())
+session_column = f"1st_scan_"
+
+# Define the variables for matching
+target_variable = 'Treatment'
+confounding_variables = ['Age', 'Income']
+sample_size = 4  # You can choose the desired size of your matched sample
+
+# Call the 'match' function to create a matched sample
+matched_indices = match(my_data, target_variable, confounding_variables, sample_size)
+
+# Retrieve the matched sample from the original dataset
+matched_sample = my_data.iloc[matched_indices]
+
+# Display the matched sample
+print(matched_sample)
+print("===== Done! =====")
+embed(globals(), locals())
