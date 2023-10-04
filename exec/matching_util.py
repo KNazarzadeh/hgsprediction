@@ -53,6 +53,7 @@ def match(data, target, confound, m, seed=None):
     
     return index
 
+###############################################################################
 
 filename = sys.argv[0]
 population = sys.argv[1]
@@ -61,7 +62,7 @@ model_name = sys.argv[3]
 feature_type = sys.argv[4]
 target = sys.argv[5]
 
-df_2 = healthy.load_hgs_predicted_results(population,
+df_mri_1st_scan = healthy.load_hgs_predicted_results(population,
     mri_status,
     model_name,
     feature_type,
@@ -69,15 +70,33 @@ df_2 = healthy.load_hgs_predicted_results(population,
     "both_gender",
     session="2",
 )
+df_healthy = df_mri_1st_scan[["1st_scan_age", "1st_scan_bmi",  "1st_scan_height",  "1st_scan_waist_to_hip_ratio"]]
+
+###############################################################################
 stroke_cohort = "longitudinal-stroke"
 session_column = f"1st_{stroke_cohort}_session"
-df_longitudinal = stroke.load_hgs_predicted_results("stroke", mri_status, session_column, model_name, feature_type, target, "both_gender")
-    
-# Set a random seed for reproducibility
-np.random.seed(47)
-my_data = df_2.copy()
+df_stroke = stroke.load_hgs_predicted_results("stroke", mri_status, session_column, model_name, feature_type, target, "both_gender")
+df_pre_stroke = df_stroke[["1st_pre-stroke_age", "1st_pre-stroke_bmi",  "1st_pre-stroke_height",  "1st_pre-stroke_waist_to_hip_ratio"]]
+df_pre_stroke.rename(columns={"1st_pre-stroke_age":"age", "1st_pre-stroke_bmi":"bmi",  "1st_pre-stroke_height":"height",  "1st_pre-stroke_waist_to_hip_ratio":"waist_to_hip_ratio"}, inplace=True)
+
+df_post_stroke = df_stroke[["1st_post-stroke_age", "1st_post-stroke_bmi",  "1st_post-stroke_height",  "1st_post-stroke_waist_to_hip_ratio"]]
+df_post_stroke.rename(columns={"1st_post-stroke_age":"age", "1st_post-stroke_bmi":"bmi",  "1st_post-stroke_height":"height",  "1st_post-stroke_waist_to_hip_ratio":"waist_to_hip_ratio"}, inplace=True)
+
+df_healthy.rename(columns={"1st_scan_age":"age", "1st_scan_bmi":"bmi",  "1st_scan_height":"height",  "1st_scan_waist_to_hip_ratio":"waist_to_hip_ratio"}, inplace=True)
+###############################################################################
+df_pre_stroke["actual_stroke_group_column_name"] = "stroke"
+df_healthy["actual_stroke_group_column_name"] = "healthy"
+
+df = pd.concat([df_healthy, df_pre_stroke])
 print("===== Done! =====")
 embed(globals(), locals())
+psm = PsmPy(df, treatment='stroke', indx='SubjectID', exclude=[])
+
+
+# Set a random seed for reproducibility
+np.random.seed(47)
+my_data = df_healthy.copy()
+
 session_column = f"1st_scan_"
 
 # Define the variables for matching
