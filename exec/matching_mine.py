@@ -24,48 +24,48 @@ feature_type = sys.argv[4]
 target = sys.argv[5]
 
 
-# folder_path = os.path.join(
-#         "/data",
-#         "project",
-#         "stroke_ukb",
-#         "knazarzadeh",
-#         "project_hgsprediction",
-#         "results_hgsprediction",
-#         "healthy",
-#         "nonmri",
-#         "anthropometrics_age",
-#         f"{target}",
-#         "without_confound_removal",
-#         "data_ready_to_train_models",
-#         "both_gender",
-#         )
+folder_path = os.path.join(
+        "/data",
+        "project",
+        "stroke_ukb",
+        "knazarzadeh",
+        "project_hgsprediction",
+        "results_hgsprediction",
+        "healthy",
+        "nonmri",
+        "anthropometrics_age",
+        f"{target}",
+        "without_confound_removal",
+        "data_ready_to_train_models",
+        "both_gender",
+        )
 
-# file_path = os.path.join(
-#         folder_path,
-#         "data_extracted_to_train_models.csv")
+file_path = os.path.join(
+        folder_path,
+        "data_extracted_to_train_models.csv")
     
-#     # Load the dataframe from csv file path
-# df_nonmri = pd.read_csv(file_path, sep=',', index_col=0, low_memory=False)
-# df_healthy = df_nonmri.copy()
-# df_healthy_female = df_nonmri[df_nonmri['gender']==0]
-# df_healthy_male = df_nonmri[df_nonmri['gender']==1]
+    # Load the dataframe from csv file path
+df_nonmri = pd.read_csv(file_path, sep=',', index_col=0, low_memory=False)
+df_healthy = df_nonmri.copy()
+df_healthy_female = df_nonmri[df_nonmri['gender']==0]
+df_healthy_male = df_nonmri[df_nonmri['gender']==1]
 
-df_mri_1st_scan = healthy.load_hgs_predicted_results("healthy",
-    "mri",
-    "linear_svm",
-    "anthropometrics_age",
-    f"{target}",
-    "both_gender",
-    session="2",
-)
-df_healthy = df_mri_1st_scan[["gender", "1st_scan_age", "1st_scan_bmi",  "1st_scan_height",  "1st_scan_waist_to_hip_ratio", f"1st_scan_{target}"]]
+# df_mri_1st_scan = healthy.load_hgs_predicted_results("healthy",
+#     "mri",
+#     "linear_svm",
+#     "anthropometrics_age",
+#     f"{target}",
+#     "both_gender",
+#     session="2",
+# )
+# df_healthy = df_mri_1st_scan[["gender", "1st_scan_age", "1st_scan_bmi",  "1st_scan_height",  "1st_scan_waist_to_hip_ratio", f"1st_scan_{target}"]]
 
-df_healthy.rename(columns={"1st_scan_age":"age", "1st_scan_bmi":"bmi",  "1st_scan_height":"height",  "1st_scan_waist_to_hip_ratio":"waist_to_hip_ratio",
-                           "1st_scan_handedness":"handedness", f"1st_scan_{target}":f"{target}"}, inplace=True)
-print(df_healthy)
+# df_healthy.rename(columns={"1st_scan_age":"age", "1st_scan_bmi":"bmi",  "1st_scan_height":"height",  "1st_scan_waist_to_hip_ratio":"waist_to_hip_ratio",
+#                            "1st_scan_handedness":"handedness", f"1st_scan_{target}":f"{target}"}, inplace=True)
+# print(df_healthy)
 
-df_healthy_female = df_mri_1st_scan[df_mri_1st_scan['gender']==0]
-df_healthy_male = df_mri_1st_scan[df_mri_1st_scan['gender']==1]
+# df_healthy_female = df_mri_1st_scan[df_mri_1st_scan['gender']==0]
+# df_healthy_male = df_mri_1st_scan[df_mri_1st_scan['gender']==1]
 
 ###############################################################################
 
