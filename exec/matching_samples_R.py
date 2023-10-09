@@ -30,7 +30,6 @@ target = sys.argv[5]
 
 def matching_samples(df, list_of_features):
     
-    df.insert(0, "index", df.index)
     treatment_group = df[df['disease'] == 1]
     control_group = df[df['disease'] == 0]
 
@@ -87,12 +86,14 @@ df_pre_stroke["disease"] = 1
 df_healthy["disease"] = 0
 
 df_pre = pd.concat([df_healthy, df_pre_stroke])
-df_pre['index'] = df_pre.index
-
+# df_pre['index'] = df_pre.index
+df_pre.insert(0, "index", df_pre.index)
+ 
 df_post_stroke["disease"] = 1
 df_healthy["disease"] = 0
 df_post = pd.concat([df_healthy, df_post_stroke])
-df_post['index'] = df_post.index
+# df_post['index'] = df_post.index
+df_post.insert(0, "index", df_post.index)
 
 df_pre_female=df_pre[df_pre["gender"]==0]
 df_pre_male=df_pre[df_pre["gender"]==1]
@@ -124,3 +125,89 @@ matched_data = pd.concat([
 
 print("===== Done! =====")
 embed(globals(), locals())
+import numpy as np
+import pandas as pd
+from sklearn.linear_model import LogisticRegression
+
+# Assuming you have a dataframe 'lalonde' containing the data
+# and you want to match on the specified variables
+
+# Define the treatment and covariates
+treatment = 'disease'
+covariates = ["age", "bmi",  "height",  "waist_to_hip_ratio", f"{target}", "gender"]
+
+# Create a logistic regression model to estimate propensity scores
+X = df_pre_female[covariates]
+# X = sm.add_constant(X)  # Add a constant term for the intercept
+y = df_pre_female[treatment]
+
+logit_model = sm.Logit(y, X)
+propensity_scores = logit_model.fit().predict()
+
+# Add propensity scores to the original dataframe
+lalonde['propensity_score'] = propensity_scores
+
+# Perform matching based on propensity scores
+def match(data, treatment_column, propensity_score_column):
+    treated = data[data[treatment_column] == 1]
+    control = data[data[treatment_column] == 0]
+    
+    matched_control = control.sample(n=len(treated), weights=1 / (1 - control[propensity_score_column]))
+    
+    matched_data = pd.concat([treated, matched_control])
+    
+    return matched_data
+
+matched_data = match(lalonde, treatment, 'propensity_score')
+
+# The matched_data dataframe now contains the matched data
+print(matched_data)
+
+from sklearn.linear_model import LogisticRegression
+
+# Step 1: Calculate propensity scores
+# Assuming you have your features for the logistic regression model in `X` and the 'Group' (treatment) in `y`
+X = mydata[["Age", "Sex"]]  # Adjust the feature columns as needed
+y = mydata["Group"]
+
+# Fit a logistic regression model to calculate propensity scores
+propensity_model = LogisticRegression()
+propensity_model.fit(X, y)
+propensity_scores = propensity_model.predict_proba(X)[:, 1]  # Use predicted probabilities of being in the treatment group
+
+# Step 2: Calculate distances for matched pairs
+# Assuming you have already calculated the `distance_matrix` as in your code
+
+# Step 3: Add distance and propensity scores to the `matched_data` DataFrame
+matched_data["Distance"] = distance_matrix[row_indices, col_indices]
+matched_data["Propensity_Score"] = propensity_scores[treatment_group.index[row_indices]]
+
+# Display the resulting matched_data DataFrame with added columns
+print(matched_data)
+
+
+import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
+
+# Assuming you have a DataFrame or relevant data from match.it
+# You might need to replace this with your actual data
+data = pd.DataFrame({
+    'Treatment': np.random.rand(100),  # Replace with your treatment data
+    'Control': np.random.rand(100),  # Replace with your control data
+})
+
+# Create a jitter plot using matplotlib
+data=matched_data
+plt.figure(figsize=(8, 6))
+plt.scatter(data['Treatment'], np.zeros(len(data['Treatment'])), label='Treatment', alpha=0.5)
+plt.scatter(data['Control'], np.ones(len(data['Control'])), label='Control', alpha=0.5)
+plt.xlabel('Propensity Score')
+plt.yticks([0, 1], ['Treatment', 'Control'])
+plt.legend()
+plt.title('Jitter Plot of Propensity Scores')
+plt.grid(axis='y')
+plt.show()
+plt.savefig("gg.png")
+plt.close()
+
