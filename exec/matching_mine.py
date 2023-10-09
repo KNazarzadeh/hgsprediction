@@ -10,6 +10,8 @@ from hgsprediction.load_results import stroke
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+from scipy.spatial.distance import cdist
+from scipy.optimize import linear_sum_assignment
 from ptpython.repl import embed
 # # print("===== Done! =====")
 # # embed(globals(), locals())
@@ -154,6 +156,24 @@ embed(globals(), locals())
 # # Reset the index
 # matched_data = matched_data.reset_index(drop=True)
 
+mydata = df_pre_female.copy()
+mydata['Group'] = mydata['disease'] == 1
+# Assuming you have a DataFrame named 'mydata' with columns 'Group', 'Age', and 'Sex'
+# Separate data into treatment and control groups
+treatment_group = mydata[mydata['Group'] == True]
+control_group = mydata[mydata['Group'] == False]
+
+# Calculate the distance matrix based on Age and Sex
+distance_matrix = cdist(treatment_group[["age", "bmi",  "height",  "waist_to_hip_ratio", f"{target}"]], control_group[["age", "bmi",  "height",  "waist_to_hip_ratio",f"{target}"]], metric='euclidean')
+
+# Perform nearest neighbor matching with a 1:1 ratio
+row_indices, col_indices = linear_sum_assignment(distance_matrix)
+
+# Create a DataFrame with matched pairs
+matched_data = pd.concat([
+    treatment_group.iloc[row_indices].reset_index(drop=True),
+    control_group.iloc[col_indices].reset_index(drop=True)
+], axis=1)
 
 ###############################################################################
 # "bmi",  "height",  "waist_to_hip_ratio",  "hgs_L+R", "gender"

@@ -15,8 +15,8 @@ from scipy.spatial.distance import cdist
 from scipy.optimize import linear_sum_assignment
 
 from ptpython.repl import embed
-# # print("===== Done! =====")
-# # embed(globals(), locals())
+# print("===== Done! =====")
+# embed(globals(), locals())
 
 ###############################################################################
 
@@ -28,36 +28,9 @@ feature_type = sys.argv[4]
 target = sys.argv[5]
 
 
-# folder_path = os.path.join(
-#         "/data",
-#         "project",
-#         "stroke_ukb",
-#         "knazarzadeh",
-#         "project_hgsprediction",
-#         "results_hgsprediction",
-#         "healthy",
-#         "nonmri",
-#         "anthropometrics_age",
-#         f"{target}",
-#         "without_confound_removal",
-#         "data_ready_to_train_models",
-#         "both_gender",
-#         )
-
-# file_path = os.path.join(
-#         folder_path,
-#         "data_extracted_to_train_models.csv")
-    
-#     # Load the dataframe from csv file path
-# df_nonmri = pd.read_csv(file_path, sep=',', index_col=0, low_memory=False)
-# df_healthy = df_nonmri.copy()
-# df_healthy_female = df_nonmri[df_nonmri['gender']==0]
-# df_healthy_male = df_nonmri[df_nonmri['gender']==1]
-
-
 def matching_samples(df, list_of_features):
     
-    df = df.insert(0, "index", df.index)
+    df.insert(0, "index", df.index)
     treatment_group = df[df['disease'] == 1]
     control_group = df[df['disease'] == 0]
 
@@ -114,29 +87,28 @@ df_pre_stroke["disease"] = 1
 df_healthy["disease"] = 0
 
 df_pre = pd.concat([df_healthy, df_pre_stroke])
-# df_pre['index'] = df_pre.index
+df_pre['index'] = df_pre.index
 
 df_post_stroke["disease"] = 1
 df_healthy["disease"] = 0
 df_post = pd.concat([df_healthy, df_post_stroke])
-# df_post['index'] = df_post.index
+df_post['index'] = df_post.index
 
 df_pre_female=df_pre[df_pre["gender"]==0]
 df_pre_male=df_pre[df_pre["gender"]==1]
 df_post_female=df_post[df_post["gender"]==0]
 df_post_male=df_post[df_post["gender"]==1]
 
-
 print("===== Done! =====")
 embed(globals(), locals())
-
 mydata = df_pre_female.copy()
-
+mydata['Group'] = mydata['disease'] == 1
 # Assuming you have a DataFrame named 'mydata' with columns 'Group', 'Age', and 'Sex'
 # Separate data into treatment and control groups
-treatment_group = mydata[mydata['disease'] == 1]
-control_group = mydata[mydata['disease'] == 0]
+treatment_group = mydata[mydata['Group'] == True]
+control_group = mydata[mydata['Group'] == False]
 
+# Set a random seed for reproducibility
 # Calculate the distance matrix based on Age and Sex
 distance_matrix = cdist(treatment_group[["age", "bmi",  "height",  "waist_to_hip_ratio", f"{target}"]], control_group[["age", "bmi",  "height",  "waist_to_hip_ratio",f"{target}"]], metric='euclidean')
 
@@ -148,8 +120,6 @@ matched_data = pd.concat([
     treatment_group.iloc[row_indices].reset_index(drop=True),
     control_group.iloc[col_indices].reset_index(drop=True)
 ], axis=1)
-
-
 
 print("===== Done! =====")
 embed(globals(), locals())
