@@ -102,6 +102,119 @@ df_post_male=df_post[df_post["gender"]==1]
 
 print("===== Done! =====")
 embed(globals(), locals())
+##############################################################################
+###############################################################################
+treated_df = df_pre_female[df_pre_female['disease']==1]
+non_treated_df = df_pre_female[df_pre_female['disease']==0]
+
+from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import NearestNeighbors
+def get_matching_pairs(treated_df, non_treated_df, scaler=True):
+    treated_x = treated_df.values
+    non_treated_x = non_treated_df.values
+    if scaler == True:
+        scaler = StandardScaler()
+    if scaler:
+        scaler.fit(treated_x)
+        treated_x = scaler.transform(treated_x)
+        non_treated_x = scaler.transform(non_treated_x)
+    nbrs = NearestNeighbors(n_neighbors=1, algorithm='ball_tree').fit(non_treated_x)
+    distances, indices = nbrs.kneighbors(treated_x)
+    indices = indices.reshape(indices.shape[0])
+    matched = non_treated_df.iloc[indices]
+    return matched
+
+##############################################################################
+from sklearn.linear_model import LogisticRegression
+from sklearn.neighbors import NearestNeighbors
+
+# Define the covariates you want to use for matching
+# covariates = ["age", "bmi",  "height",  "waist_to_hip_ratio", f"{target}"]
+covariates = ["age", "bmi",  "height",  "waist_to_hip_ratio", f"{target}"]
+
+# Create a DataFrame for treated and control groups
+treated_group = df_pre_female[df_pre_female['disease'] == 1]
+control_group = df_pre_female[df_pre_female['disease'] == 0]
+
+# Fit a Nearest Neighbors model on the control group
+knn = NearestNeighbors(n_neighbors=1)
+knn.fit(control_group[covariates])
+
+# Find the nearest neighbors for each treated unit
+distances, indices = knn.kneighbors(treated_group[covariates])
+
+# Fit a logistic regression model to estimate propensity scores
+propensity_model = LogisticRegression()
+propensity_model.fit(df_pre_female[covariates], df_pre_female['disease'])
+propensity_scores = propensity_model.predict_proba(df_pre_female[covariates])[:, 1]
+
+def Match(groups, propensity, caliper = 0.05):
+    ''' 
+    Inputs:
+    groups = Treatment assignments.  Must be 2 groups
+    propensity = Propensity scores for each observation. Propensity and groups should be in the same order (matching indices)
+    caliper = Maximum difference in matched propensity scores. For now, this is a caliper on the raw
+            propensity; Austin reccommends using a caliper on the logit propensity.
+    
+    Output:
+    A series containing the individuals in the control group matched to the treatment group.
+    Note that with caliper matching, not every treated individual may have a match.
+    '''
+
+    # Check inputs
+    if any(propensity <=0) or any(propensity >=1):
+        raise ValueError('Propensity scores must be between 0 and 1')
+    elif not(0<caliper<1):
+        raise ValueError('Caliper must be between 0 and 1')
+    elif len(groups)!= len(propensity):
+        raise ValueError('groups and propensity scores must be same dimension')
+    elif len(groups.unique()) != 2:
+        raise ValueError('wrong number of groups')
+        
+        
+    # Code groups as 0 and 1
+    groups = groups == groups.unique()[0]
+    N = len(groups)
+    N1 = groups.sum(); N2 = N-N1
+    g1, g2 = propensity[groups == 1], (propensity[groups == 0])
+    # Check if treatment groups got flipped - treatment (coded 1) should be the smaller
+    if N1 > N2:
+       N1, N2, g1, g2 = N2, N1, g2, g1 
+        
+        
+    # Randomly permute the smaller group to get order for matching
+    morder = np.random.permutation(N1)
+    matches = pd.Series(np.empty(N1))
+    matches[:] = np.NAN
+    
+    for m in morder:
+        dist = abs(g1[m] - g2)
+        if dist.min() <= caliper:
+            matches[m] = dist.argmin()
+            g2 = g2.drop(matches[m])
+    return (matches)
+
+
+# Create a DataFrame to store the matched pairs with index columns and distances
+matched_pairs = pd.DataFrame({
+    'treated_index': treated_group.index,
+    'control_index': control_group.index[indices.flatten()],
+    'distance': distances.flatten(),
+    'propensity_score': propensity_scores[indices.flatten()]
+})
+
+# Use the matched pairs to create the matched data
+matched_data = treated_group.reset_index(drop=True).join(control_group.iloc[indices.flatten()].reset_index(drop=True), lsuffix="_treat", rsuffix="_control")
+
+matched_data['distance'] = matched_pairs['distance'].values
+matched_data['propensity_score'] = matched_pairs['propensity_score'].values
+
+
+matched_treated = matched_data['propensity_score']
+matched_controls = matched_data['propensity_score']
+unmatched_units= df_pre_female
+
+###############################################################################
 mydata = df_pre_female.copy()
 mydata['Group'] = mydata['disease'] == 1
 # Assuming you have a DataFrame named 'mydata' with columns 'Group', 'Age', and 'Sex'
@@ -119,34 +232,10 @@ row_indices, col_indices = linear_sum_assignment(distance_matrix)
 # Create a DataFrame with matched pairs
 matched_data = pd.concat([
     treatment_group.iloc[row_indices].reset_index(drop=True),
-    control_group.iloc[col_indices].reset_index(drop=True)
-], axis=1)
+    control_group.iloc[col_indices].reset_index(drop=True)], axis=1)
 
-
-print("===== Done! =====")
-embed(globals(), locals())
-import numpy as np
-import pandas as pd
-from sklearn.linear_model import LogisticRegression
-
-# Assuming you have a dataframe 'lalonde' containing the data
-# and you want to match on the specified variables
-
-# Define the treatment and covariates
-treatment = 'disease'
-covariates = ["age", "bmi",  "height",  "waist_to_hip_ratio", f"{target}", "gender"]
-
-# Create a logistic regression model to estimate propensity scores
-X = df_pre_female[covariates]
-# X = sm.add_constant(X)  # Add a constant term for the intercept
-y = df_pre_female[treatment]
-
-logit_model = sm.Logit(y, X)
-propensity_scores = logit_model.fit().predict()
-
-# Add propensity scores to the original dataframe
-lalonde['propensity_score'] = propensity_scores
-
+###############################################################################
+###############################################################################
 # Perform matching based on propensity scores
 def match(data, treatment_column, propensity_score_column):
     treated = data[data[treatment_column] == 1]
@@ -158,34 +247,7 @@ def match(data, treatment_column, propensity_score_column):
     
     return matched_data
 
-matched_data = match(lalonde, treatment, 'propensity_score')
-
-# The matched_data dataframe now contains the matched data
-print(matched_data)
-
-from sklearn.linear_model import LogisticRegression
-
-# Step 1: Calculate propensity scores
-# Assuming you have your features for the logistic regression model in `X` and the 'Group' (treatment) in `y`
-X = mydata[["Age", "Sex"]]  # Adjust the feature columns as needed
-y = mydata["Group"]
-
-# Fit a logistic regression model to calculate propensity scores
-propensity_model = LogisticRegression()
-propensity_model.fit(X, y)
-propensity_scores = propensity_model.predict_proba(X)[:, 1]  # Use predicted probabilities of being in the treatment group
-
-# Step 2: Calculate distances for matched pairs
-# Assuming you have already calculated the `distance_matrix` as in your code
-
-# Step 3: Add distance and propensity scores to the `matched_data` DataFrame
-matched_data["Distance"] = distance_matrix[row_indices, col_indices]
-matched_data["Propensity_Score"] = propensity_scores[treatment_group.index[row_indices]]
-
-# Display the resulting matched_data DataFrame with added columns
-print(matched_data)
-
-
+###############################################################################
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np

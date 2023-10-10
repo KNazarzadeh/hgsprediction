@@ -9,6 +9,12 @@ from hgsprediction.load_data import healthy_load_data
 from hgsprediction.load_results import stroke
 import matplotlib.pyplot as plt
 import seaborn as sns
+# import relevant libraries
+from psmpy import PsmPy
+from psmpy.functions import cohenD
+from psmpy.plotting import *
+sns.set(rc={'figure.figsize':(10,8)}, font_scale = 1.3)
+
 
 from scipy.spatial.distance import cdist
 from scipy.optimize import linear_sum_assignment
@@ -26,48 +32,48 @@ feature_type = sys.argv[4]
 target = sys.argv[5]
 
 
-folder_path = os.path.join(
-        "/data",
-        "project",
-        "stroke_ukb",
-        "knazarzadeh",
-        "project_hgsprediction",
-        "results_hgsprediction",
-        "healthy",
-        "nonmri",
-        "anthropometrics_age",
-        f"{target}",
-        "without_confound_removal",
-        "data_ready_to_train_models",
-        "both_gender",
-        )
+# folder_path = os.path.join(
+#         "/data",
+#         "project",
+#         "stroke_ukb",
+#         "knazarzadeh",
+#         "project_hgsprediction",
+#         "results_hgsprediction",
+#         "healthy",
+#         "nonmri",
+#         "anthropometrics_age",
+#         f"{target}",
+#         "without_confound_removal",
+#         "data_ready_to_train_models",
+#         "both_gender",
+#         )
 
-file_path = os.path.join(
-        folder_path,
-        "data_extracted_to_train_models.csv")
+# file_path = os.path.join(
+#         folder_path,
+#         "data_extracted_to_train_models.csv")
     
-    # Load the dataframe from csv file path
-df_nonmri = pd.read_csv(file_path, sep=',', index_col=0, low_memory=False)
-df_healthy = df_nonmri.copy()
-df_healthy_female = df_nonmri[df_nonmri['gender']==0]
-df_healthy_male = df_nonmri[df_nonmri['gender']==1]
+#     # Load the dataframe from csv file path
+# df_nonmri = pd.read_csv(file_path, sep=',', index_col=0, low_memory=False)
+# df_healthy = df_nonmri.copy()
+# df_healthy_female = df_nonmri[df_nonmri['gender']==0]
+# df_healthy_male = df_nonmri[df_nonmri['gender']==1]
 
-# df_mri_1st_scan = healthy.load_hgs_predicted_results("healthy",
-#     "mri",
-#     "linear_svm",
-#     "anthropometrics_age",
-#     f"{target}",
-#     "both_gender",
-#     session="2",
-# )
-# df_healthy = df_mri_1st_scan[["gender", "1st_scan_age", "1st_scan_bmi",  "1st_scan_height",  "1st_scan_waist_to_hip_ratio", f"1st_scan_{target}"]]
+df_mri_1st_scan = healthy.load_hgs_predicted_results("healthy",
+    "mri",
+    "linear_svm",
+    "anthropometrics_age",
+    f"{target}",
+    "both_gender",
+    session="2",
+)
+df_healthy = df_mri_1st_scan[["gender", "1st_scan_age", "1st_scan_bmi",  "1st_scan_height",  "1st_scan_waist_to_hip_ratio", f"1st_scan_{target}"]]
 
-# df_healthy.rename(columns={"1st_scan_age":"age", "1st_scan_bmi":"bmi",  "1st_scan_height":"height",  "1st_scan_waist_to_hip_ratio":"waist_to_hip_ratio",
-#                            "1st_scan_handedness":"handedness", f"1st_scan_{target}":f"{target}"}, inplace=True)
-# print(df_healthy)
+df_healthy.rename(columns={"1st_scan_age":"age", "1st_scan_bmi":"bmi",  "1st_scan_height":"height",  "1st_scan_waist_to_hip_ratio":"waist_to_hip_ratio",
+                           "1st_scan_handedness":"handedness", f"1st_scan_{target}":f"{target}"}, inplace=True)
+print(df_healthy)
 
-# df_healthy_female = df_mri_1st_scan[df_mri_1st_scan['gender']==0]
-# df_healthy_male = df_mri_1st_scan[df_mri_1st_scan['gender']==1]
+df_healthy_female = df_mri_1st_scan[df_mri_1st_scan['gender']==0]
+df_healthy_male = df_mri_1st_scan[df_mri_1st_scan['gender']==1]
 
 ###############################################################################
 
@@ -105,56 +111,6 @@ df_post_male=df_post[df_post["gender"]==1]
 print("===== Done! =====")
 embed(globals(), locals())
 
-# from sklearn.preprocessing import StandardScaler
-# from sklearn.neighbors import NearestNeighbors
-# from sklearn.metrics import pairwise_distances
-# import pandas as pd
-# import numpy as np
-# from sklearn.linear_model import LogisticRegression
-
-# # Assuming you have a DataFrame called "data" with covariates (e.g., age, BMI, height, waist-to-hip ratio) and a treatment indicator
-
-# # Define your covariates (predictors)
-# covariates = ['age','height']
-
-# # Extract the covariates and the treatment indicator
-# X = df_pre_female[covariates]
-# treatment = df_pre_female['disease']
-
-# # Fit a logistic regression model to predict treatment assignment
-# model = LogisticRegression()
-# model.fit(X, treatment)
-
-# # Get the predicted probabilities (propensity scores)
-# propensity_scores = model.predict_proba(X)[:, 1]
-
-# # Add the propensity scores to your DataFrame
-# df_pre_female['propensity_score'] = propensity_scores
-
-# # Assuming you have a DataFrame called "data" with propensity scores and treatment indicator
-# # Create separate DataFrames for treated and control groups
-# treated_data = df_pre_female[df_pre_female['disease'] == 1]
-# control_data = df_pre_female[df_pre_female['disease'] == 0]
-
-# # Standardize the covariates (propensity scores) to have zero mean and unit variance
-# scaler = StandardScaler()
-# treated_covariates = scaler.fit_transform(treated_data[['propensity_score']])
-# control_covariates = scaler.transform(control_data[['propensity_score']])
-
-# # Find exact matches
-# neigh = NearestNeighbors(n_neighbors=1, algorithm='ball_tree', metric='euclidean')
-# neigh.fit(control_covariates)
-# distances, indices = neigh.kneighbors(treated_covariates)
-
-# # Get the matched pairs
-# matched_treated = treated_data.loc[:, df_pre_female.columns != 'index']
-# matched_control = control_data.iloc[indices.flatten()].loc[:, df_pre_female.columns != 'index']
-
-# # Combine the matched pairs into a new DataFrame
-# matched_data = pd.concat([matched_treated, matched_control], axis=0)
-
-# # Reset the index
-# matched_data = matched_data.reset_index(drop=True)
 
 mydata = df_pre_female.copy()
 mydata['Group'] = mydata['disease'] == 1
