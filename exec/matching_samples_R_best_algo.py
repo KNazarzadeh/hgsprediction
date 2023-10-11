@@ -106,7 +106,7 @@ for stroke_cohort in ["pre-stroke", "post-stroke"]:
         propensity_scores = propensity_model.predict_proba(data[covariates])[:, 1]
         data['propensity_scores'] = propensity_scores
 
-        # Create a DataFrame for treated and control groups
+        # Create a DataFrame for diseaseed and control groups
         disease_group = data[data['disease'] == 1]
         control_group = data[data['disease'] == 0]
 
@@ -114,28 +114,32 @@ for stroke_cohort in ["pre-stroke", "post-stroke"]:
         knn = NearestNeighbors(n_neighbors=1)
         knn.fit(control_group[covariates])
 
-        # Find the nearest neighbors for each treated unit
+        # Find the nearest neighbors for each diseaseed unit
         distances, indices = knn.kneighbors(disease_group[covariates])
         matched_pairs = pd.DataFrame({
-            'treated_index': disease_group.index,
+            'disease_index': disease_group.index,
             'control_index': control_group.index[indices.flatten()],
             'distance': distances.flatten(),
             'propensity_score': propensity_scores[indices.flatten()]
         })
-
+        # print("===== Done! =====")
+        # embed(globals(), locals())
         # Use the matched pairs to create the matched data
-        matched_data = disease_group.reset_index(drop=True).join(control_group.iloc[indices.flatten()].reset_index(drop=True), lsuffix="_treat", rsuffix="_control")
+        matched_data = disease_group.reset_index(drop=True).join(control_group.iloc[indices.flatten()].reset_index(drop=True), lsuffix="_disease", rsuffix="_control")
 
         matched_data['distance'] = matched_pairs['distance'].values
-        matched_data['propensity_score'] = matched_pairs['propensity_score'].values
 
-
-        matched_patients = matched_data['propensity_score']
-        matched_controls = matched_data['propensity_score']
-        unmatched_controls= control_group[~control_group.index.isin(pd.concat([matched_data['index_treat'], matched_data['index_control']]))].loc[:, 'propensity_scores']
-        unmatched_patients= disease_group[~disease_group.index.isin(pd.concat([matched_data['index_treat'], matched_data['index_control']]))].loc[:, 'propensity_scores']
+        matched_patients = matched_data['propensity_scores_disease']
+        matched_controls = matched_data['propensity_scores_control']
+        unmatched_controls= control_group[~control_group.index.isin(pd.concat([matched_data['index_disease'], matched_data['index_control']]))].loc[:, 'propensity_scores']
+        unmatched_patients= disease_group[~disease_group.index.isin(pd.concat([matched_data['index_disease'], matched_data['index_control']]))].loc[:, 'propensity_scores']
         print(len(matched_patients))
         print(len(matched_controls))
+        print(stroke_cohort)
+        print(gender)
+        print(matched_data)
+        print(matched_data.describe())
+        matched_data.to_csv(f"{stroke_cohort}_{gender}_{target}_with_hgs.csv", sep=',', index=False)
 
 ##############################################################################
 ##############################################################################
@@ -168,7 +172,7 @@ for stroke_cohort in ["pre-stroke", "post-stroke"]:
     fig.suptitle(f"Distribution of Propensity Scores\n{stroke_cohort}\nTarget={target_label}", fontsize=16, fontweight="bold")
     plt.show()
     # plt.savefig(f"PS_distribution_{target}_{stroke_cohort}_{gender}_without_hgs.png")
-    plt.savefig(f"PS_distribution_{target}_{stroke_cohort}_{gender}.png")
+    plt.savefig(f"PS_distribution_{target}_{stroke_cohort}_{gender}_with_hgs.png")
     plt.close()
 
 ##############################################################################

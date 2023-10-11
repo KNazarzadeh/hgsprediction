@@ -75,8 +75,8 @@ df_post.insert(0, "index", df_post.index)
 
 ##############################################################################
 # Define the covariates you want to use for matching
-covariates = ["age", "bmi",  "height",  "waist_to_hip_ratio", f"{target}"]
-# covariates = ["age", "bmi",  "height",  "waist_to_hip_ratio"]
+# covariates = ["age", "bmi",  "height",  "waist_to_hip_ratio", f"{target}"]
+covariates = ["age", "bmi",  "height",  "waist_to_hip_ratio"]
 
 for stroke_cohort in ["pre-stroke", "post-stroke"]:
     if stroke_cohort == "pre-stroke":
@@ -115,21 +115,25 @@ for stroke_cohort in ["pre-stroke", "post-stroke"]:
             'distance': distances.flatten(),
             'propensity_score': propensity_scores[indices.flatten()]
         })
-
+        
         # Use the matched pairs to create the matched data
         matched_data = disease_group.reset_index(drop=True).join(control_group.iloc[indices.flatten()].reset_index(drop=True), lsuffix="_disease", rsuffix="_control")
 
         matched_data['distance'] = matched_pairs['distance'].values
-        matched_data['propensity_score'] = matched_pairs['propensity_score'].values
 
-
-        matched_patients = matched_data['propensity_score']
-        matched_controls = matched_data['propensity_score']
+        matched_patients = matched_data['propensity_scores_disease']
+        matched_controls = matched_data['propensity_scores_control']
         unmatched_controls= control_group[~control_group.index.isin(pd.concat([matched_data['index_disease'], matched_data['index_control']]))].loc[:, 'propensity_scores']
         unmatched_patients= disease_group[~disease_group.index.isin(pd.concat([matched_data['index_disease'], matched_data['index_control']]))].loc[:, 'propensity_scores']
         print(len(matched_patients))
         print(len(matched_controls))
-
+        print(stroke_cohort)
+        print(gender)
+        print(matched_data)
+        print(matched_data.describe())
+        print("===== Done! =====")
+        embed(globals(), locals())
+        matched_data.to_csv(f"{stroke_cohort}_{gender}_{target}_with_hgs", sep=',', index=False)
 ##############################################################################
 ##############################################################################
         # plot
@@ -175,12 +179,12 @@ for stroke_cohort in ["pre-stroke", "post-stroke"]:
     
         fig.suptitle(f"Distribution of Features\n{stroke_cohort}\nTarget={target_label}\n{gender}(Total Controls={len(pd.concat([matched_controls, unmatched_controls], axis=0))})", fontsize=16, fontweight="bold")
         plt.show()
-        plt.savefig(f"FT_distribution_{target}_{stroke_cohort}_{gender}.png")
+        plt.savefig(f"FT_distribution_{target}_{stroke_cohort}_{gender}_without_hgs.png")
         plt.close()
 
 ##############################################################################
 ##############################################################################
 
-
+# a = pd.read_csv(f"{stroke_cohort}_{gender}_{target}", sep=',')
 print("===== Done! =====")
 embed(globals(), locals())
