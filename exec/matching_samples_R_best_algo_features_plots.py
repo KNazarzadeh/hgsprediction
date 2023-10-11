@@ -85,16 +85,9 @@ for stroke_cohort in ["pre-stroke", "post-stroke"]:
     elif stroke_cohort == "post-stroke":
         df = df_post.copy()
 ##############################################################################
-    # plot
-    fig, ax = plt.subplots(1,2, figsize=(20, 8))
-    # Set the background color of the axes to white
-    sns.set_style('darkgrid')
     for gender in ["Female", "Male"]:
         if gender == "Female":
             data = df[df["gender"]==0]
-            axi = 0
-            print(gender)
-            print(axi)
             # print("===== Done! =====")
             # embed(globals(), locals())
         elif gender == "Male":    
@@ -106,7 +99,7 @@ for stroke_cohort in ["pre-stroke", "post-stroke"]:
         propensity_scores = propensity_model.predict_proba(data[covariates])[:, 1]
         data['propensity_scores'] = propensity_scores
 
-        # Create a DataFrame for treated and control groups
+        # Create a DataFrame for diseaseed and control groups
         disease_group = data[data['disease'] == 1]
         control_group = data[data['disease'] == 0]
 
@@ -114,17 +107,17 @@ for stroke_cohort in ["pre-stroke", "post-stroke"]:
         knn = NearestNeighbors(n_neighbors=1)
         knn.fit(control_group[covariates])
 
-        # Find the nearest neighbors for each treated unit
+        # Find the nearest neighbors for each diseaseed unit
         distances, indices = knn.kneighbors(disease_group[covariates])
         matched_pairs = pd.DataFrame({
-            'treated_index': disease_group.index,
+            'disease_index': disease_group.index,
             'control_index': control_group.index[indices.flatten()],
             'distance': distances.flatten(),
             'propensity_score': propensity_scores[indices.flatten()]
         })
 
         # Use the matched pairs to create the matched data
-        matched_data = disease_group.reset_index(drop=True).join(control_group.iloc[indices.flatten()].reset_index(drop=True), lsuffix="_treat", rsuffix="_control")
+        matched_data = disease_group.reset_index(drop=True).join(control_group.iloc[indices.flatten()].reset_index(drop=True), lsuffix="_disease", rsuffix="_control")
 
         matched_data['distance'] = matched_pairs['distance'].values
         matched_data['propensity_score'] = matched_pairs['propensity_score'].values
@@ -132,44 +125,58 @@ for stroke_cohort in ["pre-stroke", "post-stroke"]:
 
         matched_patients = matched_data['propensity_score']
         matched_controls = matched_data['propensity_score']
-        unmatched_controls= control_group[~control_group.index.isin(pd.concat([matched_data['index_treat'], matched_data['index_control']]))].loc[:, 'propensity_scores']
-        unmatched_patients= disease_group[~disease_group.index.isin(pd.concat([matched_data['index_treat'], matched_data['index_control']]))].loc[:, 'propensity_scores']
+        unmatched_controls= control_group[~control_group.index.isin(pd.concat([matched_data['index_disease'], matched_data['index_control']]))].loc[:, 'propensity_scores']
+        unmatched_patients= disease_group[~disease_group.index.isin(pd.concat([matched_data['index_disease'], matched_data['index_control']]))].loc[:, 'propensity_scores']
         print(len(matched_patients))
         print(len(matched_controls))
 
 ##############################################################################
 ##############################################################################
-        y = np.full((len(unmatched_patients)), 1.4)
-        ax[axi].scatter(unmatched_patients, y, s=100, edgecolors='black', c='white')
-        y = np.full((len(matched_patients)), 1)
-        ax[axi].scatter(matched_patients, y, s=100, edgecolors='black', c='white')
-        y = np.full((len(matched_controls)), 0.6)
-        ax[axi].scatter(matched_controls, y, s=100, edgecolors='black', c='white')
-        y = np.full((len(unmatched_controls)), 0.2)
-        ax[axi].scatter(unmatched_controls, y, s=100, edgecolors='black', c='white')
+        # plot
+        fig, ax = plt.subplots(2,2, figsize=(18, 10))
+        # Set the background color of the axes to white
+        sns.set_style('darkgrid')
+        for i, feature in enumerate(covariates):
+            if i == 0:
+                axi = 0
+                axj = 0
+            elif i == 1:
+                axi = 0
+                axj = 1
+            elif i == 2:
+                axi = 1
+                axj = 0
+            elif i == 3:
+                axi = 1
+                axj = 1
+            y1 = np.full((len(matched_data)), 0.6)
+            ax[axi][axj].scatter(matched_data[feature+"_disease"], y1, s=100, edgecolors='black', c='white')
+            df_y1 = pd.concat([matched_data[feature+"_disease"], pd.Series(y1, name='yaxis')], axis=1)
+            df_y1 = df_y1.rename(columns={f"{feature}_disease":f"{feature}", f"{feature}_control":f"{feature}"})
+            y2 = np.full((len(matched_data)), 0.2)
+            ax[axi][axj].scatter(matched_data[feature+"_control"], y2, s=100, edgecolors='black', c='white')
+            df_y2 = pd.concat([matched_data[feature+"_control"], pd.Series(y2, name='yaxis')], axis=1)
+            df_y2 = df_y2.rename(columns={f"{feature}_disease":f"{feature}", f"{feature}_control":f"{feature}"})
+            
+            # Plot lines connecting corresponding points
+            ax[axi][axj].plot([df_y1[feature], df_y2[feature]], [df_y1["yaxis"], df_y2["yaxis"]], linestyle='-')
+            xmin, xmax = ax[axi][axj].get_xlim()
+            x_axis_mean = (xmin + xmax) / 2
+            ax[axi][axj].set_ylim(0, .8)
 
-        xmin, xmax = ax[axi].get_xlim()
-        x_axis_mean = (xmin + xmax) / 2
-        ax[axi].set_ylim(0, 1.6)
+            text1 = f"Matched Disease Patients(N={len(matched_patients)})"
+            text2 = f"Matched Healthy Controls(N={len(matched_controls)})"
 
-        text0 = f"Unmatched Disease Patients(N={len(unmatched_patients)})"
-        text1 = f"Matched Disease Patients(N={len(matched_patients)})"
-        text2 = f"Matched Healthy Controls(N={len(matched_controls)})"
-        text3 = f"Unmatched healthy Controls(N={len(unmatched_controls)})"
-
-        ax[axi].text(x_axis_mean, 1.4 + 0.07, text0, horizontalalignment='center', fontsize=12, fontweight="bold")
-        ax[axi].text(x_axis_mean, 1 + 0.07, text1, horizontalalignment='center', fontsize=12, fontweight="bold")
-        ax[axi].text(x_axis_mean, 0.6 + 0.07, text2, horizontalalignment='center', fontsize=12, fontweight="bold")
-        ax[axi].text(x_axis_mean, 0.2 + 0.07, text3, horizontalalignment='center', fontsize=12, fontweight="bold")
-        # Remove the y-axis ticks
-        ax[axi].set_yticklabels([])
-        ax[axi].set_title(f"{gender}(Total Controls={len(pd.concat([matched_controls, unmatched_controls], axis=0))})", fontsize=14, fontweight="bold")
+            ax[axi][axj].text(x_axis_mean, 0.6 + 0.08, text1, horizontalalignment='center', fontsize=12, fontweight="bold")
+            ax[axi][axj].text(x_axis_mean, 0.2 - 0.08, text2, horizontalalignment='center', fontsize=12, fontweight="bold")
+            # Remove the y-axis ticks
+            ax[axi][axj].set_yticklabels([])
+            ax[axi][axj].set_title(f"{feature.capitalize()}", fontsize=14, fontweight="bold")
     
-    fig.suptitle(f"Distribution of Propensity Scores\n{stroke_cohort}\nTarget={target_label}", fontsize=16, fontweight="bold")
-    plt.show()
-    # plt.savefig(f"PS_distribution_{target}_{stroke_cohort}_{gender}_without_hgs.png")
-    plt.savefig(f"PS_distribution_{target}_{stroke_cohort}_{gender}.png")
-    plt.close()
+        fig.suptitle(f"Distribution of Features\n{stroke_cohort}\nTarget={target_label}\n{gender}(Total Controls={len(pd.concat([matched_controls, unmatched_controls], axis=0))})", fontsize=16, fontweight="bold")
+        plt.show()
+        plt.savefig(f"FT_distribution_{target}_{stroke_cohort}_{gender}.png")
+        plt.close()
 
 ##############################################################################
 ##############################################################################
