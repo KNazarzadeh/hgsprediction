@@ -100,33 +100,9 @@ df_pre_male=df_pre[df_pre["gender"]==1]
 df_post_female=df_post[df_post["gender"]==0]
 df_post_male=df_post[df_post["gender"]==1]
 
-print("===== Done! =====")
-embed(globals(), locals())
+
 ##############################################################################
-###############################################################################
-treated_df = df_pre_female[df_pre_female['disease']==1]
-non_treated_df = df_pre_female[df_pre_female['disease']==0]
-
-from sklearn.preprocessing import StandardScaler
-from sklearn.neighbors import NearestNeighbors
-def get_matching_pairs(treated_df, non_treated_df, scaler=True):
-    treated_x = treated_df.values
-    non_treated_x = non_treated_df.values
-    if scaler == True:
-        scaler = StandardScaler()
-    if scaler:
-        scaler.fit(treated_x)
-        treated_x = scaler.transform(treated_x)
-        non_treated_x = scaler.transform(non_treated_x)
-    nbrs = NearestNeighbors(n_neighbors=1, algorithm='ball_tree').fit(non_treated_x)
-    distances, indices = nbrs.kneighbors(treated_x)
-    indices = indices.reshape(indices.shape[0])
-    matched = non_treated_df.iloc[indices]
-    return matched
-
-matched_1 = get_matching_pairs(treated_df, non_treated_df, scaler=True)
-matched_df1 = treated_df.reset_index(drop=True).join(matched_1.reset_index(drop=True), lsuffix="_treat", rsuffix="_control")
-
+##############################################################################
 ##############################################################################
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import NearestNeighbors
@@ -150,54 +126,7 @@ distances, indices = knn.kneighbors(treated_group[covariates])
 propensity_model = LogisticRegression()
 propensity_model.fit(df_pre_female[covariates], df_pre_female['disease'])
 propensity_scores = propensity_model.predict_proba(df_pre_female[covariates])[:, 1]
-
-def Match(groups, propensity, caliper = 0.05):
-    ''' 
-    Inputs:
-    groups = Treatment assignments.  Must be 2 groups
-    propensity = Propensity scores for each observation. Propensity and groups should be in the same order (matching indices)
-    caliper = Maximum difference in matched propensity scores. For now, this is a caliper on the raw
-            propensity; Austin reccommends using a caliper on the logit propensity.
-    
-    Output:
-    A series containing the individuals in the control group matched to the treatment group.
-    Note that with caliper matching, not every treated individual may have a match.
-    '''
-
-    # Check inputs
-    if any(propensity <=0) or any(propensity >=1):
-        raise ValueError('Propensity scores must be between 0 and 1')
-    elif not(0<caliper<1):
-        raise ValueError('Caliper must be between 0 and 1')
-    elif len(groups)!= len(propensity):
-        raise ValueError('groups and propensity scores must be same dimension')
-    elif len(groups.unique()) != 2:
-        raise ValueError('wrong number of groups')
-        
-        
-    # Code groups as 0 and 1
-    groups = groups == groups.unique()[0]
-    N = len(groups)
-    N1 = groups.sum(); N2 = N-N1
-    g1, g2 = propensity[groups == 1], (propensity[groups == 0])
-    # Check if treatment groups got flipped - treatment (coded 1) should be the smaller
-    if N1 > N2:
-       N1, N2, g1, g2 = N2, N1, g2, g1 
-        
-        
-    # Randomly permute the smaller group to get order for matching
-    morder = np.random.permutation(N1)
-    matches = pd.Series(np.empty(N1))
-    matches[:] = np.NAN
-    
-    for m in morder:
-        dist = abs(g1[m] - g2)
-        if dist.min() <= caliper:
-            matches[m] = dist.argmin()
-            g2 = g2.drop(matches[m])
-    return (matches)
-
-
+df_pre_female['propensity_scores'] = propensity_scores
 # Create a DataFrame to store the matched pairs with index columns and distances
 matched_pairs = pd.DataFrame({
     'treated_index': treated_group.index,
@@ -215,8 +144,31 @@ matched_data['propensity_score'] = matched_pairs['propensity_score'].values
 
 matched_treated = matched_data['propensity_score']
 matched_controls = matched_data['propensity_score']
-unmatched_units= df_pre_female
+unmatched_units= df_pre_female[~df_pre_female.index.isin(pd.concat([matched_data['index_treat'], matched_data['index_control']]))].loc[:, 'propensity_scores']
 
+fig, ax = plt.subplots(figsize=(8, 6))
+# Set the background color of the axes to white
+ax.set_facecolor('white')
+y = np.full((len(matched_treated)), 1)
+plt.scatter(matched_treated, y, s = 100, edgecolors='black', c='white')
+y = np.full((len(matched_controls)), .75)
+plt.scatter(matched_controls, y, s = 100, edgecolors='black', c='white')
+y = np.full((len(unmatched_units)), 0.25)
+plt.scatter(unmatched_units, y, s = 100, edgecolors='black', c='white')
+# Ensure that the spines (borders) of the axes are visible
+ax.spines['bottom'].set_visible(True)
+ax.spines['top'].set_visible(True)
+ax.spines['right'].set_visible(True)
+ax.spines['left'].set_visible(True)
+
+# Remove the y-axis ticks
+# ax.tick_params(axis='y', left=False)   
+plt.show()
+plt.savefig("ppp.png")
+plt.close()
+
+print("===== Done! =====")
+embed(globals(), locals())
 ###############################################################################
 mydata = df_pre_female.copy()
 mydata['Group'] = mydata['disease'] == 1
@@ -233,68 +185,12 @@ distance_matrix = cdist(treatment_group[["age", "bmi",  "height",  "waist_to_hip
 row_indices, col_indices = linear_sum_assignment(distance_matrix)
 
 # Create a DataFrame with matched pairs
-matched_data = pd.concat([
+matched_data_2 = pd.concat([
     treatment_group.iloc[row_indices].reset_index(drop=True),
     control_group.iloc[col_indices].reset_index(drop=True)], axis=1)
 
 ###############################################################################
-###############################################################################
-from sklearn.metrics import roc_curve, auc
-from IPython.display import display
-data = df_pre_female
-X = data[covariates]
-y = data['disease']
-logit = LogisticRegression()
-logit.fit(X, y)
-propensity_scores = logit.predict_proba(X)[:, 1]
-false_positive_rate,true_positive_rate,th = roc_curve(y,propensity_scores)
-data['pp'] = propensity_scores
-
-roc_auc = auc(false_positive_rate,true_positive_rate)
-if roc_auc >=0.70:
-    
-    data_subset = data[data['disease'] == 0]
-    data_pp = data_subset['pp'].values  # Extract the 'pp' column as a NumPy array
-    treated_data = data[data['disease'] == 1]
-    data_tr_pp = treated_data['pp'].values  # Extract the 'pp' column as a NumPy array
-
-    #   Match treated and control individuals based on propensity scores
-    treated_indices = data[data['disease'] == 1].index
-    control_indices = data[data['disease'] == 0].index
-    # The NearestNeighbors model with n_neighbors=1 and algorithm='ball_tree' will return the indices of the nearest points in the population matrix, rather than the actual values of those points.
-    nbrs = NearestNeighbors(n_neighbors=1, algorithm='ball_tree').fit(np.reshape(propensity_scores[control_indices], (-1, 1)))
-    nbrs = NearestNeighbors(n_neighbors=1, algorithm='ball_tree').fit(np.reshape(data_pp, (len(data_pp), -1)))
-    #Specifically, if you use the kneighbors method of the NearestNeighbors object to find the index of the nearest neighbor(s) for a given query point, it will return an array of shape (n_queries, n_neighbors) containing the indices of the closest data points in the training set.
-    distances, indices = nbrs.kneighbors(np.reshape(data_tr_pp, (len(data_tr_pp), -1)))
-    matched_control_indices = control_indices[indices.flatten()]
-
-    a = data_subset[data_subset.index.isin(matched_control_indices)]
-    # Duplicate entries can lead to biased estimates of treatment effects because they violate the assumption of independence between observations. To avoid this problem, you may want to remove duplicates from the matched control and treatment groups
-    new_control_indices = list(set(matched_control_indices))
-    control_data = data.iloc[new_control_indices].RenewalStatus
-    control_mean = data.iloc[new_control_indices].RenewalStatus.mean()
-    treatment_data = data.iloc[treated_indices].RenewalStatus
-    treatment_mean = data.iloc[treated_indices].RenewalStatus.mean()
-    effect = treatment_mean - control_mean
-    print('Effect on renewal rates when Product A usage is above 40%:',round(effect * 100),'%')
-    # Evaluate balance of covariates between matched groups
-    #By comparing the matched_control_indices to the treated_indices, you can verify that each treated individual has been successfully matched to a control individual with a similar propensity score, and you can further evaluate whether the covariates are balanced between the two groups. For example, you could calculate the mean and standard deviation of each covariate for the treated and matched control groups separately and compare them to check for balance.
-    display(data.iloc[treated_indices].describe().style.set_caption('TREATMENT GROUP'))
-    display(data.iloc[new_control_indices].describe().style.set_caption('CONTROL GROUP'))
-    # Estimate treatment effect using matched pairs
-else :
-    print(roc_auc)
-# Perform matching based on propensity scores
-def match(data, treatment_column, propensity_score_column):
-    treated = data[data[treatment_column] == 1]
-    control = data[data[treatment_column] == 0]
-    
-    matched_control = control.sample(n=len(treated), weights=1 / (1 - control[propensity_score_column]))
-    
-    matched_data = pd.concat([treated, matched_control])
-    
-    return matched_data
-
+##############################################################################
 ###############################################################################
 import matplotlib.pyplot as plt
 import pandas as pd
