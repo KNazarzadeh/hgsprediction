@@ -29,6 +29,7 @@ model_name = sys.argv[3]
 feature_type = sys.argv[4]
 target = sys.argv[5]
 
+
 if target == "hgs_L+R":
     target_label = "HGS (Left+Right)"
 elif target == "hgs_left":
@@ -75,8 +76,8 @@ df_post.insert(0, "index", df_post.index)
 
 ##############################################################################
 # Define the covariates you want to use for matching
-covariates = ["age", "bmi",  "height",  "waist_to_hip_ratio", f"{target}"]
-# covariates = ["age", "bmi",  "height",  "waist_to_hip_ratio"]
+# covariates = ["age", "bmi",  "height",  "waist_to_hip_ratio", f"{target}"]
+covariates = ["age", "bmi",  "height",  "waist_to_hip_ratio"]
 
 for stroke_cohort in ["pre-stroke", "post-stroke"]:
     if stroke_cohort == "pre-stroke":
