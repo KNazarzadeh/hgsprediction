@@ -112,10 +112,6 @@ df_post.insert(0, "index", df_post.index)
 covariates = ["bmi", "height", "waist_to_hip_ratio", "age"]
 custom_palette = sns.color_palette(['#a851ab', '#005c95'])  # You can use any hex color codes you prefer
 fig, ax = plt.subplots(2,2, figsize=(12,12))
-xmin_main = 0
-xmax_main = 0
-ymin_main = 0
-ymax_main = 0
 for stroke_cohort in ["pre-stroke", "post-stroke"]:
     if stroke_cohort == "pre-stroke":
         df = df_pre.copy()
