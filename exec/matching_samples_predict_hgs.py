@@ -90,7 +90,7 @@ stroke_cohort = "longitudinal-stroke"
 session_column = f"1st_{stroke_cohort}_session"
 df_stroke = stroke.load_hgs_predicted_results("stroke", mri_status, session_column, model_name, feature_type, target, "both_gender")
 df_stroke.loc[:, "disease"] = 1
-
+df_stroke = df_stroke.drop(index=1872273)
 df_pre_stroke = df_stroke.loc[:, ["gender", "1st_pre-stroke_age", "1st_pre-stroke_bmi",  "1st_pre-stroke_height",  "1st_pre-stroke_waist_to_hip_ratio", f"1st_pre-stroke_{target}", "disease"]]
 df_pre_stroke.rename(columns={"1st_pre-stroke_age":"age", "1st_pre-stroke_bmi":"bmi",  "1st_pre-stroke_height":"height",  "1st_pre-stroke_waist_to_hip_ratio":"waist_to_hip_ratio", 
                               "1st_pre-stroke_handedness":"handedness", f"1st_pre-stroke_{target}":f"{target}"}, inplace=True)
@@ -98,7 +98,8 @@ df_pre_stroke.rename(columns={"1st_pre-stroke_age":"age", "1st_pre-stroke_bmi":"
 df_post_stroke = df_stroke.loc[:, ["gender", "1st_post-stroke_age", "1st_post-stroke_bmi",  "1st_post-stroke_height",  "1st_post-stroke_waist_to_hip_ratio", f"1st_post-stroke_{target}", "disease"]]
 df_post_stroke.rename(columns={"1st_post-stroke_age":"age", "1st_post-stroke_bmi":"bmi",  "1st_post-stroke_height":"height",  "1st_post-stroke_waist_to_hip_ratio":"waist_to_hip_ratio",
                                "1st_post-stroke_handedness":"handedness", f"1st_post-stroke_{target}":f"{target}"}, inplace=True)
-
+# print("===== Done! =====")
+# embed(globals(), locals())
 ###############################################################################
 df_pre = pd.concat([df_healthy, df_pre_stroke], axis=0)
 df_pre.insert(0, "index", df_pre.index)
@@ -128,8 +129,6 @@ for stroke_cohort in ["pre-stroke", "post-stroke"]:
             data = df[df["gender"]==0]
             df_female_stroke = df_stroke[df_stroke["gender"]==0]
             print(gender)
-            # print("===== Done! =====")
-            # embed(globals(), locals())
         elif gender == "Male":    
             data = df[df["gender"]==1]
             df_male_stroke = df_stroke[df_stroke["gender"]==1]
@@ -155,8 +154,6 @@ for stroke_cohort in ["pre-stroke", "post-stroke"]:
             'distance': distances.flatten(),
             'propensity_score': propensity_scores[indices.flatten()]
         })
-        # print("===== Done! =====")
-        # embed(globals(), locals())
         # Use the matched pairs to create the matched data
         control_samples = control_group.iloc[indices.flatten()]            
         print(matched_pairs)
@@ -256,7 +253,7 @@ for stroke_cohort in ["pre-stroke", "post-stroke"]:
             
 plt.suptitle(f"Control smaples vs patients - {target_label}", fontsize=14, fontweight="bold")
 plt.show()
-plt.savefig(f"control_samples_predicted_{target}.png")
+plt.savefig(f"control_samples_predicted_{target}_excluding_1872273.png")
 plt.close()
 
 
