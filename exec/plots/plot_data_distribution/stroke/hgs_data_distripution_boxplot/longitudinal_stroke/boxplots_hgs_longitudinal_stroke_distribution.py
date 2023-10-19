@@ -29,7 +29,9 @@ for target in ["hgs_L+R", "hgs_left", "hgs_right"]:
     
     df_combined = pd.concat([df_combined, df_selected], axis=1)    
 
+
 df_combined.insert(0, "gender", df_longitudinal["gender"])
+df_combined = df_combined.drop(index=1872273)
 
 ###############################################################################
 def add_median_labels(ax, fmt='.1f'):
@@ -47,11 +49,11 @@ def add_median_labels(ax, fmt='.1f'):
             path_effects.Stroke(linewidth=3, foreground=median.get_color()),
             path_effects.Normal(),
         ])
-# print("===== Done! =====")
-# embed(globals(), locals())
+
 ###############################################################################
 # Create a list of column groups
-for yaxis_target in ["actual", "predicted", "(actual-predicted)"]:
+# for yaxis_target in ["actual", "predicted", "(actual-predicted)"]:
+for yaxis_target in ["(actual-predicted)"]:
     column_groups = [
     ("HGS Left", [f"1st_pre-stroke_hgs_left_{yaxis_target}", f"1st_post-stroke_hgs_left_{yaxis_target}"]),
     ("HGS Right", [f"1st_pre-stroke_hgs_right_{yaxis_target}", f"1st_post-stroke_hgs_right_{yaxis_target}"]),
@@ -97,7 +99,7 @@ for yaxis_target in ["actual", "predicted", "(actual-predicted)"]:
     ax = sns.boxplot(x="hgs_category", y="value", hue="stroke_cohort", data=melted_df, palette=custom_palette)    
     # Add labels and title
     plt.xlabel("HGS targets", fontsize=20, fontweight="bold")
-    plt.ylabel(f"{yaxis_target.capitalize()} HGS values", fontsize=20, fontweight="bold")
+    plt.ylabel("HGS delta values", fontsize=20, fontweight="bold")
     plt.title(f"pre-stroke and post-stroke HGS values - {feature_type}", fontsize=20)
 
     ymin , ymax = ax.get_ylim()
@@ -109,20 +111,21 @@ for yaxis_target in ["actual", "predicted", "(actual-predicted)"]:
     plt.legend(title="stroke cohort", loc="upper left")  # Add legend
     legend = plt.legend(title="Stroke cohort", loc="upper left")  # Add legend
     # Modify individual legend labels
-    legend.get_texts()[0].set_text(f"Pre-stroke: N={len(df_longitudinal)}")
-    legend.get_texts()[1].set_text(f"Post-stroke: N={len(df_longitudinal)}")
+    legend.get_texts()[0].set_text(f"Pre-stroke: N={len(df_combined)}")
+    legend.get_texts()[1].set_text(f"Post-stroke: N={len(df_combined)}")
 
     plt.tight_layout()
 
     add_median_labels(ax)
     # medians = melted_df.groupby(['hgs_category', 'stroke_cohort'])['value'].median()
     plt.show()
-    plt.savefig(f"{population}_{feature_type}_{yaxis_target}_hgs_both_gender.png")
+    plt.savefig(f"boxplot_{population}_{feature_type}_{yaxis_target}_hgs_both_gender_excluding_outliers.png")
     plt.close()
 ###############################################################################
 ###############################################################################
 # Create a list of column groups
-for yaxis_target in ["actual", "predicted", "(actual-predicted)"]:
+# for yaxis_target in ["actual", "predicted", "(actual-predicted)"]:
+for yaxis_target in ["(actual-predicted)"]:
     column_groups = [
     ("HGS Left", [f"1st_pre-stroke_hgs_left_{yaxis_target}", f"1st_post-stroke_hgs_left_{yaxis_target}"]),
     ("HGS Right", [f"1st_pre-stroke_hgs_right_{yaxis_target}", f"1st_post-stroke_hgs_right_{yaxis_target}"]),
@@ -161,7 +164,7 @@ for yaxis_target in ["actual", "predicted", "(actual-predicted)"]:
     ###############################################################################
     # Define a custom palette with two blue colors
     # Create a custom palette dictionary based on the values of the x-axis variable
-    custom_palette = sns.color_palette(['#800080', '#000080'])  # You can use any hex color codes you prefer
+    custom_palette = sns.color_palette(['#a851ab', '#005c95'])  # You can use any hex color codes you prefer
     plt.figure(figsize=(12, 6))
     sns.set(style="whitegrid")
     # Define a dictionary to map tick labels to box colors
@@ -199,12 +202,12 @@ for yaxis_target in ["actual", "predicted", "(actual-predicted)"]:
 
     # Add labels and title
     plt.xlabel("HGS targets", fontsize=20, fontweight="bold")
-    plt.ylabel(f"{yaxis_target.capitalize()} HGS values", fontsize=20, fontweight="bold")
+    plt.ylabel("HGS delta values", fontsize=20, fontweight="bold")
     plt.title(f"HGS values for genders - {feature_type}", fontsize=20)
     legend = plt.legend(title="Gender", loc="upper left")  # Add legend
     # Modify individual legend labels
-    legend.get_texts()[0].set_text(f"Female: N={len(df_longitudinal[df_longitudinal['gender']==0])}")
-    legend.get_texts()[1].set_text(f"Male: N={len(df_longitudinal[df_longitudinal['gender']==1])}")
+    legend.get_texts()[0].set_text(f"Female: N={len(df_combined[df_combined['gender']==0])}")
+    legend.get_texts()[1].set_text(f"Male: N={len(df_combined[df_combined['gender']==1])}")
 
     # Show the plot
     plt.tight_layout()
@@ -213,13 +216,10 @@ for yaxis_target in ["actual", "predicted", "(actual-predicted)"]:
     # medians = melted_df.groupby(['combine_hgs_stroke_cohort_category', 'gender'])['value'].median()
 
     plt.show()
-    plt.savefig("aaa.png")
+    plt.savefig(f"boxplot_{population}_{feature_type}_{yaxis_target}_hgs_separate_gender_excluding_outliers.png")
 print("===== Done! =====")
 embed(globals(), locals())
-    # plt.savefig(f"{population}_{feature_type}_{yaxis_target}_hgs_female_male_separated.png")
-    # plt.close()
-print("===== Done! =====")
-embed(globals(), locals())
+
 ###############################################################################
 
 
