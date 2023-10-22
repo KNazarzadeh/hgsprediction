@@ -14,7 +14,9 @@ from .stroke_load_data import load_original_data, \
                               load_preprocessed_data
 
 
-from .parkinson_load_data import load_original_data
+from .parkinson_load_data import load_original_data, \
+                                 load_validate_hgs_data, \
+                                 load_preprocessed_data
 
 
 from .load_data import load_original_data_per_session,load_original_data, load_hgs_availability_data_per_session, load_hgs_disease_data

@@ -4,3 +4,5 @@ from .healthy.load_hgs_spearman_correlation_results import load_spearman_correla
 
 from .stroke.load_hgs_predicted_results import load_hgs_predicted_results, load_hgs_predicted_results_mri_records_sessions_only
 from .stroke.load_hgs_spearman_correlation_results import load_spearman_correlation_results, load_spearman_correlation_results_mri_records_sessions_only
+
+from .parkinson.load_hgs_predicted_results import load_hgs_predicted_results
