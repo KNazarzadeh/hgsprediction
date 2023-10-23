@@ -286,55 +286,98 @@ def add_median_labels(ax, fmt='.3f'):
 ###############################################################################
 print("===== Done! =====")
 embed(globals(), locals())
+df["hgs_target_parkinson_type"] = df["hgs_target"] + "-" +df["parkinson_type"]
+df_parkinson_together["hgs_target_parkinson_type"] = df_parkinson_together["hgs_target"] + "-" +df_parkinson_together["parkinson_type"]
+df_main = pd.concat([df, df_parkinson_together])
+melted_df = pd.melt(df_main, id_vars=["hgs_target_parkinson_type", "disease"], value_vars="delta", var_name="variable", ignore_index=False)
 # Define a custom palette with two blue colors
 custom_palette = sns.color_palette(['#95CADB', '#008ECC'])  # You can use any hex color codes you prefer
-plt.figure(figsize=(10, 6))  # Adjust the figure size if needed
+plt.figure(figsize=(18, 10))  # Adjust the figure size if needed
 sns.set(style="whitegrid")
-ax = sns.boxplot(x="hgs_target", y="delta", hue="parkinson_cohort", hue_order=["pre", "post"], data=df, palette=custom_palette)    
+# Define the order in which you want the x-axis categories
+x_order = ['HGS Left-premanifest', 'HGS Left-manifest', 'HGS Right-premanifest', 'HGS Right-manifest', 'HGS L+R-premanifest', 'HGS L+R-manifest']
+ax = sns.boxplot(data=melted_df, x="hgs_target_parkinson_type", y="value", hue="disease", order=x_order, palette=custom_palette)   
 # Add labels and title
 plt.xlabel("HGS targets", fontsize=20, fontweight="bold")
 plt.ylabel("HGS delta values", fontsize=20, fontweight="bold")
-plt.title(f"Matching samples from controls HGS delta values", fontsize=15, fontweight="bold")
+plt.title(f"Matching samples from controls vs Parkinson's disease HGS delta values", fontsize=15, fontweight="bold")
 
+ymin, ymax = plt.ylim()
+plt.yticks(range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+10, 10))
 # Show the plot
-legend = plt.legend(title="Macthing samples cohort", loc="upper left", prop={'size': 8})  # Add legend
+legend = plt.legend(title="Samples", loc="upper left", prop={'size': 8})  # Add legend
 # Modify individual legend labels
-legend.get_texts()[0].set_text(f"Matching controls of Pre-parkinson: N={len(df_both_gender)}")
-legend.get_texts()[1].set_text(f"Matching controls of Post-parkinson: N={len(df_both_gender)}")
+legend.get_texts()[0].set_text("Matching samples from controls")
+legend.get_texts()[1].set_text("Parkinson's disease")
 
 plt.tight_layout()
 
 add_median_labels(ax)
 
 plt.show()
-plt.savefig(f"boxplot_samples_{population}_{feature_type}_hgs_both_gender.png")
+plt.savefig(f"boxplot_samples_{population}_{feature_type}_hgs_both_gender_controls_PDdisease.png")
 plt.close()
 ###############################################################################
-melted_df_tmp = pd.melt(df, id_vars=['hgs_target', 'parkinson_cohort', 'gender'], var_name='variable', value_name='value')
-melted_df = melted_df_tmp[melted_df_tmp['variable']=='delta']
-melted_df['combine_hgs_parkinson_cohort_category'] = melted_df['hgs_target'] + '-' + melted_df['parkinson_cohort']
-custom_palette = sns.color_palette(['#a851ab', '#005c95'])  # You can use any hex color codes you prefer
 
-plt.figure(figsize=(20, 8))  # Adjust the figure size if needed
+melted_df_female = pd.melt(df_main[df_main["gender"]==0], id_vars=["hgs_target_parkinson_type", "disease"], value_vars="delta", var_name="variable", ignore_index=False)
+
+custom_palette = sns.color_palette(['#ca96cc', '#a851ab'])  # You can use any hex color codes you prefer
+plt.figure(figsize=(18, 10))  # Adjust the figure size if needed
 sns.set(style="whitegrid")
-ax = sns.boxplot(x="combine_hgs_parkinson_cohort_category", y="value", hue="gender", data=melted_df, palette=custom_palette)    
+x_order = ['HGS Left-premanifest', 'HGS Left-manifest', 'HGS Right-premanifest', 'HGS Right-manifest', 'HGS L+R-premanifest', 'HGS L+R-manifest']
+ax = sns.boxplot(data=melted_df_female, x="hgs_target_parkinson_type", y="value", hue="disease", order=x_order, palette=custom_palette)    
 # Add labels and title
 plt.xlabel("HGS targets", fontsize=20, fontweight="bold")
 plt.ylabel("HGS delta values", fontsize=20, fontweight="bold")
-plt.title(f"Matching samples from controls HGS delta values", fontsize=15, fontweight="bold")
+plt.title(f"Matching samples from controls vs Parkinson's disease HGS delta values - Females", fontsize=15, fontweight="bold")
 
+ymin, ymax = plt.ylim()
+plt.yticks(range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+10, 10))
 # Show the plot
 legend = plt.legend(title="Macthing samples cohort", loc="upper left", prop={'size': 8})  # Add legend
 # Modify individual legend labels
-legend.get_texts()[0].set_text(f"Matching controls Female: N={len(df_both_gender[df_both_gender['gender']==0])}")
-legend.get_texts()[1].set_text(f"Matching controls Male: N={len(df_both_gender[df_both_gender['gender']==1])}")
+legend.get_texts()[0].set_text(f"Matching samples from controls Female")
+legend.get_texts()[1].set_text(f"Parkinson's disease Female")
 
 plt.tight_layout()
 
 add_median_labels(ax)
 
 plt.show()
-plt.savefig(f"boxplot_samples_{population}_{feature_type}_hgs_separate_gender.png")
+plt.savefig(f"boxplot_samples_{population}_{feature_type}_hgs_separate_gender_separated_PDdisease_Female.png")
 plt.close()
+
+###############################################################################
+
+melted_df_male = pd.melt(df_main[df_main["gender"]==1], id_vars=["hgs_target_parkinson_type", "disease"], value_vars="delta", var_name="variable", ignore_index=False)
+
+custom_palette = sns.color_palette(['#669dbf', '#005c95'])  # You can use any hex color codes you prefer
+plt.figure(figsize=(18, 10))  # Adjust the figure size if needed
+sns.set(style="whitegrid")
+x_order = ['HGS Left-premanifest', 'HGS Left-manifest', 'HGS Right-premanifest', 'HGS Right-manifest', 'HGS L+R-premanifest', 'HGS L+R-manifest']
+ax = sns.boxplot(data=melted_df_male, x="hgs_target_parkinson_type", y="value", hue="disease", order=x_order, palette=custom_palette)    
+# Add labels and title
+plt.xlabel("HGS targets", fontsize=20, fontweight="bold")
+plt.ylabel("HGS delta values", fontsize=20, fontweight="bold")
+plt.title(f"Matching samples from controls vs Parkinson's disease HGS delta values - Males", fontsize=15, fontweight="bold")
+
+ymin, ymax = plt.ylim()
+plt.yticks(range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+10, 10))
+
+# Show the plot
+legend = plt.legend(title="Macthing samples cohort", loc="upper left", prop={'size': 8})  # Add legend
+# Modify individual legend labels
+legend.get_texts()[0].set_text(f"Matching samples from controls Male")
+legend.get_texts()[1].set_text(f"Parkinson's disease Male")
+
+plt.tight_layout()
+
+add_median_labels(ax)
+
+plt.show()
+plt.savefig(f"boxplot_samples_{population}_{feature_type}_hgs_separate_gender_separated_PDdisease_Male.png")
+plt.close()
+
+
 print("===== Done! =====")
 embed(globals(), locals())
