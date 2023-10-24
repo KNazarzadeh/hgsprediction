@@ -6,7 +6,7 @@ import os
 from psmpy import PsmPy
 from hgsprediction.load_results import healthy
 from hgsprediction.load_data import healthy_load_data
-from hgsprediction.load_results import parkinson
+from hgsprediction.load_results import stroke
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.linear_model import LogisticRegression
@@ -106,23 +106,29 @@ for target in ["hgs_L+R", "hgs_left", "hgs_right"]:
 
     df_healthy = pd.concat([df_healthy_female, df_healthy_male])
     df_healthy.loc[:, "disease"] = 0
-
+    # print("===== Done! =====")
+    # embed(globals(), locals())
     ###############################################################################
-    df_parkinson_premanifest = parkinson.load_hgs_predicted_results("parkinson", mri_status, model_name, feature_type, target, "both_gender", "premanifest")
-    df_parkinson_manifest = parkinson.load_hgs_predicted_results("parkinson", mri_status, model_name, feature_type, target, "both_gender", "manifest")
-       
-    df_parkinson_premanifest.loc[:, "disease"] = 1
-    df_parkinson_manifest.loc[:, "disease"] = 1
 
-    df_parkinson_premanifest = df_parkinson_premanifest.loc[:, ["gender", "age", "bmi",  "height",  "waist_to_hip_ratio", f"{target}", "disease"]]
+    stroke_cohort = "longitudinal-stroke"
+    session_column = f"1st_{stroke_cohort}_session"
+    df_stroke = stroke.load_hgs_predicted_results("stroke", mri_status, session_column, model_name, feature_type, target, "both_gender")
+    df_stroke.loc[:, "disease"] = 1
+    df_stroke = df_stroke.drop(index=1872273)
 
-    df_parkinson_manifest = df_parkinson_manifest.loc[:, ["gender", "age", "bmi",  "height",  "waist_to_hip_ratio", f"{target}", "disease"]]
+    df_pre_stroke = df_stroke.loc[:, ["gender", "1st_pre-stroke_age", "1st_pre-stroke_bmi",  "1st_pre-stroke_height",  "1st_pre-stroke_waist_to_hip_ratio", f"1st_pre-stroke_{target}", "disease"]]
+    df_pre_stroke.rename(columns={"1st_pre-stroke_age":"age", "1st_pre-stroke_bmi":"bmi",  "1st_pre-stroke_height":"height",  "1st_pre-stroke_waist_to_hip_ratio":"waist_to_hip_ratio", 
+                                "1st_pre-stroke_handedness":"handedness", f"1st_pre-stroke_{target}":f"{target}"}, inplace=True)
+
+    df_post_stroke = df_stroke.loc[:, ["gender", "1st_post-stroke_age", "1st_post-stroke_bmi",  "1st_post-stroke_height",  "1st_post-stroke_waist_to_hip_ratio", f"1st_post-stroke_{target}", "disease"]]
+    df_post_stroke.rename(columns={"1st_post-stroke_age":"age", "1st_post-stroke_bmi":"bmi",  "1st_post-stroke_height":"height",  "1st_post-stroke_waist_to_hip_ratio":"waist_to_hip_ratio",
+                                "1st_post-stroke_handedness":"handedness", f"1st_post-stroke_{target}":f"{target}"}, inplace=True)
     ###############################################################################
-    df_premanifest = pd.concat([df_healthy, df_parkinson_premanifest], axis=0)
-    df_premanifest.insert(0, "index", df_premanifest.index)
+    df_pre = pd.concat([df_healthy, df_pre_stroke], axis=0)
+    df_pre.insert(0, "index", df_pre.index)
 
-    df_manifest = pd.concat([df_healthy, df_parkinson_manifest], axis=0)
-    df_manifest.insert(0, "index", df_manifest.index)
+    df_post = pd.concat([df_healthy, df_post_stroke], axis=0)
+    df_post.insert(0, "index", df_post.index)
 
     ##############################################################################
     # Define the covariates you want to use for matching
@@ -130,26 +136,30 @@ for target in ["hgs_L+R", "hgs_left", "hgs_right"]:
     covariates = ["bmi", "height", "waist_to_hip_ratio", "age"]
     X = covariates
     y = target
-
-    for parkinson_type in ["premanifest", "manifest"]:
-        if parkinson_type == "premanifest":
-            df = df_premanifest.copy()
-            df_parkinson = df_premanifest[df_premanifest['disease']==1]
-            print(parkinson_type)
-        elif parkinson_type == "manifest":
-            df = df_manifest.copy()
-            df_parkinson = df_manifest[df_manifest['disease']==1]
+    custom_palette = sns.color_palette(['#a851ab', '#005c95'])  # You can use any hex color codes you prefer
+    fig, ax = plt.subplots(2,2, figsize=(12,12))
+    for stroke_cohort in ["pre-stroke", "post-stroke"]:
+        if stroke_cohort == "pre-stroke":
+            df = df_pre.copy()
+            df_stroke = df_pre[df_pre['disease']==1]
+            axj=0
+            print(stroke_cohort)
+        elif stroke_cohort == "post-stroke":
+            df = df_post.copy()
+            df_stroke = df_post[df_post['disease']==1]
+            axj=1
     ##############################################################################
         control_samples_female = pd.DataFrame()
         control_samples_male = pd.DataFrame()
         for gender in ["Female", "Male"]:
             if gender == "Female":
                 data = df[df["gender"]==0]
-                df_female_parkinson = df_parkinson[df_parkinson["gender"]==0]
+                df_female_stroke = df_stroke[df_stroke["gender"]==0]
                 print(gender)
             elif gender == "Male":    
                 data = df[df["gender"]==1]
-                df_male_parkinson = df_parkinson[df_parkinson["gender"]==1]
+                df_male_stroke = df_stroke[df_stroke["gender"]==1]
+
             # Fit a logistic regression model to estimate propensity scores
             propensity_model = LogisticRegression()
             propensity_model.fit(data[covariates], data['disease'])
@@ -162,6 +172,10 @@ for target in ["hgs_L+R", "hgs_left", "hgs_right"]:
 
             matched_pairs = pd.DataFrame({'disease_index': disease_group.index})
             matched_data = pd.DataFrame()
+            matched_patients = pd.DataFrame()
+            matched_controls = pd.DataFrame()
+            unmatched_controls = pd.DataFrame()
+            unmatched_patients = pd.DataFrame()
             # Define the range of k from 1 to n
             n = 10  # You can change this to the desired value of n
             for k in range(1, n + 1):
@@ -188,85 +202,85 @@ for target in ["hgs_L+R", "hgs_left", "hgs_right"]:
                     control_samples_female = pd.concat([control_samples_female, control_group.iloc[indices[:,k-1].flatten()]], axis=0)
                     df_female = control_samples_female.copy()
                     df_female = predict_hgs(df_female, X, y, female_best_model_trained, target)
-                    df_female_parkinson = predict_hgs(df_female_parkinson, X, y, female_best_model_trained, target)
+                    df_female_stroke = predict_hgs(df_female_stroke, X, y, female_best_model_trained, target)
                     corr_female_control = spearmanr(df_female[f"{target}_predicted"], df_female[f"{target}_actual"])[0]
-                    corr_female_parkinson = spearmanr(df_female_parkinson[f"{target}_predicted"], df_female_parkinson[f"{target}_actual"])[0]
+                    corr_female_stroke = spearmanr(df_female_stroke[f"{target}_predicted"], df_female_stroke[f"{target}_actual"])[0]
                 elif gender == "Male":                
                     control_samples_male = pd.concat([control_samples_male, control_group.iloc[indices[:,k-1].flatten()]], axis=0)
                     df_male = control_samples_male.copy()
                     df_male = predict_hgs(df_male, X, y, male_best_model_trained, target)
-                    df_male_parkinson = predict_hgs(df_male_parkinson, X, y, male_best_model_trained, target)
+                    df_male_stroke = predict_hgs(df_male_stroke, X, y, male_best_model_trained, target)
                     corr_male_control = spearmanr(df_male[f"{target}_predicted"], df_male[f"{target}_actual"])[0]
-                    corr_male_parkinson = spearmanr(df_male_parkinson[f"{target}_predicted"], df_male_parkinson[f"{target}_actual"])[0]
+                    corr_male_stroke = spearmanr(df_male_stroke[f"{target}_predicted"], df_male_stroke[f"{target}_actual"])[0]
             print(matched_data)
             print(matched_pairs)
-
         df_both_gender = pd.concat([df_female, df_male], axis=0)
-        df_both_parkinson = pd.concat([df_female_parkinson, df_male_parkinson], axis=0)
+        df_both_stroke = pd.concat([df_female_stroke, df_male_stroke], axis=0)
         corr_control = spearmanr(df_both_gender[f"{target}_predicted"], df_both_gender[f"{target}_actual"])[0]
-        corr_parkinson = spearmanr(df_both_parkinson[f"{target}_predicted"], df_both_parkinson[f"{target}_actual"])[0]
+        corr_stroke = spearmanr(df_both_stroke[f"{target}_predicted"], df_both_stroke[f"{target}_actual"])[0]
         text_control = 'r= ' + str(format(corr_control, '.3f'))
-        text_parkinson = 'r= ' + str(format(corr_parkinson, '.3f'))
+        text_stroke = 'r= ' + str(format(corr_stroke, '.3f'))
         text_control_female = 'r= ' + str(format(corr_female_control, '.3f'))
-        text_parkinson_female = 'r= ' + str(format(corr_female_parkinson, '.3f'))
+        text_stroke_female = 'r= ' + str(format(corr_female_stroke, '.3f'))
         text_control_male = 'r= ' + str(format(corr_male_control, '.3f'))
-        text_parkinson_male = 'r= ' + str(format(corr_male_parkinson, '.3f'))
+        text_stroke_male = 'r= ' + str(format(corr_male_stroke, '.3f'))
         print(df_both_gender)
-        print(df_both_parkinson)
+        print(df_both_stroke)
         df_both_gender = df_both_gender.drop(columns=f"{target}")
         df_both_gender.rename(columns={f'{target}_actual':"actual", f"{target}_predicted":"predicted", f"{target}_(actual-predicted)": "delta"}, inplace=True)
-        df_both_parkinson = df_both_parkinson.drop(columns=f"{target}")
-        df_both_parkinson.rename(columns={f'{target}_actual':"actual", f"{target}_predicted":"predicted", f"{target}_(actual-predicted)": "delta"}, inplace=True)
+        df_both_stroke = df_both_stroke.drop(columns=f"{target}")
+        df_both_stroke.rename(columns={f'{target}_actual':"actual", f"{target}_predicted":"predicted", f"{target}_(actual-predicted)": "delta"}, inplace=True)
         if target == "hgs_L+R":
-            if parkinson_type == "premanifest":
+            if stroke_cohort == "pre-stroke":
                 df_l_r_pre = df_both_gender
                 df_l_r_pre['hgs_target'] = "HGS L+R"
-                df_l_r_parkinson_pre = df_both_parkinson                
-                df_l_r_parkinson_pre['hgs_target'] = "HGS L+R"
-            elif parkinson_type == "manifest":
+                df_l_r_stroke_pre = df_both_stroke                
+                df_l_r_stroke_pre['hgs_target'] = "HGS L+R"                
+            elif stroke_cohort == "post-stroke":
                 df_l_r_post = df_both_gender
                 df_l_r_post['hgs_target'] = "HGS L+R"
-                df_l_r_parkinson_post = df_both_parkinson                
-                df_l_r_parkinson_post['hgs_target'] = "HGS L+R"                
+                df_l_r_stroke_post = df_both_stroke                
+                df_l_r_stroke_post['hgs_target'] = "HGS L+R"                 
         elif target == "hgs_left":
-            if parkinson_type == "premanifest":
+            if stroke_cohort == "pre-stroke":
                 df_left_pre = df_both_gender
                 df_left_pre['hgs_target'] = "HGS Left"
-                df_left_parkinson_pre = df_both_parkinson                
-                df_left_parkinson_pre['hgs_target'] = "HGS Left"                
-            elif parkinson_type == "manifest":
+                df_left_stroke_pre = df_both_stroke                
+                df_left_stroke_pre['hgs_target'] = "HGS Left"                 
+            elif stroke_cohort == "post-stroke":
                 df_left_post = df_both_gender
                 df_left_post['hgs_target'] = "HGS Left"
-                df_left_parkinson_post = df_both_parkinson                
-                df_left_parkinson_post['hgs_target'] = "HGS Left"   
+                df_left_stroke_post = df_both_stroke                
+                df_left_stroke_post['hgs_target'] = "HGS Left"                  
         elif target == "hgs_right":
-            if parkinson_type == "premanifest":
+            if stroke_cohort == "pre-stroke":
                 df_right_pre = df_both_gender
                 df_right_pre['hgs_target'] = "HGS Right"
-                df_right_parkinson_pre = df_both_parkinson                
-                df_right_parkinson_pre['hgs_target'] = "HGS Right"   
-            elif parkinson_type == "manifest":
+                df_right_stroke_pre = df_both_stroke                
+                df_right_stroke_pre['hgs_target'] = "HGS Right"                  
+            elif stroke_cohort == "post-stroke":
                 df_right_post = df_both_gender
                 df_right_post['hgs_target'] = "HGS Right"
-                df_right_parkinson_post = df_both_parkinson                
-                df_right_parkinson_post['hgs_target'] = "HGS Right" 
+                df_right_stroke_post = df_both_stroke                
+                df_right_stroke_post['hgs_target'] = "HGS Right"    
 
     ##############################################################################
     ##############################################################################
     
 df_both_pre = pd.concat([df_left_pre, df_right_pre, df_l_r_pre])
-df_both_pre['parkinson_type'] = "premanifest"
+df_both_pre['stroke_cohort'] = "pre"
 df_both_post = pd.concat([df_left_post, df_right_post, df_l_r_post])
-df_both_post['parkinson_type'] = "manifest"
+df_both_post['stroke_cohort'] = "post"
 
 df = pd.concat([df_both_pre, df_both_post])
 
-df_both_parkinson_pre = pd.concat([df_left_parkinson_pre, df_right_parkinson_pre, df_l_r_parkinson_pre])
-df_both_parkinson_pre['parkinson_type'] = "premanifest"
-df_both_parkinson_post = pd.concat([df_left_parkinson_post, df_right_parkinson_post, df_l_r_parkinson_post])
-df_both_parkinson_post['parkinson_type'] = "manifest"
+df_both_stroke_pre = pd.concat([df_left_stroke_pre, df_right_stroke_pre, df_l_r_stroke_pre])
+df_both_stroke_pre['stroke_cohort'] = "pre"
+df_both_stroke_post = pd.concat([df_left_stroke_post, df_right_stroke_post, df_l_r_stroke_post])
+df_both_stroke_post['stroke_cohort'] = "post"
 
-df_parkinson_together = pd.concat([df_both_parkinson_pre, df_both_parkinson_post])
+df_stroke_together = pd.concat([df_both_stroke_pre, df_both_stroke_post])
+
 ###############################################################################
 def add_median_labels(ax, fmt='.3f'):
     lines = ax.get_lines()
@@ -283,107 +297,105 @@ def add_median_labels(ax, fmt='.3f'):
             path_effects.Stroke(linewidth=3, foreground=median.get_color()),
             path_effects.Normal(),
         ])
+
+###############################################################################
 ###############################################################################
 # print("===== Done! =====")
 # embed(globals(), locals())
-df["hgs_target_parkinson_type"] = df["hgs_target"] + "-" +df["parkinson_type"]
-df_parkinson_together["hgs_target_parkinson_type"] = df_parkinson_together["hgs_target"] + "-" +df_parkinson_together["parkinson_type"]
-df_main = pd.concat([df, df_parkinson_together])
-melted_df = pd.melt(df_main, id_vars=["hgs_target_parkinson_type", "disease"], value_vars="delta", var_name="variable", ignore_index=False)
+df["hgs_target_stroke_cohort"] = df["hgs_target"] + "-" +df["stroke_cohort"]
+df_stroke_together["hgs_target_stroke_cohort"] = df_stroke_together["hgs_target"] + "-" +df_stroke_together["stroke_cohort"]
+df_main = pd.concat([df, df_stroke_together])
+melted_df = pd.melt(df_main, id_vars=["hgs_target_stroke_cohort", "disease"], value_vars="delta", var_name="variable", ignore_index=False)
 # Define a custom palette with two blue colors
 custom_palette = sns.color_palette(['#95CADB', '#008ECC'])  # You can use any hex color codes you prefer
 plt.figure(figsize=(18, 10))  # Adjust the figure size if needed
 sns.set(style="whitegrid")
 # Define the order in which you want the x-axis categories
-x_order = ['HGS Left-premanifest', 'HGS Left-manifest', 'HGS Right-premanifest', 'HGS Right-manifest', 'HGS L+R-premanifest', 'HGS L+R-manifest']
-ax = sns.boxplot(data=melted_df, x="hgs_target_parkinson_type", y="value", hue="disease", order=x_order, palette=custom_palette)   
+x_order = ['HGS Left-pre', 'HGS Left-post', 'HGS Right-pre', 'HGS Right-post', 'HGS L+R-pre', 'HGS L+R-post']
+ax = sns.boxplot(data=melted_df, x="hgs_target_stroke_cohort", y="value", hue="disease", order=x_order, palette=custom_palette)   
 # Add labels and title
 plt.xlabel("HGS targets", fontsize=20, fontweight="bold")
 plt.ylabel("HGS delta values", fontsize=20, fontweight="bold")
-plt.title(f"Matching samples from controls vs Parkinson's disease HGS delta values", fontsize=15, fontweight="bold")
+plt.title(f"Matching samples from controls vs Stroke HGS delta values", fontsize=15, fontweight="bold")
 
 ymin, ymax = plt.ylim()
 plt.yticks(range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+10, 10), fontsize=18, weight='bold')
-plt.xticks( fontsize=14, weight='bold')
+plt.xticks(fontsize=18, weight='bold')
 # Show the plot
 legend = plt.legend(title="Samples", loc="upper left", prop={'size': 12})  # Add legend
 # Modify individual legend labels
-legend.get_texts()[0].set_text(f"Matching samples from controls(N=710)")
-legend.get_texts()[1].set_text(f"Parkinson's disease(Premanifest N={len(df_parkinson_premanifest)}, Manifest N={len(df_parkinson_manifest)})")
+legend.get_texts()[0].set_text(f"Matching samples from controls(N={len(df_both_gender)})")
+legend.get_texts()[1].set_text(f"Stroke(N={len(df_stroke)})")
 
 plt.tight_layout()
 
 add_median_labels(ax)
 
 plt.show()
-plt.savefig(f"boxplot_samples_{population}_{feature_type}_hgs_both_gender_controls_PDdisease.png")
+plt.savefig(f"boxplot_samples_{population}_{feature_type}_hgs_both_gender_controls_Stroke.png")
 plt.close()
 ###############################################################################
 
-melted_df_female = pd.melt(df_main[df_main["gender"]==0], id_vars=["hgs_target_parkinson_type", "disease"], value_vars="delta", var_name="variable", ignore_index=False)
+melted_df_female = pd.melt(df_main[df_main["gender"]==0], id_vars=["hgs_target_stroke_cohort", "disease"], value_vars="delta", var_name="variable", ignore_index=False)
 
 custom_palette = sns.color_palette(['#ca96cc', '#a851ab'])  # You can use any hex color codes you prefer
 plt.figure(figsize=(18, 10))  # Adjust the figure size if needed
 sns.set(style="whitegrid")
-x_order = ['HGS Left-premanifest', 'HGS Left-manifest', 'HGS Right-premanifest', 'HGS Right-manifest', 'HGS L+R-premanifest', 'HGS L+R-manifest']
-ax = sns.boxplot(data=melted_df_female, x="hgs_target_parkinson_type", y="value", hue="disease", order=x_order, palette=custom_palette)    
+x_order = ['HGS Left-pre', 'HGS Left-post', 'HGS Right-pre', 'HGS Right-post', 'HGS L+R-pre', 'HGS L+R-post']
+ax = sns.boxplot(data=melted_df_female, x="hgs_target_stroke_cohort", y="value", hue="disease", order=x_order, palette=custom_palette)    
 # Add labels and title
 plt.xlabel("HGS targets", fontsize=20, fontweight="bold")
 plt.ylabel("HGS delta values", fontsize=20, fontweight="bold")
-plt.title(f"Matching samples from controls vs Parkinson's disease HGS delta values - Females", fontsize=15, fontweight="bold")
+plt.title(f"Matching samples from controls vs Stroke HGS delta values - Females", fontsize=15, fontweight="bold")
 
 ymin, ymax = plt.ylim()
 plt.yticks(range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+10, 10), fontsize=18, weight='bold')
-plt.xticks(fontsize=14, weight='bold')
+plt.xticks(fontsize=18, weight='bold')
 # Show the plot
 legend = plt.legend(title="Macthing samples cohort", loc="upper left", prop={'size': 12})  # Add legend
 # Modify individual legend labels
-legend.get_texts()[0].set_text(f"Matching samples from controls Female(Premanifest N=40, Manifest N=250)")
-legend.get_texts()[1].set_text(f"Parkinson's disease Female(Premanifest N=4, Manifest N=25)")
+legend.get_texts()[0].set_text(f"Matching samples from controls Female(N=180)")
+legend.get_texts()[1].set_text(f"Stroke Female(N=18)")
 
 plt.tight_layout()
 
 add_median_labels(ax)
 
 plt.show()
-plt.savefig(f"boxplot_samples_{population}_{feature_type}_hgs_separate_gender_separated_PDdisease_Female.png")
+plt.savefig(f"boxplot_samples_{population}_{feature_type}_hgs_separate_gender_separated_Stroke_Female.png")
 plt.close()
 
 ###############################################################################
 
-melted_df_male = pd.melt(df_main[df_main["gender"]==1], id_vars=["hgs_target_parkinson_type", "disease"], value_vars="delta", var_name="variable", ignore_index=False)
+melted_df_male = pd.melt(df_main[df_main["gender"]==1], id_vars=["hgs_target_stroke_cohort", "disease"], value_vars="delta", var_name="variable", ignore_index=False)
 
 custom_palette = sns.color_palette(['#669dbf', '#005c95'])  # You can use any hex color codes you prefer
 plt.figure(figsize=(18, 10))  # Adjust the figure size if needed
 sns.set(style="whitegrid")
-x_order = ['HGS Left-premanifest', 'HGS Left-manifest', 'HGS Right-premanifest', 'HGS Right-manifest', 'HGS L+R-premanifest', 'HGS L+R-manifest']
-ax = sns.boxplot(data=melted_df_male, x="hgs_target_parkinson_type", y="value", hue="disease", order=x_order, palette=custom_palette)    
+x_order = ['HGS Left-pre', 'HGS Left-post', 'HGS Right-pre', 'HGS Right-post', 'HGS L+R-pre', 'HGS L+R-post']
+ax = sns.boxplot(data=melted_df_male, x="hgs_target_stroke_cohort", y="value", hue="disease", order=x_order, palette=custom_palette)    
 # Add labels and title
 plt.xlabel("HGS targets", fontsize=20, fontweight="bold")
 plt.ylabel("HGS delta values", fontsize=20, fontweight="bold")
-plt.title(f"Matching samples from controls vs Parkinson's disease HGS delta values - Males", fontsize=15, fontweight="bold")
+plt.title(f"Matching samples from controls vs Stroke HGS delta values - Males", fontsize=15, fontweight="bold")
 
 ymin, ymax = plt.ylim()
 plt.yticks(range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+10, 10), fontsize=18, weight='bold')
-plt.xticks(fontsize=14, weight='bold')
-
+plt.xticks(fontsize=18, weight='bold')
 # Show the plot
 legend = plt.legend(title="Macthing samples cohort", loc="upper left", prop={'size': 12})  # Add legend
 # Modify individual legend labels
-legend.get_texts()[0].set_text(f"Matching samples from controls Male(Premanifest N=130, Manifest N=290)")
-legend.get_texts()[1].set_text(f"Parkinson's disease Male(Premanifest N=13, Manifest N=29)")
+legend.get_texts()[0].set_text(f"Matching samples from controls Male(N=570)")
+legend.get_texts()[1].set_text(f"Stroke Male(N=57)")
 
 plt.tight_layout()
 
 add_median_labels(ax)
 
 plt.show()
-plt.savefig(f"boxplot_samples_{population}_{feature_type}_hgs_separate_gender_separated_PDdisease_Male.png")
+plt.savefig(f"boxplot_samples_{population}_{feature_type}_hgs_separate_gender_separated_Stroke_Male.png")
 plt.close()
 
 
 print("===== Done! =====")
 embed(globals(), locals())
-
-###############################################################################
-###############################################################################
