@@ -229,8 +229,8 @@ for stroke_cohort in ["pre-stroke", "post-stroke"]:
     text_stroke_male = 'r= ' + str(format(corr_male_stroke, '.3f'))
     print(df_both_gender)
     print(df_both_stroke)
-    # print("===== Done! =====")
-    # embed(globals(), locals())
+    print("===== Done! =====")
+    embed(globals(), locals())
 ##############################################################################
 ##############################################################################
     print(axj)

@@ -284,8 +284,8 @@ def add_median_labels(ax, fmt='.3f'):
             path_effects.Normal(),
         ])
 ###############################################################################
-# print("===== Done! =====")
-# embed(globals(), locals())
+print("===== Done! =====")
+embed(globals(), locals())
 df["hgs_target_parkinson_type"] = df["hgs_target"] + "-" +df["parkinson_type"]
 df_parkinson_together["hgs_target_parkinson_type"] = df_parkinson_together["hgs_target"] + "-" +df_parkinson_together["parkinson_type"]
 df_main = pd.concat([df, df_parkinson_together])
