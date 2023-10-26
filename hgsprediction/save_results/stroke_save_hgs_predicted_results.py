@@ -5,7 +5,7 @@ from ptpython.repl import embed
 # print("===== Done! =====")
 # embed(globals(), locals())
 
-def save_hgs_predicted_results(
+def stroke_save_hgs_predicted_results(
     df,
     population,
     mri_status,
@@ -43,7 +43,7 @@ def save_hgs_predicted_results(
     df.to_csv(file_path, sep=',', index=True)
 
 ##############################################################################    
-def save_hgs_predicted_results_mri_records_sessions_only(
+def stroke_save_hgs_predicted_results_mri_records_sessions_only(
     df,
     population,
     mri_status,

@@ -5,7 +5,7 @@ from ptpython.repl import embed
 # print("===== Done! =====")
 # embed(globals(), locals())
 
-def save_hgs_predicted_results(
+def parkinson_save_hgs_predicted_results(
     df,
     population,
     mri_status,

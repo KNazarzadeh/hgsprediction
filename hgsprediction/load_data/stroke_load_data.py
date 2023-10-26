@@ -130,7 +130,7 @@ def load_validated_hgs_data(
         folder_path,
         f"{session_column}_validated_hgs_data.csv")
     
-    df = pd.read_csv(file_path, sep=',', index_col=0)
+    df = pd.read_csv(file_path, sep=',', index_col=0, low_memory=False)
   
     return df
 
@@ -171,7 +171,7 @@ def load_preprocessed_data(population, mri_status, session_column, stroke_cohort
         folder_path,
         f"{session_column}_preprocessed_data.csv")
     
-    df = pd.read_csv(file_path, sep=',', index_col=0)
+    df = pd.read_csv(file_path, sep=',', index_col=0, low_memory=False)
   
     return df
 

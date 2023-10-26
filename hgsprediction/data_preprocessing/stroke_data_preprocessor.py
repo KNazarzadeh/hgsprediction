@@ -470,7 +470,7 @@ class StrokeMainDataPreprocessor:
         return df
 
 ###############################################################################
-    def extract_post_stroke_df(self, df):
+    def extract_post_stroke_df(self, df, mri_status):
         """Extract the post stroke dataframe from the stroke dataframe. 
         
         Parameters
@@ -486,7 +486,10 @@ class StrokeMainDataPreprocessor:
             DataFrame of data specified.
         """
         # UKB contains 4 assessment sessions
-        sessions = 4
+        if mri_status == "mri":
+            sessions = 4
+        elif mri_status == "nonmri":
+            sessions = 2
         # Initialize an empty list
         followupdays_cols = []
         # Append "followup_days" column names to list
@@ -503,7 +506,7 @@ class StrokeMainDataPreprocessor:
         return post_stroke_df
 
 ###############################################################################
-    def extract_pre_stroke_df(self, df):
+    def extract_pre_stroke_df(self, df, mri_status):
         """Extract the pre stroke dataframe from the stroke dataframe. 
 
         Parameters
@@ -518,7 +521,10 @@ class StrokeMainDataPreprocessor:
         df : pandas.DataFrame
             DataFrame of data specified.
         """
-        sessions = 4
+        if mri_status == "mri":
+            sessions = 4
+        elif mri_status == "nonmri":
+            sessions = 2
         followupdays_cols = []
         for ses in range(0, sessions):
             followupdays_cols.append(f"followup_days-{ses}.0")
@@ -533,7 +539,7 @@ class StrokeMainDataPreprocessor:
         return pre_stroke_df
 
 ###############################################################################
-    def extract_longitudinal_stroke_df(self, df):
+    def extract_longitudinal_stroke_df(self, df, mri_status):
         """Extract the longitudinal dataframe from the stroke dataframe. 
 
         Parameters
@@ -548,8 +554,8 @@ class StrokeMainDataPreprocessor:
         df : pandas.DataFrame
             DataFrame of data specified.
         """
-        df_pre_stroke = self.extract_pre_stroke_df(df)
-        df_post_stroke = self.extract_post_stroke_df(df)
+        df_pre_stroke = self.extract_pre_stroke_df(df, mri_status)
+        df_post_stroke = self.extract_post_stroke_df(df, mri_status)
 
         # The intersection between pre and post dataframes of stroke
         # will be the longitudinal dataframe.

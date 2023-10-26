@@ -5,7 +5,7 @@ from ptpython.repl import embed
 # print("===== Done! =====")
 # embed(globals(), locals())
 
-def save_spearman_correlation_results(
+def parkinson_save_spearman_correlation_results(
     df_corr,
     df_pvalue,
     population,

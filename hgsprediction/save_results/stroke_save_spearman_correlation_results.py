@@ -5,7 +5,7 @@ from ptpython.repl import embed
 # print("===== Done! =====")
 # embed(globals(), locals())
 
-def save_spearman_correlation_results(
+def stroke_save_spearman_correlation_results(
     df_corr,
     df_pvalue,
     population,
@@ -77,7 +77,7 @@ def save_spearman_correlation_results(
         f"{gender}_p_values.csv")
     df_pvalue.to_csv(file_path, sep=',', index=True)
 ##############################################################################
-def save_spearman_correlation_results_mri_records_sessions_only(
+def stroke_save_spearman_correlation_results_mri_records_sessions_only(
     df_corr,
     df_pvalue,
     population,

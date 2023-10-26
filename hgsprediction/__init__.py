@@ -40,8 +40,12 @@ from .load_results.stroke import load_hgs_predicted_results, load_hgs_predicted_
 from .plots import plot_correlations
 from .save_plot import save_correlations_plot, save_correlations_plot_mri_records_sessions_only
 
-from .save_results.stroke import save_hgs_predicted_results, save_spearman_correlation_results
-                       
+from .save_results.stroke_save_spearman_correlation_results import stroke_save_spearman_correlation_results,\
+    stroke_save_spearman_correlation_results_mri_records_sessions_only
+
+from .save_results.stroke_save_hgs_predicted_results import stroke_save_hgs_predicted_results,\
+    stroke_save_hgs_predicted_results_mri_records_sessions_only
+                  
 from .old_define_features import stroke_define_features
 
 
@@ -49,8 +53,7 @@ from .old_define_features import stroke_define_features
 from .predict_hgs import predict_hgs
 
 from .predict_hgs import calculate_spearman_hgs_correlation_on_brain_correlations
-from .save_results import save_data_overlap_hgs_predicted_brain_correlations_results,\
-                          save_spearman_correlation_on_brain_correlations_results
+
 
 # from hgsprediction.input_arguments import parse_args, input_arguments
 # from hgsprediction.load_imaging_data import load_imaging_data
@@ -64,8 +67,8 @@ from .data_preprocessing import parkinson_data_preprocessor
 from .save_data import parkinson_save_data
 from .compute_features import parkinson_compute_features
 from .extract_data import parkinson_extract_data
-from .save_results.parkinson_save_spearman_correlation_results import save_spearman_correlation_results
-from .save_results.parkinson_save_hgs_predicted_results import save_hgs_predicted_results
+from .save_results.parkinson_save_spearman_correlation_results import parkinson_save_spearman_correlation_results
+from .save_results.parkinson_save_hgs_predicted_results import parkinson_save_hgs_predicted_results
 from .load_results.healthy import load_hgs_predicted_results
 
 

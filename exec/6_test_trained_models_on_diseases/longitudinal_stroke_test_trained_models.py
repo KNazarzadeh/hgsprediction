@@ -8,8 +8,9 @@ from hgsprediction.define_features import define_features
 from hgsprediction.extract_data import stroke_extract_data
 from hgsprediction.predict_hgs import predict_hgs
 from hgsprediction.predict_hgs import calculate_spearman_hgs_correlation
-from hgsprediction.save_results import save_spearman_correlation_results
-from hgsprediction.save_results import save_hgs_predicted_results
+from hgsprediction.save_results.stroke_save_spearman_correlation_results import stroke_save_spearman_correlation_results
+from hgsprediction.save_results.stroke_save_hgs_predicted_results import stroke_save_hgs_predicted_results
+
 from hgsprediction.load_data import stroke_load_data
 from hgsprediction.load_results import load_trained_models
 
@@ -69,7 +70,12 @@ print(male_best_model_trained)
 # load data
 if visit_session == "1":
     session_column = f"1st_{stroke_cohort}_session"
-df_longitudinal = stroke_load_data.load_preprocessed_data(population, mri_status, session_column, stroke_cohort)
+if mri_status == "mri+nonmri":
+    df_longitudinal_mri = stroke_load_data.load_preprocessed_data(population, "mri", session_column, stroke_cohort)
+    df_longitudinal_nonmri = stroke_load_data.load_preprocessed_data(population, "nonmri", session_column, stroke_cohort)
+    df_longitudinal = pd.concat([df_longitudinal_mri, df_longitudinal_nonmri])
+else:
+    df_longitudinal = stroke_load_data.load_preprocessed_data(population, mri_status, session_column, stroke_cohort)
 
 features = define_features(feature_type)
 X = features
@@ -102,8 +108,9 @@ if df_merged['1st_pre-stroke_gender'].astype(float).equals((df_merged['1st_post-
 
 df_female = df_merged[df_merged["gender"] == 0]
 df_male = df_merged[df_merged["gender"] == 1]
-
-save_hgs_predicted_results(
+print("===== Done! =====")
+embed(globals(), locals())
+stroke_save_hgs_predicted_results(
     df_merged,
     population,
     mri_status,
@@ -114,7 +121,7 @@ save_hgs_predicted_results(
     "both_gender",
 )
 
-save_hgs_predicted_results(
+stroke_save_hgs_predicted_results(
     df_female,
     population,
     mri_status,
@@ -125,7 +132,7 @@ save_hgs_predicted_results(
     "female",
 )
 
-save_hgs_predicted_results(
+stroke_save_hgs_predicted_results(
     df_male,
     population,
     mri_status,
@@ -150,7 +157,7 @@ for stroke_subgroup in ["pre-stroke", "post-stroke"]:
     print(df_female_corr.applymap(lambda x: '{:.3f}'.format(x)))
     print(df_male_corr.applymap(lambda x: '{:.3f}'.format(x)))
 
-    save_spearman_correlation_results(
+    stroke_save_spearman_correlation_results(
         df_corr,
         df_pvalue,
         population,
@@ -161,7 +168,7 @@ for stroke_subgroup in ["pre-stroke", "post-stroke"]:
         target,
         stroke_subgroup,
         "both_gender")
-    save_spearman_correlation_results(
+    stroke_save_spearman_correlation_results(
         df_female_corr,
         df_female_pvalue,
         population,
@@ -172,7 +179,7 @@ for stroke_subgroup in ["pre-stroke", "post-stroke"]:
         target,
         stroke_subgroup,
         "female")
-    save_spearman_correlation_results(
+    stroke_save_spearman_correlation_results(
         df_male_corr,
         df_male_pvalue,
         population,

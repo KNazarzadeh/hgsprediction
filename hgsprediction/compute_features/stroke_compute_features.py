@@ -5,15 +5,16 @@ from ptpython.repl import embed
 
 ###############################################################################
 # This class extract all required features from data:
-def compute_features(df, session_column, feature_type):
+def compute_features(df, session_column, feature_type, mri_status):
 
     assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
     assert isinstance(session_column, str ), "session_column must be a string!"
     assert isinstance(feature_type, str ), "feature_type must be a string!"
+    assert isinstance(mri_status, str ), "mri_status must be a string!"
     # -----------------------------------------------------------
     df = calculate_gender(df, session_column)
     df = calculate_age(df, session_column)
-    df = calculate_handedness(df, session_column)    
+    df = calculate_handedness(df, session_column, mri_status)    
     df = calculate_days(df, session_column)
     df = calculate_years(df, session_column)
 
@@ -267,7 +268,7 @@ def calculate_gender(df, session_column):
         return df
     
 ###############################################################################
-def calculate_handedness(df, session_column):
+def calculate_handedness(df, session_column, mri_status):
     """Calculate sum of Handgrips
     and add "hgs(L+R)" column to dataframe
 
@@ -309,20 +310,21 @@ def calculate_handedness(df, session_column):
     idx = filtered_df[filtered_df.loc[:, "1707-0.0"].isin([3.0, -3.0, np.NaN])].index
     df.loc[idx, handedness] = 3.0    
     # ------------------------------------
-    index = df[df.loc[:, session_column] == 2.0].index
-    filtered_df = df.loc[index, :]
-    idx = filtered_df[filtered_df.loc[:, "1707-2.0"] == 1.0].index
-    df.loc[idx, handedness] = 1.0
-    idx = filtered_df[filtered_df.loc[:, "1707-2.0"] == 2.0].index
-    df.loc[idx, handedness] = 2.0
-    idx = filtered_df[filtered_df.loc[:, "1707-2.0"].isin([3.0, -3.0, np.NaN])].index
-    df_tmp = filtered_df.loc[idx, :]
-    idx_tmp = df_tmp[df_tmp.loc[:, "1707-0.0"] == 1.0].index
-    df.loc[idx_tmp, handedness] = 1.0
-    idx_tmp = df_tmp[df_tmp.loc[:, "1707-0.0"] == 2.0].index
-    df.loc[idx_tmp, handedness] = 2.0
-    idx_tmp = df_tmp[df_tmp.loc[:, "1707-0.0"].isin([3.0, -3.0, np.NaN])].index
-    df.loc[idx_tmp, handedness] = 3.0
+    if mri_status == "mri":
+        index = df[df.loc[:, session_column] == 2.0].index
+        filtered_df = df.loc[index, :]
+        idx = filtered_df[filtered_df.loc[:, "1707-2.0"] == 1.0].index
+        df.loc[idx, handedness] = 1.0
+        idx = filtered_df[filtered_df.loc[:, "1707-2.0"] == 2.0].index
+        df.loc[idx, handedness] = 2.0
+        idx = filtered_df[filtered_df.loc[:, "1707-2.0"].isin([3.0, -3.0, np.NaN])].index
+        df_tmp = filtered_df.loc[idx, :]
+        idx_tmp = df_tmp[df_tmp.loc[:, "1707-0.0"] == 1.0].index
+        df.loc[idx_tmp, handedness] = 1.0
+        idx_tmp = df_tmp[df_tmp.loc[:, "1707-0.0"] == 2.0].index
+        df.loc[idx_tmp, handedness] = 2.0
+        idx_tmp = df_tmp[df_tmp.loc[:, "1707-0.0"].isin([3.0, -3.0, np.NaN])].index
+        df.loc[idx_tmp, handedness] = 3.0
         
 
     return df

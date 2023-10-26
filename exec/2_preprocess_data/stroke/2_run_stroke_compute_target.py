@@ -13,6 +13,10 @@ filename = sys.argv[0]
 population = sys.argv[1]
 mri_status = sys.argv[2]
 
+if mri_status == "mri":
+    visit_range = range(1, 4)
+elif mri_status == "nonmri":
+    visit_range = range(1, 3)
 # for all session pre- and -post stroke together (all in one):
 for stroke_cohort in ["pre-stroke", "post-stroke", "longitudinal-stroke"]:
     if stroke_cohort == "longitudinal-stroke":
@@ -30,7 +34,7 @@ for stroke_cohort in ["pre-stroke", "post-stroke", "longitudinal-stroke"]:
             print("===== Done! =====")
             embed(globals(), locals())
     else:
-        for visit_session in range(1, 4):
+        for visit_session in visit_range:
             if visit_session == 1:
                 session_column = f"1st_{stroke_cohort}_session"
             elif visit_session == 2:
