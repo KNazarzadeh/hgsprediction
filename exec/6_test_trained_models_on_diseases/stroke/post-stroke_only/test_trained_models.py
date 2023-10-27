@@ -13,7 +13,6 @@ from hgsprediction.save_results import save_hgs_predicted_results
 from hgsprediction.load_data import stroke_load_data
 from hgsprediction.load_results import load_trained_models
 
-
 from scipy.stats import spearmanr
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -93,18 +92,26 @@ if mri_status == "mri+nonmri":
     df_post_mri = stroke_load_data.load_preprocessed_data(population, "mri", session_column, stroke_cohort)
     df_post_nonmri = stroke_load_data.load_preprocessed_data(population, "nonmri", session_column, stroke_cohort)
     df_post = pd.concat([df_post_mri, df_post_nonmri])
+
+# Define the string to check for in column names
+string_to_remove = 'pre-stroke'
+
+# Get a list of column names that do not contain the specified string
+columns_to_keep = [col for col in df_longitudinal.columns if string_to_remove not in col]
+
+df_longitudinal_post_only = df_longitudinal[columns_to_keep]
+df_post = df_post[columns_to_keep]
+
+df  = pd.concat([df_post, df_longitudinal_post_only])
 print("===== Done! =====")
 embed(globals(), locals())
-# # df_female = df_female[(df_female["1st_post-stroke_session"]==2.0) | (df_female["1st_post-stroke_session"]== 3.0)]
-# # df_male = df_male[(df_male["1st_post-stroke_session"]==2.0) | (df_male["1st_post-stroke_session"]== 3.0)]
-df_same_subjects = df_post[df_post.index.isin(df_longitudinal.index)]
-
 features = define_features(feature_type)
-df_extracted = stroke_extract_data.extract_data(df_same_subjects, stroke_cohort, visit_session, features, target)
+df_extracted = stroke_extract_data.extract_data(df, stroke_cohort, visit_session, features, target)
 
 X = features
 y = target
-
+print("===== Done! =====")
+embed(globals(), locals())
 df_female = df_extracted[df_extracted["gender"] == 0]
 df_male = df_extracted[df_extracted["gender"] == 1]
 

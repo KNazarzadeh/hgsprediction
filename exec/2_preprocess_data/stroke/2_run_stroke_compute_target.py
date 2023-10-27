@@ -18,7 +18,8 @@ if mri_status == "mri":
 elif mri_status == "nonmri":
     visit_range = range(1, 3)
 # for all session pre- and -post stroke together (all in one):
-for stroke_cohort in ["pre-stroke", "post-stroke", "longitudinal-stroke"]:
+# for stroke_cohort in ["pre-stroke", "post-stroke", "longitudinal-stroke"]:
+for stroke_cohort in ["pre-stroke", "post-stroke"]:    
     if stroke_cohort == "longitudinal-stroke":
         for visit_session in range(1, 2):
             if visit_session == 1:
@@ -44,7 +45,7 @@ for stroke_cohort in ["pre-stroke", "post-stroke", "longitudinal-stroke"]:
             df = stroke_load_data.load_validated_hgs_data(population, mri_status, session_column, stroke_cohort)
             for target in ["hgs_L+R", "hgs_left", "hgs_right", "hgs_LI", "hgs_L-R"]:
                 df = stroke_compute_target.compute_target(df, session_column, target)
-        
+
             stroke_save_data.save_preprocessed_data(df, population, mri_status, session_column, stroke_cohort)
 
 print("===== Done! =====")
