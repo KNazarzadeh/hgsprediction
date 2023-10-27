@@ -21,7 +21,7 @@ class UkbbParams:
         motor_type : str
             The type of Motor that desired to analysis
         ishealthy : binary
-            The binary values for healthy and stroke populations:
+            The binary values for healthy and stroke/parkinson populations:
             1 --> healthy
             0 --> stroke or parkinson
         population_name : str
@@ -470,13 +470,13 @@ class UkbbParams:
         self,
     ):
         lifestyle_incat = [
-            # '100054',   # Physical activity
-            # '100053',   # Electronic device use
+            '100054',   # Physical activity
+            '100053',   # Electronic device use
             '100057',   # Sleep
             '100058',   # Smoking
-            # '100052',   # Diet
+            '100052',   # Diet
             '100051',   # Alcohol
-            # '100056',   # Sexual factors
+            '100056',   # Sexual factors
         ]
         lifestyle_inhdr = []
         lifestyle_exhdr = []
@@ -1150,7 +1150,38 @@ class UkbbParams:
                ukb_deathregister_inhdr, \
                ukb_deathregister_exhdr, \
                ukb_deathregister_excat
+# -----------------------------------------------------------------------------#
+# --------------------------------#
+# Define death register parameters on UK Biobank 
+# --------------------------------#
+# -----------------------------------------------------------------------------#
+    def get_nervouse_system_params(self):
+        ukb_nervouse_system_incat = []
+        ukb_nervouse_system_inhdr = [
+            '131022', # Date G20 first reported (parkinson's disease)
+                       # Nervous system disorders
+             '131023', # Source of report of G20 (parkinson's disease)
+                       # Nervous system disorders
+             '131024', # Date G21 first reported (secondary parkinsonism)
+                       # Nervous system disorders  
+             '131026', # Date G22 first reported (parkinsonism in diseases classified elsewhere)
+                       # Nervous system disorders
+             '131025', # Source of report of G21 (secondary parkinsonism)
+                       # Nervous system disorders  
+             '131027', # Source of report of G22 (parkinsonism in diseases classified elsewhere)
+                       # Nervous system disorders
+             '26261',  # Enhanced PRS for parkinson's disease (PD)
+                       # Enhanced PRS  
+             '26260',  # Standard PRS for parkinson's disease (PD)
+                       # Standard PRS
+        ]
+        ukb_nervouse_system_exhdr = []
+        ukb_nervouse_system_excat = []
 
+        return ukb_nervouse_system_incat, \
+               ukb_nervouse_system_inhdr, \
+               ukb_nervouse_system_exhdr, \
+               ukb_nervouse_system_excat
 # -----------------------------------------------------------------------------#
 # --------------------------------#
 # Define Walking parameters on UK Biobank 
@@ -1274,6 +1305,13 @@ class UkbbParams:
                 ukb_pd_outcome_inhdr, \
                 ukb_pd_outcome_exhdr, \
                 ukb_pd_outcome_excat = self.get_parkinson_outcomes()
+                # ------ Parkinson's disease Nervouse System Disorders ------- #
+                # Get the list of Field, Category IDs to be included/excluded 
+                # to/from ukbb_parser command
+                ukb_nervouse_system_incat, \
+                ukb_nervouse_system_inhdr, \
+                ukb_nervouse_system_exhdr, \
+                ukb_nervouse_system_excat = self.get_nervouse_system_params()
 
         # --------- Handgrip Strength (HGS) as the Motor Performance ---------#
         # Get the list of Motor Performance Field IDs
@@ -1421,7 +1459,6 @@ class UkbbParams:
         ukb_deathregister_inhdr, \
         ukb_deathregister_exhdr, \
         ukb_deathregister_excat = self.get_death_params()
-
 
         # -------------------------------------------------------------------- #
         # --------------------------------#
@@ -1736,6 +1773,23 @@ class UkbbParams:
         for n_excat in range(len(ukb_deathregister_excat)):
             data_field_list = f'{data_field_list}' \
             ' --excat ' f'{ukb_deathregister_excat[n_excat]}'
+        # #--------# 
+        # #--------#
+        for n_inhdr in range(len(ukb_nervouse_system_inhdr)):
+            data_field_list = f'{data_field_list}' \
+            ' --inhdr ' f'{ukb_nervouse_system_inhdr[n_inhdr]}'
+
+        for n_exhdr in range(len(ukb_nervouse_system_exhdr)):
+            data_field_list = f'{data_field_list}' \
+            ' --exhdr ' f'{ukb_nervouse_system_exhdr[n_exhdr]}'
+
+        for n_incat in range(len(ukb_nervouse_system_incat)):
+            data_field_list = f'{data_field_list}' \
+            ' --incat ' f'{ukb_nervouse_system_incat[n_incat]}'
+
+        for n_excat in range(len(ukb_nervouse_system_excat)):
+            data_field_list = f'{data_field_list}' \
+            ' --excat ' f'{ukb_nervouse_system_excat[n_excat]}'
         # #--------# 
         # for n_incat in range(len(ukb_selfreport_incat)):
         #     data_field_list = f'{data_field_list}' \

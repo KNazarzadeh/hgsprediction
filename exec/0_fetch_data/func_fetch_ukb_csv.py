@@ -59,9 +59,6 @@ def fetch_ukb_csv(
         ukbb_parser_out_folder, f'{UKB_out_file}.csv'
     )
 
-    # print('Stop: func_fetch_ukb_csv.py')
-    # embed(globals(), locals()) # --> In order to put a break point
-
     if not os.path.isfile(UKB_out_file_full):
 
         curr_dir = os.getcwd()
@@ -77,8 +74,7 @@ def fetch_ukb_csv(
             f"ukbb_parser parse --incsv {UKB_tsv_filename} --out {UKB_out_file}"
             f"{data_field_list}"
         )
-        # print('Done!')
-        # embed(globals(), locals()) # --> In order to put a break point
+        
         os.system(ukbb_cmd)  # Run the ukbb_parser command
 
         # Move the output files of ukbb_parser from the current directory

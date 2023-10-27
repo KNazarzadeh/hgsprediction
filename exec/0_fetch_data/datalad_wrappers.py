@@ -32,18 +32,13 @@ get_exc = datalad.support.exceptions.IncompleteResultsError
 
 class Fetcher:
     """ A generic class to wrap up some common datalad functionalities
-    This can be used to create custom wrappers for specific datasets like HCP
-    or UKB.
+    This can be used to create custom wrappers for specific datasets like UKB.
     When implementing a wrapper for a specific dataset make sure to initialise
     the Fetcher class with sensible default values for that dataset in the init
     method and then make any required additions.
     For example, Fetcher classes will need a dataset name (initialise the
     self.dataset_name attribute). This is the name of the root folder of the
-    dataset. For the HCP dataset the name is "HCP1200". This is
-    important for the self.drop_and_remove() method to work correctly.
-    Other attributes you may want to implement are subject, session, experiment
-    etc. specific parameters. In the case of the HCP dataset there are
-    attributes like self.EXPERIMENTS or self.RUNS.
+    dataset.
     Attributes
     -----------
     self.directory : str or path
