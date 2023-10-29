@@ -24,6 +24,7 @@ from scipy.optimize import linear_sum_assignment
 from ptpython.repl import embed
 # print("===== Done! =====")
 # embed(globals(), locals())
+pd.options.mode.chained_assignment = None  # 'None' suppresses the warning
 
 ###############################################################################
 
@@ -106,14 +107,16 @@ for target in ["hgs_L+R", "hgs_left", "hgs_right"]:
 
     df_healthy = pd.concat([df_healthy_female, df_healthy_male])
     df_healthy.loc[:, "disease"] = 0
-    # print("===== Done! =====")
-    # embed(globals(), locals())
+    print("===== Done! =====")
+    embed(globals(), locals())
     ###############################################################################
 
     stroke_cohort = "longitudinal-stroke"
     session_column = f"1st_{stroke_cohort}_session"
     df_stroke = stroke.load_hgs_predicted_results("stroke", mri_status, session_column, model_name, feature_type, target, "both_gender")
     df_stroke.loc[:, "disease"] = 1
+    print("===== Done! =====")
+    embed(globals(), locals())
     df_stroke = df_stroke.drop(index=1872273)
 
     df_pre_stroke = df_stroke.loc[:, ["gender", "1st_pre-stroke_age", "1st_pre-stroke_bmi",  "1st_pre-stroke_height",  "1st_pre-stroke_waist_to_hip_ratio", f"1st_pre-stroke_{target}", "disease"]]

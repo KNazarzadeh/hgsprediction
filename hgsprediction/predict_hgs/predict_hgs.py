@@ -10,10 +10,10 @@ from ptpython.repl import embed
 def predict_hgs(df, X, y, best_model_trained, target):
     
     # y_True
-    df.loc[:, f"{target}_actual"] = df.loc[:, y]
+    df.loc[:, f"{target}_actual"] = df.loc[:, y].copy()
     # y_predicted
-    df.loc[:, f"{target}_predicted"] = best_model_trained.predict(df.loc[:, X])
+    df.loc[:, f"{target}_predicted"] = best_model_trained.predict(df.loc[:, X]).copy()
     # error: (actual-predicted)
-    df.loc[:, f"{target}_(actual-predicted)"] =  df.loc[:, f"{target}_actual"] - df.loc[:, f"{target}_predicted"]
+    df.loc[:, f"{target}_(actual-predicted)"] =  df.loc[:, f"{target}_actual"].copy() - df.loc[:, f"{target}_predicted"].copy()
     
     return df

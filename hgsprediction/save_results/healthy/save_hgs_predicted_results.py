@@ -25,7 +25,7 @@ def save_hgs_predicted_results(
             "results_hgsprediction",
             f"{population}",
             f"{mri_status}",
-            f"{session}_session_ukb",
+            f"{session}",
             f"{feature_type}",
             f"{target}",
             f"{model_name}",

@@ -1,36 +1,50 @@
 import pandas as pd
 import numpy as np
 from ptpython.repl import embed
+# print("===== Done! =====")
+# embed(globals(), locals())
 
-
-def extract_data(df, mri_status, features, target, parkinson_type):
+def extract_data(df, parkinson_cohort, visit_session, features, target):
     
+    if visit_session == "1":
+        prefix = "1st"
+    elif visit_session == "2":
+        prefix = "2nd"
+    elif visit_session == "3":
+        prefix = "3rd"
+    elif visit_session == "4":
+        prefix = "4th"
+        
     features_list = features
-    add_extra_features = ["age", "gender", "handedness", "dominant", "nondominant"]
+    add_extra_features = ["gender", "age", "days", "years", "handedness", "dominant"]
     for item in add_extra_features:
         if item not in features:
            features_list = [item] + features_list
 
-    features_columns = [col for col in df.columns if any(item in col for item in features_list)]
-    target_columns = [col for col in df.columns if col.startswith(target)]
+    features_columns = [col for col in df.columns if any(col.startswith(prefix) and col.endswith(item) for item in features_list)]
     
-    df = pd.concat([df[features_columns], df[target_columns]], axis=1)
+    target_columns = [col for col in df.columns if col.endswith(target)]
 
+    df = pd.concat([df[features_columns], df[target_columns]], axis=1)
+    # print("===== Done! =====")
+    # embed(globals(), locals())
     df = df.dropna(subset=[col for col in df.columns if any(item in col for item in features)])
     
-    df = df.loc[:, ~df.columns.duplicated()]
-
-    df = rename_column_names(df, mri_status, parkinson_type)               
-
+    df = rename_column_names(df, parkinson_cohort, visit_session) 
+    
     return df
 
-def rename_column_names(df, mri_status, parkinson_type):
+def rename_column_names(df, parkinson_cohort, visit_session):
     
-    if parkinson_type == "premanifest":
-        prefix = "-0.0"
-    elif parkinson_type == "manifest":
-        prefix = "-2.0"
-
-    df.columns = df.columns.str.replace(prefix, '')
+    if visit_session == "1":
+        prefix = f"1st_{parkinson_cohort}_"
+    elif visit_session == "2":
+        prefix = f"2nd_{parkinson_cohort}_"
+    elif visit_session == "3":
+        prefix = f"3rd_{parkinson_cohort}_"
+    elif visit_session == "4":
+        prefix = f"4th_{parkinson_cohort}_"
+    
+    df.columns = df.columns.str.replace(prefix, "")
     
     return df

@@ -13,7 +13,7 @@ def parkinson_save_hgs_predicted_results(
     feature_type,
     target,
     gender,
-    parkinson_type,
+    session,
 ):
     # Assuming that you have already trained and instantiated the model as `model`
     folder_path = os.path.join(
@@ -25,7 +25,7 @@ def parkinson_save_hgs_predicted_results(
             "results_hgsprediction",
             f"{population}",
             f"{mri_status}",
-            f"{parkinson_type}",
+            f"{session}",
             f"{feature_type}",
             f"{target}",
             f"{model_name}",
