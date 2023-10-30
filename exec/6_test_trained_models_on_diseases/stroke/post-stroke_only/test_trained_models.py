@@ -104,8 +104,7 @@ print(df_male)
 
 df_both_gender = pd.concat([df_female, df_male], axis=0)
 print(df_both_gender)
-print("===== Done! =====")
-embed(globals(), locals())
+
 session_column = f"1st_{stroke_cohort}_only_session"
 save_hgs_predicted_results(
     df_both_gender,

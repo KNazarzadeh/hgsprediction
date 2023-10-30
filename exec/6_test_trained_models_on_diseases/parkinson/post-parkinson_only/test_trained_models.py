@@ -72,9 +72,9 @@ elif visit_session == "4":
 if mri_status == "mri+nonmri":
     df_post_mri = parkinson_load_data.load_preprocessed_data(population, "mri", session_column, parkinson_cohort)
     df_post_nonmri = parkinson_load_data.load_preprocessed_data(population, "nonmri", session_column, parkinson_cohort)
-    print("===== Done! =====")
-    embed(globals(), locals())
     df_post = pd.concat([df_post_mri, df_post_nonmri])
+else:
+    df_post = parkinson_load_data.load_preprocessed_data(population, mri_status, session_column, parkinson_cohort)
 
 # Define the string to check for in column names
 string_to_remove = 'pre-parkinson'
@@ -103,8 +103,7 @@ df_both_gender = pd.concat([df_female, df_male], axis=0)
 print(df_both_gender)
 
 session_column = f"1st_{parkinson_cohort}_only_session"
-print("===== Done! =====")
-embed(globals(), locals())
+
 parkinson_save_hgs_predicted_results(
     df_both_gender,
     population,

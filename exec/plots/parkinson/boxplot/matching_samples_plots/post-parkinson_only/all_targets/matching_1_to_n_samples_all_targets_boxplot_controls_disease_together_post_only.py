@@ -161,7 +161,7 @@ for target in ["hgs_L+R", "hgs_left", "hgs_right"]:
             unmatched_controls = pd.DataFrame()
             unmatched_patients = pd.DataFrame()
             # Define the range of k from 1 to n
-            n = 10  # You can change this to the desired value of n
+            n = 1  # You can change this to the desired value of n
             for k in range(1, n + 1):
                 # Fit a Nearest Neighbors model on the control group with the current k
                 knn = NearestNeighbors(n_neighbors=k)
@@ -260,7 +260,7 @@ def add_median_labels(ax, fmt='.3f'):
                     #    fontweight='bold',
         # create median-colored border around white text for contrast
         text.set_path_effects([
-            path_effects.parkinson(linewidth=3, foreground=median.get_color()),
+            path_effects.Stroke(linewidth=3, foreground=median.get_color()),
             path_effects.Normal(),
         ])
         xticks_positios_array.append(x)
@@ -322,7 +322,7 @@ for y_axis in ["actual", "predicted", "delta"]:
         plt.text((x1+x2)*.5, y+h, f"p={results.loc[i, 'ranksum_p_value']:.6f}", ha='center', va='bottom', fontsize=14, weight='bold', color=col)
 
     plt.show()
-    plt.savefig(f"boxplot_samples_{session_column}_{y_axis}_{population}_{feature_type}_hgs_both_gender_controls_parkinson.png")
+    plt.savefig(f"boxplot_1_to_{n}_samples_{session_column}_{y_axis}_{population}_{feature_type}_hgs_both_gender_controls_Parkinson.png")
     plt.close()
     # print("===== Done! =====")
     # embed(globals(), locals())
@@ -375,7 +375,7 @@ for y_axis in ["actual", "predicted", "delta"]:
         plt.text((x1+x2)*.5, y+h, f"p={results_female.loc[i, 'ranksum_p_value']:.6f}", ha='center', va='bottom', fontsize=14, weight='bold', color=col)
 
     plt.show()
-    plt.savefig(f"boxplot_samples_{session_column}_{y_axis}_{population}_{feature_type}_hgs_separate_gender_separated_parkinson_Female.png")
+    plt.savefig(f"boxplot_1_to_{n}_samples_{session_column}_{y_axis}_{population}_{feature_type}_hgs_separate_gender_separated_Parkinson_Female.png")
     plt.close()
 
 ###############################################################################
@@ -429,7 +429,7 @@ for y_axis in ["actual", "predicted", "delta"]:
         plt.text((x1+x2)*.5, y+h, f"p={results_male.loc[i, 'ranksum_p_value']:.6f}", ha='center', va='bottom', fontsize=14, weight='bold', color=col)
 
     plt.show()
-    plt.savefig(f"boxplot_samples_{session_column}_{y_axis}_{population}_{feature_type}_hgs_separate_gender_separated_parkinson_Male.png")
+    plt.savefig(f"boxplot_1_to_{n}_samples_{session_column}_{y_axis}_{population}_{feature_type}_hgs_separate_gender_separated_Parkinson_Male.png")
     plt.close()
 
 

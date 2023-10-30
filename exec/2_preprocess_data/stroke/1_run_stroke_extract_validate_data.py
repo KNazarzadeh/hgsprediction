@@ -32,7 +32,7 @@ df_preprocessed = data_processor.calculate_dominant_nondominant_hgs(df_preproces
 # Remove all columns with all NaN values
 df_preprocessed = data_processor.remove_nan_columns(df_preprocessed)
 
-stroke_save_data.save_main_preprocessed_data(df_preprocessed, population, mri_status, stroke_cohort="all-stroke-subjects")
+# stroke_save_data.save_main_preprocessed_data(df_preprocessed, population, mri_status, stroke_cohort="all-stroke-subjects")
 
 ###############################################################################
 for stroke_cohort in ["pre-stroke", "post-stroke"]:
@@ -40,30 +40,39 @@ for stroke_cohort in ["pre-stroke", "post-stroke"]:
         if mri_status == "mri":
             if visit_session == 1:
                 session_column = f"1st_{stroke_cohort}_session"
+                df_extracted = data_processor.extract_data(df_preprocessed, session_column)
+                df_validated = data_processor.validate_handgrips(df_extracted, session_column)
             elif visit_session == 2:
                 session_column = f"2nd_{stroke_cohort}_session"
+                df_extracted = data_processor.extract_data(df_preprocessed, session_column)
+                df_validated = data_processor.validate_handgrips(df_extracted, session_column)
             elif visit_session == 3:
                 session_column = f"3rd_{stroke_cohort}_session"
-            df_extracted = data_processor.extract_data(df_preprocessed, session_column)
-            df_validated = data_processor.validate_handgrips(df_extracted, session_column)
-            stroke_save_data.save_primary_extracted_data(df_extracted, population, mri_status, session_column, stroke_cohort)
-            stroke_save_data.save_validated_hgs_data(df_validated, population, mri_status, session_column, stroke_cohort)
+                df_extracted = data_processor.extract_data(df_preprocessed, session_column)
+                df_validated = data_processor.validate_handgrips(df_extracted, session_column)
+            # stroke_save_data.save_primary_extracted_data(df_extracted, population, mri_status, session_column, stroke_cohort)
+            # stroke_save_data.save_validated_hgs_data(df_validated, population, mri_status, session_column, stroke_cohort)
         elif mri_status == "nonmri":
             if visit_session == 1:
                 session_column = f"1st_{stroke_cohort}_session"
+                df_extracted = data_processor.extract_data(df_preprocessed, session_column)
+                df_validated = data_processor.validate_handgrips(df_extracted, session_column)
             elif visit_session == 2:
                 session_column = f"2nd_{stroke_cohort}_session"
-            df_extracted = data_processor.extract_data(df_preprocessed, session_column)
-            df_validated = data_processor.validate_handgrips(df_extracted, session_column)
-            stroke_save_data.save_primary_extracted_data(df_extracted, population, mri_status, session_column, stroke_cohort)
-            stroke_save_data.save_validated_hgs_data(df_validated, population, mri_status, session_column, stroke_cohort)
+                df_extracted = data_processor.extract_data(df_preprocessed, session_column)
+                df_validated = data_processor.validate_handgrips(df_extracted, session_column)
+            # stroke_save_data.save_primary_extracted_data(df_extracted, population, mri_status, session_column, stroke_cohort)
+            # stroke_save_data.save_validated_hgs_data(df_validated, population, mri_status, session_column, stroke_cohort)
+            print(stroke_cohort)
+            print(visit_session, session_column)
             print(df_extracted)
             print(df_validated)
-
+print("===== Done! =====")
+embed(globals(), locals())
 ###############################################################################
 stroke_cohort = "post-stroke"
 df_post = data_processor.extract_post_stroke_df(df_preprocessed, mri_status)
-stroke_save_data.save_subgroups_only_preprocessed_data(df_post, population, mri_status, stroke_cohort="post-stroke")
+# stroke_save_data.save_subgroups_only_preprocessed_data(df_post, population, mri_status, stroke_cohort="post-stroke")
 if mri_status == "mri":
     visit_range = range(1, 4)
 elif mri_status == "nonmri":
@@ -77,12 +86,12 @@ for visit_session in visit_range:
         session_column = f"3rd_{stroke_cohort}_session"
     df_extracted = data_processor.extract_data(df_post, session_column)
     df_validated = data_processor.validate_handgrips(df_extracted, session_column)
-    stroke_save_data.save_subgroups_only_extracted_data(df_extracted, population, mri_status, session_column, stroke_cohort="post-stroke")
-    stroke_save_data.save_subgroups_only_validated_hgs_data(df_validated, population, mri_status, session_column, stroke_cohort="post-stroke")
+    # stroke_save_data.save_subgroups_only_extracted_data(df_extracted, population, mri_status, session_column, stroke_cohort="post-stroke")
+    # stroke_save_data.save_subgroups_only_validated_hgs_data(df_validated, population, mri_status, session_column, stroke_cohort="post-stroke")
 ###############################################################################
 stroke_cohort = "pre-stroke"
 df_pre = data_processor.extract_pre_stroke_df(df_preprocessed, mri_status)
-stroke_save_data.save_subgroups_only_preprocessed_data(df_pre, population, mri_status, stroke_cohort="pre-stroke")
+# stroke_save_data.save_subgroups_only_preprocessed_data(df_pre, population, mri_status, stroke_cohort="pre-stroke")
 if mri_status == "mri":
     visit_range = range(1, 4)
 elif mri_status == "nonmri":
