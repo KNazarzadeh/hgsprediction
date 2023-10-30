@@ -115,7 +115,7 @@ for target in ["hgs_L+R", "hgs_left", "hgs_right"]:
     df_stroke = stroke.load_hgs_predicted_results("stroke", mri_status, session_column, model_name, feature_type, target, "both_gender")
     df_stroke.loc[:, "disease"] = 1
 
-    df_stroke = df_stroke.drop(index=1872273)
+    # df_stroke = df_stroke.drop(index=1872273)
 
     df_pre_stroke = df_stroke.loc[:, ["gender", "1st_pre-stroke_age", "1st_pre-stroke_bmi",  "1st_pre-stroke_height",  "1st_pre-stroke_waist_to_hip_ratio", f"1st_pre-stroke_{target}", "disease"]]
     df_pre_stroke.rename(columns={"1st_pre-stroke_age":"age", "1st_pre-stroke_bmi":"bmi",  "1st_pre-stroke_height":"height",  "1st_pre-stroke_waist_to_hip_ratio":"waist_to_hip_ratio", 
@@ -175,7 +175,7 @@ for target in ["hgs_L+R", "hgs_left", "hgs_right"]:
             unmatched_controls = pd.DataFrame()
             unmatched_patients = pd.DataFrame()
             # Define the range of k from 1 to n
-            n = 1  # You can change this to the desired value of n
+            n = 10  # You can change this to the desired value of n
             for k in range(1, n + 1):
                 # Fit a Nearest Neighbors model on the control group with the current k
                 knn = NearestNeighbors(n_neighbors=k)
@@ -337,8 +337,8 @@ for y_axis in ["actual", "predicted", "delta"]:
     ymin, ymax = plt.ylim()
     plt.yticks(range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+10, 10), fontsize=18, weight='bold')
     plt.xticks(fontsize=18, weight='bold')
-    # Show the plot
-    legend = plt.legend(title="Samples", loc="upper left", prop={'size': 12})  # Add legend
+    legend = plt.legend(loc="upper left", prop={'size': 16, 'weight': 'bold'})
+    legend.set_title("Samples", {'size': 16, 'weight': 'bold'})
     # Modify individual legend labels
     legend.get_texts()[0].set_text(f"Matching samples from controls(N={len(df_both_gender)})")
     legend.get_texts()[1].set_text(f"Stroke(N={len(df_stroke)})")
@@ -352,7 +352,7 @@ for y_axis in ["actual", "predicted", "delta"]:
         x2 = xticks_positios_array[x_box_pos+1]
         y, h, col = results.loc[i, f"max_sample_{y_axis}"] + 2, 2, 'k'
         plt.plot([x1, x1, x2, x2], [y, y+h, y+h, y], lw=1.5, c=col)
-        plt.text((x1+x2)*.5, y+h, f"p={results.loc[i, 'ranksum_p_value']:.3f}", ha='center', va='bottom', color=col)
+        plt.text((x1+x2)*.5, y+h, f"p={results.loc[i, 'ranksum_p_value']:.3f}", ha='center', va='bottom', fontsize=14, weight='bold',  color=col)
 
     plt.show()
     plt.savefig(f"boxplot_1_to_{n}_samples_{session_column}_{y_axis}_{population}_{feature_type}_hgs_both_gender_controls_Stroke.png")
@@ -386,9 +386,9 @@ for y_axis in ["actual", "predicted", "delta"]:
     ymin, ymax = plt.ylim()
     plt.yticks(range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+10, 10), fontsize=18, weight='bold')
     plt.xticks(fontsize=18, weight='bold')
-    # Show the plot
-    legend = plt.legend(title="Macthing samples cohort", loc="upper left", prop={'size': 12})  # Add legend
-    # Modify individual legend labels
+    
+    legend = plt.legend(loc="upper left", prop={'size': 16, 'weight': 'bold'})
+    legend.set_title("Samples", {'size': 16, 'weight': 'bold'})    # Modify individual legend labels
     female_matching_samples_number = len(df_both_gender[df_both_gender["gender"]==0])
     female_stroke_number = len(df_both_stroke[df_both_stroke["gender"]==0])
     legend.get_texts()[0].set_text(f"Matching samples from controls Female(N={female_matching_samples_number})")
@@ -403,7 +403,7 @@ for y_axis in ["actual", "predicted", "delta"]:
         x2 = xticks_positios_array[x_box_pos+1]
         y, h, col = results_female.loc[i, f"max_sample_{y_axis}"] + 2, 2, 'k'
         plt.plot([x1, x1, x2, x2], [y, y+h, y+h, y], lw=1.5, c=col)
-        plt.text((x1+x2)*.5, y+h, f"p={results_female.loc[i, 'ranksum_p_value']:.3f}", ha='center', va='bottom', color=col)
+        plt.text((x1+x2)*.5, y+h, f"p={results_female.loc[i, 'ranksum_p_value']:.3f}", ha='center', va='bottom', fontsize=14, weight='bold', color=col)
 
     plt.show()
     plt.savefig(f"boxplot_1_to_{n}_samples_{session_column}_{y_axis}_{population}_{feature_type}_hgs_separate_gender_separated_Stroke_Female.png")
@@ -439,8 +439,8 @@ for y_axis in ["actual", "predicted", "delta"]:
     ymin, ymax = plt.ylim()
     plt.yticks(range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+10, 10), fontsize=18, weight='bold')
     plt.xticks(fontsize=18, weight='bold')
-    # Show the plot
-    legend = plt.legend(title="Macthing samples cohort", loc="upper left", prop={'size': 12})  # Add legend
+    legend = plt.legend(loc="upper left", prop={'size': 16, 'weight': 'bold'})
+    legend.set_title("Samples", {'size': 16, 'weight': 'bold'})
     male_matching_samples_number = len(df_both_gender[df_both_gender["gender"]==1])
     male_stroke_number = len(df_both_stroke[df_both_stroke["gender"]==1])
     # Modify individual legend labels
@@ -456,7 +456,7 @@ for y_axis in ["actual", "predicted", "delta"]:
         x2 = xticks_positios_array[x_box_pos+1]
         y, h, col = results_male.loc[i, f"max_sample_{y_axis}"] + 2, 2, 'k'
         plt.plot([x1, x1, x2, x2], [y, y+h, y+h, y], lw=1.5, c=col)
-        plt.text((x1+x2)*.5, y+h, f"p={results_male.loc[i, 'ranksum_p_value']:.3f}", ha='center', va='bottom', color=col)
+        plt.text((x1+x2)*.5, y+h, f"p={results_male.loc[i, 'ranksum_p_value']:.3f}", ha='center', va='bottom', fontsize=14, weight='bold', color=col)
 
     plt.show()
     plt.savefig(f"boxplot_1_to_{n}_samples_{session_column}_{y_axis}_{population}_{feature_type}_hgs_separate_gender_separated_Stroke_Male.png")
