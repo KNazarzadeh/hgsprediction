@@ -34,8 +34,9 @@ df_preprocessed = data_processor.calculate_dominant_nondominant_hgs(df_preproces
 # Remove all columns with all NaN values
 df_preprocessed = data_processor.remove_nan_columns(df_preprocessed)
 
-parkinson_save_data.save_main_preprocessed_data(df_preprocessed, population, mri_status, parkinson_cohort="all-parkinson-subjects")
-
+# parkinson_save_data.save_main_preprocessed_data(df_preprocessed, population, mri_status, parkinson_cohort="all-parkinson-subjects")
+print("===== Done! =====")
+embed(globals(), locals())
 ###############################################################################
 for parkinson_cohort in ["pre-parkinson", "post-parkinson"]:
     for visit_session in range(1, 3):
@@ -50,8 +51,8 @@ for parkinson_cohort in ["pre-parkinson", "post-parkinson"]:
             df_validated = data_processor.validate_handgrips(df_extracted, session_column)
             print(df_extracted)
             print(df_validated)
-            parkinson_save_data.save_primary_extracted_data(df_extracted, population, mri_status, session_column, parkinson_cohort)
-            parkinson_save_data.save_validated_hgs_data(df_validated, population, mri_status, session_column, parkinson_cohort)
+            # parkinson_save_data.save_primary_extracted_data(df_extracted, population, mri_status, session_column, parkinson_cohort)
+            # parkinson_save_data.save_validated_hgs_data(df_validated, population, mri_status, session_column, parkinson_cohort)
         elif mri_status == "nonmri":
             if visit_session == 1:
                 session_column = f"1st_{parkinson_cohort}_session"
@@ -59,15 +60,15 @@ for parkinson_cohort in ["pre-parkinson", "post-parkinson"]:
                 session_column = f"2nd_{parkinson_cohort}_session"
             df_extracted = data_processor.extract_data(df_preprocessed, session_column)
             df_validated = data_processor.validate_handgrips(df_extracted, session_column)
-            parkinson_save_data.save_primary_extracted_data(df_extracted, population, mri_status, session_column, parkinson_cohort)
-            parkinson_save_data.save_validated_hgs_data(df_validated, population, mri_status, session_column, parkinson_cohort)
+            # parkinson_save_data.save_primary_extracted_data(df_extracted, population, mri_status, session_column, parkinson_cohort)
+            # parkinson_save_data.save_validated_hgs_data(df_validated, population, mri_status, session_column, parkinson_cohort)
             print(df_extracted)
             print(df_validated)
 
 ###############################################################################
 parkinson_cohort = "post-parkinson"
 df_post = data_processor.extract_post_parkinson_df(df_preprocessed, mri_status)
-parkinson_save_data.save_subgroups_only_preprocessed_data(df_post, population, mri_status, parkinson_cohort="post-parkinson")
+# parkinson_save_data.save_subgroups_only_preprocessed_data(df_post, population, mri_status, parkinson_cohort="post-parkinson")
 if mri_status == "mri":
     visit_range = range(1, 3)
 elif mri_status == "nonmri":
@@ -87,7 +88,7 @@ for visit_session in visit_range:
 ###############################################################################
 parkinson_cohort = "pre-parkinson"
 df_pre = data_processor.extract_pre_parkinson_df(df_preprocessed, mri_status)
-parkinson_save_data.save_subgroups_only_preprocessed_data(df_pre, population, mri_status, parkinson_cohort="pre-parkinson")
+# parkinson_save_data.save_subgroups_only_preprocessed_data(df_pre, population, mri_status, parkinson_cohort="pre-parkinson")
 if mri_status == "mri":
     visit_range = range(1, 4)
 elif mri_status == "nonmri":
@@ -101,15 +102,15 @@ for visit_session in visit_range:
         session_column = f"3rd_{parkinson_cohort}_session"
     df_extracted = data_processor.extract_data(df_pre, session_column)
     df_validated = data_processor.validate_handgrips(df_extracted, session_column)
-    parkinson_save_data.save_subgroups_only_extracted_data(df_extracted, population, mri_status, session_column, parkinson_cohort="pre-parkinson")
-    parkinson_save_data.save_subgroups_only_validated_hgs_data(df_validated, population, mri_status, session_column, parkinson_cohort="pre-parkinson")
+    # parkinson_save_data.save_subgroups_only_extracted_data(df_extracted, population, mri_status, session_column, parkinson_cohort="pre-parkinson")
+    # parkinson_save_data.save_subgroups_only_validated_hgs_data(df_validated, population, mri_status, session_column, parkinson_cohort="pre-parkinson")
     print(df_extracted)
     print(df_validated)
 
 ###############################################################################
 parkinson_cohort = "longitudinal-parkinson"
 df_longitudinal = data_processor.extract_longitudinal_parkinson_df(df_preprocessed, mri_status)
-parkinson_save_data.save_main_preprocessed_data(df_longitudinal, population, mri_status, parkinson_cohort="longitudinal-parkinson")
+# parkinson_save_data.save_main_preprocessed_data(df_longitudinal, population, mri_status, parkinson_cohort="longitudinal-parkinson")
 for visit_session in range(1, 2):
     if visit_session == 1:
         parkinson_cohort = "pre-parkinson"
@@ -130,8 +131,8 @@ for visit_session in range(1, 2):
     df_longitudinal_validated = merged_df_validated.loc[:, ~merged_df_validated.columns.duplicated()]
     parkinson_cohort = "longitudinal-parkinson"
     session_column = f"1st_{parkinson_cohort}_session"
-    parkinson_save_data.save_primary_extracted_data(df_longitudinal_extracted, population, mri_status, session_column, parkinson_cohort="longitudinal-parkinson")
-    parkinson_save_data.save_validated_hgs_data(df_longitudinal_validated, population, mri_status, session_column, parkinson_cohort="longitudinal-parkinson")
+    # parkinson_save_data.save_primary_extracted_data(df_longitudinal_extracted, population, mri_status, session_column, parkinson_cohort="longitudinal-parkinson")
+    # parkinson_save_data.save_validated_hgs_data(df_longitudinal_validated, population, mri_status, session_column, parkinson_cohort="longitudinal-parkinson")
     
 print("===== Done! =====")
 embed(globals(), locals())

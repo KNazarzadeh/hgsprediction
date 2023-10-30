@@ -73,12 +73,14 @@ else:
 features = define_features(feature_type)
 X = features
 y = target
+print("===== Done! =====")
+embed(globals(), locals())
 
 df_merged = pd.DataFrame()
 for parkinson_subgroup in ["pre-parkinson", "post-parkinson"]:
     df_extracted = df_longitudinal[[col for col in df_longitudinal.columns if parkinson_subgroup in col]]
     df_extracted = parkinson_extract_data.extract_data(df_extracted, parkinson_subgroup, visit_session, features, target)
-
+    df_extracted.index.name = "SubjectID"
     df_female = df_extracted[df_extracted["gender"] == 0]
     df_male = df_extracted[df_extracted["gender"] == 1]
     
@@ -93,7 +95,7 @@ for parkinson_subgroup in ["pre-parkinson", "post-parkinson"]:
 
     df_both_gender = pd.concat([df_female, df_male], axis=0)
     df_merged = pd.concat([df_merged, df_both_gender], axis=1)
-    
+
 df_merged = df_merged.dropna()
 if df_merged['1st_pre-parkinson_gender'].astype(float).equals((df_merged['1st_post-parkinson_gender'].astype(float))):
     df_merged.insert(0, "gender", df_merged["1st_pre-parkinson_gender"])
@@ -103,7 +105,7 @@ df_female = df_merged[df_merged["gender"] == 0]
 df_male = df_merged[df_merged["gender"] == 1]
 
 parkinson_save_hgs_predicted_results(
-    df_both_gender,
+    df_merged,
     population,
     mri_status,
     model_name,

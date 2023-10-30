@@ -60,7 +60,7 @@ print(male_best_model_trained)
 
 ##############################################################################
 # load data
-parkinson_cohort = "post-parkinson"
+parkinson_cohort = "pre-parkinson"
 if visit_session == "1":
     session_column = f"1st_{parkinson_cohort}_session"
 elif visit_session == "2":
@@ -70,23 +70,22 @@ elif visit_session == "3":
 elif visit_session == "4":
     session_column = f"4th_{parkinson_cohort}_session"
 if mri_status == "mri+nonmri":
-    df_post_mri = parkinson_load_data.load_preprocessed_data(population, "mri", session_column, parkinson_cohort)
-    df_post_nonmri = parkinson_load_data.load_preprocessed_data(population, "nonmri", session_column, parkinson_cohort)
-    print("===== Done! =====")
-    embed(globals(), locals())
-    df_post = pd.concat([df_post_mri, df_post_nonmri])
-
+    df_pre_mri = parkinson_load_data.load_preprocessed_data(population, "mri", session_column, parkinson_cohort)
+    df_pre_nonmri = parkinson_load_data.load_preprocessed_data(population, "nonmri", session_column, parkinson_cohort)
+    
+    df_pre = pd.concat([df_pre_mri, df_pre_nonmri])
+   
 # Define the string to check for in column names
-string_to_remove = 'pre-parkinson'
+string_to_remove = 'post-parkinson'
 
 # Get a list of column names that do not contain the specified string
-columns_to_keep = [col for col in df_post.columns if string_to_remove not in col]
+columns_to_keep = [col for col in df_pre.columns if string_to_remove not in col]
 
-df_post = df_post[columns_to_keep]
+df_pre = df_pre[columns_to_keep]
 
 features = define_features(feature_type)
 
-df_extracted = parkinson_extract_data.extract_data(df_post, parkinson_cohort, visit_session, features, target)
+df_extracted = parkinson_extract_data.extract_data(df_pre, parkinson_cohort, visit_session, features, target)
 
 X = features
 y = target
@@ -103,8 +102,7 @@ df_both_gender = pd.concat([df_female, df_male], axis=0)
 print(df_both_gender)
 
 session_column = f"1st_{parkinson_cohort}_only_session"
-print("===== Done! =====")
-embed(globals(), locals())
+
 parkinson_save_hgs_predicted_results(
     df_both_gender,
     population,

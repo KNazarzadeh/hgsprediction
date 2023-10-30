@@ -78,7 +78,8 @@ if mri_status == "mri+nonmri":
     df_post_mri = stroke_load_data.load_preprocessed_data(population, "mri", session_column, stroke_cohort)
     df_post_nonmri = stroke_load_data.load_preprocessed_data(population, "nonmri", session_column, stroke_cohort)
     df_post = pd.concat([df_post_mri, df_post_nonmri])
-
+else:
+    df_post = stroke_load_data.load_preprocessed_data(population, mri_status, session_column, stroke_cohort)
 # Define the string to check for in column names
 string_to_remove = 'pre-stroke'
 
@@ -103,7 +104,8 @@ print(df_male)
 
 df_both_gender = pd.concat([df_female, df_male], axis=0)
 print(df_both_gender)
-
+print("===== Done! =====")
+embed(globals(), locals())
 session_column = f"1st_{stroke_cohort}_only_session"
 save_hgs_predicted_results(
     df_both_gender,

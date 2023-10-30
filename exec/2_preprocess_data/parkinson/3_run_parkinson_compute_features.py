@@ -11,6 +11,7 @@ filename = sys.argv[0]
 population = sys.argv[1]
 mri_status = sys.argv[2]
 feature_type = sys.argv[3]
+
 # parkinson_cohort = sys.argv[4]
 # visit_session = sys.argv[5]
 # gender = sys.argv[6]

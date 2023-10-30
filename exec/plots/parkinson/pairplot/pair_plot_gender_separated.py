@@ -1,0 +1,182 @@
+import sys
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+import matplotlib.patheffects as path_effects
+from hgsprediction.load_data import parkinson_load_data
+from hgsprediction.load_results import parkinson
+
+from ptpython.repl import embed
+# print("===== Done! =====")
+# embed(globals(), locals())
+
+filename = sys.argv[0]
+population = sys.argv[1]
+mri_status = sys.argv[2]
+model_name = sys.argv[3]
+feature_type = sys.argv[4]
+target = sys.argv[5]
+
+parkinson_cohort = "longitudinal-parkinson"
+session_column = f"1st_{parkinson_cohort}_session"
+
+df_longitudinal = parkinson.load_hgs_predicted_results(population, mri_status, session_column, model_name, feature_type, target, "both_gender")
+
+selected_cols = [col for col in df_longitudinal.columns if any(item in col for item in ["actual", "predicted"])]
+df_selected = df_longitudinal[selected_cols]
+
+df_selected.insert(0, "gender", df_longitudinal["gender"].map({0: 'female', 1: 'male'}))
+
+###############################################################################
+target_string = " ".join([word.upper() for word in target.split("_")])
+for item in df_selected["gender"].unique():
+    df = df_selected[df_selected["gender"]==item]
+    if item == "female":
+        hue_pallete = sns.color_palette(['#800080', '#800080'])
+        rgb_color = "#800080"
+    else:
+        hue_pallete = sns.color_palette(['#000080', '#000080'])
+        rgb_color = "#000080"
+    # Define a custom palette with two blue colors
+    custom_palette = sns.color_palette(['#B7E4C7', '#FFB0C4'])  # You can use any hex color codes you prefer
+    # Create the boxplot with the custom palette
+    sns.set(style="whitegrid")
+    fig, ax = plt.subplots(1, 2, figsize=(15, 10))  # Adjust the figure size if needed
+    sns.set(style="whitegrid")
+    # Define a custom palette with two blue colors
+    custom_palette = sns.color_palette(['#95CADB', '#008ECC'])  # You can use any hex color codes you prefer
+    hue_pallete = sns.color_palette(['#DA70D6', 'blue'])  
+    # Create a list of column groups
+    for index, yaxis_target in enumerate(["actual", "predicted"]):
+        column_groups = [[f"1st_pre-parkinson_{target}_{yaxis_target}", f"1st_post-parkinson_{target}_{yaxis_target}"]]
+        # Initialize an empty list to store the melted DataFrames
+        melted_dfs = []
+        # Iterate through column groups and create melted DataFrames
+        for group_columns in column_groups:
+            # Melt the DataFrame for the current group
+            melted_group = pd.melt(df, id_vars=["gender"], value_vars=group_columns, var_name="variable", ignore_index=False)        
+            # Create 'parkinson_cohort' based on 'variable'        
+            melted_group['parkinson_cohort'] = melted_group['variable'].apply(lambda x: 'Pre-parkinson' if 'pre-parkinson' in x else ('Post-parkinson' if 'post-parkinson' in x else None))
+
+            # Append the melted DataFrame to the list
+            melted_dfs.append(melted_group)
+
+        # Concatenate the melted DataFrames into one without ignoring the original indexes
+        melted_df = pd.concat(melted_dfs, ignore_index=False)
+
+        print(melted_df)
+        ###############################################################################
+        sns.boxplot(x="parkinson_cohort", y="value", data=melted_df, palette=custom_palette, ax=ax[index])
+        sns.stripplot(x="parkinson_cohort", y="value", data=melted_df, color=rgb_color, jitter=False, linewidth=0, size=7, ax=ax[index])
+        sns.lineplot(data=melted_df, x="parkinson_cohort", y="value", estimator=None, units="SubjectID", markers=True, color=rgb_color, linewidth=1, legend=False, ax=ax[index])
+        sns.set(style="whitegrid")
+        print(index, yaxis_target)
+        print(column_groups)
+        
+        if yaxis_target == "actual":
+            ax[index].set_title(f"Actual HGS", fontsize=20, fontweight="bold")
+        elif yaxis_target == "predicted":
+            ax[1].set_title("Predicted HGS", fontsize=20, fontweight="bold")
+
+    fig.suptitle(f"Pre- and Post-parkinson Actual vs Predicted values - {item.capitalize()}(N={len(df)})\nTarget={target_string}", fontsize=16, fontweight="bold")
+
+    fig.text(0.04, 0.5, 'HGS Values', va='center', rotation='vertical', fontsize=20, fontweight="bold")
+    ax[0].set_xlabel("")
+    ax[0].set_ylabel("")
+    ax[1].set_xlabel("")
+    ax[1].set_ylabel("")
+
+    xmin = min(ax[0].get_xlim()[0], ax[1].get_xlim()[0])
+    xmax = max(ax[0].get_xlim()[1], ax[1].get_xlim()[1])
+    ymin = min(ax[0].get_ylim()[0], ax[1].get_ylim()[0])
+    ymax = max(ax[0].get_ylim()[1], ax[1].get_ylim()[1])
+
+    ax[0].set_xlim(xmin, xmax)
+    ax[1].set_xlim(xmin, xmax)
+    ax[0].set_ylim(ymin, ymax)
+    ax[1].set_ylim(ymin, ymax)
+
+    # changing the fontsize of ticks
+    ax[0].set_yticks(np.arange(min(ax[0].get_yticks()), max(ax[0].get_yticks()), 5))
+    ax[1].set_yticks(np.arange(min(ax[1].get_yticks()), max(ax[1].get_yticks()), 5))
+
+    ax[0].tick_params(axis="both", labelsize=20)
+    ax[1].tick_params(axis="both", labelsize=20)
+
+
+    plt.show()
+    plt.savefig(f"pair_plot_{population}_{target}_{item}.png")
+
+print("===== Done! =====")
+embed(globals(), locals())
+
+    # # Add labels and title
+    # plt.xlabel("HGS targets", fontsize=20, fontweight="bold")
+    # plt.ylabel(f"{yaxis_target.capitalize()} HGS values", fontsize=20, fontweight="bold")
+    # plt.title(f"pre-parkinson and post-parkinson HGS values - {feature_type}", fontsize=20)
+
+    # ymin , ymax = ax.get_ylim()
+    # if yaxis_target == "(actual-predicted)":
+    #     plt.yticks(np.arange(-40, 50, 10))
+    # else:
+    #     plt.yticks(np.arange(0, 120, 10))
+    # # Show the plot
+    # plt.legend(title="parkinson cohort", loc="upper left")  # Add legend
+    # legend = plt.legend(title="Gender", loc="upper left")  # Add legend
+    # # Modify individual legend labels
+    # legend.get_texts()[0].set_text(f"Pre-parkinson: N={len(df_longitudinal)}")
+    # legend.get_texts()[1].set_text(f"Post-parkinson: N={len(df_longitudinal)}")
+
+    # plt.tight_layout()
+
+    # add_median_labels(ax)
+    # # medians = melted_df.groupby(['hgs_category', 'parkinson_cohort'])['value'].median()
+    # plt.show()
+    # plt.savefig(f"pair_plot.png")
+    # plt.close()
+    ###############################################################################
+    # # Define a custom palette with two blue colors
+    # custom_palette = sns.color_palette(['#800080', '#000080'])  # You can use any hex color codes you prefer
+    # # Create the boxplot for 'hgs_category' and 'gender'
+    # plt.figure(figsize=(12, 6))
+    # sns.set(style="whitegrid")
+    # ax = sns.boxplot(x="combine_hgs_parkinson_cohort_category", y="value", data=melted_df, hue="gender", palette=custom_palette)
+    # if yaxis_target == "(actual-predicted)":
+    #     plt.yticks(np.arange(-40, 50, 10))
+    # else:
+    #     plt.yticks(np.arange(0, 120, 10))
+    # # # Extract unique values of 'hgs_category' and 'parkinson_cohort'
+    # unique_hgs_categories = melted_df["hgs_category"].unique()
+    # unique_parkinson_cohorts = melted_df["parkinson_cohort"].unique()
+
+    # # Create xtick labels by repeating the 'parkinson_cohort' array for each 'hgs_category'
+    # xticks_labels = [f"{cohort}" for hgs_category in unique_hgs_categories for cohort in unique_parkinson_cohorts]
+    # # Set xtick positions and labels
+    # plt.xticks(range(len(xticks_labels)), xticks_labels)
+
+    # # Add labels and title
+    # plt.xlabel("HGS targets", fontsize=20, fontweight="bold")
+    # plt.ylabel(f"{yaxis_target.capitalize()} HGS values", fontsize=20, fontweight="bold")
+    # plt.title(f"HGS values for genders - {feature_type}", fontsize=20)
+    # legend = plt.legend(title="Gender", loc="upper left")  # Add legend
+    # # Modify individual legend labels
+    # legend.get_texts()[0].set_text(f"Female: N={len(df_longitudinal[df_longitudinal['gender']==0])}")
+    # legend.get_texts()[1].set_text(f"Male: N={len(df_longitudinal[df_longitudinal['gender']==1])}")
+
+    # # Show the plot
+    # plt.tight_layout()
+
+    # add_median_labels(ax)
+    # # medians = melted_df.groupby(['combine_hgs_parkinson_cohort_category', 'gender'])['value'].median()
+
+    # plt.show()
+    # plt.savefig(f"{yaxis_target}_hgs_female_male_separated.png")
+    # plt.close()
+
+
+
+print("===== Done! =====")
+embed(globals(), locals())
+
+

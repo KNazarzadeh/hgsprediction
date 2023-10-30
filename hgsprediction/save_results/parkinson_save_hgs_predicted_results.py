@@ -39,7 +39,7 @@ def parkinson_save_hgs_predicted_results(
     file_path = os.path.join(
         folder_path,
         f"{gender}_hgs_predicted_results.csv")
-    print(file_path)
+
     df.to_csv(file_path, sep=',', index=True)
 
 ##############################################################################    

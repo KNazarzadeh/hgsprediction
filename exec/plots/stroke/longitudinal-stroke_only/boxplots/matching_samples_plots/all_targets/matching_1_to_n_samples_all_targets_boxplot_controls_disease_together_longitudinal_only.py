@@ -107,16 +107,14 @@ for target in ["hgs_L+R", "hgs_left", "hgs_right"]:
 
     df_healthy = pd.concat([df_healthy_female, df_healthy_male])
     df_healthy.loc[:, "disease"] = 0
-    print("===== Done! =====")
-    embed(globals(), locals())
+ 
     ###############################################################################
 
     stroke_cohort = "longitudinal-stroke"
     session_column = f"1st_{stroke_cohort}_session"
     df_stroke = stroke.load_hgs_predicted_results("stroke", mri_status, session_column, model_name, feature_type, target, "both_gender")
     df_stroke.loc[:, "disease"] = 1
-    print("===== Done! =====")
-    embed(globals(), locals())
+
     df_stroke = df_stroke.drop(index=1872273)
 
     df_pre_stroke = df_stroke.loc[:, ["gender", "1st_pre-stroke_age", "1st_pre-stroke_bmi",  "1st_pre-stroke_height",  "1st_pre-stroke_waist_to_hip_ratio", f"1st_pre-stroke_{target}", "disease"]]
@@ -145,12 +143,9 @@ for target in ["hgs_L+R", "hgs_left", "hgs_right"]:
         if stroke_cohort == "pre-stroke":
             df = df_pre.copy()
             df_stroke = df_pre[df_pre['disease']==1]
-            axj=0
-            print(stroke_cohort)
         elif stroke_cohort == "post-stroke":
             df = df_post.copy()
             df_stroke = df_post[df_post['disease']==1]
-            axj=1
     ##############################################################################
         control_samples_female = pd.DataFrame()
         control_samples_male = pd.DataFrame()
@@ -180,7 +175,7 @@ for target in ["hgs_L+R", "hgs_left", "hgs_right"]:
             unmatched_controls = pd.DataFrame()
             unmatched_patients = pd.DataFrame()
             # Define the range of k from 1 to n
-            n = 10  # You can change this to the desired value of n
+            n = 1  # You can change this to the desired value of n
             for k in range(1, n + 1):
                 # Fit a Nearest Neighbors model on the control group with the current k
                 knn = NearestNeighbors(n_neighbors=k)
@@ -310,161 +305,162 @@ def add_median_labels(ax, fmt='.3f'):
 df["hgs_target_stroke_cohort"] = df["hgs_target"] + "-" +df["stroke_cohort"]
 df_stroke_together["hgs_target_stroke_cohort"] = df_stroke_together["hgs_target"] + "-" +df_stroke_together["stroke_cohort"]
 df_main = pd.concat([df, df_stroke_together])
-melted_df = pd.melt(df_main, id_vars=["hgs_target_stroke_cohort", "disease"], value_vars="delta", var_name="variable", ignore_index=False)
-# Initialize a list to store the test results
-results = pd.DataFrame(columns=["hgs_target_stroke_cohort", "ranksum_stat", "ranksum_p_value", "max_sample_delta", "max_stroke_delta"])
-for i, hgs_target_stroke_cohort in enumerate(["HGS Left-pre", "HGS Left-post", "HGS Right-pre", "HGS Right-post", "HGS L+R-pre", "HGS L+R-post"]):
-    tmp = melted_df[melted_df["hgs_target_stroke_cohort"]== hgs_target_stroke_cohort]
-    tmp_samples = tmp[tmp["disease"]==0]
-    tmp_stroke = tmp[tmp["disease"]==1]
-    stat, p_value = ranksums(tmp_samples["value"], tmp_stroke["value"])
-    print(tmp)
-    print(stat, p_value)
-    results.loc[i, "hgs_target_stroke_cohort"] = hgs_target_stroke_cohort
-    results.loc[i, "ranksum_stat"] = stat
-    results.loc[i, "ranksum_p_value"] = p_value
-    results.loc[i, "max_sample_delta"] = tmp_samples["value"].max()
-    results.loc[i, "max_stroke_delta"] = tmp_stroke["value"].max()
+for y_axis in ["actual", "predicted", "delta"]:
+    melted_df = pd.melt(df_main, id_vars=["hgs_target_stroke_cohort", "disease"], value_vars=y_axis, var_name="variable", ignore_index=False)
+    # Initialize a list to store the test results
+    results = pd.DataFrame(columns=["hgs_target_stroke_cohort", "ranksum_stat", "ranksum_p_value", f"max_sample_{y_axis}", f"max_stroke_{y_axis}"])
+    for i, hgs_target_stroke_cohort in enumerate(["HGS Left-pre", "HGS Left-post", "HGS Right-pre", "HGS Right-post", "HGS L+R-pre", "HGS L+R-post"]):
+        tmp = melted_df[melted_df["hgs_target_stroke_cohort"]== hgs_target_stroke_cohort]
+        tmp_samples = tmp[tmp["disease"]==0]
+        tmp_stroke = tmp[tmp["disease"]==1]
+        stat, p_value = ranksums(tmp_samples["value"], tmp_stroke["value"])
+        print(tmp)
+        print(stat, p_value)
+        results.loc[i, "hgs_target_stroke_cohort"] = hgs_target_stroke_cohort
+        results.loc[i, "ranksum_stat"] = stat
+        results.loc[i, "ranksum_p_value"] = p_value
+        results.loc[i, f"max_sample_{y_axis}"] = tmp_samples["value"].max()
+        results.loc[i, f"max_stroke_{y_axis}"] = tmp_stroke["value"].max()
 
-# Define a custom palette with two blue colors
-custom_palette = sns.color_palette(['#95CADB', '#008ECC'])  # You can use any hex color codes you prefer
-plt.figure(figsize=(18, 10))  # Adjust the figure size if needed
-sns.set(style="whitegrid")
-# Define the order in which you want the x-axis categories
-x_order = ['HGS Left-pre', 'HGS Left-post', 'HGS Right-pre', 'HGS Right-post', 'HGS L+R-pre', 'HGS L+R-post']
-ax = sns.boxplot(data=melted_df, x="hgs_target_stroke_cohort", y="value", hue="disease", order=x_order, palette=custom_palette)   
-# Add labels and title
-plt.xlabel("HGS targets", fontsize=20, fontweight="bold")
-plt.ylabel("HGS delta values", fontsize=20, fontweight="bold")
-plt.title(f"Matching samples from controls vs Stroke HGS delta values", fontsize=15, fontweight="bold")
+    # Define a custom palette with two blue colors
+    custom_palette = sns.color_palette(['#95CADB', '#008ECC'])  # You can use any hex color codes you prefer
+    plt.figure(figsize=(18, 10))  # Adjust the figure size if needed
+    sns.set(style="whitegrid")
+    # Define the order in which you want the x-axis categories
+    x_order = ['HGS Left-pre', 'HGS Left-post', 'HGS Right-pre', 'HGS Right-post', 'HGS L+R-pre', 'HGS L+R-post']
+    ax = sns.boxplot(data=melted_df, x="hgs_target_stroke_cohort", y="value", hue="disease", order=x_order, palette=custom_palette)   
+    # Add labels and title
+    plt.xlabel("HGS targets", fontsize=20, fontweight="bold")
+    plt.ylabel(f"HGS {y_axis.capitalize()} values", fontsize=20, fontweight="bold")
+    plt.title(f"Matching samples from controls vs Stroke HGS {y_axis.capitalize()} values", fontsize=15, fontweight="bold")
 
-ymin, ymax = plt.ylim()
-plt.yticks(range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+10, 10), fontsize=18, weight='bold')
-plt.xticks(fontsize=18, weight='bold')
-# Show the plot
-legend = plt.legend(title="Samples", loc="upper left", prop={'size': 12})  # Add legend
-# Modify individual legend labels
-legend.get_texts()[0].set_text(f"Matching samples from controls(N={len(df_both_gender)})")
-legend.get_texts()[1].set_text(f"Stroke(N={len(df_stroke)})")
+    ymin, ymax = plt.ylim()
+    plt.yticks(range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+10, 10), fontsize=18, weight='bold')
+    plt.xticks(fontsize=18, weight='bold')
+    # Show the plot
+    legend = plt.legend(title="Samples", loc="upper left", prop={'size': 12})  # Add legend
+    # Modify individual legend labels
+    legend.get_texts()[0].set_text(f"Matching samples from controls(N={len(df_both_gender)})")
+    legend.get_texts()[1].set_text(f"Stroke(N={len(df_stroke)})")
 
-plt.tight_layout()
+    plt.tight_layout()
 
-xticks_positios_array = add_median_labels(ax)
+    xticks_positios_array = add_median_labels(ax)
 
-for i, x_box_pos in enumerate(np.arange(0,11,2)):
-    x1 = xticks_positios_array[x_box_pos]
-    x2 = xticks_positios_array[x_box_pos+1]
-    y, h, col = results.loc[i, "max_sample_delta"] + 2, 2, 'k'
-    plt.plot([x1, x1, x2, x2], [y, y+h, y+h, y], lw=1.5, c=col)
-    plt.text((x1+x2)*.5, y+h, f"p={results.loc[i, 'ranksum_p_value']:.3f}", ha='center', va='bottom', color=col)
+    for i, x_box_pos in enumerate(np.arange(0,11,2)):
+        x1 = xticks_positios_array[x_box_pos]
+        x2 = xticks_positios_array[x_box_pos+1]
+        y, h, col = results.loc[i, f"max_sample_{y_axis}"] + 2, 2, 'k'
+        plt.plot([x1, x1, x2, x2], [y, y+h, y+h, y], lw=1.5, c=col)
+        plt.text((x1+x2)*.5, y+h, f"p={results.loc[i, 'ranksum_p_value']:.3f}", ha='center', va='bottom', color=col)
 
-plt.show()
-plt.savefig(f"boxplot_samples_{population}_{feature_type}_hgs_both_gender_controls_Stroke.png")
-plt.close()
+    plt.show()
+    plt.savefig(f"boxplot_1_to_{n}_samples_{session_column}_{y_axis}_{population}_{feature_type}_hgs_both_gender_controls_Stroke.png")
+    plt.close()
 ###############################################################################
 
-melted_df_female = pd.melt(df_main[df_main["gender"]==0], id_vars=["hgs_target_stroke_cohort", "disease"], value_vars="delta", var_name="variable", ignore_index=False)
-results_female = pd.DataFrame(columns=["hgs_target_stroke_cohort", "ranksum_stat", "ranksum_p_value", "max_sample_delta", "max_stroke_delta"])
-for i, hgs_target_stroke_cohort in enumerate(["HGS Left-pre", "HGS Left-post", "HGS Right-pre", "HGS Right-post", "HGS L+R-pre", "HGS L+R-post"]):
-    tmp = melted_df_female[melted_df_female["hgs_target_stroke_cohort"]== hgs_target_stroke_cohort]
-    tmp_samples = tmp[tmp["disease"]==0]
-    tmp_stroke = tmp[tmp["disease"]==1]
-    stat, p_value = ranksums(tmp_samples["value"], tmp_stroke["value"])
-    print(tmp)
-    print(stat, p_value)
-    results_female.loc[i, "hgs_target_stroke_cohort"] = hgs_target_stroke_cohort
-    results_female.loc[i, "ranksum_stat"] = stat
-    results_female.loc[i, "ranksum_p_value"] = p_value
-    results_female.loc[i, "max_sample_delta"] = tmp_samples["value"].max()
-    results_female.loc[i, "max_stroke_delta"] = tmp_stroke["value"].max()
-custom_palette = sns.color_palette(['#ca96cc', '#a851ab'])  # You can use any hex color codes you prefer
-plt.figure(figsize=(18, 10))  # Adjust the figure size if needed
-sns.set(style="whitegrid")
-x_order = ['HGS Left-pre', 'HGS Left-post', 'HGS Right-pre', 'HGS Right-post', 'HGS L+R-pre', 'HGS L+R-post']
-ax = sns.boxplot(data=melted_df_female, x="hgs_target_stroke_cohort", y="value", hue="disease", order=x_order, palette=custom_palette)    
-# Add labels and title
-plt.xlabel("HGS targets", fontsize=20, fontweight="bold")
-plt.ylabel("HGS delta values", fontsize=20, fontweight="bold")
-plt.title(f"Matching samples from controls vs Stroke HGS delta values - Females", fontsize=15, fontweight="bold")
+    melted_df_female = pd.melt(df_main[df_main["gender"]==0], id_vars=["hgs_target_stroke_cohort", "disease"], value_vars=y_axis, var_name="variable", ignore_index=False)
+    results_female = pd.DataFrame(columns=["hgs_target_stroke_cohort", "ranksum_stat", "ranksum_p_value", f"max_sample_{y_axis}", f"max_stroke_{y_axis}"])
+    for i, hgs_target_stroke_cohort in enumerate(["HGS Left-pre", "HGS Left-post", "HGS Right-pre", "HGS Right-post", "HGS L+R-pre", "HGS L+R-post"]):
+        tmp = melted_df_female[melted_df_female["hgs_target_stroke_cohort"]== hgs_target_stroke_cohort]
+        tmp_samples = tmp[tmp["disease"]==0]
+        tmp_stroke = tmp[tmp["disease"]==1]
+        stat, p_value = ranksums(tmp_samples["value"], tmp_stroke["value"])
+        print(tmp)
+        print(stat, p_value)
+        results_female.loc[i, "hgs_target_stroke_cohort"] = hgs_target_stroke_cohort
+        results_female.loc[i, "ranksum_stat"] = stat
+        results_female.loc[i, "ranksum_p_value"] = p_value
+        results_female.loc[i, f"max_sample_{y_axis}"] = tmp_samples["value"].max()
+        results_female.loc[i, f"max_stroke_{y_axis}"] = tmp_stroke["value"].max()
+    custom_palette = sns.color_palette(['#ca96cc', '#a851ab'])  # You can use any hex color codes you prefer
+    plt.figure(figsize=(18, 10))  # Adjust the figure size if needed
+    sns.set(style="whitegrid")
+    x_order = ['HGS Left-pre', 'HGS Left-post', 'HGS Right-pre', 'HGS Right-post', 'HGS L+R-pre', 'HGS L+R-post']
+    ax = sns.boxplot(data=melted_df_female, x="hgs_target_stroke_cohort", y="value", hue="disease", order=x_order, palette=custom_palette)    
+    # Add labels and title
+    plt.xlabel("HGS targets", fontsize=20, fontweight="bold")
+    plt.ylabel(f"HGS {y_axis.capitalize()} values", fontsize=20, fontweight="bold")
+    plt.title(f"Matching samples from controls vs Stroke HGS {y_axis.capitalize()} values - Females", fontsize=15, fontweight="bold")
 
-ymin, ymax = plt.ylim()
-plt.yticks(range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+10, 10), fontsize=18, weight='bold')
-plt.xticks(fontsize=18, weight='bold')
-# Show the plot
-legend = plt.legend(title="Macthing samples cohort", loc="upper left", prop={'size': 12})  # Add legend
-# Modify individual legend labels
-female_matching_samples_number = len(df_both_gender[df_both_gender["gender"]==0])
-female_stroke_number = len(df_both_stroke[df_both_stroke["gender"]==0])
-legend.get_texts()[0].set_text(f"Matching samples from controls Female(N={female_matching_samples_number})")
-legend.get_texts()[1].set_text(f"Stroke Female(N={female_stroke_number})")
+    ymin, ymax = plt.ylim()
+    plt.yticks(range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+10, 10), fontsize=18, weight='bold')
+    plt.xticks(fontsize=18, weight='bold')
+    # Show the plot
+    legend = plt.legend(title="Macthing samples cohort", loc="upper left", prop={'size': 12})  # Add legend
+    # Modify individual legend labels
+    female_matching_samples_number = len(df_both_gender[df_both_gender["gender"]==0])
+    female_stroke_number = len(df_both_stroke[df_both_stroke["gender"]==0])
+    legend.get_texts()[0].set_text(f"Matching samples from controls Female(N={female_matching_samples_number})")
+    legend.get_texts()[1].set_text(f"Stroke Female(N={female_stroke_number})")
 
-plt.tight_layout()
+    plt.tight_layout()
 
-xticks_positios_array = add_median_labels(ax)
+    xticks_positios_array = add_median_labels(ax)
 
-for i, x_box_pos in enumerate(np.arange(0,11,2)):
-    x1 = xticks_positios_array[x_box_pos]
-    x2 = xticks_positios_array[x_box_pos+1]
-    y, h, col = results_female.loc[i, "max_sample_delta"] + 2, 2, 'k'
-    plt.plot([x1, x1, x2, x2], [y, y+h, y+h, y], lw=1.5, c=col)
-    plt.text((x1+x2)*.5, y+h, f"p={results_female.loc[i, 'ranksum_p_value']:.3f}", ha='center', va='bottom', color=col)
+    for i, x_box_pos in enumerate(np.arange(0,11,2)):
+        x1 = xticks_positios_array[x_box_pos]
+        x2 = xticks_positios_array[x_box_pos+1]
+        y, h, col = results_female.loc[i, f"max_sample_{y_axis}"] + 2, 2, 'k'
+        plt.plot([x1, x1, x2, x2], [y, y+h, y+h, y], lw=1.5, c=col)
+        plt.text((x1+x2)*.5, y+h, f"p={results_female.loc[i, 'ranksum_p_value']:.3f}", ha='center', va='bottom', color=col)
 
-plt.show()
-plt.savefig(f"boxplot_samples_{population}_{feature_type}_hgs_separate_gender_separated_Stroke_Female.png")
-plt.close()
+    plt.show()
+    plt.savefig(f"boxplot_1_to_{n}_samples_{session_column}_{y_axis}_{population}_{feature_type}_hgs_separate_gender_separated_Stroke_Female.png")
+    plt.close()
 
 ###############################################################################
 
-melted_df_male = pd.melt(df_main[df_main["gender"]==1], id_vars=["hgs_target_stroke_cohort", "disease"], value_vars="delta", var_name="variable", ignore_index=False)
-results_male = pd.DataFrame(columns=["hgs_target_stroke_cohort", "ranksum_stat", "ranksum_p_value", "max_sample_delta", "max_stroke_delta"])
-for i, hgs_target_stroke_cohort in enumerate(["HGS Left-pre", "HGS Left-post", "HGS Right-pre", "HGS Right-post", "HGS L+R-pre", "HGS L+R-post"]):
-    tmp = melted_df_male[melted_df_male["hgs_target_stroke_cohort"]== hgs_target_stroke_cohort]
-    tmp_samples = tmp[tmp["disease"]==0]
-    tmp_stroke = tmp[tmp["disease"]==1]
-    stat, p_value = ranksums(tmp_samples["value"], tmp_stroke["value"])
-    print(tmp)
-    print(stat, p_value)
-    results_male.loc[i, "hgs_target_stroke_cohort"] = hgs_target_stroke_cohort
-    results_male.loc[i, "ranksum_stat"] = stat
-    results_male.loc[i, "ranksum_p_value"] = p_value
-    results_male.loc[i, "max_sample_delta"] = tmp_samples["value"].max()
-    results_male.loc[i, "max_stroke_delta"] = tmp_stroke["value"].max()
+    melted_df_male = pd.melt(df_main[df_main["gender"]==1], id_vars=["hgs_target_stroke_cohort", "disease"], value_vars=y_axis, var_name="variable", ignore_index=False)
+    results_male = pd.DataFrame(columns=["hgs_target_stroke_cohort", "ranksum_stat", "ranksum_p_value", f"max_sample_{y_axis}", f"max_stroke_{y_axis}"])
+    for i, hgs_target_stroke_cohort in enumerate(["HGS Left-pre", "HGS Left-post", "HGS Right-pre", "HGS Right-post", "HGS L+R-pre", "HGS L+R-post"]):
+        tmp = melted_df_male[melted_df_male["hgs_target_stroke_cohort"]== hgs_target_stroke_cohort]
+        tmp_samples = tmp[tmp["disease"]==0]
+        tmp_stroke = tmp[tmp["disease"]==1]
+        stat, p_value = ranksums(tmp_samples["value"], tmp_stroke["value"])
+        print(tmp)
+        print(stat, p_value)
+        results_male.loc[i, "hgs_target_stroke_cohort"] = hgs_target_stroke_cohort
+        results_male.loc[i, "ranksum_stat"] = stat
+        results_male.loc[i, "ranksum_p_value"] = p_value
+        results_male.loc[i, f"max_sample_{y_axis}"] = tmp_samples["value"].max()
+        results_male.loc[i, f"max_stroke_{y_axis}"] = tmp_stroke["value"].max()
 
-custom_palette = sns.color_palette(['#669dbf', '#005c95'])  # You can use any hex color codes you prefer
-plt.figure(figsize=(18, 10))  # Adjust the figure size if needed
-sns.set(style="whitegrid")
-x_order = ['HGS Left-pre', 'HGS Left-post', 'HGS Right-pre', 'HGS Right-post', 'HGS L+R-pre', 'HGS L+R-post']
-ax = sns.boxplot(data=melted_df_male, x="hgs_target_stroke_cohort", y="value", hue="disease", order=x_order, palette=custom_palette)    
-# Add labels and title
-plt.xlabel("HGS targets", fontsize=20, fontweight="bold")
-plt.ylabel("HGS delta values", fontsize=20, fontweight="bold")
-plt.title(f"Matching samples from controls vs Stroke HGS delta values - Males", fontsize=15, fontweight="bold")
+    custom_palette = sns.color_palette(['#669dbf', '#005c95'])  # You can use any hex color codes you prefer
+    plt.figure(figsize=(18, 10))  # Adjust the figure size if needed
+    sns.set(style="whitegrid")
+    x_order = ['HGS Left-pre', 'HGS Left-post', 'HGS Right-pre', 'HGS Right-post', 'HGS L+R-pre', 'HGS L+R-post']
+    ax = sns.boxplot(data=melted_df_male, x="hgs_target_stroke_cohort", y="value", hue="disease", order=x_order, palette=custom_palette)    
+    # Add labels and title
+    plt.xlabel("HGS targets", fontsize=20, fontweight="bold")
+    plt.ylabel(f"HGS {y_axis.capitalize()} values", fontsize=20, fontweight="bold")
+    plt.title(f"Matching samples from controls vs Stroke HGS {y_axis.capitalize()} values - Males", fontsize=15, fontweight="bold")
 
-ymin, ymax = plt.ylim()
-plt.yticks(range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+10, 10), fontsize=18, weight='bold')
-plt.xticks(fontsize=18, weight='bold')
-# Show the plot
-legend = plt.legend(title="Macthing samples cohort", loc="upper left", prop={'size': 12})  # Add legend
-male_matching_samples_number = len(df_both_gender[df_both_gender["gender"]==1])
-male_stroke_number = len(df_both_stroke[df_both_stroke["gender"]==1])
-# Modify individual legend labels
-legend.get_texts()[0].set_text(f"Matching samples from controls Male(N={male_matching_samples_number})")
-legend.get_texts()[1].set_text(f"Stroke Male(N={male_stroke_number})")
+    ymin, ymax = plt.ylim()
+    plt.yticks(range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+10, 10), fontsize=18, weight='bold')
+    plt.xticks(fontsize=18, weight='bold')
+    # Show the plot
+    legend = plt.legend(title="Macthing samples cohort", loc="upper left", prop={'size': 12})  # Add legend
+    male_matching_samples_number = len(df_both_gender[df_both_gender["gender"]==1])
+    male_stroke_number = len(df_both_stroke[df_both_stroke["gender"]==1])
+    # Modify individual legend labels
+    legend.get_texts()[0].set_text(f"Matching samples from controls Male(N={male_matching_samples_number})")
+    legend.get_texts()[1].set_text(f"Stroke Male(N={male_stroke_number})")
 
-plt.tight_layout()
+    plt.tight_layout()
 
-xticks_positios_array = add_median_labels(ax)
+    xticks_positios_array = add_median_labels(ax)
 
-for i, x_box_pos in enumerate(np.arange(0,11,2)):
-    x1 = xticks_positios_array[x_box_pos]
-    x2 = xticks_positios_array[x_box_pos+1]
-    y, h, col = results_male.loc[i, "max_sample_delta"] + 2, 2, 'k'
-    plt.plot([x1, x1, x2, x2], [y, y+h, y+h, y], lw=1.5, c=col)
-    plt.text((x1+x2)*.5, y+h, f"p={results_male.loc[i, 'ranksum_p_value']:.3f}", ha='center', va='bottom', color=col)
+    for i, x_box_pos in enumerate(np.arange(0,11,2)):
+        x1 = xticks_positios_array[x_box_pos]
+        x2 = xticks_positios_array[x_box_pos+1]
+        y, h, col = results_male.loc[i, f"max_sample_{y_axis}"] + 2, 2, 'k'
+        plt.plot([x1, x1, x2, x2], [y, y+h, y+h, y], lw=1.5, c=col)
+        plt.text((x1+x2)*.5, y+h, f"p={results_male.loc[i, 'ranksum_p_value']:.3f}", ha='center', va='bottom', color=col)
 
-plt.show()
-plt.savefig(f"boxplot_samples_{population}_{feature_type}_hgs_separate_gender_separated_Stroke_Male.png")
-plt.close()
+    plt.show()
+    plt.savefig(f"boxplot_1_to_{n}_samples_{session_column}_{y_axis}_{population}_{feature_type}_hgs_separate_gender_separated_Stroke_Male.png")
+    plt.close()
 
 
 print("===== Done! =====")

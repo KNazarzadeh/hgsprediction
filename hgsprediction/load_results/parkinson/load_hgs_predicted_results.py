@@ -8,11 +8,11 @@ from ptpython.repl import embed
 def load_hgs_predicted_results(
     population,
     mri_status,
+    session_column,
     model_name,
     feature_type,
     target,
     gender,
-    parkinson_type,
 ):
     # Assuming that you have already trained and instantiated the model as `model`
     folder_path = os.path.join(
@@ -24,7 +24,7 @@ def load_hgs_predicted_results(
             "results_hgsprediction",
             f"{population}",
             f"{mri_status}",
-            f"{parkinson_type}",
+            f"{session_column}",
             f"{feature_type}",
             f"{target}",
             f"{model_name}",
@@ -39,3 +39,4 @@ def load_hgs_predicted_results(
     df = pd.read_csv (file_path, sep=',', index_col=0)
     
     return df
+
