@@ -114,9 +114,6 @@ for target in ["hgs_L+R", "hgs_left", "hgs_right"]:
     session_column = f"1st_{parkinson_cohort}_only_session"
     df_parkinson = parkinson.load_hgs_predicted_results("parkinson", mri_status, session_column, model_name, feature_type, target, "both_gender")
     df_parkinson.loc[:, "disease"] = 1
-    print("===== Done! =====")
-    embed(globals(), locals())
-    df_parkinson = df_parkinson.drop(index=1872273)
     
     ###############################################################################
     df_post = pd.concat([df_healthy, df_parkinson], axis=0)

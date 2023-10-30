@@ -115,9 +115,7 @@ for target in ["hgs_L+R", "hgs_left", "hgs_right"]:
     session_column = f"1st_{parkinson_cohort}_session"
     df_parkinson = parkinson.load_hgs_predicted_results("parkinson", mri_status, session_column, model_name, feature_type, target, "both_gender")
     df_parkinson.loc[:, "disease"] = 1
-    print("===== Done! =====")
-    embed(globals(), locals())
-    df_parkinson = df_parkinson.drop(index=1872273)
+    
 
     df_pre_parkinson = df_parkinson.loc[:, ["gender", "1st_pre-parkinson_age", "1st_pre-parkinson_bmi",  "1st_pre-parkinson_height",  "1st_pre-parkinson_waist_to_hip_ratio", f"1st_pre-parkinson_{target}", "disease"]]
     df_pre_parkinson.rename(columns={"1st_pre-parkinson_age":"age", "1st_pre-parkinson_bmi":"bmi",  "1st_pre-parkinson_height":"height",  "1st_pre-parkinson_waist_to_hip_ratio":"waist_to_hip_ratio", 
@@ -145,12 +143,10 @@ for target in ["hgs_L+R", "hgs_left", "hgs_right"]:
         if parkinson_cohort == "pre-parkinson":
             df = df_pre.copy()
             df_parkinson = df_pre[df_pre['disease']==1]
-            axj=0
             print(parkinson_cohort)
         elif parkinson_cohort == "post-parkinson":
             df = df_post.copy()
             df_parkinson = df_post[df_post['disease']==1]
-            axj=1
     ##############################################################################
         control_samples_female = pd.DataFrame()
         control_samples_male = pd.DataFrame()
@@ -356,7 +352,7 @@ for i, x_box_pos in enumerate(np.arange(0,11,2)):
     x2 = xticks_positios_array[x_box_pos+1]
     y, h, col = results.loc[i, "max_sample_delta"] + 2, 2, 'k'
     plt.plot([x1, x1, x2, x2], [y, y+h, y+h, y], lw=1.5, c=col)
-    plt.text((x1+x2)*.5, y+h, f"p={results.loc[i, 'ranksum_p_value']:.3f}", ha='center', va='bottom', color=col)
+    plt.text((x1+x2)*.5, y+h, f"p={results.loc[i, 'ranksum_p_value']:.3f}", ha='center', va='bottom', fontsize=14, weight='bold', color=col)
 
 plt.show()
 plt.savefig(f"boxplot_samples_{population}_{feature_type}_hgs_both_gender_controls_parkinson.png")
@@ -407,7 +403,7 @@ for i, x_box_pos in enumerate(np.arange(0,11,2)):
     x2 = xticks_positios_array[x_box_pos+1]
     y, h, col = results_female.loc[i, "max_sample_delta"] + 2, 2, 'k'
     plt.plot([x1, x1, x2, x2], [y, y+h, y+h, y], lw=1.5, c=col)
-    plt.text((x1+x2)*.5, y+h, f"p={results_female.loc[i, 'ranksum_p_value']:.3f}", ha='center', va='bottom', color=col)
+    plt.text((x1+x2)*.5, y+h, f"p={results_female.loc[i, 'ranksum_p_value']:.3f}", ha='center', va='bottom', fontsize=14, weight='bold', color=col)
 
 plt.show()
 plt.savefig(f"boxplot_samples_{population}_{feature_type}_hgs_separate_gender_separated_parkinson_Female.png")
@@ -460,7 +456,7 @@ for i, x_box_pos in enumerate(np.arange(0,11,2)):
     x2 = xticks_positios_array[x_box_pos+1]
     y, h, col = results_male.loc[i, "max_sample_delta"] + 2, 2, 'k'
     plt.plot([x1, x1, x2, x2], [y, y+h, y+h, y], lw=1.5, c=col)
-    plt.text((x1+x2)*.5, y+h, f"p={results_male.loc[i, 'ranksum_p_value']:.3f}", ha='center', va='bottom', color=col)
+    plt.text((x1+x2)*.5, y+h, f"p={results_male.loc[i, 'ranksum_p_value']:.3f}", ha='center', va='bottom', fontsize=14, weight='bold', color=col)
 
 plt.show()
 plt.savefig(f"boxplot_samples_{population}_{feature_type}_hgs_separate_gender_separated_parkinson_Male.png")
