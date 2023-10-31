@@ -27,6 +27,8 @@ selected_cols = [col for col in df_longitudinal.columns if any(item in col for i
 df_selected = df_longitudinal[selected_cols]
 
 df_selected.insert(0, "gender", df_longitudinal["gender"].map({0: 'female', 1: 'male'}))
+print("===== Done! =====")
+embed(globals(), locals())
 
 ###############################################################################
 target_string = " ".join([word.upper() for word in target.split("_")])

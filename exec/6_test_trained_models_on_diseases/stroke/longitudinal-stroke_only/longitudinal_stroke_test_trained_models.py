@@ -76,7 +76,8 @@ if mri_status == "mri+nonmri":
     df_longitudinal = pd.concat([df_longitudinal_mri, df_longitudinal_nonmri])
 else:
     df_longitudinal = stroke_load_data.load_preprocessed_data(population, mri_status, session_column, stroke_cohort)
-
+print("===== Done! =====")
+embed(globals(), locals())
 features = define_features(feature_type)
 X = features
 y = target

@@ -116,7 +116,8 @@ for target in ["hgs_L+R", "hgs_left", "hgs_right"]:
     df_stroke.loc[:, "disease"] = 1
     
     # df_stroke = df_stroke.drop(index=1872273)
-    
+    print("===== Done! =====")
+    embed(globals(), locals())
     ###############################################################################
     df_post = pd.concat([df_healthy, df_stroke], axis=0)
     df_post.insert(0, "index", df_post.index)
