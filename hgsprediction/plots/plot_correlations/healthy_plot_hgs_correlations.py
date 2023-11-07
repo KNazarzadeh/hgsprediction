@@ -184,12 +184,12 @@ def plot_hgs_correlations_kde_plot(df,
     xmin = np.min( g1.ax_joint.get_xlim())
     ymin = np.min( g1.ax_joint.get_ylim())
     
-    text = 'r = ' + str(format(spearmanr(df[y], df[x])[0], '.3f'))
-    g1.ax_joint.text(xmax - 0.2 * (xmax - xmin), ymin + 0.06 * (ymax - ymin), text, fontsize=10, fontweight='bold', verticalalignment='bottom',
-            horizontalalignment='right',)
+    # text = 'r = ' + str(format(spearmanr(df[y], df[x])[0], '.3f'))
+    # g1.ax_joint.text(xmax - 0.2 * (xmax - xmin), ymin + 0.06 * (ymax - ymin), text, fontsize=10, fontweight='bold', verticalalignment='bottom',
+    #         horizontalalignment='right',)
     
     # Plot regression line
-    g1.ax_joint.plot([xmin+5, xmax-1], [ymin+5, ymax], 'k--')
+    # g1.ax_joint.plot([xmin+5, xmax-1], [ymin+5, ymax], 'k--')
     # print("===== Done! =====")
     # embed(globals(), locals())
     file_path = save_correlations_plot(plot_type, 

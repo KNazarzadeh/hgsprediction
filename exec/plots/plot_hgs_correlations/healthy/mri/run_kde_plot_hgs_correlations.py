@@ -25,7 +25,7 @@ target = sys.argv[4]
 model_name = sys.argv[5]
 y = sys.argv[6]
 x = sys.argv[7]
-
+session = sys.argv[8]
 ###############################################################################
 df = load_hgs_predicted_results(population,
     mri_status,
@@ -33,6 +33,7 @@ df = load_hgs_predicted_results(population,
     feature_type,
     target,
     "both_gender",
+    session,
 )
 
 df_corr, df_pvalue = load_spearman_correlation_results (population,
@@ -41,9 +42,14 @@ df_corr, df_pvalue = load_spearman_correlation_results (population,
     feature_type,
     target,
     "both_gender",
+    session,
 )
 
 ###############################################################################
+df = df.rename(columns={f"1st_scan_{target}_predicted":"hgs_predicted", f"1st_scan_{target}_actual":"hgs_actual"})
+df_corr = df_corr.rename(columns={f"1st_scan_{target}_predicted":"hgs_predicted", f"1st_scan_{target}_actual":"hgs_actual"})
+df_corr = df_corr.rename(index={f"1st_scan_{target}_predicted":"hgs_predicted", f"1st_scan_{target}_actual":"hgs_actual"})
+
 healthy_plot_hgs_correlations.plot_hgs_correlations_kde_plot(
     df, 
     x,
