@@ -20,6 +20,9 @@ from scipy.stats import ranksums
 from scipy import stats
 from scipy.spatial.distance import cdist
 from scipy.optimize import linear_sum_assignment
+import statsmodels.api as sm
+from statsmodels.formula.api import ols
+from statsmodels.stats.anova import anova_lm
 
 from ptpython.repl import embed
 # print("===== Done! =====")
@@ -303,6 +306,44 @@ def add_median_labels(ax, fmt='.3f'):
 ###############################################################################
 print("===== Done! =====")
 embed(globals(), locals())
+
+df_anova=pd.concat([df,df_parkinson_together])
+a = df_anova[["disease", "delta", "hgs_target", "parkinson_cohort"]]
+b = a[a["hgs_target"]!="HGS L+R"]
+b = b.rename(columns={"disease":"group", "parkinson_cohort":"disease_time"})
+b.replace(0, "healthy", inplace=True)
+b.replace(1, "parkinson", inplace=True)
+formula = 'delta ~ group + disease_time + hgs_target + group:disease_time + group:hgs_target + disease_time:hgs_target + group:disease_time:hgs_target'
+# formula = 'delta ~ C(group) + C(disease_time) + C(hgs_target) + C(group):C(disease_time) + C(group):C(hgs_target) + C(disease_time):C(hgs_target) + C(group):C(disease_time):C(hgs_target)'
+model = ols(formula, b).fit()
+anova_results = anova_lm(model)
+# anova_results = sm.stats.anova_lm(model, typ=3)
+
+print(anova_results)
+
+# Create a point plot
+plt.figure(figsize=(12, 8))
+g = sns.catplot(
+    data=b, x="disease_time", y="delta", hue="hgs_target", col="group",
+    capsize=.2, palette="YlGnBu_d", errorbar="se",
+    kind="point", height=6, aspect=.75,
+)
+g.despine(left=True)
+plt.show()
+plt.savefig("anova.png")
+
+from statsmodels.stats.multicomp import MultiComparison
+# Perform post-hoc tests on significant interactions (Tukey's HSD)
+interaction_terms = ['group:disease_time', 'group:hgs_target', 'disease_time:hgs_target', 'group:disease_time:hgs_target']
+
+for term in interaction_terms:
+    mc = MultiComparison(b['delta'], b[term])
+    result = mc.tukeyhsd()
+    
+    # Print the post-hoc results for each interaction term
+    print(f"\nPost-hoc test for {term}:\n{result}")
+###############################################################################
+###############################################################################
 df["hgs_target_parkinson_cohort"] = df["hgs_target"] + "-" +df["parkinson_cohort"]
 df_parkinson_together["hgs_target_parkinson_cohort"] = df_parkinson_together["hgs_target"] + "-" +df_parkinson_together["parkinson_cohort"]
 
