@@ -330,7 +330,7 @@ g = sns.catplot(
 )
 g.despine(left=True)
 plt.show()
-plt.savefig("anova.png")
+plt.savefig("anova_actual.png")
 
 # Create a point plot
 plt.figure(figsize=(12, 8))
@@ -341,7 +341,7 @@ g = sns.catplot(
 )
 g.despine(left=True)
 plt.show()
-plt.savefig("anova_group_xaxis.png")
+plt.savefig("anova_group_xaxis_actual.png")
 # Perform post-hoc tests on significant interactions (Tukey's HSD)
 import statsmodels.stats.multicomp as mc
 interaction_groups =  b.disease_time.astype(str) + "_"+ b.group.astype(str)
