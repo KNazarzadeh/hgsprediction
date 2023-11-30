@@ -327,7 +327,20 @@ g = sns.catplot(
 )
 g.despine(left=True)
 plt.show()
-plt.savefig("anova.png")
+plt.savefig("anova_predicted.png")
+
+
+# Create a point plot
+plt.figure(figsize=(12, 8))
+g = sns.catplot(
+    data=b, x="group", y="delta", hue="hgs_target", col="disease_time",
+    capsize=.2, palette="YlGnBu_d", errorbar="se",
+    kind="point", height=6, aspect=.75,
+)
+g.despine(left=True)
+plt.show()
+plt.savefig("anova_group_xaxis_predicted.png")
+
 
 # Perform post-hoc tests on significant interactions (Tukey's HSD)
 import statsmodels.stats.multicomp as mc

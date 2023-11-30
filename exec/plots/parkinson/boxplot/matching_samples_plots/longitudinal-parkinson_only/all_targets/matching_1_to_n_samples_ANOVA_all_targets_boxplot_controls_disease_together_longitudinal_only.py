@@ -332,16 +332,22 @@ g.despine(left=True)
 plt.show()
 plt.savefig("anova.png")
 
-from statsmodels.stats.multicomp import MultiComparison
+# Create a point plot
+plt.figure(figsize=(12, 8))
+g = sns.catplot(
+    data=b, x="group", y="delta", hue="hgs_target", col="disease_time",
+    capsize=.2, palette="YlGnBu_d", errorbar="se",
+    kind="point", height=6, aspect=.75,
+)
+g.despine(left=True)
+plt.show()
+plt.savefig("anova_group_xaxis.png")
 # Perform post-hoc tests on significant interactions (Tukey's HSD)
-interaction_terms = ['group:disease_time', 'group:hgs_target', 'disease_time:hgs_target', 'group:disease_time:hgs_target']
-
-for term in interaction_terms:
-    mc = MultiComparison(b['delta'], b[term])
-    result = mc.tukeyhsd()
-    
-    # Print the post-hoc results for each interaction term
-    print(f"\nPost-hoc test for {term}:\n{result}")
+import statsmodels.stats.multicomp as mc
+interaction_groups =  b.disease_time.astype(str) + "_"+ b.group.astype(str)
+comp = mc.MultiComparison(b["delta"], interaction_groups)
+post_hoc_res = comp.tukeyhsd()
+print(post_hoc_res.summary())
 ###############################################################################
 ###############################################################################
 df["hgs_target_parkinson_cohort"] = df["hgs_target"] + "-" +df["parkinson_cohort"]
