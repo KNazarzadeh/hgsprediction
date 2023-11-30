@@ -6,7 +6,9 @@
 # - healthy/stroke/parkinson populations
 # - motor performance marker/type
 # - Othe parameters based on UK Biobank field-IDs/Category-IDs
-
+from ptpython.repl import embed
+# print("===== Done! =====")
+# embed(globals(), locals())
 class UkbbParams:
     def __init__(
         self,
@@ -213,6 +215,64 @@ class UkbbParams:
 
         return  ukb_icd10_excon, \
                 ukb_icd10_incon
+                
+# -----------------------------------------------------------------------------#
+# --------------------------------#
+# Define Healthy, Stroke and Parkinson populations
+# Based on ICD10 (International Classification disease) codes
+# --------------------------------#
+# -----------------------------------------------------------------------------#
+    def get_depression_params(
+        self,
+    ):
+        """
+        Get the list of criteria/disease based on ICD10 codes
+        for  and --incon and --excon flags on ukbb_parser command.
+            -----------
+            Parameters
+            -----------
+            No inputs
+                all parameters and function are using from class UkbbParams
+            -----------
+            Returns
+            -----------
+            ukb_icd10_excon : list of str
+                List of diseases that must exclude
+            ukb_icd10_incon : list of str
+                List of diseases that must include
+        """
+        ukb_icd10_excon = [
+            'F00-F09',    # V -  Organic, including symptomatic, mental disorders
+            'F10-F19',    # V -  Mental and behavioural disorders due to psychoactive substance use
+            'F20-F29',    # V -  Schizophrenia, schizotypal and delusional disorders
+            'F30-F31',    # V -  Mood [affective] disorders:
+                                # F30:Manic episode
+                                # F31:Bipolar affective disorder
+            'F34-F39',    # V -  Organic, including symptomatic, mental disorders:
+                                # F34:Persistent mood [affective] disorders
+                                # F38:Other mood [affective] disorders
+                                # F39:Unspecified mood [affective] disorder
+            'F40-F48',    # V -  Neurotic, stress-related and somatoform disorders
+            'F50-F59',    # V -  Behavioural syndromes associated with physiological disturbances and physical factors
+            'F60-F69',    # V -  Disorders of adult personality and behaviour
+            'F70-F79',    # V -  Mental retardation
+            'F80-F89',    # V -  Disorders of psychological development
+            'F90-F98',    # V -  Behavioural and emotional disorders with onset usually occurring in childhood and adolescence            
+            'F99',        # V -  Unspecified mental disorder            
+            
+            'G',          # VI - Diseases of the nervous system
+            'M',          # XIII - Diseases of the musculoskeletal system
+                          # and connective tissue
+            'S',          # XIX - Injury, poisoning and certain other
+                          # consequences of external causes
+            'I60-I69',    # Cerebrovascular diseases                          
+            ] 
+        ukb_icd10_incon = [
+            'F32-F33',      # V - F32:Depressive episode & F33:Recurrent depressive disorder
+        ]
+        
+        return  ukb_icd10_excon, \
+                ukb_icd10_incon
 
 ###############################################################################
 # --------------------------------#
@@ -395,6 +455,45 @@ class UkbbParams:
                ukb_pd_outcome_inhdr, \
                ukb_pd_outcome_exhdr, \
                ukb_pd_outcome_excat
+
+# -----------------------------------------------------------------------------#
+# --------------------------------#
+# Define parkinson's disease outcome parameters on UK Biobank 
+# --------------------------------#
+# ---------------------------------------------------------------------------- #
+    def get_depression_outcomes(self):
+        """ 
+        Get the list of parkinson outcome Field, Category IDs to be included/excluded
+        by --inhdr, --incat, --excat 
+        on ukbb_parser command.
+            -----------
+            Parameters
+            -----------
+            No inputs
+            all parameters and function are using from class UkbbParams.
+            -----------
+            Returns
+            -----------
+            ukb_depression_outcome_inhdr: list of str
+                The list of parkinson outcome Field IDs to be included by --inhdr
+                to ukbb_parser command
+
+            ukb_depression_outcome_exhdr: list of str
+            ukb_depression_outcome_incat: list of str
+            ukb_depression_outcome_excat: list of str
+        """
+        ukb_depression_outcome_incat = [
+            '138', # Online follow-up ⏵ Mental health ⏵ Depression 
+            '1502' # Online follow-up ⏵ Mental well-being ⏵ Depression 
+        ]
+        ukb_depression_outcome_inhdr = []
+        ukb_depression_outcome_exhdr = []
+        ukb_depression_outcome_excat = []
+
+        return ukb_depression_outcome_incat, \
+               ukb_depression_outcome_inhdr, \
+               ukb_depression_outcome_exhdr, \
+               ukb_depression_outcome_excat
 
 # -----------------------------------------------------------------------------#
 # --------------------------------#
@@ -1155,33 +1254,58 @@ class UkbbParams:
 # Define death register parameters on UK Biobank 
 # --------------------------------#
 # -----------------------------------------------------------------------------#
-    def get_nervouse_system_params(self):
-        ukb_nervouse_system_incat = []
-        ukb_nervouse_system_inhdr = [
-            '131022', # Date G20 first reported (parkinson's disease)
-                       # Nervous system disorders
-             '131023', # Source of report of G20 (parkinson's disease)
-                       # Nervous system disorders
-             '131024', # Date G21 first reported (secondary parkinsonism)
-                       # Nervous system disorders  
-             '131026', # Date G22 first reported (parkinsonism in diseases classified elsewhere)
-                       # Nervous system disorders
-             '131025', # Source of report of G21 (secondary parkinsonism)
-                       # Nervous system disorders  
-             '131027', # Source of report of G22 (parkinsonism in diseases classified elsewhere)
-                       # Nervous system disorders
-             '26261',  # Enhanced PRS for parkinson's disease (PD)
-                       # Enhanced PRS  
-             '26260',  # Standard PRS for parkinson's disease (PD)
-                       # Standard PRS
-        ]
-        ukb_nervouse_system_exhdr = []
-        ukb_nervouse_system_excat = []
+    def get_first_occurrences_params(self):
+        
+        if self.population_name == "stroke":
+            ukb_first_occurrences_incat = []
+            ukb_first_occurrences_inhdr = [
+            # Category 2409 - Circulatory system disorders-First occurrences
+                '131366',   # Date I63 first reported (cerebral infarction)
+                '131362',   # Date I61 first reported (intracerebral haemorrhage)
+            ]
+            ukb_first_occurrences_exhdr = []
+            ukb_first_occurrences_excat = []
+        
+        elif self.population_name == "parkinson":
+            ukb_first_occurrences_incat = []
+            ukb_first_occurrences_inhdr = [
+                # Category 2406
+                '131022', # Date G20 first reported (parkinson's disease)
+                        # Nervous system disorders
+                '131023', # Source of report of G20 (parkinson's disease)
+                        # Nervous system disorders
+                '131024', # Date G21 first reported (secondary parkinsonism)
+                        # Nervous system disorders  
+                '131026', # Date G22 first reported (parkinsonism in diseases classified elsewhere)
+                        # Nervous system disorders
+                '131025', # Source of report of G21 (secondary parkinsonism)
+                        # Nervous system disorders  
+                '131027', # Source of report of G22 (parkinsonism in diseases classified elsewhere)
+                        # Nervous system disorders
+                '26261',  # Enhanced PRS for parkinson's disease (PD)
+                        # Enhanced PRS  
+                '26260',  # Standard PRS for parkinson's disease (PD)
+                        # Standard PRS
+            ]
+            ukb_first_occurrences_exhdr = []
+            ukb_first_occurrences_excat = []
+        
+        elif self.population_name == "depression":
+            ukb_first_occurrences_incat = []
+            ukb_first_occurrences_inhdr = [
+                # Category 2405
+                '130894'	# Date F32 first reported (depressive episode)
+                '130895'	# Source of report of F32 (depressive episode)
+                '130896'	# Date F33 first reported (recurrent depressive disorder)
+                '130897'	# Source of report of F33 (recurrent depressive disorder)
+            ]
+            ukb_first_occurrences_exhdr = []
+            ukb_first_occurrences_excat = []
 
-        return ukb_nervouse_system_incat, \
-               ukb_nervouse_system_inhdr, \
-               ukb_nervouse_system_exhdr, \
-               ukb_nervouse_system_excat
+        return ukb_first_occurrences_incat, \
+               ukb_first_occurrences_inhdr, \
+               ukb_first_occurrences_exhdr, \
+               ukb_first_occurrences_excat
 # -----------------------------------------------------------------------------#
 # --------------------------------#
 # Define Walking parameters on UK Biobank 
@@ -1293,7 +1417,14 @@ class UkbbParams:
                 ukb_stroke_outcome_inhdr, \
                 ukb_stroke_outcome_exhdr, \
                 ukb_stroke_outcome_excat = self.get_stroke_outcomes()
-
+                # ------ Stroke ------- #
+                # Get the list of Field, Category IDs to be included/excluded 
+                # to/from ukbb_parser command
+                ukb_first_occurrences_incat, \
+                ukb_first_occurrences_inhdr, \
+                ukb_first_occurrences_exhdr, \
+                ukb_first_occurrences_excat = self.get_first_occurrences_params()
+                
             elif self.population_name == "parkinson":
                 ukb_icd10_excon, \
                 ukb_icd10_incon =  self.get_parkinson_params()
@@ -1308,10 +1439,28 @@ class UkbbParams:
                 # ------ Parkinson's disease Nervouse System Disorders ------- #
                 # Get the list of Field, Category IDs to be included/excluded 
                 # to/from ukbb_parser command
-                ukb_nervouse_system_incat, \
-                ukb_nervouse_system_inhdr, \
-                ukb_nervouse_system_exhdr, \
-                ukb_nervouse_system_excat = self.get_nervouse_system_params()
+                ukb_first_occurrences_incat, \
+                ukb_first_occurrences_inhdr, \
+                ukb_first_occurrences_exhdr, \
+                ukb_first_occurrences_excat = self.get_first_occurrences_params()
+            elif self.population_name == "depression":
+                ukb_icd10_excon, \
+                ukb_icd10_incon =  self.get_depression_params()
+
+                # ------ Depression Outcome ------- #
+                # Get the list of Field, Category IDs to be included/excluded 
+                # to/from ukbb_parser command
+                ukb_depression_outcome_incat, \
+                ukb_depression_outcome_inhdr, \
+                ukb_depression_outcome_exhdr, \
+                ukb_depression_outcome_excat = self.get_depression_outcomes()
+                # ------ Depression First Occurrences ------- #
+                # Get the list of Field, Category IDs to be included/excluded 
+                # to/from ukbb_parser command
+                ukb_first_occurrences_incat, \
+                ukb_first_occurrences_inhdr, \
+                ukb_first_occurrences_exhdr, \
+                ukb_first_occurrences_excat = self.get_first_occurrences_params()
 
         # --------- Handgrip Strength (HGS) as the Motor Performance ---------#
         # Get the list of Motor Performance Field IDs
@@ -1534,7 +1683,25 @@ class UkbbParams:
             for n_excat in range(len(ukb_pd_outcome_excat)):
                 data_field_list = f'{data_field_list}' \
                 ' --excat ' f'{ukb_pd_outcome_excat[n_excat]}'
+        elif self.population_name == "depression":
+            # ------ Add Depression Outcome ------ #
+            # Get the list of Field, Category IDs to be included/excluded 
+            # to ukbb_parser command        
+            for n_inhdr in range(len(ukb_depression_outcome_inhdr)):
+                data_field_list = f'{data_field_list}' \
+                ' --inhdr ' f'{ukb_depression_outcome_inhdr[n_inhdr]}'
 
+            for n_exhdr in range(len(ukb_depression_outcome_exhdr)):
+                data_field_list = f'{data_field_list}' \
+                ' --exhdr ' f'{ukb_depression_outcome_exhdr[n_exhdr]}'
+
+            for n_incat in range(len(ukb_depression_outcome_incat)):
+                data_field_list = f'{data_field_list}' \
+                ' --incat ' f'{ukb_depression_outcome_incat[n_incat]}'
+            
+            for n_excat in range(len(ukb_depression_outcome_excat)):
+                data_field_list = f'{data_field_list}' \
+                ' --excat ' f'{ukb_depression_outcome_excat[n_excat]}'
         # ------ Add (--inhdr) Assessment Feild IDs -------------------------- #
         for n_inhdr in range(len(ukb_assessment_incat)):
             data_field_list = f'{data_field_list}' \
@@ -1775,21 +1942,22 @@ class UkbbParams:
             ' --excat ' f'{ukb_deathregister_excat[n_excat]}'
         # #--------# 
         # #--------#
-        for n_inhdr in range(len(ukb_nervouse_system_inhdr)):
-            data_field_list = f'{data_field_list}' \
-            ' --inhdr ' f'{ukb_nervouse_system_inhdr[n_inhdr]}'
+        if self.population_name in ["stroke", "parkinson", "depression"]:
+            for n_inhdr in range(len(ukb_first_occurrences_inhdr)):
+                data_field_list = f'{data_field_list}' \
+                ' --inhdr ' f'{ukb_first_occurrences_inhdr[n_inhdr]}'
 
-        for n_exhdr in range(len(ukb_nervouse_system_exhdr)):
-            data_field_list = f'{data_field_list}' \
-            ' --exhdr ' f'{ukb_nervouse_system_exhdr[n_exhdr]}'
+            for n_exhdr in range(len(ukb_first_occurrences_exhdr)):
+                data_field_list = f'{data_field_list}' \
+                ' --exhdr ' f'{ukb_first_occurrences_exhdr[n_exhdr]}'
 
-        for n_incat in range(len(ukb_nervouse_system_incat)):
-            data_field_list = f'{data_field_list}' \
-            ' --incat ' f'{ukb_nervouse_system_incat[n_incat]}'
+            for n_incat in range(len(ukb_first_occurrences_incat)):
+                data_field_list = f'{data_field_list}' \
+                ' --incat ' f'{ukb_first_occurrences_incat[n_incat]}'
 
-        for n_excat in range(len(ukb_nervouse_system_excat)):
-            data_field_list = f'{data_field_list}' \
-            ' --excat ' f'{ukb_nervouse_system_excat[n_excat]}'
+            for n_excat in range(len(ukb_first_occurrences_excat)):
+                data_field_list = f'{data_field_list}' \
+                ' --excat ' f'{ukb_first_occurrences_excat[n_excat]}'
         # #--------# 
         # for n_incat in range(len(ukb_selfreport_incat)):
         #     data_field_list = f'{data_field_list}' \

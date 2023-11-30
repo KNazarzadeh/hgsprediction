@@ -88,6 +88,7 @@ ukbb_parser_out_folder = os.path.join(
     f"{population}",
     "original_data",
     )
+
 # ----- make the directory folder if it has not created before
 if(not os.path.isdir(ukbb_parser_out_folder)):
     os.mkdir(ukbb_parser_out_folder)
