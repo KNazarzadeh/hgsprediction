@@ -1294,10 +1294,10 @@ class UkbbParams:
             ukb_first_occurrences_incat = []
             ukb_first_occurrences_inhdr = [
                 # Category 2405
-                '130894'	# Date F32 first reported (depressive episode)
-                '130895'	# Source of report of F32 (depressive episode)
-                '130896'	# Date F33 first reported (recurrent depressive disorder)
-                '130897'	# Source of report of F33 (recurrent depressive disorder)
+                '130894',	# Date F32 first reported (depressive episode)
+                '130895',	# Source of report of F32 (depressive episode)
+                '130896',	# Date F33 first reported (recurrent depressive disorder)
+                '130897',	# Source of report of F33 (recurrent depressive disorder)
             ]
             ukb_first_occurrences_exhdr = []
             ukb_first_occurrences_excat = []
