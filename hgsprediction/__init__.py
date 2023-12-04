@@ -71,8 +71,10 @@ from .save_results.parkinson_save_spearman_correlation_results import parkinson_
 from .save_results.parkinson_save_hgs_predicted_results import parkinson_save_hgs_predicted_results
 from .load_results.healthy import load_hgs_predicted_results
 
-
-
+################################## Major Depressive DISOREDR (MDD) ##################################
+from .load_data import depression_load_data
+from .data_preprocessing import depression_data_preprocessor
+from .save_data import depression_save_data
 # # ************************************************************************************************** #
 # """LOAD TRAIN SET"""
 # # Load Primary Train set (after binning and splitting to Train and test)
