@@ -78,7 +78,7 @@ depression_save_data.save_subgroups_only_preprocessed_data(df_post, population, 
 if mri_status == "mri":
     visit_range = range(1, 4)
 elif mri_status == "nonmri":
-    visit_range = range(1, 4)
+    visit_range = range(1, 3)
 for visit_session in visit_range:
     if visit_session == 1:
         session_column = f"1st_{depression_cohort}_session"
@@ -98,7 +98,7 @@ depression_save_data.save_subgroups_only_preprocessed_data(df_pre, population, m
 if mri_status == "mri":
     visit_range = range(1, 4)
 elif mri_status == "nonmri":
-    visit_range = range(1, 4)
+    visit_range = range(1, 3)
 for visit_session in visit_range:
     if visit_session == 1:
         session_column = f"1st_{depression_cohort}_session"
