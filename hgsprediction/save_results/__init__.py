@@ -20,3 +20,7 @@ from .healthy.save_hgs_predicted_on_brain_correlations_result import save_data_o
                                                              
 from .parkinson_save_hgs_predicted_results import parkinson_save_hgs_predicted_results
 from .parkinson_save_spearman_correlation_results import parkinson_save_spearman_correlation_results
+
+
+from .depression_save_hgs_predicted_results import depression_save_hgs_predicted_results
+from .depression_save_spearman_correlation_results import depression_save_spearman_correlation_results
