@@ -327,7 +327,7 @@ g = sns.catplot(
 )
 g.despine(left=True)
 plt.show()
-plt.savefig("anova_predicted.png")
+plt.savefig("anova_delta.png")
 
 
 # Create a point plot
@@ -339,7 +339,7 @@ g = sns.catplot(
 )
 g.despine(left=True)
 plt.show()
-plt.savefig("anova_group_xaxis_predicted.png")
+plt.savefig("anova_group_xaxis_delta.png")
 
 
 # Perform post-hoc tests on significant interactions (Tukey's HSD)

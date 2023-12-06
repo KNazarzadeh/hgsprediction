@@ -103,8 +103,8 @@ if df_merged['1st_pre-depression_gender'].astype(float).equals((df_merged['1st_p
 
 df_female = df_merged[df_merged["gender"] == 0]
 df_male = df_merged[df_merged["gender"] == 1]
-print("===== Done! =====")
-embed(globals(), locals())
+# print("===== Done! =====")
+# embed(globals(), locals())
 depression_save_hgs_predicted_results(
     df_merged,
     population,
