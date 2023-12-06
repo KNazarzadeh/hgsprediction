@@ -73,8 +73,8 @@ else:
 features = define_features(feature_type)
 X = features
 y = target
-# print("===== Done! =====")
-# embed(globals(), locals())
+print("===== Done! =====")
+embed(globals(), locals())
 
 df_merged = pd.DataFrame()
 for depression_subgroup in ["pre-depression", "post-depression"]:

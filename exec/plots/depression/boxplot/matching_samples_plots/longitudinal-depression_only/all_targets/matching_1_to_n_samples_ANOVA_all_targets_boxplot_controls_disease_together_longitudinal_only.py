@@ -305,12 +305,15 @@ print("===== Done! =====")
 embed(globals(), locals())
 
 df_anova=pd.concat([df,df_depression_together])
-a = df_anova[["disease", "delta", "hgs_target", "depression_cohort"]]
+a = df_anova[["disease", "gender", "delta", "hgs_target", "depression_cohort"]]
 b = a[a["hgs_target"]!="HGS L+R"]
 b = b.rename(columns={"disease":"group", "depression_cohort":"disease_time"})
-b.replace(0, "healthy", inplace=True)
-b.replace(1, "depression", inplace=True)
-formula = 'delta ~ group + disease_time + hgs_target + group:disease_time + group:hgs_target + disease_time:hgs_target + group:disease_time:hgs_target'
+b["group"].replace(0, "healthy", inplace=True)
+b["group"].replace(1, "depression", inplace=True)
+b["gender"].replace(0, "female", inplace=True)
+b["gender"].replace(1, "male", inplace=True)
+formula = 'delta ~ group + disease_time + hgs_target + gender + group:disease_time + group:hgs_target + disease_time:hgs_target + group:disease_time:hgs_target + group:gender + disease_time:gender + hgs_target:gender + group:disease_time:gender + group:hgs_target:gender + disease_time:hgs_target:gender + group:disease_time:hgs_target:gender'
+# formula = 'delta ~ group + disease_time + hgs_target + group:disease_time + group:hgs_target + disease_time:hgs_target + group:disease_time:hgs_target'
 # formula = 'delta ~ C(group) + C(disease_time) + C(hgs_target) + C(group):C(disease_time) + C(group):C(hgs_target) + C(disease_time):C(hgs_target) + C(group):C(disease_time):C(hgs_target)'
 model = ols(formula, b).fit()
 anova_results = anova_lm(model)
@@ -318,30 +321,56 @@ anova_results = anova_lm(model)
 
 print(anova_results)
 
+# Define a palette for hgs_target
+# Create a dictionary for mapping gender to colors and labels
+# Define palettes for hgs_target for Female and Male
+female_palette = {'HGS Left': 'lightcoral', 'HGS Right': 'darkred'}
+male_palette = {'HGS Left': 'lightblue', 'HGS Right': 'darkblue'}
 # Create a point plot
 plt.figure(figsize=(12, 8))
 g = sns.catplot(
-    data=b, x="disease_time", y="delta", hue="hgs_target", col="group",
-    capsize=.2, palette="YlGnBu_d", errorbar="se",
+    data=b[b["gender"]=="female"], x="disease_time", y="delta", hue="hgs_target", col="group",
+    capsize=.2, palette=female_palette, errorbar="se",
     kind="point", height=6, aspect=.75,
 )
 g.despine(left=True)
 plt.show()
-plt.savefig("anova_delta.png")
+plt.savefig("anova_delta_gender_female.png")
+plt.figure(figsize=(12, 8))
+g = sns.catplot(
+    data=b[b["gender"]=="male"], x="disease_time", y="delta", hue="hgs_target", col="group",
+    capsize=.2, palette=male_palette, errorbar="se",
+    kind="point", height=6, aspect=.75,
+)
+g.despine(left=True)
+plt.show()
+plt.savefig("anova_delta_gender_male.png")
+# Create a point plot
+plt.figure(figsize=(12, 8))
+g = sns.catplot(
+    data=b[b["gender"]=="female"], x="group", y="delta", hue="hgs_target", col="disease_time",
+    capsize=.2, palette=female_palette, errorbar="se",
+    kind="point", height=6, aspect=.75,
+)
+g.despine(left=True)
+plt.show()
+plt.savefig("anova_group_xaxis_delta_gender_female.png")
 
-# Create a point plot
 plt.figure(figsize=(12, 8))
 g = sns.catplot(
-    data=b, x="group", y="delta", hue="hgs_target", col="disease_time",
-    capsize=.2, palette="YlGnBu_d", errorbar="se",
+    data=b[b["gender"]=="male"], x="group", y="delta", hue="hgs_target", col="disease_time",
+    capsize=.2, palette=male_palette, errorbar="se",
     kind="point", height=6, aspect=.75,
 )
 g.despine(left=True)
 plt.show()
-plt.savefig("anova_group_xaxis_delta.png")
+plt.savefig("anova_group_xaxis_delta_gender_male.png")
+
+
 # Perform post-hoc tests on significant interactions (Tukey's HSD)
 import statsmodels.stats.multicomp as mc
-interaction_groups =  b.disease_time.astype(str) + "_"+ b.group.astype(str)
+# interaction_groups =  b.disease_time.astype(str) + "_"+ b.group.astype(str)
+interaction_groups =  b.disease_time.astype(str) + "_" + b.group.astype(str) + "_" + b.hgs_target.astype(str) + "_" + b.gender.astype(str)
 comp = mc.MultiComparison(b["delta"], interaction_groups)
 post_hoc_res = comp.tukeyhsd()
 print(post_hoc_res.summary())
