@@ -177,7 +177,7 @@ for target in ["hgs_L+R", "hgs_left", "hgs_right"]:
             unmatched_controls = pd.DataFrame()
             unmatched_patients = pd.DataFrame()
             # Define the range of k from 1 to n
-            n = 10  # You can change this to the desired value of n
+            n = 10 # You can change this to the desired value of n
             for k in range(1, n + 1):
                 # Fit a Nearest Neighbors model on the control group with the current k
                 knn = NearestNeighbors(n_neighbors=k)
@@ -302,8 +302,8 @@ def add_median_labels(ax, fmt='.3f'):
     return xticks_positios_array
 ###############################################################################
 ###############################################################################
-print("===== Done! =====")
-embed(globals(), locals())
+# print("===== Done! =====")
+# embed(globals(), locals())
 df_anova=pd.concat([df,df_stroke_together])
 a = df_anova[["disease", "gender", "delta", "hgs_target", "stroke_cohort"]]
 b = a[a["hgs_target"]!="HGS L+R"]
@@ -312,15 +312,13 @@ b["group"].replace(0, "healthy", inplace=True)
 b["group"].replace(1, "stroke", inplace=True)
 b["gender"].replace(0, "female", inplace=True)
 b["gender"].replace(1, "male", inplace=True)
-formula = 'delta ~ group + disease_time + hgs_target + gender + group:disease_time + group:hgs_target + disease_time:hgs_target + group:disease_time:hgs_target + group:gender + disease_time:gender + hgs_target:gender + group:disease_time:gender + group:hgs_target:gender + disease_time:hgs_target:gender + group:disease_time:hgs_target:gender'
-# formula = 'delta ~ group + disease_time + hgs_target + group:disease_time + group:hgs_target + disease_time:hgs_target + group:disease_time:hgs_target'
-# formula = 'delta ~ C(group) + C(disease_time) + C(hgs_target) + C(group):C(disease_time) + C(group):C(hgs_target) + C(disease_time):C(hgs_target) + C(group):C(disease_time):C(hgs_target)'
+formula = 'delta ~ C(group) + C(disease_time) + C(hgs_target) + C(gender) + C(group):C(disease_time) + C(group):C(hgs_target) + C(group):C(gender) + C(disease_time):C(hgs_target) + C(disease_time):C(gender) + C(hgs_target):C(gender) + C(group):C(disease_time):C(hgs_target) + C(group):C(disease_time):C(gender) + C(group):C(hgs_target):C(gender) + C(disease_time):C(hgs_target):C(gender) + C(group):C(disease_time):C(hgs_target):C(gender)'
 model = ols(formula, b).fit()
-anova_results = anova_lm(model)
-# anova_results = sm.stats.anova_lm(model, typ=3)
+anova_results = sm.stats.anova_lm(model, typ=2)
 
 print(anova_results)
-
+print("===== Done! =====")
+embed(globals(), locals())
 # Define a palette for hgs_target
 # Create a dictionary for mapping gender to colors and labels
 # Define palettes for hgs_target for Female and Male

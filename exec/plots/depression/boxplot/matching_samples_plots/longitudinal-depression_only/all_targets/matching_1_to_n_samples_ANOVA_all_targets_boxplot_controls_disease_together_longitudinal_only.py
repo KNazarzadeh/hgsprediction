@@ -301,8 +301,8 @@ def add_median_labels(ax, fmt='.3f'):
     return xticks_positios_array
 ###############################################################################
 ###############################################################################
-print("===== Done! =====")
-embed(globals(), locals())
+# print("===== Done! =====")
+# embed(globals(), locals())
 
 df_anova=pd.concat([df,df_depression_together])
 a = df_anova[["disease", "gender", "delta", "hgs_target", "depression_cohort"]]
@@ -312,15 +312,13 @@ b["group"].replace(0, "healthy", inplace=True)
 b["group"].replace(1, "depression", inplace=True)
 b["gender"].replace(0, "female", inplace=True)
 b["gender"].replace(1, "male", inplace=True)
-formula = 'delta ~ group + disease_time + hgs_target + gender + group:disease_time + group:hgs_target + disease_time:hgs_target + group:disease_time:hgs_target + group:gender + disease_time:gender + hgs_target:gender + group:disease_time:gender + group:hgs_target:gender + disease_time:hgs_target:gender + group:disease_time:hgs_target:gender'
-# formula = 'delta ~ group + disease_time + hgs_target + group:disease_time + group:hgs_target + disease_time:hgs_target + group:disease_time:hgs_target'
-# formula = 'delta ~ C(group) + C(disease_time) + C(hgs_target) + C(group):C(disease_time) + C(group):C(hgs_target) + C(disease_time):C(hgs_target) + C(group):C(disease_time):C(hgs_target)'
+formula = 'delta ~ C(group) + C(disease_time) + C(hgs_target) + C(gender) + C(group):C(disease_time) + C(group):C(hgs_target) + C(group):C(gender) + C(disease_time):C(hgs_target) + C(disease_time):C(gender) + C(hgs_target):C(gender) + C(group):C(disease_time):C(hgs_target) + C(group):C(disease_time):C(gender) + C(group):C(hgs_target):C(gender) + C(disease_time):C(hgs_target):C(gender) + C(group):C(disease_time):C(hgs_target):C(gender)'
 model = ols(formula, b).fit()
-anova_results = anova_lm(model)
-# anova_results = sm.stats.anova_lm(model, typ=3)
+anova_results = sm.stats.anova_lm(model, typ=2)
 
 print(anova_results)
-
+print("===== Done! =====")
+embed(globals(), locals())
 # Define a palette for hgs_target
 # Create a dictionary for mapping gender to colors and labels
 # Define palettes for hgs_target for Female and Male
@@ -374,55 +372,6 @@ interaction_groups =  b.disease_time.astype(str) + "_" + b.group.astype(str) + "
 comp = mc.MultiComparison(b["delta"], interaction_groups)
 post_hoc_res = comp.tukeyhsd()
 print(post_hoc_res.summary())
-###############################################################################
-###############################################################################
-df["hgs_target_depression_cohort"] = df["hgs_target"] + "-" +df["depression_cohort"]
-df_depression_together["hgs_target_depression_cohort"] = df_depression_together["hgs_target"] + "-" +df_depression_together["depression_cohort"]
-
-df_healthy_anova = [df_left_pre["delta"], df_left_post["delta"], df_right_pre["delta"], df_right_post["delta"], df_l_r_pre["delta"], df_l_r_post["delta"]]
-df_depression_anova = [df_left_depression_pre["delta"], df_left_depression_post["delta"], df_right_depression_pre["delta"], df_right_depression_post["delta"], df_l_r_depression_pre["delta"], df_l_r_depression_post["delta"]]
-
-# Perform ANOVA
-_, p_value = stats.f_oneway(*df_healthy_anova, *df_depression_anova)
-print(p_value)
-# Define significance level (alpha)
-alpha = 0.05
-
-# Check if p-value is less than alpha
-if p_value < alpha:
-    print("ANOVA results: There are significant differences in HGS across the groups.")
-else:
-    print("ANOVA results: There are no significant differences in HGS across the groups.")
-
-###############################################################################
-###############################################################################
-df_healthy_pre_anova = [df_left_pre["delta"], df_right_pre["delta"], df_l_r_pre["delta"]]
-df_healthy_post_anova = [df_left_post["delta"], df_right_post["delta"], df_l_r_post["delta"]]
-df_depression_pre_anova = [df_left_depression_pre["delta"], df_right_depression_pre["delta"], df_l_r_depression_pre["delta"]]
-df_depression_post_anova = [df_left_depression_post["delta"], df_right_depression_post["delta"], df_l_r_depression_post["delta"]]
-
-# Perform two-way ANOVA for "pre" groups (healthy and depression)
-_, p_value_pre = stats.f_oneway(*df_healthy_pre_anova, *df_depression_pre_anova)
-
-# Perform two-way ANOVA for "post" groups (healthy and depression)
-_, p_value_post = stats.f_oneway(*df_healthy_post_anova, *df_depression_post_anova)
-
-print(p_value_pre)
-print(p_value_post)
-# Define significance level (alpha)
-alpha = 0.05
-
-# Check if p-values are less than alpha for both "pre" and "post" groups
-if p_value_pre < alpha:
-    print("ANOVA results for 'pre' groups: There are significant differences between healthy and depression.")
-else:
-    print("ANOVA results for 'pre' groups: There are no significant differences between healthy and depression.")
-
-if p_value_post < alpha:
-    print("ANOVA results for 'post' groups: There are significant differences between healthy and depression.")
-else:
-    print("ANOVA results for 'post' groups: There are no significant differences between healthy and depression.")
-
 ###############################################################################
 ###############################################################################
 df_main = pd.concat([df, df_depression_together])
