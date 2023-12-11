@@ -373,6 +373,11 @@ comp = mc.MultiComparison(b["delta"], interaction_groups)
 post_hoc_res = comp.tukeyhsd()
 print(post_hoc_res.summary())
 
+from statsmodels.graphics.factorplots import interaction_plot
+fig = interaction_plot(x=b['group'], trace=b['hgs_target'], response=b['delta'], 
+    colors=['#4c061d','#d17a22', '#b4c292'])
+plt.show()
+plt.savefig("interaction_plot.png")
 ###############################################################################
 ###############################################################################
 df["hgs_target_stroke_cohort"] = df["hgs_target"] + "-" +df["stroke_cohort"]
