@@ -301,8 +301,8 @@ def add_median_labels(ax, fmt='.3f'):
     return xticks_positios_array
 ###############################################################################
 ###############################################################################
-# print("===== Done! =====")
-# embed(globals(), locals())
+print("===== Done! =====")
+embed(globals(), locals())
 
 df_anova=pd.concat([df,df_depression_together])
 a = df_anova[["disease", "gender", "delta", "hgs_target", "depression_cohort"]]

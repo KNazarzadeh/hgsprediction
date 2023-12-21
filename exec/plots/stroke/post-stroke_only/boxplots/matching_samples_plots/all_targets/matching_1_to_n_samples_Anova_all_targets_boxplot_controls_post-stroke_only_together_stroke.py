@@ -20,7 +20,9 @@ from scipy.stats import ranksums
 
 from scipy.spatial.distance import cdist
 from scipy.optimize import linear_sum_assignment
-
+import statsmodels.api as sm
+from statsmodels.formula.api import ols
+from statsmodels.stats.anova import anova_lm
 from ptpython.repl import embed
 # print("===== Done! =====")
 # embed(globals(), locals())
@@ -116,8 +118,8 @@ for target in ["hgs_L+R", "hgs_left", "hgs_right"]:
     df_stroke.loc[:, "disease"] = 1
     
     # df_stroke = df_stroke.drop(index=1872273)
-    print("===== Done! =====")
-    embed(globals(), locals())
+    # print("===== Done! =====")
+    # embed(globals(), locals())
     ###############################################################################
     df_post = pd.concat([df_healthy, df_stroke], axis=0)
     df_post.insert(0, "index", df_post.index)
@@ -164,7 +166,7 @@ for target in ["hgs_L+R", "hgs_left", "hgs_right"]:
             unmatched_controls = pd.DataFrame()
             unmatched_patients = pd.DataFrame()
             # Define the range of k from 1 to n
-            n = 5  # You can change this to the desired value of n
+            n = 1  # You can change this to the desired value of n
             for k in range(1, n + 1):
                 # Fit a Nearest Neighbors model on the control group with the current k
                 knn = NearestNeighbors(n_neighbors=k)
@@ -270,7 +272,86 @@ def add_median_labels(ax, fmt='.3f'):
     return xticks_positios_array
 ###############################################################################
 ###############################################################################
+# print("===== Done! =====")
+# embed(globals(), locals())
+df_anova=pd.concat([df,df_stroke_together])
+a = df_anova[["disease", "gender", "delta", "hgs_target", "stroke_cohort"]]
+b = a[a["hgs_target"]!="HGS L+R"]
+b = b.rename(columns={"disease":"group", "stroke_cohort":"disease_time"})
+b["group"].replace(0, "healthy", inplace=True)
+b["group"].replace(1, "stroke", inplace=True)
+b["gender"].replace(0, "female", inplace=True)
+b["gender"].replace(1, "male", inplace=True)
+# formula = 'delta ~ C(group) + C(disease_time) + C(hgs_target) + C(gender) + C(group):C(disease_time) + C(group):C(hgs_target) + C(group):C(gender) + C(disease_time):C(hgs_target) + C(disease_time):C(gender) + C(hgs_target):C(gender) + C(group):C(disease_time):C(hgs_target) + C(group):C(disease_time):C(gender) + C(group):C(hgs_target):C(gender) + C(disease_time):C(hgs_target):C(gender) + C(group):C(disease_time):C(hgs_target):C(gender)'
+formula = 'delta ~ C(group) + C(hgs_target) + C(gender) + C(group):C(hgs_target) + C(group):C(gender) + C(hgs_target):C(gender) + C(group):C(hgs_target):C(gender)'
+model = ols(formula, b).fit()
+anova_results = sm.stats.anova_lm(model, typ=2)
 
+print(anova_results)
+# print("===== Done! =====")
+# embed(globals(), locals())
+# Define a palette for hgs_target
+# Create a dictionary for mapping gender to colors and labels
+# Define palettes for hgs_target for Female and Male
+female_palette = {'HGS Left': 'lightcoral', 'HGS Right': 'darkred'}
+male_palette = {'HGS Left': 'lightblue', 'HGS Right': 'darkblue'}
+# Create a point plot
+plt.figure(figsize=(12, 8))
+g = sns.catplot(
+    data=b[b["gender"]=="female"], x="disease_time", y="delta", hue="hgs_target", col="group",
+    capsize=.2, palette=female_palette, errorbar="se",
+    kind="point", height=6, aspect=.75,
+)
+g.despine(left=True)
+plt.show()
+plt.savefig("anova_delta_gender_female.png")
+plt.figure(figsize=(12, 8))
+g = sns.catplot(
+    data=b[b["gender"]=="male"], x="disease_time", y="delta", hue="hgs_target", col="group",
+    capsize=.2, palette=male_palette, errorbar="se",
+    kind="point", height=6, aspect=.75,
+)
+g.despine(left=True)
+plt.show()
+plt.savefig("anova_delta_gender_male.png")
+# Create a point plot
+plt.figure(figsize=(12, 8))
+g = sns.catplot(
+    data=b[b["gender"]=="female"], x="group", y="delta", hue="hgs_target", col="disease_time",
+    capsize=.2, palette=female_palette, errorbar="se",
+    kind="point", height=6, aspect=.75,
+)
+g.despine(left=True)
+plt.show()
+plt.savefig("anova_group_xaxis_delta_gender_female.png")
+
+plt.figure(figsize=(12, 8))
+g = sns.catplot(
+    data=b[b["gender"]=="male"], x="group", y="delta", hue="hgs_target", col="disease_time",
+    capsize=.2, palette=male_palette, errorbar="se",
+    kind="point", height=6, aspect=.75,
+)
+g.despine(left=True)
+plt.show()
+plt.savefig("anova_group_xaxis_delta_gender_male.png")
+
+
+# Perform post-hoc tests on significant interactions (Tukey's HSD)
+import statsmodels.stats.multicomp as mc
+interaction_groups =  b.disease_time.astype(str) + "_"+ b.group.astype(str)+ "_" + b.hgs_target.astype(str)
+# interaction_groups =  b.disease_time.astype(str) + "_" + b.group.astype(str) + "_" + b.hgs_target.astype(str) + "_" + b.gender.astype(str)
+comp = mc.MultiComparison(b["delta"], interaction_groups)
+post_hoc_res = comp.tukeyhsd()
+print(post_hoc_res.summary())
+print("===== Done! =====")
+embed(globals(), locals())
+from statsmodels.graphics.factorplots import interaction_plot
+fig = interaction_plot(x=b['group'], trace=b['hgs_target'], response=b['delta'], 
+    colors=['#4c061d','#d17a22', '#b4c292'])
+plt.show()
+plt.savefig("interaction_plot.png")
+###############################################################################
+###############################################################################
 df["hgs_target_stroke_cohort"] = df["hgs_target"] + "-" +df["stroke_cohort"]
 df_stroke_together["hgs_target_stroke_cohort"] = df_stroke_together["hgs_target"] + "-" +df_stroke_together["stroke_cohort"]
 df_main = pd.concat([df, df_stroke_together])

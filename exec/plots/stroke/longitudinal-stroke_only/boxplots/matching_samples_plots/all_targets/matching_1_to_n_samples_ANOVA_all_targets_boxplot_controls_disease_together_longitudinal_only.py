@@ -302,11 +302,11 @@ def add_median_labels(ax, fmt='.3f'):
     return xticks_positios_array
 ###############################################################################
 ###############################################################################
-# print("===== Done! =====")
-# embed(globals(), locals())
+print("===== Done! =====")
+embed(globals(), locals())
 df_anova=pd.concat([df,df_stroke_together])
 a = df_anova[["disease", "gender", "delta", "hgs_target", "stroke_cohort"]]
-b = a[a["hgs_target"]!="HGS L+R"]
+b = a[a["hgs_target"]=="HGS L+R"]
 b = b.rename(columns={"disease":"group", "stroke_cohort":"disease_time"})
 b["group"].replace(0, "healthy", inplace=True)
 b["group"].replace(1, "stroke", inplace=True)
