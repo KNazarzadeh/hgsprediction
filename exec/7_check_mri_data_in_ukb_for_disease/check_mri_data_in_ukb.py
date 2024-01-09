@@ -17,7 +17,7 @@ df_longitudinal = pd.read_csv(longitudinal_folder, sep=',', index_col=0)
 df_post_only = pd.read_csv(post_only, sep=',', index_col=0)
 print("===== Done! =====")
 embed(globals(), locals()) 
-subjects = [str(idx) for idx in df_all.index]
+subjects = [str(idx) for idx in df_longitudinal.index]
 # -----------------------------------------------------
 # -- Define the list of subjects
 # -----------------------------------------------------
@@ -78,6 +78,7 @@ for subj_ID in subj_IDs:
         print(f"The folder '{subj_ID}' does not exist.")
         i=i+1
         print(i)
+        print(subj_ID)
 
 print("===== Done! =====")
 embed(globals(), locals())    
