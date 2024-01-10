@@ -2,6 +2,7 @@ import os
 import pandas as pd
 import tempfile
 import datalad.api as dl
+import shutil
 from ptpython.repl import embed
 # print("===== Done! =====")
 # embed(globals(), locals())
@@ -15,8 +16,8 @@ pre_only = "/data/project/stroke_ukb/knazarzadeh/project_hgsprediction/data_hgs/
 df_all = pd.read_csv(stroke_folder, sep=',', index_col=0)
 df_longitudinal = pd.read_csv(longitudinal_folder, sep=',', index_col=0)
 df_post_only = pd.read_csv(post_only, sep=',', index_col=0)
-print("===== Done! =====")
-embed(globals(), locals()) 
+# print("===== Done! =====")
+# embed(globals(), locals()) 
 subjects = [str(idx) for idx in df_longitudinal.index]
 # -----------------------------------------------------
 # -- Define the list of subjects
@@ -67,6 +68,11 @@ for subj_ID in subj_IDs:
             # Check if the file exists in the directory
             if file_to_find in items:
                 subjs_with_mri.append(subj_ID)
+                dl.get(file_to_find)
+                t1_folder_path = os.path.join(anat_folder, file_to_find)
+                mri_stroke_folder = "/data/project/stroke_ukb/knazarzadeh/data_ukk/tmp/mri_stroke/longitudinal-stroke/"
+                shutil.copy(t1_folder_path, mri_stroke_folder)
+                
             else:
                 print(f"{file_to_find} was not found in the directory.")
                 
