@@ -16,9 +16,22 @@ pre_only = "/data/project/stroke_ukb/knazarzadeh/project_hgsprediction/data_hgs/
 df_all = pd.read_csv(stroke_folder, sep=',', index_col=0)
 df_longitudinal = pd.read_csv(longitudinal_folder, sep=',', index_col=0)
 df_post_only = pd.read_csv(post_only, sep=',', index_col=0)
-# print("===== Done! =====")
-# embed(globals(), locals()) 
-subjects = [str(idx) for idx in df_longitudinal.index]
+df_pre_only = pd.read_csv(pre_only, sep=',', index_col=0)
+
+df_longitudinal = df_longitudinal[~df_longitudinal['1st_post-stroke_bmi'].isna()]
+subjects_long = [str(idx) for idx in df_longitudinal.index]
+subjects_post = [str(idx) for idx in df_post_only.index]
+subjects_pre = [str(idx) for idx in df_pre_only.index]
+
+df = df_pre_only[df_pre_only.index.isin(df_longitudinal.index)]
+pre_ses_2_index = df[df['1st_pre-stroke_session']==2.0].index
+
+df_longitudinal_without_pre = df_longitudinal[~df_longitudinal.index.isin(pre_ses_2_index)]
+
+subjects = [str(idx) for idx in df_longitudinal_without_pre.index]
+
+print("===== Done! =====")
+embed(globals(), locals()) 
 # -----------------------------------------------------
 # -- Define the list of subjects
 # -----------------------------------------------------
@@ -62,7 +75,7 @@ for subj_ID in subj_IDs:
             anat_folder = os.path.join(mri_folder, 'anat')
             os.chdir(anat_folder)
             # Specify the name of the file you want to find
-            file_to_find = f"{subj_ID}_ses-2_T1w.nii.gz"
+            file_to_find = f"{subj_ID}_ses-2_FLAIR.nii.gz"
             # Use os.listdir() to list all items in the directory
             items = os.listdir(anat_folder)
             # Check if the file exists in the directory
@@ -70,9 +83,9 @@ for subj_ID in subj_IDs:
                 subjs_with_mri.append(subj_ID)
                 dl.get(file_to_find)
                 t1_folder_path = os.path.join(anat_folder, file_to_find)
-                mri_stroke_folder = "/data/project/stroke_ukb/knazarzadeh/data_ukk/tmp/mri_stroke/longitudinal-stroke/"
+                mri_stroke_folder = "/data/project/stroke_ukb/knazarzadeh/data_ukk/tmp/mri_stroke/longitudinal-stroke_FLAIR/"
                 shutil.copy(t1_folder_path, mri_stroke_folder)
-                
+                dl.drop(file_to_find)
             else:
                 print(f"{file_to_find} was not found in the directory.")
                 
