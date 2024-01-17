@@ -4,6 +4,8 @@ import tempfile
 import datalad.api as dl
 import shutil
 from ptpython.repl import embed
+from hgsprediction.data_preprocessing import stroke_data_preprocessor
+
 # print("===== Done! =====")
 # embed(globals(), locals())
 
@@ -19,7 +21,14 @@ df_post_only = pd.read_csv(post_only, sep=',', index_col=0)
 df_pre_only = pd.read_csv(pre_only, sep=',', index_col=0)
 
 df_longitudinal = df_longitudinal[~df_longitudinal['1st_post-stroke_bmi'].isna()]
-subjects_long = [str(idx) for idx in df_longitudinal.index]
+
+# data_processor = stroke_data_preprocessor.StrokeMainDataPreprocessor(df_longitudinal)
+# df_preprocessed = data_processor.calculate_dominant_nondominant_hgs(df_longitudinal)
+
+
+# print("===== Done! =====")
+# embed(globals(), locals()) 
+subjects_long = [str(idx) for idx in df_longitudinal[df_longitudinal['1st_post-stroke_session']==2.0].index]
 subjects_post = [str(idx) for idx in df_post_only.index]
 subjects_pre = [str(idx) for idx in df_pre_only.index]
 
@@ -28,10 +37,10 @@ pre_ses_2_index = df[df['1st_pre-stroke_session']==2.0].index
 
 df_longitudinal_without_pre = df_longitudinal[~df_longitudinal.index.isin(pre_ses_2_index)]
 
-subjects = [str(idx) for idx in df_longitudinal_without_pre.index]
+subjects = [str(idx) for idx in df_longitudinal_without_pre[df_longitudinal_without_pre['1st_post-stroke_session']==2.0].index]
 
-print("===== Done! =====")
-embed(globals(), locals()) 
+# print("===== Done! =====")
+# embed(globals(), locals()) 
 # -----------------------------------------------------
 # -- Define the list of subjects
 # -----------------------------------------------------
@@ -75,17 +84,17 @@ for subj_ID in subj_IDs:
             anat_folder = os.path.join(mri_folder, 'anat')
             os.chdir(anat_folder)
             # Specify the name of the file you want to find
-            file_to_find = f"{subj_ID}_ses-2_FLAIR.nii.gz"
+            file_to_find = f"{subj_ID}_ses-2_T1w.nii.gz"
             # Use os.listdir() to list all items in the directory
             items = os.listdir(anat_folder)
             # Check if the file exists in the directory
             if file_to_find in items:
                 subjs_with_mri.append(subj_ID)
-                dl.get(file_to_find)
-                t1_folder_path = os.path.join(anat_folder, file_to_find)
-                mri_stroke_folder = "/data/project/stroke_ukb/knazarzadeh/data_ukk/tmp/mri_stroke/longitudinal-stroke_FLAIR/"
-                shutil.copy(t1_folder_path, mri_stroke_folder)
-                dl.drop(file_to_find)
+                # dl.get(file_to_find)
+                # t1_folder_path = os.path.join(anat_folder, file_to_find)
+                # mri_stroke_folder = "/data/project/stroke_ukb/knazarzadeh/data_ukk/tmp/mri_stroke/longitudinal-stroke_FLAIR/"
+                # shutil.copy(t1_folder_path, mri_stroke_folder)
+                # dl.drop(file_to_find)
             else:
                 print(f"{file_to_find} was not found in the directory.")
                 
@@ -99,6 +108,8 @@ for subj_ID in subj_IDs:
         print(i)
         print(subj_ID)
 
+modified_list = [s.replace("sub-", "") for s in subjs_with_mri]
+int_list = [int(item) for item in modified_list]
 print("===== Done! =====")
 embed(globals(), locals())    
 

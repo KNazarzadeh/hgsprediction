@@ -294,7 +294,7 @@ class StrokeMainDataPreprocessor:
         substring_to_remove = "session"
         # -----------------------------------------------------------
         for stroke_cohort in ["pre-stroke", "post-stroke"]:
-            for visit_session in range(1, 5):
+            for visit_session in range(1, 4):
                 if visit_session == 1:
                     session_column = f"1st_{stroke_cohort}_session"
                 elif visit_session == 2:
@@ -328,44 +328,55 @@ class StrokeMainDataPreprocessor:
                 filtered_df = df.loc[index, :]
                 idx = filtered_df[filtered_df.loc[:, "1707-0.0"] == 1.0].index
                 df.loc[idx, hgs_dominant] = df.loc[idx, "47-0.0"]
-                df.loc[idx, hgs_dominant_side] = df.loc[idx, "right"]                
+                df.loc[idx, hgs_dominant_side] = "right"              
                 df.loc[idx, hgs_nondominant] = df.loc[idx, "46-0.0"]
-                df.loc[idx, hgs_nondominant_side] = df.loc[idx, "left"]
+                df.loc[idx, hgs_nondominant_side] = "left"
                 
                 idx = filtered_df[filtered_df.loc[:, "1707-0.0"] == 2.0].index
                 df.loc[idx, hgs_dominant] = df.loc[idx, "46-0.0"]
-                df.loc[idx, hgs_dominant_side] = df.loc[idx, "left"]                
+                df.loc[idx, hgs_dominant_side] = "left"                
                 df.loc[idx, hgs_nondominant] = df.loc[idx, "47-0.0"]
-                df.loc[idx, hgs_nondominant_side] = df.loc[idx, "right"]
+                df.loc[idx, hgs_nondominant_side] = "right"
                 
                 idx = filtered_df[filtered_df.loc[:, "1707-0.0"].isin([3.0, -3.0, np.NaN])].index
-                df.loc[idx, hgs_dominant] = df.loc[idx, ["46-0.0", "47-0.0"]].max(axis=1)
-                df.loc[idx, hgs_nondominant] = df.loc[idx, ["46-0.0", "47-0.0"]].min(axis=1)
+                result_column = df.loc[idx, ["46-0.0", "47-0.0"]].idxmax(axis=1)
+                condition_left = result_column[result_column =='46-0.0']
+                df.loc[condition_left.index, hgs_dominant] = df.loc[condition_left.index, "46-0.0"]
+                df.loc[condition_left.index, hgs_dominant_side] = "left"
+                df.loc[condition_left.index, hgs_nondominant] = df.loc[condition_left.index, "47-0.0"]
+                df.loc[condition_left.index, hgs_nondominant_side] = "right"
+                condition_right = result_column[result_column =='47-0.0']
+                df.loc[condition_right.index, hgs_dominant] = df.loc[condition_right.index, "47-0.0"]
+                df.loc[condition_right.index, hgs_dominant_side] = "right"
+                df.loc[condition_right.index, hgs_nondominant] = df.loc[condition_right.index, "46-0.0"]
+                df.loc[condition_right.index, hgs_nondominant_side] = "left"
+                # df.loc[idx, hgs_dominant] = df.loc[idx, ["46-0.0", "47-0.0"]].max(axis=1)
+                # df.loc[idx, hgs_nondominant] = df.loc[idx, ["46-0.0", "47-0.0"]].min(axis=1)
                 # ------------------------------------
                 index = df[df.loc[:, session_column] == 1.0].index
                 filtered_df = df.loc[index, :]
                 idx = filtered_df[filtered_df.loc[:, "1707-0.0"] == 1.0].index
                 df.loc[idx, hgs_dominant] = df.loc[idx, "47-1.0"]
-                df.loc[idx, hgs_dominant_side] = df.loc[idx, "right"]
+                df.loc[idx, hgs_dominant_side] = "right"
                 df.loc[idx, hgs_nondominant] = df.loc[idx, "46-1.0"]
-                df.loc[idx, hgs_nondominant_side] = df.loc[idx, "left"]
+                df.loc[idx, hgs_nondominant_side] = "left"
                 idx = filtered_df[filtered_df.loc[:, "1707-0.0"] == 2.0].index
                 df.loc[idx, hgs_dominant] = df.loc[idx, "46-1.0"]
-                df.loc[idx, hgs_dominant_side] = df.loc[idx, "left"]
+                df.loc[idx, hgs_dominant_side] = "left"
                 df.loc[idx, hgs_nondominant] = df.loc[idx, "47-1.0"]
-                df.loc[idx, hgs_nondominant_side] = df.loc[idx, "right"]
+                df.loc[idx, hgs_nondominant_side] = "right"
                 idx = filtered_df[filtered_df.loc[:, "1707-0.0"].isin([3.0, -3.0, np.NaN])].index
                 result_column = df.loc[idx, ["46-0.0", "47-0.0"]].idxmax(axis=1)
-                condition_left = result_column[result_column=='46-0.0']
+                condition_left = result_column[result_column =='46-0.0']
                 df.loc[condition_left.index, hgs_dominant] = df.loc[condition_left.index, "46-1.0"]
-                df.loc[condition_left.index, hgs_dominant_side] = df.loc[condition_left.index, "left"]
+                df.loc[condition_left.index, hgs_dominant_side] = "left"
                 df.loc[condition_left.index, hgs_nondominant] = df.loc[condition_left.index, "47-1.0"]
-                df.loc[condition_left.index, hgs_nondominant_side] = df.loc[condition_left.index, "right"]
-                condition_right = result_column[result_column=='47-0.0']
+                df.loc[condition_left.index, hgs_nondominant_side] = "right"
+                condition_right = result_column[result_column =='47-0.0']
                 df.loc[condition_right.index, hgs_dominant] = df.loc[condition_right.index, "47-1.0"]
-                df.loc[condition_right.index, hgs_dominant_side] = df.loc[condition_right.index, "right"]
+                df.loc[condition_right.index, hgs_dominant_side] = "right"
                 df.loc[condition_right.index, hgs_nondominant] = df.loc[condition_right.index, "46-1.0"]
-                df.loc[condition_right.index, hgs_nondominant_side] = df.loc[condition_right.index, "left"]
+                df.loc[condition_right.index, hgs_nondominant_side] = "left"
                 
                 # df.loc[idx, hgs_dominant] = df.loc[idx, ["46-1.0", "47-1.0"]].max(axis=1)
                 # df.loc[idx, hgs_nondominant] = df.loc[idx, ["46-1.0", "47-1.0"]].min(axis=1)
@@ -374,22 +385,28 @@ class StrokeMainDataPreprocessor:
                 filtered_df = df.loc[index, :]
                 idx = filtered_df[filtered_df.loc[:, "1707-0.0"] == 1.0].index
                 df.loc[idx, hgs_dominant] = df.loc[idx, "47-3.0"]
+                df.loc[idx, hgs_dominant_side] = "right"
                 df.loc[idx, hgs_nondominant] = df.loc[idx, "46-3.0"]
+                df.loc[idx, hgs_nondominant_side] = "left"
+                
                 idx = filtered_df[filtered_df.loc[:, "1707-0.0"] == 2.0].index
                 df.loc[idx, hgs_dominant] = df.loc[idx, "46-3.0"]
+                df.loc[idx, hgs_dominant_side] = "left"
                 df.loc[idx, hgs_nondominant] = df.loc[idx, "47-3.0"]
+                df.loc[idx, hgs_nondominant_side] = "right"
+                
                 idx = filtered_df[filtered_df.loc[:, "1707-0.0"].isin([3.0, -3.0, np.NaN])].index
                 result_column = df.loc[idx, ["46-0.0", "47-0.0"]].idxmax(axis=1)
-                condition_left = result_column[result_column=='46-0.0']
+                condition_left = result_column[result_column =='46-0.0']
                 df.loc[condition_left.index, hgs_dominant] = df.loc[condition_left.index, "46-3.0"]
-                df.loc[condition_left.index, hgs_dominant_side] = df.loc[condition_left.index, "left"]
+                df.loc[condition_left.index, hgs_dominant_side] = "left"
                 df.loc[condition_left.index, hgs_nondominant] = df.loc[condition_left.index, "47-3.0"]
-                df.loc[condition_left.index, hgs_nondominant_side] = df.loc[condition_left.index, "right"]
-                condition_right = result_column[result_column=='47-0.0']
+                df.loc[condition_left.index, hgs_nondominant_side] = "right"
+                condition_right = result_column[result_column =='47-0.0']
                 df.loc[condition_right.index, hgs_dominant] = df.loc[condition_right.index, "47-3.0"]
-                df.loc[condition_right.index, hgs_dominant_side] = df.loc[condition_right.index, "right"]
+                df.loc[condition_right.index, hgs_dominant_side] = "right"
                 df.loc[condition_right.index, hgs_nondominant] = df.loc[condition_right.index, "46-3.0"]
-                df.loc[condition_right.index, hgs_nondominant_side] = df.loc[condition_right.index, "left"]
+                df.loc[condition_right.index, hgs_nondominant_side] = "left"
                 
                 # df.loc[idx, hgs_dominant] = df.loc[idx, ["46-3.0", "47-3.0"]].max(axis=1)
                 # df.loc[idx, hgs_nondominant] = df.loc[idx, ["46-3.0", "47-3.0"]].min(axis=1)
@@ -398,30 +415,42 @@ class StrokeMainDataPreprocessor:
                 filtered_df = df.loc[index, :]
                 idx = filtered_df[filtered_df.loc[:, "1707-2.0"] == 1.0].index
                 df.loc[idx, hgs_dominant] = df.loc[idx, "47-2.0"]
+                df.loc[idx, hgs_dominant_side] = "right"
                 df.loc[idx, hgs_nondominant] = df.loc[idx, "46-2.0"]
+                df.loc[idx, hgs_nondominant_side] = "left"
+                
                 idx = filtered_df[filtered_df.loc[:, "1707-2.0"] == 2.0].index
                 df.loc[idx, hgs_dominant] = df.loc[idx, "46-2.0"]
+                df.loc[idx, hgs_dominant_side] = "left"             
                 df.loc[idx, hgs_nondominant] = df.loc[idx, "47-2.0"]
+                df.loc[idx, hgs_nondominant_side] = "right"
+                
                 idx = filtered_df[filtered_df.loc[:, "1707-2.0"].isin([3.0, -3.0, np.NaN])].index
                 df_tmp = filtered_df.loc[idx, :]
                 idx_tmp = df_tmp[df_tmp.loc[:, "1707-0.0"] == 1.0].index
                 df.loc[idx_tmp, hgs_dominant] = df.loc[idx_tmp, "47-2.0"]
+                df.loc[idx_tmp, hgs_dominant_side] = "right"            
                 df.loc[idx_tmp, hgs_nondominant] = df.loc[idx_tmp, "46-2.0"]
+                df.loc[idx_tmp, hgs_nondominant_side] = "left"
+                
                 idx_tmp = df_tmp[df_tmp.loc[:, "1707-0.0"] == 2.0].index
                 df.loc[idx_tmp, hgs_dominant] = df.loc[idx_tmp, "46-2.0"]
+                df.loc[idx_tmp, hgs_dominant_side] = "left"            
                 df.loc[idx_tmp, hgs_nondominant] = df.loc[idx_tmp, "47-2.0"]
+                df.loc[idx_tmp, hgs_nondominant_side] = "right"
+                
                 idx_tmp = df_tmp[df_tmp.loc[:, "1707-0.0"].isin([3.0, -3.0, np.NaN])].index
                 result_column = df.loc[idx_tmp, ["46-0.0", "47-0.0"]].idxmax(axis=1)
-                condition_left = result_column[result_column=='46-0.0']
+                condition_left = result_column[result_column =='46-0.0']
                 df.loc[condition_left.index, hgs_dominant] = df.loc[condition_left.index, "46-2.0"]
-                df.loc[condition_left.index, hgs_dominant_side] = df.loc[condition_left.index, "left"]
+                df.loc[condition_left.index, hgs_dominant_side] = "left"
                 df.loc[condition_left.index, hgs_nondominant] = df.loc[condition_left.index, "47-2.0"]
-                df.loc[condition_left.index, hgs_nondominant_side] = df.loc[condition_left.index, "right"]
-                condition_right = result_column[result_column=='47-0.0']
+                df.loc[condition_left.index, hgs_nondominant_side] = "right"
+                condition_right = result_column[result_column =='47-0.0']
                 df.loc[condition_right.index, hgs_dominant] = df.loc[condition_right.index, "47-2.0"]
-                df.loc[condition_right.index, hgs_dominant_side] = df.loc[condition_right.index, "right"]
+                df.loc[condition_right.index, hgs_dominant_side] = "right"
                 df.loc[condition_right.index, hgs_nondominant] = df.loc[condition_right.index, "46-2.0"]
-                df.loc[condition_right.index, hgs_nondominant_side] = df.loc[condition_right.index, "left"]
+                df.loc[condition_right.index, hgs_nondominant_side] = "left"
                 
                 
                 # df.loc[idx_tmp, hgs_dominant] = df.loc[idx_tmp, ["46-2.0", "47-2.0"]].max(axis=1)

@@ -16,7 +16,8 @@ if mri_status == "nonmri":
     df = healthy_load_data.load_original_binned_train_data(population, mri_status)
 elif mri_status == "mri":
     df = healthy_load_data.load_original_data(population, mri_status)
-
+print("===== Done! =====")
+embed(globals(), locals())
 data_processor = HealthyDataPreprocessor(df, mri_status, session)
 # CHECK HGS AVAILABILITY
 df = data_processor.check_hgs_availability(df)
