@@ -21,13 +21,13 @@ df_post_only = pd.read_csv(post_only, sep=',', index_col=0)
 df_pre_only = pd.read_csv(pre_only, sep=',', index_col=0)
 
 df_longitudinal = df_longitudinal[~df_longitudinal['1st_post-stroke_bmi'].isna()]
-
+print("===== Done! =====")
+embed(globals(), locals())
 # data_processor = stroke_data_preprocessor.StrokeMainDataPreprocessor(df_longitudinal)
 # df_preprocessed = data_processor.calculate_dominant_nondominant_hgs(df_longitudinal)
 
 
-# print("===== Done! =====")
-# embed(globals(), locals()) 
+ 
 subjects_long = [str(idx) for idx in df_longitudinal[df_longitudinal['1st_post-stroke_session']==2.0].index]
 subjects_post = [str(idx) for idx in df_post_only.index]
 subjects_pre = [str(idx) for idx in df_pre_only.index]
