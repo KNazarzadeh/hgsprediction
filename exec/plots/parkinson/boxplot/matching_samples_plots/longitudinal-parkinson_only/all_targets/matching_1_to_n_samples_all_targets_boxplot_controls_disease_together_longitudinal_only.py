@@ -114,8 +114,8 @@ for target in ["hgs_L+R", "hgs_left", "hgs_right"]:
     session_column = f"1st_{parkinson_cohort}_session"
     df_parkinson = parkinson.load_hgs_predicted_results("parkinson", mri_status, session_column, model_name, feature_type, target, "both_gender")
     df_parkinson.loc[:, "disease"] = 1
-    print("===== Done! =====")
-    embed(globals(), locals())
+    # print("===== Done! =====")
+    # embed(globals(), locals())
     # df_parkinson = df_parkinson.drop(index=1872273)
 
     df_pre_parkinson = df_parkinson.loc[:, ["gender", "1st_pre-parkinson_age", "1st_pre-parkinson_bmi",  "1st_pre-parkinson_height",  "1st_pre-parkinson_waist_to_hip_ratio", f"1st_pre-parkinson_{target}", "disease"]]
@@ -176,7 +176,7 @@ for target in ["hgs_L+R", "hgs_left", "hgs_right"]:
             unmatched_controls = pd.DataFrame()
             unmatched_patients = pd.DataFrame()
             # Define the range of k from 1 to n
-            n = 1  # You can change this to the desired value of n
+            n = 10  # You can change this to the desired value of n
             for k in range(1, n + 1):
                 # Fit a Nearest Neighbors model on the control group with the current k
                 knn = NearestNeighbors(n_neighbors=k)
@@ -301,8 +301,8 @@ def add_median_labels(ax, fmt='.3f'):
     return xticks_positios_array
 ###############################################################################
 ###############################################################################
-# print("===== Done! =====")
-# embed(globals(), locals())
+print("===== Done! =====")
+embed(globals(), locals())
 df["hgs_target_parkinson_cohort"] = df["hgs_target"] + "-" +df["parkinson_cohort"]
 df_parkinson_together["hgs_target_parkinson_cohort"] = df_parkinson_together["hgs_target"] + "-" +df_parkinson_together["parkinson_cohort"]
 df_main = pd.concat([df, df_parkinson_together])
@@ -463,6 +463,129 @@ for y_axis in ["actual", "predicted", "delta"]:
     plt.savefig(f"boxplot_1_to_{n}_samples_{session_column}_{y_axis}_{population}_{feature_type}_hgs_separate_gender_separated_parkinson_Male.png")
     plt.close()
 
+###############################################################################
+###############################################################################
+
+
+df["hgs_target_parkinson_cohort"] = df["hgs_target"] + "-" +df["parkinson_cohort"]
+df_parkinson_together["hgs_target_parkinson_cohort"] = df_parkinson_together["hgs_target"] + "-" +df_parkinson_together["parkinson_cohort"]
+df_main = pd.concat([df, df_parkinson_together])
+
+for y_axis in ["delta"]:
+    melted_df = pd.melt(df_main, id_vars=["hgs_target_parkinson_cohort", "disease"], value_vars=y_axis, var_name="variable", ignore_index=False)
+    # Initialize a list to store the test results
+    results = pd.DataFrame(columns=["hgs_target_parkinson_cohort", "ranksum_stat", "ranksum_p_value", f"max_sample_{y_axis}", f"max_parkinson_{y_axis}"])
+    for i, hgs_target_parkinson_cohort in enumerate(["HGS Left-pre", "HGS Right-pre", "HGS L+R-pre"]):
+        tmp = melted_df[melted_df["hgs_target_parkinson_cohort"]== hgs_target_parkinson_cohort]
+        tmp_samples = tmp[tmp["disease"]==0]
+        tmp_parkinson = tmp[tmp["disease"]==1]
+        stat, p_value = ranksums(tmp_samples["value"], tmp_parkinson["value"])
+        print(tmp)
+        print(stat, p_value)
+        results.loc[i, "hgs_target_parkinson_cohort"] = hgs_target_parkinson_cohort
+        results.loc[i, "ranksum_stat"] = stat
+        results.loc[i, "ranksum_p_value"] = p_value
+        results.loc[i, f"max_sample_{y_axis}"] = tmp_samples["value"].max()
+        results.loc[i, f"max_parkinson_{y_axis}"] = tmp_parkinson["value"].max()
+
+    # Define a custom palette with two blue colors
+    custom_palette = sns.color_palette(['#40B0A6', '#FFC20A'])  # You can use any hex color codes you prefer
+    plt.figure(figsize=(8, 8))  # Adjust the figure size if needed
+    sns.set(style="whitegrid")
+
+    # Define the order in which you want the x-axis categories
+    x_order = ["HGS Left-pre", "HGS Right-pre", "HGS L+R-pre"]
+    ax = sns.boxplot(data=melted_df, x="hgs_target_parkinson_cohort", y="value", hue="disease", order=x_order, palette=custom_palette)   
+    # Add labels and title
+    # plt.xlabel("HGS targets", fontsize=20, fontweight="bold")
+    plt.ylabel(f"HGS {y_axis.capitalize()} values", fontsize=20, fontweight="bold")
+    # plt.title(f"Matching samples from controls vs parkinson HGS {y_axis.capitalize()} values", fontsize=15, fontweight="bold")
+    plt.ylim(-50, 50)
+
+    ymin, ymax = plt.ylim()
+    plt.yticks(range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+10, 10), fontsize=18, weight='bold')
+    # Change x-axis tick labels
+    new_xticklabels = ['Left', 'Right', 'L+R']
+    ax.set_xticklabels(new_xticklabels)
+    plt.xticks(fontsize=18, weight='bold')
+    # legend = plt.legend(loc="upper left", prop={'size': 16, 'weight': 'bold'})
+    # legend.set_title("Samples", {'size': 16, 'weight': 'bold'})
+    # Modify individual legend labels
+    # legend.get_texts()[0].set_text(f"Matching samples from controls(N={len(df_both_gender)})")
+    # legend.get_texts()[1].set_text(f"parkinson(N={len(df_parkinson)})")
+    plt.legend().set_visible(False)
+    plt.tight_layout()
+
+    xticks_positios_array = add_median_labels(ax)
+
+    for i, x_box_pos in enumerate(np.arange(0,6,2)):
+        x1 = xticks_positios_array[x_box_pos]
+        x2 = xticks_positios_array[x_box_pos+1]
+        y, h, col = results.loc[i, f"max_sample_{y_axis}"] + 2, 2, 'k'
+        plt.plot([x1, x1, x2, x2], [y, y+h, y+h, y], lw=1.5, c=col)
+        plt.text((x1+x2)*.5, y+h, f"p={results.loc[i, 'ranksum_p_value']:.3f}", ha='center', va='bottom', fontsize=14, weight='bold', color=col)
+
+    plt.show()
+    plt.savefig(f"pre_boxplot_1_to_{n}_samples_{session_column}_{y_axis}_{population}_{feature_type}_hgs_both_gender_controls_parkinson.png")
+    plt.close()
+    ###############################################################################
+    
+for y_axis in ["delta"]:
+    melted_df = pd.melt(df_main, id_vars=["hgs_target_parkinson_cohort", "disease"], value_vars=y_axis, var_name="variable", ignore_index=False)
+    # Initialize a list to store the test results
+    results = pd.DataFrame(columns=["hgs_target_parkinson_cohort", "ranksum_stat", "ranksum_p_value", f"max_sample_{y_axis}", f"max_parkinson_{y_axis}"])
+    for i, hgs_target_parkinson_cohort in enumerate(["HGS Left-post", "HGS Right-post", "HGS L+R-post"]):
+        tmp = melted_df[melted_df["hgs_target_parkinson_cohort"]== hgs_target_parkinson_cohort]
+        tmp_samples = tmp[tmp["disease"]==0]
+        tmp_parkinson = tmp[tmp["disease"]==1]
+        stat, p_value = ranksums(tmp_samples["value"], tmp_parkinson["value"])
+        print(tmp)
+        print(stat, p_value)
+        results.loc[i, "hgs_target_parkinson_cohort"] = hgs_target_parkinson_cohort
+        results.loc[i, "ranksum_stat"] = stat
+        results.loc[i, "ranksum_p_value"] = p_value
+        results.loc[i, f"max_sample_{y_axis}"] = tmp_samples["value"].max()
+        results.loc[i, f"max_parkinson_{y_axis}"] = tmp_parkinson["value"].max()
+
+    # Define a custom palette with two blue colors
+    custom_palette = sns.color_palette(['#117733', '#E66100'])  # You can use any hex color codes you prefer
+    plt.figure(figsize=(8, 8))  # Adjust the figure size if needed
+    sns.set(style="whitegrid")
+    # Define the order in which you want the x-axis categories
+    x_order = ["HGS Left-post", "HGS Right-post", "HGS L+R-post"]
+    ax = sns.boxplot(data=melted_df, x="hgs_target_parkinson_cohort", y="value", hue="disease", order=x_order, palette=custom_palette)   
+    # Add labels and title
+    # plt.xlabel("HGS targets", fontsize=20, fontweight="bold")
+    plt.ylabel(f"HGS {y_axis.capitalize()} values", fontsize=20, fontweight="bold")
+    # plt.title(f"Matching samples from controls vs parkinson HGS {y_axis.capitalize()} values", fontsize=15, fontweight="bold")
+    plt.ylim(-50, 50)
+
+    ymin, ymax = plt.ylim()
+    plt.yticks(range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+10, 10), fontsize=18, weight='bold')
+    # Change x-axis tick labels
+    new_xticklabels = ['Left', 'Right', 'L+R']
+    ax.set_xticklabels(new_xticklabels)
+    plt.xticks(fontsize=18, weight='bold')
+    # legend = plt.legend(loc="upper left", prop={'size': 16, 'weight': 'bold'})
+    # legend.set_title("Samples", {'size': 16, 'weight': 'bold'})
+    # # Modify individual legend labels
+    # legend.get_texts()[0].set_text(f"Matching samples from controls(N={len(df_both_gender)})")
+    # legend.get_texts()[1].set_text(f"parkinson(N={len(df_parkinson)})")
+    plt.legend().set_visible(False)
+    plt.tight_layout()
+
+    xticks_positios_array = add_median_labels(ax)
+
+    for i, x_box_pos in enumerate(np.arange(0,6,2)):
+        x1 = xticks_positios_array[x_box_pos]
+        x2 = xticks_positios_array[x_box_pos+1]
+        y, h, col = results.loc[i, f"max_sample_{y_axis}"] + 2, 2, 'k'
+        plt.plot([x1, x1, x2, x2], [y, y+h, y+h, y], lw=1.5, c=col)
+        plt.text((x1+x2)*.5, y+h, f"p={results.loc[i, 'ranksum_p_value']:.3f}", ha='center', va='bottom', fontsize=14, weight='bold',  color=col)
+
+    plt.show()
+    plt.savefig(f"post_boxplot_1_to_{n}_samples_{session_column}_{y_axis}_{population}_{feature_type}_hgs_both_gender_controls_parkinson.png")
+    plt.close()
 
 print("===== Done! =====")
 embed(globals(), locals())

@@ -533,5 +533,130 @@ for y_axis in ["actual", "predicted", "delta"]:
     plt.close()
 
 
+
+###############################################################################
+###############################################################################
+
+
+df["hgs_target_depression_cohort"] = df["hgs_target"] + "-" +df["depression_cohort"]
+df_depression_together["hgs_target_depression_cohort"] = df_depression_together["hgs_target"] + "-" +df_depression_together["depression_cohort"]
+df_main = pd.concat([df, df_depression_together])
+
+for y_axis in ["delta"]:
+    melted_df = pd.melt(df_main, id_vars=["hgs_target_depression_cohort", "disease"], value_vars=y_axis, var_name="variable", ignore_index=False)
+    # Initialize a list to store the test results
+    results = pd.DataFrame(columns=["hgs_target_depression_cohort", "ranksum_stat", "ranksum_p_value", f"max_sample_{y_axis}", f"max_depression_{y_axis}"])
+    for i, hgs_target_depression_cohort in enumerate(["HGS Left-pre", "HGS Right-pre", "HGS L+R-pre"]):
+        tmp = melted_df[melted_df["hgs_target_depression_cohort"]== hgs_target_depression_cohort]
+        tmp_samples = tmp[tmp["disease"]==0]
+        tmp_depression = tmp[tmp["disease"]==1]
+        stat, p_value = ranksums(tmp_samples["value"], tmp_depression["value"])
+        print(tmp)
+        print(stat, p_value)
+        results.loc[i, "hgs_target_depression_cohort"] = hgs_target_depression_cohort
+        results.loc[i, "ranksum_stat"] = stat
+        results.loc[i, "ranksum_p_value"] = p_value
+        results.loc[i, f"max_sample_{y_axis}"] = tmp_samples["value"].max()
+        results.loc[i, f"max_depression_{y_axis}"] = tmp_depression["value"].max()
+
+    # Define a custom palette with two blue colors
+    custom_palette = sns.color_palette(['#40B0A6', '#9E85CC'])  # You can use any hex color codes you prefer
+    plt.figure(figsize=(8, 8))  # Adjust the figure size if needed
+    sns.set(style="whitegrid")
+
+    # Define the order in which you want the x-axis categories
+    x_order = ["HGS Left-pre", "HGS Right-pre", "HGS L+R-pre"]
+    ax = sns.boxplot(data=melted_df, x="hgs_target_depression_cohort", y="value", hue="disease", order=x_order, palette=custom_palette)   
+    # Add labels and title
+    # plt.xlabel("HGS targets", fontsize=20, fontweight="bold")
+    plt.ylabel(f"HGS {y_axis.capitalize()} values", fontsize=20, fontweight="bold")
+    # plt.title(f"Matching samples from controls vs depression HGS {y_axis.capitalize()} values", fontsize=15, fontweight="bold")
+    plt.ylim(-50, 50)
+
+    ymin, ymax = plt.ylim()
+    plt.yticks(range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+10, 10), fontsize=18, weight='bold')
+    # Change x-axis tick labels
+    new_xticklabels = ['Left', 'Right', 'L+R']
+    ax.set_xticklabels(new_xticklabels)
+    plt.xticks(fontsize=18, weight='bold')
+    # legend = plt.legend(loc="upper left", prop={'size': 16, 'weight': 'bold'})
+    # legend.set_title("Samples", {'size': 16, 'weight': 'bold'})
+    # Modify individual legend labels
+    # legend.get_texts()[0].set_text(f"Matching samples from controls(N={len(df_both_gender)})")
+    # legend.get_texts()[1].set_text(f"depression(N={len(df_depression)})")
+    plt.legend().set_visible(False)
+    plt.tight_layout()
+
+    xticks_positios_array = add_median_labels(ax)
+
+    for i, x_box_pos in enumerate(np.arange(0,6,2)):
+        x1 = xticks_positios_array[x_box_pos]
+        x2 = xticks_positios_array[x_box_pos+1]
+        y, h, col = results.loc[i, f"max_sample_{y_axis}"] + 2, 2, 'k'
+        plt.plot([x1, x1, x2, x2], [y, y+h, y+h, y], lw=1.5, c=col)
+        plt.text((x1+x2)*.5, y+h, f"p={results.loc[i, 'ranksum_p_value']:.3f}", ha='center', va='bottom', fontsize=14, weight='bold', color=col)
+
+    plt.show()
+    plt.savefig(f"pre_boxplot_1_to_{n}_samples_{session_column}_{y_axis}_{population}_{feature_type}_hgs_both_gender_controls_depression.png")
+    plt.close()
+    ###############################################################################
+    
+for y_axis in ["delta"]:
+    melted_df = pd.melt(df_main, id_vars=["hgs_target_depression_cohort", "disease"], value_vars=y_axis, var_name="variable", ignore_index=False)
+    # Initialize a list to store the test results
+    results = pd.DataFrame(columns=["hgs_target_depression_cohort", "ranksum_stat", "ranksum_p_value", f"max_sample_{y_axis}", f"max_depression_{y_axis}"])
+    for i, hgs_target_depression_cohort in enumerate(["HGS Left-post", "HGS Right-post", "HGS L+R-post"]):
+        tmp = melted_df[melted_df["hgs_target_depression_cohort"]== hgs_target_depression_cohort]
+        tmp_samples = tmp[tmp["disease"]==0]
+        tmp_depression = tmp[tmp["disease"]==1]
+        stat, p_value = ranksums(tmp_samples["value"], tmp_depression["value"])
+        print(tmp)
+        print(stat, p_value)
+        results.loc[i, "hgs_target_depression_cohort"] = hgs_target_depression_cohort
+        results.loc[i, "ranksum_stat"] = stat
+        results.loc[i, "ranksum_p_value"] = p_value
+        results.loc[i, f"max_sample_{y_axis}"] = tmp_samples["value"].max()
+        results.loc[i, f"max_depression_{y_axis}"] = tmp_depression["value"].max()
+
+    # Define a custom palette with two blue colors
+    custom_palette = sns.color_palette(['#117733', '#5427A4'])  # You can use any hex color codes you prefer
+    plt.figure(figsize=(8, 8))  # Adjust the figure size if needed
+    sns.set(style="whitegrid")
+    # Define the order in which you want the x-axis categories
+    x_order = ["HGS Left-post", "HGS Right-post", "HGS L+R-post"]
+    ax = sns.boxplot(data=melted_df, x="hgs_target_depression_cohort", y="value", hue="disease", order=x_order, palette=custom_palette)   
+    # Add labels and title
+    # plt.xlabel("HGS targets", fontsize=20, fontweight="bold")
+    plt.ylabel(f"HGS {y_axis.capitalize()} values", fontsize=20, fontweight="bold")
+    # plt.title(f"Matching samples from controls vs depression HGS {y_axis.capitalize()} values", fontsize=15, fontweight="bold")
+    plt.ylim(-50, 50)
+
+    ymin, ymax = plt.ylim()
+    plt.yticks(range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+10, 10), fontsize=18, weight='bold')
+    # Change x-axis tick labels
+    new_xticklabels = ['Left', 'Right', 'L+R']
+    ax.set_xticklabels(new_xticklabels)
+    plt.xticks(fontsize=18, weight='bold')
+    # legend = plt.legend(loc="upper left", prop={'size': 16, 'weight': 'bold'})
+    # legend.set_title("Samples", {'size': 16, 'weight': 'bold'})
+    # # Modify individual legend labels
+    # legend.get_texts()[0].set_text(f"Matching samples from controls(N={len(df_both_gender)})")
+    # legend.get_texts()[1].set_text(f"depression(N={len(df_depression)})")
+    plt.legend().set_visible(False)
+    plt.tight_layout()
+
+    xticks_positios_array = add_median_labels(ax)
+
+    for i, x_box_pos in enumerate(np.arange(0,6,2)):
+        x1 = xticks_positios_array[x_box_pos]
+        x2 = xticks_positios_array[x_box_pos+1]
+        y, h, col = results.loc[i, f"max_sample_{y_axis}"] + 2, 2, 'k'
+        plt.plot([x1, x1, x2, x2], [y, y+h, y+h, y], lw=1.5, c=col)
+        plt.text((x1+x2)*.5, y+h, f"p={results.loc[i, 'ranksum_p_value']:.3f}", ha='center', va='bottom', fontsize=14, weight='bold',  color=col)
+
+    plt.show()
+    plt.savefig(f"post_boxplot_1_to_{n}_samples_{session_column}_{y_axis}_{population}_{feature_type}_hgs_both_gender_controls_depression.png")
+    plt.close()
+
 print("===== Done! =====")
 embed(globals(), locals())
