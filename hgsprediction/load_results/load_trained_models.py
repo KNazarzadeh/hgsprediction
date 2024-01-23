@@ -18,7 +18,7 @@ def load_best_model_trained(
     n_repeats,
     n_folds,
 ):
-    if confound_status == 0:
+    if confound_status == int("0"):
         confound = "without_confound_removal"
     else:
         confound = "with_confound_removal"

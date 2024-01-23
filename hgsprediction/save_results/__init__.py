@@ -24,3 +24,6 @@ from .parkinson_save_spearman_correlation_results import parkinson_save_spearman
 
 from .depression_save_hgs_predicted_results import depression_save_hgs_predicted_results
 from .depression_save_spearman_correlation_results import depression_save_spearman_correlation_results
+
+
+from .save_multi_samples_trained_model_results import * 
