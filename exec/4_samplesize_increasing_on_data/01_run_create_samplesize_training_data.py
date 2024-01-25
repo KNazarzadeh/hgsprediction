@@ -78,14 +78,31 @@ for percent_interest in list_of_interest:
         print('num_samples', num_samples)
         print('sample_index', sample_index)
         print(df_sample)
+        
+        df_sample_female = df_sample[df_sample['gender']==0]
+        df_sample_male = df_sample[df_sample['gender']==1]        
         # Now, df_sample contains cumulative samples for each percentage in list_of_interest
         # Ready to save
         save_multi_samplesize_training_data(
-            df_sample,
+            df_sample_female,
             population,
             mri_status,
             confound_status,
-            gender,
+            "female",
+            feature_type,
+            target,
+            model_name,
+            n_repeats,
+            n_folds,
+            samplesize,
+        )
+        
+        save_multi_samplesize_training_data(
+            df_sample_male,
+            population,
+            mri_status,
+            confound_status,
+            "male",
             feature_type,
             target,
             model_name,

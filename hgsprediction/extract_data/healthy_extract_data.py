@@ -19,8 +19,8 @@ def extract_data(df, mri_status, features, target, session):
     df = df.dropna(subset=[col for col in df.columns if any(item in col for item in features)])
     
     df = df.loc[:, ~df.columns.duplicated()]
-
-    df = rename_column_names(df, mri_status, session)               
+    
+    # df = rename_column_names(df, mri_status, session)               
 
     return df
 
@@ -30,12 +30,13 @@ def rename_column_names(df, mri_status, session):
     #     prefix = "-0.0"
     # elif mri_status == "mri":
     #     prefix = "-2.0"
-    if session == "0":
+    if str(session) == "0":
         prefix = "-0.0"
     elif session == "2":
         prefix = "-2.0"
     elif session == "3":
         prefix = "-3.0"
-    df.columns = df.columns.str.replace(prefix, '')
-    
+    # df.columns = df.columns.str.replace(prefix, '')
+    cols = [col.replace(prefix, "") if prefix in col else col for col in df.columns]
+    df = df[[cols]]
     return df

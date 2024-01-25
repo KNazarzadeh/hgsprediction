@@ -11,7 +11,8 @@ from hgsprediction.load_results.healthy import load_hgs_predicted_results
 from hgsprediction.load_results.healthy import load_spearman_correlation_results
 from hgsprediction.save_plot.save_correlations_plot import healthy_save_correlations_plot
 from hgsprediction.plots.plot_correlations import healthy_plot_hgs_correlations
-
+from scipy.stats import linregress
+from scipy.stats import pearsonr
 from ptpython.repl import embed
 # print("===== Done! =====")
 # embed(globals(), locals())
@@ -55,9 +56,6 @@ df_corr = df_corr.rename(index={f"1st_scan_{target}_predicted":"hgs_predicted", 
 print("===== Done! =====")
 embed(globals(), locals())
 ###############################################################################
-
-from scipy.stats import linregress
-from scipy.stats import pearsonr
 
 custom_palette = {1: '#069AF3', 0: 'red'}
 
@@ -167,6 +165,147 @@ plt.legend(title="Gender", title_fontsize='5', fontsize='5', bbox_to_anchor=(1.0
 plt.show()
 plt.savefig("test_violin.png")
 plt.close()
+
+
+###############################################################################
+###############################################################################
+import matplotlib as mpl
+
+custom_palette = {1: '#069AF3', 0: 'red'}
+
+fig = plt.figure(figsize=(12,12))
+
+plt.rcParams.update({"font.weight": "bold", 
+                     "axes.labelweight": "bold",
+                     "ytick.labelsize": 12,
+                     "xtick.labelsize": 12,
+                     })
+
+sns.set_style("whitegrid", {'axes.grid' : False})
+
+g = sns.jointplot(data=df, x="hgs_actual", y="hgs_predicted", hue="gender", palette=custom_palette,  marker="$\circ$", s=50)
+# # iterate throught axes children
+# for c in g.ax_joint.get_children():
+#     # set the facecolor to none
+#     if type(c) == mpl.collections.PathCollection:    
+#         c.set_facecolor('none')
+
+for gender_type, gr in df.groupby(df['gender']):
+    slope, intercept, r_value, p_value, std_err = linregress(gr["hgs_actual"], gr["hgs_predicted"])
+    if gr['gender'].any() == 0:
+        female_corr = pearsonr(gr["hgs_predicted"], gr["hgs_actual"])[0]
+        print(female_corr)
+    elif gr['gender'].any() == 1:
+        male_corr = pearsonr(gr["hgs_predicted"], gr["hgs_actual"])[0]
+        print(male_corr)
+    p = sns.regplot(x="hgs_actual", y="hgs_predicted", data=gr, scatter=False, ax=g.ax_joint, color='darkgrey', line_kws={'label': f'{gender_type} Regression (r={r_value:.2f})'})
+    print(r_value)
+    
+# remove the legend from ax_joint
+g.ax_joint.legend_.remove()
+
+g.fig.suptitle(f"{population} {mri_status}: {target}", fontsize=10, fontweight="bold")
+g.fig.subplots_adjust(top=0.95) # Reduce plot to make room 
+
+g.ax_joint.set_xlabel("True HGS", fontsize=12, fontweight="bold")
+g.ax_joint.set_ylabel("Predicted HGS", fontsize=12, fontweight="bold")
+
+xmin, xmax = g.ax_joint.get_xlim()
+ymin, ymax = g.ax_joint.get_ylim()
+g.ax_joint.set_xticks(np.arange(0, round(xmax), 30))
+
+ # Plot regression line
+g.ax_joint.plot([xmin, xmax], [ymin, ymax], 'k--')
+
+plt.show()
+plt.savefig(f"jointplot_circles_{population} {mri_status}: {target}.png")
+plt.close()
+
+###############################################################################
+###############################################################################
+df_female = df[df['gender']==0]
+df_male = df[df['gender']==1]
+
+custom_palette = {1: '#069AF3', 0: 'red'}
+
+# Calculate bias
+bias = np.mean(df['hgs_actual'] - df['hgs_predicted'])
+
+# Calculate standard deviation of differences
+sd = np.std(df[f'1st_scan_{target}_(actual-predicted)'])
+
+# Calculate limits of agreement
+lower_limit = bias - 1.96 * sd
+upper_limit = bias + 1.96 * sd
+
+fig = plt.figure(figsize=(6,6))
+
+plt.rcParams.update({"font.weight": "bold", 
+                     "axes.labelweight": "bold",
+                     "ytick.labelsize": 12,
+                     "xtick.labelsize": 12,
+                     })
+
+# Create the plot
+sns.scatterplot(x=(df['hgs_actual'] + df['hgs_predicted']) / 2, y=df['hgs_actual'] - df['hgs_predicted'], hue='gender', data=df, palette=custom_palette,  marker="$\circ$", s=50)
+# sns.scatter(x=(df_male['hgs_actual'] + df_male['hgs_predicted']) / 2), y=df_male['hgs_actual'] - df_male['hgs_predicted'], color='#069AF3', label='Male', edgecolors='#069AF3', facecolors='none')
+# sns.scatter((df_female['hgs_actual'] + df_female['hgs_predicted']) / 2, df_female['hgs_actual'] - df_female['hgs_predicted'], color='red', label='Female', edgecolors='red', facecolors='none')
+
+plt.axhline(y=bias, color='black', linestyle='--', linewidth=3, label='Bias')
+plt.axhline(y=lower_limit, color='black', linestyle='-', linewidth=3, label='Lower Limit')
+plt.axhline(y=upper_limit, color='black', linestyle='-', linewidth=3, label='Upper Limit')
+
+# remove the legend from ax_joint
+plt.legend().remove()
+
+plt.title(f"Limits of Agreement Plot_{population} {mri_status}: {target}", fontsize=10, fontweight="bold")
+
+plt.xlabel('HGS average (True and predicted)', fontsize=12, fontweight="bold")
+plt.ylabel('HGS differences (True - Predicted)', fontsize=12, fontweight="bold")
+
+# plt.tight_layout()
+# Show the plot
+plt.show()
+plt.savefig(f"limit_agreement_plot_{population} {mri_status}: {target}.png")
+plt.close()
+
+print("===== Done! =====")
+embed(globals(), locals())
+###############################################################################
+###############################################################################
+# df_female = df[df['gender']==0]
+# df_male = df[df['gender']==1]
+# # Calculate residuals
+# residuals_female = df_female['hgs_actual'] - df_female['hgs_predicted']
+# residuals_male = df_male['hgs_actual'] - df_male['hgs_predicted']
+
+# fig = plt.figure(figsize=(6,6))
+
+# plt.rcParams.update({"font.weight": "bold", 
+#                      "axes.labelweight": "bold",
+#                      "ytick.labelsize": 12,
+#                      "xtick.labelsize": 12,
+#                      })
+
+
+
+# # Create a histogram
+# sns.histplot(residuals_male, bins=10, kde=True, color='skyblue', edgecolor='black', ax=ax)
+# sns.histplot(residuals_male, bins=10, kde=True, color='skyblue', edgecolor='black', ax=ax)
+
+# plt.hist(residuals_male, bins=20, color='#069AF3', edgecolor='black')
+# plt.hist(residuals_female, bins=20, color='red', edgecolor='black')
+
+# plt.title(f"Histogram of Residuals_{population} {mri_status}: {target}", fontsize=10, fontweight="bold")
+
+# plt.xlabel('Residuals (True - Predicted)', fontsize=12, fontweight="bold")
+# plt.ylabel('Frequency', fontsize=12, fontweight="bold")
+
+# # plt.tight_layout()
+# # Show the plot
+# plt.show()
+# plt.savefig(f"Residuals_{population} {mri_status}: {target}.png")
+# plt.close()
 
 print("===== Done! =====")
 embed(globals(), locals())

@@ -12,6 +12,10 @@ from hgsprediction.load_results.healthy import load_spearman_correlation_results
 from hgsprediction.save_plot.save_correlations_plot import healthy_save_correlations_plot
 from hgsprediction.plots.plot_correlations import healthy_plot_hgs_correlations
 
+from scipy.stats import linregress
+from scipy.stats import pearsonr
+
+
 from ptpython.repl import embed
 # print("===== Done! =====")
 # embed(globals(), locals())
@@ -89,14 +93,5 @@ embed(globals(), locals())
 ###############################################################################
 #############################################################################
 ###############################################################################
-# fig = plt.figure(figsize=(15,15))
 
-# Draw a nested barplot by species and sex
-g = sns.catplot(
-    data=df_combine, kind="bar",
-    x="species", y="body_mass_g", hue="gender",
-    errorbar="sd", palette="dark", alpha=.6, height=6
-)
-g.despine(left=True)
-g.set_axis_labels("", "Body mass (g)")
-g.legend.set_title("")
+
