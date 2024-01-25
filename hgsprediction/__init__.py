@@ -88,3 +88,4 @@ from .save_results import save_multi_samples_trained_model_results
 ## ************************************************************************************************** #
 
 from .load_data import load_multi_samplesize_training_data
+from .load_results.load_multi_samples_trained_models_results import load_scores_trained

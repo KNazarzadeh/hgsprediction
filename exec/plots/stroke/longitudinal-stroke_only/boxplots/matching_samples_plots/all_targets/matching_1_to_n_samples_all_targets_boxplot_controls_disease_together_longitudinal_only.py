@@ -488,7 +488,7 @@ for y_axis in ["delta"]:
         results.loc[i, f"max_stroke_{y_axis}"] = tmp_stroke["value"].max()
 
     # Define a custom palette with two blue colors
-    custom_palette = sns.color_palette(['#40B0A6', 'lightpink'])  # You can use any hex color codes you prefer
+    custom_palette = sns.color_palette(['#b3cde3', '#fcaead'])  # You can use any hex color codes you prefer
     plt.figure(figsize=(8, 8))  # Adjust the figure size if needed
     sns.set(style="whitegrid")
 
@@ -547,7 +547,7 @@ for y_axis in ["delta"]:
         results.loc[i, f"max_stroke_{y_axis}"] = tmp_stroke["value"].max()
 
     # Define a custom palette with two blue colors
-    custom_palette = sns.color_palette(['#117733', '#D35FB7'])  # You can use any hex color codes you prefer
+    custom_palette = sns.color_palette(['#1f78b4', '#f77189'])  # You can use any hex color codes you prefer
     plt.figure(figsize=(8, 8))  # Adjust the figure size if needed
     sns.set(style="whitegrid")
     # Define the order in which you want the x-axis categories

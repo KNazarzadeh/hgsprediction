@@ -151,7 +151,7 @@ def plot_hgs_correlations_kde_plot(df,
     g1 = sns.jointplot(x=x, y=y, data=df, kind="kde", hue="gender", fill=True, joint_kws={'alpha': 0.7}, palette=custom_palette)
 
     # Add a main regression line
-    sns.regplot(x=x, y=y, data=df, scatter=False, color='darkgrey', ax=g1.ax_joint, line_kws={"linestyle": "--"})
+    # sns.regplot(x=x, y=y, data=df, scatter=False, color='darkgrey', ax=g1.ax_joint, line_kws={"linestyle": "--"})
     sns.regplot(x=x, y=y, data=df_male, scatter=False, color='lightgrey', ax=g1.ax_joint)
     sns.regplot(x=x, y=y, data=df_female, scatter=False, color='lightgrey', ax=g1.ax_joint)
     # Calculate Spearman correlation coefficients
@@ -189,7 +189,7 @@ def plot_hgs_correlations_kde_plot(df,
     #         horizontalalignment='right',)
     
     # Plot regression line
-    # g1.ax_joint.plot([xmin+5, xmax-1], [ymin+5, ymax], 'k--')
+    g1.ax_joint.plot([xmin+5, xmax-1], [ymin+5, ymax], 'k--')
     # print("===== Done! =====")
     # embed(globals(), locals())
     file_path = save_correlations_plot(plot_type, 

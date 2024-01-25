@@ -84,8 +84,7 @@ if model_name == "linear_svm":
     model = svrhc(dual=False, loss='squared_epsilon_insensitive')
 elif model_name == "random_forest":
     model = "rf"
-# print("===== Done! =====")
-# embed(globals(), locals())
+
 ###############################################################################
 # When cv=None, it define as follows:
 cv_repeats_number = int(n_repeats)

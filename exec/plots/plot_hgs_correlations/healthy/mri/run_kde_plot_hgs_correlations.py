@@ -27,7 +27,8 @@ y = sys.argv[6]
 x = sys.argv[7]
 session = sys.argv[8]
 ###############################################################################
-df = load_hgs_predicted_results(population,
+df = load_hgs_predicted_results(
+    population,
     mri_status,
     model_name,
     feature_type,
@@ -36,7 +37,8 @@ df = load_hgs_predicted_results(population,
     session,
 )
 
-df_corr, df_pvalue = load_spearman_correlation_results (population,
+df_corr, df_pvalue = load_spearman_correlation_results(
+    population,
     mri_status,
     model_name,
     feature_type,
