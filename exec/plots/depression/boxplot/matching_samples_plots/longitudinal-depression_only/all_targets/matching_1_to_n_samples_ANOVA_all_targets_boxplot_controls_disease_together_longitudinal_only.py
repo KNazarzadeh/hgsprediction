@@ -560,7 +560,7 @@ for y_axis in ["delta"]:
         results.loc[i, f"max_depression_{y_axis}"] = tmp_depression["value"].max()
 
     # Define a custom palette with two blue colors
-    custom_palette = sns.color_palette(['#b3cde3', '#fcaead'])  # You can use any hex color codes you prefer
+    custom_palette = sns.color_palette(['#48b5ff', '#f88da0'])  # You can use any hex color codes you prefer
     plt.figure(figsize=(8, 8))  # Adjust the figure size if needed
     sns.set(style="whitegrid")
 

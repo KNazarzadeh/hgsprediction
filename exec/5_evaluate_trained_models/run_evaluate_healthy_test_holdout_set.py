@@ -85,7 +85,8 @@ print(df_male)
 
 df_both_gender = pd.concat([df_female, df_male], axis=0)
 print(df_both_gender)
-
+print("===== Done! =====")
+embed(globals(), locals())
 
 # Assuming that you have already trained and instantiated the model as `model`
 folder_path = os.path.join(

@@ -19,7 +19,6 @@ from ptpython.repl import embed
 # print("===== Done! =====")
 # embed(globals(), locals())
 
-
 ###############################################################################
 filename = sys.argv[0]
 population = sys.argv[1]
@@ -29,42 +28,49 @@ target = sys.argv[4]
 model_name = sys.argv[5]
 ###############################################################################
 ###############################################################################
-if model_name == "both_models":
-    df_combined_models_scores = pd.DataFrame()
-    for model in ["linear_svm", "random_forest"]:        
-        folder_path = os.path.join(
-        "/data",
-        "project",
-        "stroke_ukb",
-        "knazarzadeh",
-        "project_hgsprediction",  
-        "results_hgsprediction",
-        f"{population}",
-        "nonmri_test_holdout_set",
-        f"{feature_type}",
-        f"{target}",
-        f"{model}",
-        "hgs_predicted_results",
-        )
-        # Define the csv file path to save
-        file_path = os.path.join(
-            folder_path,
-            f"both_gender_hgs_predicted_results.csv")
-        print(file_path)
-        
-        df = pd.read_csv (file_path, sep=',', index_col=0)
-        df.loc[:, 'model'] = model
-        print(df)
-        
-        df_combined_models_scores = pd.concat ([df_combined_models_scores, df], axis=0)
-        
+df_combined_models_scores = pd.DataFrame()
+
+if target == "all":
+    for tar in ["hgs_left", "hgs_right", "hgs_L+R"]:
+        if model_name == "both_models":
+            df_combined_targets = pd.DataFrame()
+            for model in ["linear_svm", "random_forest"]:        
+                folder_path = os.path.join(
+                    "/data",
+                    "project",
+                    "stroke_ukb",
+                    "knazarzadeh",
+                    "project_hgsprediction",  
+                    "results_hgsprediction",
+                    f"{population}",
+                    "nonmri_test_holdout_set",
+                    f"{feature_type}",
+                    f"{tar}",
+                    f"{model}",
+                    "hgs_predicted_results",
+                    )
+                # Define the csv file path to save
+                file_path = os.path.join(
+                    folder_path,
+                    f"both_gender_hgs_predicted_results.csv")
+                print(file_path)
+                
+                df = pd.read_csv (file_path, sep=',', index_col=0)
+                df.loc[:, 'model'] = model
+                df.loc[:, 'target'] = tar      
+                df = df.rename(columns={f"{tar}_(actual-predicted)":"hgs_(actual-predicted)"})
+                df = df.rename(columns={f"{tar}":"hgs", f"{tar}_predicted":"hgs_predicted", f"{tar}_actual":"hgs_actual"})      
+                df_combined_targets = pd.concat ([df_combined_targets, df], axis=0)
+                
+                
+            df_combined_models_scores = pd.concat ([df_combined_models_scores, df_combined_targets], axis=0)
+
+    
     df_combined_models_scores['model'] = df_combined_models_scores['model'].str.replace('_', ' ').str.capitalize()
     df_combined_models_scores['gender'] = df_combined_models_scores['gender'].replace({0: "Female", 1:"Male"})
+    df_combined_models_scores['model_target'] = df_combined_models_scores['model'] + " " + df_combined_models_scores['target']
 
     print(df_combined_models_scores)
-    
-print("===== Done! =====")
-embed(globals(), locals())
 
 ###############################################################################
 def add_median_labels(ax, fmt='.3f'):
@@ -85,8 +91,10 @@ def add_median_labels(ax, fmt='.3f'):
         ])
         xticks_positios_array.append(x)
     return xticks_positios_array
-
+# print("===== Done! =====")
+# embed(globals(), locals())
 ###############################################################################
+df_combined_models_scores = df_combined_models_scores.sort_values(by="model", ascending=True)
 custom_palette = {'Female': 'red', 'Male': '#069AF3'}
 
 fig = plt.figure(figsize=(18,12))
@@ -97,7 +105,7 @@ plt.rcParams.update({"font.weight": "bold",
                      "xtick.labelsize": 25})
 
 ax = sns.set_style("whitegrid")
-ax = sns.boxplot(data=df_combined_models_scores, x="model", y=f"{target}_(actual-predicted)", hue='gender', palette=custom_palette)   
+ax = sns.boxplot(data=df_combined_models_scores, x="model_target", y=f"hgs_(actual-predicted)", hue='gender', palette=custom_palette)   
 
 xticks_positios_array = add_median_labels(ax)
 
@@ -113,6 +121,8 @@ plt.ylabel("Prediction error \n (True-Predicted) HGS", fontsize=40, fontweight="
 # ymin, ymax = ax.get_ylim()
 # ax.set_yticks(np.arange(ymin, round(ymax), .5))
 
+new_xticklabels = ["Left HGS", "Right HGS", "(L+R) HGS", "Left HGS", "Right HGS", "(L+R) HGS"]  # Replace with your desired labels
+ax.set_xticklabels(new_xticklabels, fontsize=18, weight='bold')
 
 # Place legend outside the plot
 plt.legend(title="Gender", title_fontsize='24', fontsize='20', bbox_to_anchor=(1.05, 1), loc='upper left')

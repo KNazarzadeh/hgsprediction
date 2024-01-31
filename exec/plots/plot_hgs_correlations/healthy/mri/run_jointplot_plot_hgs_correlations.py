@@ -4,6 +4,8 @@ import numpy as np
 import sys
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.metrics import r2_score 
+
 from hgsprediction.load_results import load_trained_models
 from hgsprediction.predict_hgs import calculate_spearman_hgs_correlation
 from hgsprediction.save_results import save_spearman_correlation_results
@@ -194,10 +196,15 @@ for gender_type, gr in df.groupby(df['gender']):
     slope, intercept, r_value, p_value, std_err = linregress(gr["hgs_actual"], gr["hgs_predicted"])
     if gr['gender'].any() == 0:
         female_corr = pearsonr(gr["hgs_predicted"], gr["hgs_actual"])[0]
+        female_R2 = r2_score(gr["hgs_actual"], gr["hgs_predicted"])
         print(female_corr)
+        print("female_r2=", female_R2)
     elif gr['gender'].any() == 1:
         male_corr = pearsonr(gr["hgs_predicted"], gr["hgs_actual"])[0]
+        male_R2 = r2_score(gr["hgs_actual"], gr["hgs_predicted"])
         print(male_corr)
+        print("male_r2=", male_R2)
+
     p = sns.regplot(x="hgs_actual", y="hgs_predicted", data=gr, scatter=False, ax=g.ax_joint, color='darkgrey', line_kws={'label': f'{gender_type} Regression (r={r_value:.2f})'})
     print(r_value)
     
@@ -218,7 +225,7 @@ g.ax_joint.set_xticks(np.arange(0, round(xmax), 30))
 g.ax_joint.plot([xmin, xmax], [ymin, ymax], 'k--')
 
 plt.show()
-plt.savefig(f"jointplot_circles_{population} {mri_status}: {target}.png")
+plt.savefig(f"jointplot_circles_{population} {mri_status}: {target}{model_name}.png")
 plt.close()
 
 ###############################################################################

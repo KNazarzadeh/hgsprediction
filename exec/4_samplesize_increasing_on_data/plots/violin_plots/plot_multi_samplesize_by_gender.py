@@ -80,8 +80,8 @@ if model_name == "both_models":
 
     print(df_combined_models_scores)
     
-print("===== Done! =====")
-embed(globals(), locals())
+# print("===== Done! =====")
+# embed(globals(), locals())
 
 ###############################################################################
 ###############################################################################
@@ -123,5 +123,7 @@ plt.legend(title="Samples", title_fontsize='24', fontsize='20', bbox_to_anchor=(
 plt.tight_layout()  # Adjust layout to prevent cropping
 
 plt.show()
+print("===== Done! =====")
+embed(globals(), locals())
 plt.savefig(f"gender_specified_{model_name}_{target}_violin.png")
 plt.close()
