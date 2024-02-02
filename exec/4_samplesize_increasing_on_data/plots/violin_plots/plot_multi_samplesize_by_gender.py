@@ -80,8 +80,8 @@ if model_name == "both_models":
 
     print(df_combined_models_scores)
     
-# print("===== Done! =====")
-# embed(globals(), locals())
+print("===== Done! =====")
+embed(globals(), locals())
 
 ###############################################################################
 ###############################################################################
@@ -127,3 +127,45 @@ print("===== Done! =====")
 embed(globals(), locals())
 plt.savefig(f"gender_specified_{model_name}_{target}_violin.png")
 plt.close()
+
+
+###############################################################################
+###############################################################################
+custom_palette = {'female': 'firebrick', 'male': 'navy'}
+
+# fig = plt.figure(figsize=(50,50))
+
+# plt.rcParams.update({"font.weight": "bold", 
+#                      "axes.labelweight": "bold",
+#                      "ytick.labelsize": 25,
+#                      "xtick.labelsize": 25})
+
+# ax = sns.set_style("whitegrid")
+sns.catplot(data=df_combined_models_scores, x="model_sample", y="test_score", hue='gender',
+                kind='bar', palette=custom_palette)
+
+# plt.title(f"Samplesize increasing for Anthropometrics and Age features {target}", fontsize=20, fontweight="bold")
+
+# plt.xlabel("Model", fontsize=40, fontweight="bold")
+# plt.ylabel("R2 score", fontsize=40, fontweight="bold")
+
+# ymin, ymax = plt.ylim()
+# y_step_value = 0.01
+# plt.yticks(np.arange(round(ymin/0.01)*.01-y_step_value, round(ymax/0.01)*.01, 0.01), fontsize=18, weight='bold')
+
+# Change x-axis tick labels
+# new_xticklabels = ["10%", "20%", "40%", "60%", "80%", "100%", "10%", "20%", "40%", "60%", "80%", "100%"]  # Replace with your desired labels
+# ax.set_xticklabels(new_xticklabels, fontsize=18, weight='bold')
+
+
+# Place legend outside the plot
+# plt.legend(title="Samples", title_fontsize='24', fontsize='20', bbox_to_anchor=(1.05, 1), loc='upper left')
+
+# plt.tight_layout()  # Adjust layout to prevent cropping
+
+plt.show()
+
+plt.savefig(f"catplot_gender_specified_{model_name}_{target}_violin.png")
+plt.close()
+print("===== Done! =====")
+embed(globals(), locals())

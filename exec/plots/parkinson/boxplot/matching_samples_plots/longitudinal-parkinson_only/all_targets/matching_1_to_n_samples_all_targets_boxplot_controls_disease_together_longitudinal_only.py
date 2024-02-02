@@ -114,8 +114,8 @@ for target in ["hgs_L+R", "hgs_left", "hgs_right"]:
     session_column = f"1st_{parkinson_cohort}_session"
     df_parkinson = parkinson.load_hgs_predicted_results("parkinson", mri_status, session_column, model_name, feature_type, target, "both_gender")
     df_parkinson.loc[:, "disease"] = 1
-    # print("===== Done! =====")
-    # embed(globals(), locals())
+    print("===== Done! =====")
+    embed(globals(), locals())
     # df_parkinson = df_parkinson.drop(index=1872273)
 
     df_pre_parkinson = df_parkinson.loc[:, ["gender", "1st_pre-parkinson_age", "1st_pre-parkinson_bmi",  "1st_pre-parkinson_height",  "1st_pre-parkinson_waist_to_hip_ratio", f"1st_pre-parkinson_{target}", "disease"]]
