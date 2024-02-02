@@ -22,8 +22,8 @@ from scipy.spatial.distance import cdist
 from scipy.optimize import linear_sum_assignment
 
 from ptpython.repl import embed
-# print("===== Done! =====")
-# embed(globals(), locals())
+print("===== Done! =====")
+embed(globals(), locals())
 pd.options.mode.chained_assignment = None  # 'None' suppresses the warning
 
 ###############################################################################

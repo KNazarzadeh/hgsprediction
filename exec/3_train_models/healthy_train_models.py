@@ -75,6 +75,8 @@ if confound_status == 0:
         model=model,
         return_estimator='all', scoring='r2'
     )
+print("===== Done! =====")
+embed(globals(), locals())
 ###############################################################################
 df_estimators = scores_trained.set_index(
     ['repeat', 'fold'])['estimator'].unstack()
