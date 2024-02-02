@@ -8,7 +8,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 from hgsprediction.load_results import load_scores_trained
-
 from ptpython.repl import embed
 # print("===== Done! =====")
 # embed(globals(), locals())
