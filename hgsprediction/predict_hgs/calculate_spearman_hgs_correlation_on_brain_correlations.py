@@ -1,6 +1,6 @@
 
 import pandas as pd
-from scipy.stats import spearmanr
+from scipy.stats import spearmanr, pearsonr
 from ptpython.repl import embed
 # print("===== Done! =====")
 # embed(globals(), locals())
@@ -15,7 +15,7 @@ def calculate_spearman_hgs_correlation_on_brain_correlations(df_brain_correlatio
     
     for y_item in y_axis_columns:
         for x_item in x_axis_columns:
-            corr, pvalue = spearmanr(df_brain_correlations[x_item], df[y_item])
+            corr, pvalue = pearsonr(df_brain_correlations[x_item], df[y_item])
             df_corr.loc[y_item, x_item] = corr
             df_pvalue.loc[y_item, x_item] = pvalue
 

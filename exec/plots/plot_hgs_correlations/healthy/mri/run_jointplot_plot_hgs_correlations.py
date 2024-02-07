@@ -171,8 +171,6 @@ plt.close()
 
 ###############################################################################
 ###############################################################################
-import matplotlib as mpl
-
 custom_palette = {1: '#069AF3', 0: 'red'}
 
 fig = plt.figure(figsize=(12,12))
@@ -186,11 +184,6 @@ plt.rcParams.update({"font.weight": "bold",
 sns.set_style("whitegrid", {'axes.grid' : False})
 
 g = sns.jointplot(data=df, x="hgs_actual", y="hgs_predicted", hue="gender", palette=custom_palette,  marker="$\circ$", s=50)
-# # iterate throught axes children
-# for c in g.ax_joint.get_children():
-#     # set the facecolor to none
-#     if type(c) == mpl.collections.PathCollection:    
-#         c.set_facecolor('none')
 
 for gender_type, gr in df.groupby(df['gender']):
     slope, intercept, r_value, p_value, std_err = linregress(gr["hgs_actual"], gr["hgs_predicted"])
@@ -280,39 +273,3 @@ print("===== Done! =====")
 embed(globals(), locals())
 ###############################################################################
 ###############################################################################
-# df_female = df[df['gender']==0]
-# df_male = df[df['gender']==1]
-# # Calculate residuals
-# residuals_female = df_female['hgs_actual'] - df_female['hgs_predicted']
-# residuals_male = df_male['hgs_actual'] - df_male['hgs_predicted']
-
-# fig = plt.figure(figsize=(6,6))
-
-# plt.rcParams.update({"font.weight": "bold", 
-#                      "axes.labelweight": "bold",
-#                      "ytick.labelsize": 12,
-#                      "xtick.labelsize": 12,
-#                      })
-
-
-
-# # Create a histogram
-# sns.histplot(residuals_male, bins=10, kde=True, color='skyblue', edgecolor='black', ax=ax)
-# sns.histplot(residuals_male, bins=10, kde=True, color='skyblue', edgecolor='black', ax=ax)
-
-# plt.hist(residuals_male, bins=20, color='#069AF3', edgecolor='black')
-# plt.hist(residuals_female, bins=20, color='red', edgecolor='black')
-
-# plt.title(f"Histogram of Residuals_{population} {mri_status}: {target}", fontsize=10, fontweight="bold")
-
-# plt.xlabel('Residuals (True - Predicted)', fontsize=12, fontweight="bold")
-# plt.ylabel('Frequency', fontsize=12, fontweight="bold")
-
-# # plt.tight_layout()
-# # Show the plot
-# plt.show()
-# plt.savefig(f"Residuals_{population} {mri_status}: {target}.png")
-# plt.close()
-
-print("===== Done! =====")
-embed(globals(), locals())
