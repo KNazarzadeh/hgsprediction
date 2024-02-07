@@ -108,23 +108,16 @@ n_f = int(len(df_intersected_female) * 0.1)
 n_m = int(len(df_intersected_male) * 0.1)
 
 # Sort the dataframe by the column in descending order
-sorted_df_female = df_intersected_female.sort_values(by=f'1st_scan_{target}_(actual-predicted)', ascending=False)
-sorted_df_male = df_intersected_male.sort_values(by=f'1st_scan_{target}_(actual-predicted)', ascending=False)
-
-# Take the top 10% highest values
-top_10_percent_heighst_female = sorted_df_female.head(n_f)
-top_10_percent_heighst_male = sorted_df_male.head(n_m)
+sorted_df_female = df_intersected_female.sort_values(by=f'1st_scan_{target}_(actual-predicted)', ascending=True)
+sorted_df_male = df_intersected_male.sort_values(by=f'1st_scan_{target}_(actual-predicted)', ascending=True)
 
 
 # Take the top 10% highest values
-top_10_percent_lowest_female = sorted_df_female.head(n_f)
-top_10_percent_lowest_male = sorted_df_male.head(n_m)
+top_10_percent_female = sorted_df_female.head(n_f)
+top_10_percent_male = sorted_df_male.head(n_m)
 
-df_brain_correlation_overlap_heighest_female = df_brain_correlation_overlap[df_brain_correlation_overlap.index.isin(top_10_percent_heighst_female.index)]
-df_brain_correlation_overlap_heighest_male = df_brain_correlation_overlap[df_brain_correlation_overlap.index.isin(top_10_percent_heighst_male.index)]
-
-df_brain_correlation_overlap_lowest_female = df_brain_correlation_overlap[df_brain_correlation_overlap.index.isin(top_10_percent_lowest_female.index)]
-df_brain_correlation_overlap_lowest_male = df_brain_correlation_overlap[df_brain_correlation_overlap.index.isin(top_10_percent_lowest_male.index)]
+df_brain_correlation_overlap_female = df_brain_correlation_overlap[df_brain_correlation_overlap.index.isin(top_10_percent_female.index)]
+df_brain_correlation_overlap_male = df_brain_correlation_overlap[df_brain_correlation_overlap.index.isin(top_10_percent_male.index)]
 
 ##############################################################################
 n_regions = df_brain_correlation_overlap.shape[1]
@@ -132,12 +125,13 @@ y_axis = ["actual", "predicted", "actual-predicted"]
 x_axis = df_brain_correlation_overlap.columns.tolist()[:n_regions]
 
 df_corr, df_pvalue = calculate_spearman_hgs_correlation_on_brain_correlations(df_brain_correlation_overlap, df_intersected, y_axis, x_axis)
-df_female_corr, df_female_pvalue = calculate_spearman_hgs_correlation_on_brain_correlations(df_brain_correlation_overlap_heighest_female, top_10_percent_heighst_female, y_axis, x_axis)
-df_male_corr, df_male_pvalue = calculate_spearman_hgs_correlation_on_brain_correlations(df_brain_correlation_overlap_heighest_male, top_10_percent_heighst_male, y_axis, x_axis)
+df_female_corr, df_female_pvalue = calculate_spearman_hgs_correlation_on_brain_correlations(df_brain_correlation_overlap_female, top_10_percent_female, y_axis, x_axis)
+df_male_corr, df_male_pvalue = calculate_spearman_hgs_correlation_on_brain_correlations(df_brain_correlation_overlap_male, top_10_percent_male, y_axis, x_axis)
 print(df_corr)
 print(df_female_corr)
 print(df_male_corr)
-
+print("===== Done! =====")
+embed(globals(), locals())
 ##############################################################################
 # Perform FDR correction on p-values
 p_values_flat_female = df_female_pvalue.values.flatten()
@@ -148,6 +142,16 @@ p_values_flat_male = df_male_pvalue.values.flatten()
 reject_male, corrected_p_values_male, _, _ = sm.multipletests(p_values_flat_male, alpha=0.05, method='fdr_bh')
 corrected_p_values_matrix_male = corrected_p_values_male.reshape(df_male_pvalue.shape)
 
+# Check if any corrected p-value is less than the significance level (e.g., 0.05)
+is_significant_female = any(corrected_p_values_matrix_female.flatten() < 0.05)
+is_significant_male = any(corrected_p_values_matrix_male.flatten() < 0.05)
+
+if is_significant_female or is_significant_male:
+    print("At least one correlation is significant after FDR correction.")
+else:
+    print("None of the correlations are significant after FDR correction.")
+
+##############################################################################
 df_female_corr =df_female_corr.apply(pd.to_numeric, errors='coerce')
 df_male_corr =df_male_corr.apply(pd.to_numeric, errors='coerce')
 # Add gender column to each DataFrame
@@ -178,31 +182,17 @@ g = sns.jointplot(data=df_combined, x=f'1st_scan_{target}_actual', y=f'1st_scan_
 # p_values = []
 
 for gender_type, gr in df_combined.groupby('gender'):
-    
     slope, intercept, r_value, p_value, std_err = linregress(gr[f'1st_scan_{target}_actual'], gr[f'1st_scan_{target}_(actual-predicted)'])
-    # correlation_coefficients.append(r_value)
-    # p_values.append(p_value)
-    # Perform FDR correction
-    reject, corrected_p_values, _, _ = sm.multipletests(p_value, alpha=0.05, method='fdr_bh')  
-# Plot regression lines and label significant correlations
-# for i, (gender_type, gr) in enumerate(df_combined.groupby('gender')):
-    # Plot regression line
-    sns.regplot(x=gr[f'1st_scan_{target}_actual'], y=gr[f'1st_scan_{target}_(actual-predicted)'], ax=g.ax_joint, scatter=False, color=custom_palette[gender_type])
-    # Label significant correlations
-    if reject:
-        g.ax_joint.text(gr[f'1st_scan_{target}_actual'].mean(), gr[f'1st_scan_{target}_(actual-predicted)'].mean(), 'Significant', ha='center', va='center', color='black', fontsize=10)
-
-    # slope, intercept, r_value, p_value, std_err = linregress(gr[f'1st_scan_{target}_actual'], gr[f'1st_scan_{target}_(actual-predicted)'])
-    # if gr['gender'].any() == 0:
-    #     female_corr = pearsonr(gr[f'1st_scan_{target}_(actual-predicted)'], gr[f'1st_scan_{target}_actual'])[0]
-    #     female_R2 = r2_score(gr[f'1st_scan_{target}_actual'], gr[f'1st_scan_{target}_(actual-predicted)'])
-    #     print(female_corr)
-    #     print("female_r2=", female_R2)
-    # elif gr['gender'].any() == 1:
-    #     male_corr = pearsonr(gr[f'1st_scan_{target}_(actual-predicted)'], gr[f'1st_scan_{target}_actual'])[0]
-    #     male_R2 = r2_score(gr[f'1st_scan_{target}_actual'], gr[f'1st_scan_{target}_(actual-predicted)'])
-    #     print(male_corr)
-    #     print("male_r2=", male_R2)
+    if gr['gender'].any() == 0:
+        female_corr = pearsonr(gr[f'1st_scan_{target}_(actual-predicted)'], gr[f'1st_scan_{target}_actual'])[0]
+        female_R2 = r2_score(gr[f'1st_scan_{target}_actual'], gr[f'1st_scan_{target}_(actual-predicted)'])
+        print(female_corr)
+        print("female_r2=", female_R2)
+    elif gr['gender'].any() == 1:
+        male_corr = pearsonr(gr[f'1st_scan_{target}_(actual-predicted)'], gr[f'1st_scan_{target}_actual'])[0]
+        male_R2 = r2_score(gr[f'1st_scan_{target}_actual'], gr[f'1st_scan_{target}_(actual-predicted)'])
+        print(male_corr)
+        print("male_r2=", male_R2)
         
     sns.regplot(x=gr[f'1st_scan_{target}_actual'], y=gr[f'1st_scan_{target}_(actual-predicted)'], ax=g.ax_joint, scatter=False, color=custom_palette[gender_type])
    
@@ -217,14 +207,13 @@ g.ax_joint.set_ylabel("Correlation of Delta HGS and GMV correlation", fontsize=1
 
 xmin, xmax = g.ax_joint.get_xlim()
 ymin, ymax = g.ax_joint.get_ylim()
-# g.ax_joint.set_xticks(np.arange(0, round(xmax), 30))
 
  # Plot regression line
 g.ax_joint.plot([xmin, xmax], [ymin, ymax], color='darkgrey', linestyle='--')
 plt.tight_layout()
 
 plt.show()
-plt.savefig(f"correlate_mri_delta_true_{target}_FDR.png")
+plt.savefig(f"correlate_mri_delta_true_{target}_lowest.png")
 plt.close()
 print("===== Done! =====")
 embed(globals(), locals())

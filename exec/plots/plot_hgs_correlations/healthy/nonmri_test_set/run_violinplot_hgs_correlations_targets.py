@@ -57,6 +57,8 @@ df = df.rename(columns={f"{target}_(actual-predicted)":"hgs_(actual-predicted)"}
 df = df.rename(columns={f"{target}":"hgs", f"{target}_predicted":"hgs_predicted", f"{target}_actual":"hgs_actual"})
 ###############################################################################
 ###############################################################################
+print("===== Done! =====")
+embed(globals(), locals())
 
 # Reshape the DataFrame for Seaborn
 # Melt the DataFrame based on 'true' and 'predicted' hgs
@@ -64,7 +66,7 @@ melted_df = pd.melt(df, id_vars=['gender'], value_vars=['hgs_actual', 'hgs_predi
                     var_name='hgs_type', value_name='hgs_values')
 print("===== Done! =====")
 embed(globals(), locals())
-custom_palette = {1: 'darkblue', 0: 'red'}
+custom_palette = {1: '#069AF3', 0: 'red'}
 
 fig = plt.figure(figsize=(12,12))
 
@@ -84,7 +86,7 @@ plt.xlabel('HGS Type')
 plt.ylabel('HGS Values')
 
 plt.show()
-plt.savefig(f"violine_test_set_{model_name}_{target}.png")
+plt.savefig(f"violine_test_set_{model_name}_{target}_1.png")
 plt.close()
 print("===== Done! =====")
 embed(globals(), locals())
