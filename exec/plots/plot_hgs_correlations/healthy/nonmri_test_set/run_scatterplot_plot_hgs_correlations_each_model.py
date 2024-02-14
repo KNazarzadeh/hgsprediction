@@ -86,7 +86,8 @@ for gender_type, gr in df.groupby(df['gender']):
         male_R2 = r2_score(gr["hgs_actual"], gr["hgs_predicted"])
         print(male_corr)
         print("male_r2=", male_R2)
-    p = sns.regplot(x="hgs_actual", y="hgs_predicted", data=gr, scatter=False, ax=g.ax_joint, color='darkgrey', line_kws={'label': f'{gender_type} Regression (r={r_value:.2f})'})
+    color = custom_palette[gender_type]
+    p = sns.regplot(x="hgs_actual", y="hgs_predicted", data=gr, scatter=False, ax=g.ax_joint, color=color, line_kws={'label': f'{gender_type} Regression (r={r_value:.2f})'})
     print(r_value)
     
 # remove the legend from ax_joint
@@ -103,11 +104,9 @@ ymin, ymax = g.ax_joint.get_ylim()
 g.ax_joint.set_xticks(np.arange(0, round(xmax), 30))
 
  # Plot regression line
-g.ax_joint.plot([xmin, xmax], [ymin, ymax], 'k--')
+g.ax_joint.plot([xmin, xmax], [ymin, ymax], color='darkgrey', linestyle='--')
 
 plt.show()
-print("===== Done! =====")
-embed(globals(), locals())
 plt.savefig(f"scatter_test_set_{model_name}_{target}.png")
 plt.close()
 print("===== Done! =====")

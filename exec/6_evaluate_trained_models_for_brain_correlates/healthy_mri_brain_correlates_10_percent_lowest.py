@@ -231,17 +231,17 @@ sns.set_style("whitegrid", {'axes.grid' : False})
 g = sns.jointplot(data=df_combined, x=f'1st_scan_{target}_actual', y=f'1st_scan_{target}_predicted', hue="gender", palette=custom_palette,  marker="$\circ$", s=120)
 
 for gender_type, gr in df_combined.groupby('gender'):
-    # slope, intercept, r_value, p_value, std_err = linregress(gr[f'1st_scan_{target}_actual'], gr[f'1st_scan_{target}_predicted'])
-    # if gr['gender'].any() == 0:
-    #     female_corr = pearsonr(gr[f'1st_scan_{target}_predicted'], gr[f'1st_scan_{target}_actual'])[0]
-    #     female_R2 = r2_score(gr[f'1st_scan_{target}_actual'], gr[f'1st_scan_{target}_predicted'])
-    #     print(female_corr)
-    #     print("female_r2=", female_R2)
-    # elif gr['gender'].any() == 1:
-    #     male_corr = pearsonr(gr[f'1st_scan_{target}_predicted'], gr[f'1st_scan_{target}_actual'])[0]
-    #     male_R2 = r2_score(gr[f'1st_scan_{target}_actual'], gr[f'1st_scan_{target}_predicted'])
-    #     print(male_corr)
-    #     print("male_r2=", male_R2)
+    slope, intercept, r_value, p_value, std_err = linregress(gr[f'1st_scan_{target}_actual'], gr[f'1st_scan_{target}_predicted'])
+    if gr['gender'].any() == 0:
+        female_corr = pearsonr(gr[f'1st_scan_{target}_predicted'], gr[f'1st_scan_{target}_actual'])[0]
+        female_R2 = r2_score(gr[f'1st_scan_{target}_actual'], gr[f'1st_scan_{target}_predicted'])
+        print(female_corr)
+        print("female_r2=", female_R2)
+    elif gr['gender'].any() == 1:
+        male_corr = pearsonr(gr[f'1st_scan_{target}_predicted'], gr[f'1st_scan_{target}_actual'])[0]
+        male_R2 = r2_score(gr[f'1st_scan_{target}_actual'], gr[f'1st_scan_{target}_predicted'])
+        print(male_corr)
+        print("male_r2=", male_R2)
         
     sns.regplot(x=gr[f'1st_scan_{target}_actual'], y=gr[f'1st_scan_{target}_predicted'], ax=g.ax_joint, scatter=False, color=custom_palette[gender_type])
    
@@ -263,7 +263,7 @@ g.ax_joint.plot([xmin, xmax], [ymin, ymax], color='darkgrey', linestyle='--')
 plt.tight_layout()
 
 plt.show()
-plt.savefig(f"correlate_mri_predicted_true_{target}.png")
+plt.savefig(f"correlate_mri_predicted_true_{target}_lowest.png")
 plt.close()
 
 print("===== Done! =====")
