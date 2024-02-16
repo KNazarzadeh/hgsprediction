@@ -114,20 +114,26 @@ plt.ylabel("R2 score", fontsize=40, fontweight="bold")
 
 ymin, ymax = plt.ylim()
 y_step_value = 0.01
-plt.yticks(np.arange(round(ymin/0.01)*.01-y_step_value, round(ymax/0.01)*.01, 0.01), fontsize=18, weight='bold')
+plt.yticks(np.arange(round(ymin/0.01)*.01-y_step_value, round(ymax/0.01)*.01, 0.01), fontsize=18, weight='bold', y=1.01)
 
 # Change x-axis tick labels
 new_xticklabels = ["10%", "20%", "40%", "60%", "80%", "100%", "10%", "20%", "40%", "60%", "80%", "100%"]  # Replace with your desired labels
 ax.set_xticklabels(new_xticklabels, fontsize=18, weight='bold')
-
+# Set the color of the plot's spines to black
+ax.spines['top'].set_color('black')
+ax.spines['bottom'].set_color('black')
+ax.spines['left'].set_color('black')
+ax.spines['right'].set_color('black') 
 # Place legend outside the plot
-plt.legend(title="Gender", title_fontsize='24', fontsize='20', bbox_to_anchor=(1.05, 1), loc='upper left')
-
+legend = plt.legend(title="Gender", title_fontsize='24', fontsize='20', bbox_to_anchor=(1.05, 1), loc='upper left')
+# Adjust transparency of legend markers
+for handle in legend.legend_handles:
+    handle.set_alpha(0.5)  # Set the transparency here as desired
 
 plt.tight_layout()  # Adjust layout to prevent cropping
 
 plt.show()
-plt.savefig(f"gender_specified_{model_name}_{target}_violin.png")
+plt.savefig(f"violin_gender_specified_{model_name}_{target}.png")
 plt.close()
 
 # print("===== Done! =====")
@@ -160,8 +166,16 @@ plt.yticks(np.arange(round(ymin/0.01)*.01-y_step_value, round(ymax/0.01)*.01, 0.
 new_xticklabels = ["10%", "20%", "40%", "60%", "80%", "100%", "10%", "20%", "40%", "60%", "80%", "100%"]  # Replace with your desired labels
 ax.set_xticklabels(new_xticklabels, fontsize=18, weight='bold')
 
+# Set the color of the plot's spines to black
+ax.spines['top'].set_color('black')
+ax.spines['bottom'].set_color('black')
+ax.spines['left'].set_color('black')
+ax.spines['right'].set_color('black') 
 # Place legend outside the plot
-plt.legend(title="Gender", title_fontsize='24', fontsize='20', bbox_to_anchor=(1.05, 1), loc='upper left')
+legend = plt.legend(title="Gender", title_fontsize='24', fontsize='20', bbox_to_anchor=(1.05, 1), loc='upper left')
+# Adjust transparency of legend markers
+for handle in legend.legend_handles:
+    handle.set_alpha(0.5)  # Set the transparency here as desired
 
 
 plt.tight_layout()  # Adjust layout to prevent cropping
@@ -172,54 +186,6 @@ plt.close()
 
 ###############################################################################
 ###############################################################################
-custom_palette = {'Female': 'red', 'Male': '#069AF3'}
-
-fig = plt.figure(figsize=(18,12))
-
-plt.rcParams.update({"font.weight": "bold", 
-                     "axes.labelweight": "bold",
-                     "ytick.labelsize": 25,
-                     "xtick.labelsize": 25})
-
-ax = sns.set_style("whitegrid")
-ax = sns.barplot(data=df_combined_models_scores, x="model_sample", y="test_score", hue='gender', palette=custom_palette, linewidth=2)
-
-# Adjust transparency of bars and set edge color to match face color
-for container in ax.containers:
-    for bar in container:
-        bar.set_alpha(0.5)
-        bar.set_edgecolor(bar.get_facecolor())
-
-
-# Set the color of the plot's spines to black
-ax.spines['top'].set_color('black')
-ax.spines['bottom'].set_color('black')
-ax.spines['left'].set_color('black')
-ax.spines['right'].set_color('black') 
-
-plt.title(f"Samplesize increasing for Anthropometrics and Age features {target}", fontsize=20, fontweight="bold", y=1.01)
-
-plt.xlabel("Model", fontsize=40, fontweight="bold")
-plt.ylabel("R2 score", fontsize=40, fontweight="bold")
-
-ymin, ymax = plt.ylim()
-ymin=0
-y_step_value = 0.01
-plt.yticks(np.arange(round(ymin/0.01)*.01, round(ymax/0.01)*.01, 0.01), fontsize=18, weight='bold')
-
-# Change x-axis tick labels
-new_xticklabels = ["10%", "20%", "40%", "60%", "80%", "100%", "10%", "20%", "40%", "60%", "80%", "100%"]  # Replace with your desired labels
-ax.set_xticklabels(new_xticklabels, fontsize=18, weight='bold')
-
-# Place legend outside the plot
-plt.legend(title="Gender", title_fontsize='24', fontsize='20', bbox_to_anchor=(1.05, 1), loc='upper left')
-
-
-plt.tight_layout()  # Adjust layout to prevent cropping
-
-plt.show()
-plt.savefig(f"barplot_gender_specified_{model_name}_{target}.png")
-plt.close()
 
 print("===== Done! =====")
 embed(globals(), locals())
