@@ -20,10 +20,15 @@ from hgsprediction.save_results import save_data_overlap_hgs_predicted_brain_cor
                                        save_spearman_correlation_on_brain_correlations_results
 from sklearn.metrics import r2_score 
 import statsmodels.stats.multitest as sm
+from statsmodels.stats import multitest
+
 from scipy.stats import linregress
 from statsmodels.stats.multitest import fdrcorrection
-
+from scipy.stats import linregress
+from statsmodels.stats.multitest import multipletests
 # from hgsprediction.plots import create_regplot
+from nilearn import datasets
+import nibabel as nib
 
 from ptpython.repl import embed
 # print("===== Done! =====")
@@ -39,7 +44,11 @@ session = sys.argv[6]
 brain_correlation_type = sys.argv[7]
 
 ###############################################################################
+# Fetch the Schaefer 2018 atlas with 100 regions and Yeo networks set to 17
+atlas = datasets.fetch_atlas_schaefer_2018(
+    n_rois=100, yeo_networks=17, resolution_mm=2, data_dir=None, base_url=None, resume=True, verbose=1)
 
+###############################################################################
 jay_path = os.path.join(
     "/data",
     "project",
@@ -49,6 +58,8 @@ jay_path = os.path.join(
     "brain_imaging_data",
     f"{brain_correlation_type.upper()}",
 )
+
+# feature_dt = dt.fread(fname.as_posix())
 
 schaefer_file = os.path.join(
     jay_path,
@@ -129,35 +140,6 @@ plt.savefig("hgs_age.png")
 
 ##############################################################################
 ##############################################################################
-# Melt the female DataFrame
-melted_female_df = pd.melt(df_brain_correlation_overlap_female, id_vars=['age_range'], var_name='region', value_name='value')
-melted_female_df = melted_female_df.sort_values(by="age_range", ascending=True)
-melted_female_df['gender'] = 'Female'
-
-# Melt the male DataFrame
-melted_male_df = pd.melt(df_brain_correlation_overlap_male, id_vars=['age_range'], var_name='region', value_name='value')
-melted_male_df = melted_male_df.sort_values(by="age_range", ascending=True)
-melted_male_df['gender'] = 'Male'
-# Concatenate both melted DataFrames
-melted_df = pd.concat([melted_female_df, melted_male_df], ignore_index=True)
-
-custom_palette = {'Female':'red', "Male":'#069AF3'}
-# Plot the combined data
-g = sns.catplot(
-    data=melted_df, x="age_range", y="value",
-    capsize=.2, palette=custom_palette, errorbar="se",
-    kind="point", height=6, aspect=.75,
-    hue='gender'  # Use hue to distinguish between male and female data
-)
-g.set_axis_labels("Age range", "GMV")
-
-# Show the plot
-plt.show()
-plt.savefig("gmv_age.png")
-
-
-##############################################################################
-##############################################################################
 correlation_values = pd.DataFrame(columns=["regions", "correlations", "p_values"])
 correlation_values_female = pd.DataFrame(columns=["regions", "correlations_female", "p_values_female"])
 correlation_values_male = pd.DataFrame(columns=["regions", "correlations_male", "p_values_male"])
@@ -179,7 +161,6 @@ for i, region in enumerate(df_brain_correlation.columns):
     correlation_values_male.loc[i, "correlations_male"] = corr_male
     correlation_values_male.loc[i, "p_values_male"] = p_value_male
 
-from statsmodels.stats import multitest
 
 # Perform FDR correction on p-values
 reject, p_corrected, _, _ = multitest.multipletests(correlation_values['p_values'], method='fdr_bh')
@@ -272,8 +253,6 @@ print("===== Done! =====")
 embed(globals(), locals())
 ##############################################################################
 ##############################################################################
-from scipy.stats import linregress
-from statsmodels.stats.multitest import multipletests
 
 t_values = pd.DataFrame(columns=["regions", "t_values", "t_values_female", "t_values_male"])
 # Set the significance level
@@ -386,3 +365,72 @@ plt.show()  # Display the plot
 print("===== Done! =====")
 embed(globals(), locals())
 ##############################################################################
+"""
+This script provides functions for neuroimaging data processing and analysis.
+"""
+
+def vec2image(
+brain_maps_2_nii, 
+atlas_filename,
+output_filename
+):
+    """Converts ROI-wise brain maps to a 3D NIfTI image.
+
+    Arguments:
+    -----------
+    brain_maps_2_nii: array of size N_ROI x N_measure
+        2D array containing brain maps for multiple graph measures.
+    atlas_filename: str or path
+        Path to a parcellated brain atlas with N_ROI regions.
+    output_filename: str or path
+        Filename of the output file.
+
+    Returns:
+    --------
+    brain_surf_map: str or path
+        Filename of the converted 3D brain surface NIfTI file.
+    """
+    N_ROI, N_measure = brain_maps_2_nii.shape
+
+    # Read the brain atlas image
+    atlas_img = nib.load(atlas_filename)
+    affine_mat = atlas_img.affine
+    atlas_img = atlas_img.get_fdata()
+    N_x, N_y, N_z = np.shape(atlas_img)
+    
+    unique_labels = np.unique(atlas_img.flatten())
+    unique_labels = unique_labels[unique_labels != 0]
+    
+    brain_maps_img = np.zeros((N_x, N_y, N_z, N_measure))
+
+    for n_roi in range(N_ROI):
+
+        ind = np.where(atlas_img==unique_labels[n_roi])
+        ix = ind[0]
+        iy = ind[1]
+        iz = ind[2]
+
+        for n_meas in range(N_measure):
+            brain_maps_img[ix, iy, iz, n_meas] = brain_maps_2_nii[n_roi, n_meas]
+
+    brain_map_nii = nib.Nifti1Image(brain_maps_img, affine=affine_mat)
+    brain_map_nii.to_filename(output_filename)
+
+    return atlas_filename
+
+
+output_filename = "/data/project/stroke_ukb/knazarzadeh/GIT_repositories/hgsprediction/exec/6_evaluate_trained_models_for_brain_correlates/shaefer100.nii"
+atlas_filename = "/home/knazarzadeh/nilearn_data/schaefer_2018/Schaefer2018_100Parcels_17Networks_order_FSLMNI152_2mm.nii.gz"
+# corr_female_100 = correlation_values_female[correlation_values_female['regions'].isin(feature_df_schaefer.columns)]
+# brain_maps_2_nii = corr_female_100['correlations_female'].to_numpy()
+# # Reshape the array from shape (150,) to (150, 1)
+# brain_maps_2_nii = brain_maps_2_nii.reshape(-1, 1)
+
+
+t_values_female_100 = t_values[t_values['regions'].isin(feature_df_schaefer.columns)]
+brain_maps_2_nii = t_values_female_100['t_values_female'].to_numpy()
+# Reshape the array from shape (150,) to (150, 1)
+brain_maps_2_nii = brain_maps_2_nii.reshape(-1, 1)
+
+
+atlas_file = vec2image(brain_maps_2_nii, atlas_filename, output_filename)
