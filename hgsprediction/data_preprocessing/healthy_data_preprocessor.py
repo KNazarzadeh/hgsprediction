@@ -161,9 +161,7 @@ class HealthyDataPreprocessor:
             df.loc[idx, hgs_dominant_side] = "left"              
             df.loc[idx, hgs_nondominant] = df.loc[idx, "47-0.0"]
             df.loc[idx, hgs_dominant_side] = "right"
-            
-            # df.loc[df["1707-0.0"] == 2.0, hgs_dominant] = df.loc[df["1707-0.0"] == 2.0, f"46-{session}.0"]
-            # df.loc[df["1707-0.0"] == 2.0, hgs_nondominant] = df.loc[df["1707-0.0"] == 2.0, f"47-{session}.0"]
+
             # ------------------------------------
             # If handedness is equal to:
             # 3 (Use both right and left hands equally) OR
@@ -187,11 +185,19 @@ class HealthyDataPreprocessor:
             df.loc[condition_right.index, hgs_dominant_side] = "right"
             df.loc[condition_right.index, hgs_nondominant] = df.loc[condition_right.index, "46-0.0"]
             df.loc[condition_right.index, hgs_nondominant_side] = "left"
-       
-            # df.loc[df["1707-0.0"].isin([3.0, -3.0, np.nan]), hgs_dominant] = df[[f"46-{session}.0", f"47-{session}.0"]].max(axis=1)
-            # df.loc[df["1707-0.0"].isin([3.0, -3.0, np.nan]), hgs_nondominant] = df[[f"46-{session}.0", f"47-{session}.0"]].min(axis=1)
             
         elif session == "2":
+            idx = df[df.loc[:, "1707-2.0"] == 1.0].index
+            df.loc[idx, hgs_dominant] = df.loc[idx, "47-2.0"]
+            df.loc[idx, hgs_dominant_side] = "right"
+            df.loc[idx, hgs_nondominant] = df.loc[idx, "46-2.0"]
+            df.loc[idx, hgs_nondominant_side] = "left"
+            
+            idx = df[df.loc[:, "1707-2.0"] == 2.0].index
+            df.loc[idx, hgs_dominant] = df.loc[idx, "46-2.0"]
+            df.loc[idx, hgs_dominant_side] = "left"             
+            df.loc[idx, hgs_nondominant] = df.loc[idx, "47-2.0"]
+            df.loc[idx, hgs_nondominant_side] = "right"
             # ------------------------------------
             # If handedness is equal to:
             # 3 (Use both right and left hands equally) OR
@@ -204,55 +210,32 @@ class HealthyDataPreprocessor:
             # Add and new column "hgs_dominant"
             # And assign lowest HGS value among Right and Left HGS:
             idx = df[df.loc[:, "1707-2.0"].isin([3.0, -3.0, np.NaN])].index
-            result_column = df.loc[idx, ["46-0.0", "47-0.0"]].idxmax(axis=1)
-            condition_left = result_column[result_column =='46-0.0']
+            df_tmp = df.loc[idx, :]
+            idx_tmp = df_tmp[df_tmp.loc[:, "1707-0.0"] == 1.0].index
+            df.loc[idx_tmp, hgs_dominant] = df.loc[idx_tmp, "47-2.0"]
+            df.loc[idx_tmp, hgs_dominant_side] = "right"            
+            df.loc[idx_tmp, hgs_nondominant] = df.loc[idx_tmp, "46-2.0"]
+            df.loc[idx_tmp, hgs_nondominant_side] = "left"
+            
+            idx_tmp = df_tmp[df_tmp.loc[:, "1707-0.0"] == 2.0].index
+            df.loc[idx_tmp, hgs_dominant] = df.loc[idx_tmp, "46-2.0"]
+            df.loc[idx_tmp, hgs_dominant_side] = "left"            
+            df.loc[idx_tmp, hgs_nondominant] = df.loc[idx_tmp, "47-2.0"]
+            df.loc[idx_tmp, hgs_nondominant_side] = "right"
+            
+            idx_tmp = df_tmp[df_tmp.loc[:, "1707-0.0"].isin([3.0, -3.0, np.NaN])].index
+            result_column = df.loc[idx_tmp, ["46-2.0", "47-2.0"]].idxmax(axis=1)
+            condition_left = result_column[result_column =='46-2.0']
             df.loc[condition_left.index, hgs_dominant] = df.loc[condition_left.index, "46-2.0"]
             df.loc[condition_left.index, hgs_dominant_side] = "left"
             df.loc[condition_left.index, hgs_nondominant] = df.loc[condition_left.index, "47-2.0"]
             df.loc[condition_left.index, hgs_nondominant_side] = "right"
-            condition_right = result_column[result_column =='47-0.0']
+            condition_right = result_column[result_column =='47-2.0']
             df.loc[condition_right.index, hgs_dominant] = df.loc[condition_right.index, "47-2.0"]
             df.loc[condition_right.index, hgs_dominant_side] = "right"
             df.loc[condition_right.index, hgs_nondominant] = df.loc[condition_right.index, "46-2.0"]
             df.loc[condition_right.index, hgs_nondominant_side] = "left"
             
-            
-            # Add and new column "hgs_dominant"
-            # And assign Right hand HGS value
-            idx = df[df.loc[:, "1707-2.0"] == 1.0].index
-            df.loc[idx, hgs_dominant] = df.loc[idx, "47-2.0"]
-            df.loc[idx, hgs_dominant_side] = "right"              
-            df.loc[idx, hgs_nondominant] = df.loc[idx, "46-2.0"]
-            df.loc[idx, hgs_dominant_side] = "left"
-            # If handedness is equal to 2
-            # Right hand is Non-Dominant
-            # Find handedness equal to 2:
-            # Add and new column "hgs_dominant"
-            # And assign Left hand HGS value:
-            idx = df[df.loc[:, "1707-2.0"] == 2.0].index
-            df.loc[idx, hgs_dominant] = df.loc[idx, "46-2.0"]
-            df.loc[idx, hgs_dominant_side] = "left"              
-            df.loc[idx, hgs_nondominant] = df.loc[idx, "47-2.0"]
-            df.loc[idx, hgs_dominant_side] = "right"
-            
-            # index = df[df.loc[:, "1707-2.0"] == 1.0].index
-            # df.loc[index, hgs_dominant] = df.loc[index, "47-2.0"]
-            # df.loc[index, hgs_nondominant] = df.loc[index, "46-2.0"]
-            # index = df[df.loc[:, "1707-2.0"] == 2.0].index
-            # df.loc[index, hgs_dominant] = df.loc[index, "46-2.0"]
-            # df.loc[index, hgs_nondominant] = df.loc[index, "47-2.0"]
-            # ------------------------------------
-            # index = df[df.loc[:, "1707-2.0"].isin([3.0, -3.0, np.NaN])].index
-            # filtered_df = df.loc[index, :]
-            # inx = filtered_df[filtered_df.loc[:, "1707-0.0"] == 1.0].index
-            # df.loc[inx, hgs_dominant] = df.loc[inx, "47-2.0"]
-            # df.loc[inx, hgs_nondominant] = df.loc[inx, "46-2.0"]
-            # inx = filtered_df[filtered_df.loc[:, "1707-0.0"] == 2.0].index
-            # df.loc[inx, hgs_dominant] = df.loc[inx, "46-2.0"]
-            # df.loc[inx, hgs_nondominant] = df.loc[inx, "47-2.0"]
-            # inx = filtered_df[filtered_df.loc[:, "1707-0.0"].isin([3.0, -3.0, np.NaN])].index
-            # df.loc[inx, hgs_dominant] = df.loc[inx, ["46-2.0", "47-2.0"]].max(axis=1)
-            # df.loc[inx, hgs_nondominant] = df.loc[inx, ["46-2.0", "47-2.0"]].min(axis=1)
 
         return df
     

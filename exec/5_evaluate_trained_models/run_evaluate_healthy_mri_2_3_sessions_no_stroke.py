@@ -63,7 +63,7 @@ df = healthy_load_data.load_preprocessed_data(population, mri_status, session, g
 
 features = define_features(feature_type)
 
-df_extracted = healthy_extract_data.extract_data(df, mri_status, features, target, session)
+df_extracted = healthy_extract_data.extract_data(df, features, target, session)
 
 X = features
 y = target
@@ -71,8 +71,8 @@ y = target
 df_female = df_extracted[df_extracted["gender"] == 0]
 df_male = df_extracted[df_extracted["gender"] == 1]
 
-df_female = predict_hgs(df_female, X, y, female_best_model_trained, target)
-df_male = predict_hgs(df_male, X, y, male_best_model_trained, target)
+df_female = predict_hgs(df_female, X, y, female_best_model_trained, session, target)
+df_male = predict_hgs(df_male, X, y, male_best_model_trained, session, target)
 
 # Prefix to add to column names
 if session == "2":
@@ -92,9 +92,9 @@ print(df_male)
 
 df_both_gender = pd.concat([df_female, df_male], axis=0)
 print(df_both_gender)
-
 print("===== Done! =====")
 embed(globals(), locals())
+
 save_hgs_predicted_results(
     df_both_gender,
     population,
