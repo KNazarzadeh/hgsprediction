@@ -18,6 +18,10 @@ from hgsprediction.save_results.healthy import save_spearman_correlation_results
 from hgsprediction.predict_hgs import calculate_spearman_hgs_correlation_on_brain_correlations
 from hgsprediction.save_results import save_data_overlap_hgs_predicted_brain_correlations_results,\
                                        save_spearman_correlation_on_brain_correlations_results
+                                       
+                                       
+from hgsprediction.predict_hgs import calculate_t_valuesGMV_HGS
+
 from sklearn.metrics import r2_score 
 import statsmodels.stats.multitest as sm
 from statsmodels.stats import multitest
@@ -92,7 +96,6 @@ df_brain_correlation.index = df_brain_correlation.index.str.replace("sub-", "")
 df_brain_correlation.index = df_brain_correlation.index.map(int)
 
 ##############################################################################
-
 # load data
 df = healthy.load_hgs_predicted_results(
     population,
@@ -122,176 +125,100 @@ df_intersected_male = df_intersected[df_intersected.index.isin(intersection_inde
 df_brain_correlation_overlap_female = df_brain_correlation_overlap[df_brain_correlation_overlap.index.isin(intersection_index_female)]
 df_brain_correlation_overlap_male = df_brain_correlation_overlap[df_brain_correlation_overlap.index.isin(intersection_index_male)]
 
-print("===== Done! =====")
-embed(globals(), locals())
+# print("===== Done! =====")
+# embed(globals(), locals())
 ##############################################################################
 ##############################################################################
-fig, (ax0, ax1) = plt.subplots(1,2, figsize=(8,8))
-# Set aspect ratio to be equal
-ax0.set_box_aspect(1)
-ax1.set_box_aspect(1)
-sns.regplot(data=df_intersected_female, x="1st_scan_age", y="1st_scan_hgs_right_true", color="red", ax=ax0, line_kws={"color": "darkgrey"})
-sns.regplot(data=df_intersected_male, x="1st_scan_age", y="1st_scan_hgs_right_true", color="#069AF3", ax=ax1, line_kws={"color": "darkgrey"})
-ax0.set_title('Females', fontsize=14, fontweight='bold')
-ax1.set_title('Males', fontsize=14, fontweight='bold')
+##############################################################################
+n_regions = df_brain_correlation.shape[1]
+x_axis = df_brain_correlation.columns
 
+correlation_values_true, correlation_values_true_significants = calculate_spearman_hgs_correlation_on_brain_correlations(df_brain_correlation_overlap, df_intersected, "1st_scan_hgs_right_true", x_axis)
+correlation_values_true_female, correlation_values_true_female_significants = calculate_spearman_hgs_correlation_on_brain_correlations(df_brain_correlation_overlap_female, df_intersected_female, "1st_scan_hgs_right_true", x_axis)
+correlation_values_true_male, correlation_values_true_male_significants = calculate_spearman_hgs_correlation_on_brain_correlations(df_brain_correlation_overlap_male, df_intersected_male, "1st_scan_hgs_right_true", x_axis)
+
+correlation_values_predicted, correlation_values_predicted_significants = calculate_spearman_hgs_correlation_on_brain_correlations(df_brain_correlation_overlap, df_intersected, "1st_scan_hgs_right_predicted", x_axis)
+correlation_values_predicted_female, correlation_values_predicted_female_significants = calculate_spearman_hgs_correlation_on_brain_correlations(df_brain_correlation_overlap_female, df_intersected_female, "1st_scan_hgs_right_predicted", x_axis)
+correlation_values_predicted_male, correlation_values_predicted_male_significants = calculate_spearman_hgs_correlation_on_brain_correlations(df_brain_correlation_overlap_male, df_intersected_male, "1st_scan_hgs_right_predicted", x_axis)
+
+correlation_values_delta, correlation_values_delta_significants = calculate_spearman_hgs_correlation_on_brain_correlations(df_brain_correlation_overlap, df_intersected, "1st_scan_hgs_right_(true-predicted)", x_axis)
+correlation_values_delta_female, correlation_values_delta_female_significants = calculate_spearman_hgs_correlation_on_brain_correlations(df_brain_correlation_overlap_female, df_intersected_female, "1st_scan_hgs_right_(true-predicted)", x_axis)
+correlation_values_delta_male, correlation_values_delta_male_significants = calculate_spearman_hgs_correlation_on_brain_correlations(df_brain_correlation_overlap_male, df_intersected_male, "1st_scan_hgs_right_(true-predicted)", x_axis)
+
+
+
+merged_true_delta_female = pd.merge(correlation_values_true_female, correlation_values_delta_female, how='inner', left_on='regions', right_on='regions', suffixes=('_true', '_delta'))
+merged_true_predicted_female = pd.merge(correlation_values_true_female, correlation_values_predicted_female, how='inner', left_on='regions', right_on='regions', suffixes=('_true', '_predicted'))
+merged_true_delta_male = pd.merge(correlation_values_true_male, correlation_values_delta_male, how='inner', left_on='regions', right_on='regions', suffixes=('_true', '_delta'))
+merged_true_predicted_male = pd.merge(correlation_values_true_male, correlation_values_predicted_male, how='inner', left_on='regions', right_on='regions', suffixes=('_true', '_predicted'))
+
+# Calculate correlation coefficient
+correlation_true_delta_female = np.corrcoef(merged_true_delta_female["correlations_true"].astype(float), merged_true_delta_female["correlations_delta"].astype(float))[0, 1]
+correlation_true_predicted_female = np.corrcoef(merged_true_predicted_female["correlations_true"].astype(float), merged_true_predicted_female["correlations_predicted"].astype(float))[0, 1]
+correlation_true_delta_male = np.corrcoef(merged_true_delta_male["correlations_true"].astype(float), merged_true_delta_male["correlations_delta"].astype(float))[0, 1]
+correlation_true_predicted_male = np.corrcoef(merged_true_predicted_male["correlations_true"].astype(float), merged_true_predicted_male["correlations_predicted"].astype(float))[0, 1]
+
+
+# Create subplots
+fig, axs = plt.subplots(2, 2, figsize=(12, 10))
+
+# Plot on each subplot
+sns.regplot(x=merged_true_delta_female["correlations_true"].astype(float), y=merged_true_delta_female["correlations_delta"].astype(float), ax=axs[0, 0], color="red")
+axs[0, 0].set_title('Female True vs. Delta')
+axs[0, 0].set_xlabel('Correlation GMV vs True HGS', fontsize=14, fontweight='bold')
+axs[0, 0].set_ylabel('Correlation GMV vs (True-Predicted) HGS', fontsize=14, fontweight='bold')
+axs[0, 0].annotate(f'r = {correlation_true_delta_female:.2f}', xy=(0.05, 0.95), xycoords='axes fraction', ha='left', va='top')
+
+sns.regplot(x=merged_true_predicted_female["correlations_true"].astype(float), y=merged_true_predicted_female["correlations_predicted"].astype(float), ax=axs[0, 1], color="red")
+axs[0, 1].set_title('Female True vs. Predicted')
+axs[0, 1].set_xlabel('Correlation GMV vs True HGS', fontsize=14, fontweight='bold')
+axs[0, 1].set_ylabel('Correlation GMV vs Predicted HGS', fontsize=14, fontweight='bold')
+axs[0, 1].annotate(f'r = {correlation_true_predicted_female:.2f}', xy=(0.05, 0.95), xycoords='axes fraction', ha='left', va='top')
+
+sns.regplot(x=merged_true_delta_male["correlations_true"].astype(float), y=merged_true_delta_male["correlations_delta"].astype(float), ax=axs[1, 0], color="#069AF3")
+axs[1, 0].set_title('Male True vs. Delta')
+axs[1, 0].set_xlabel('Correlation GMV vs True HGS', fontsize=14, fontweight='bold')
+axs[1, 0].set_ylabel('Correlation GMV vs (True-Predicted) HGS', fontsize=14, fontweight='bold')
+axs[1, 0].annotate(f'r = {correlation_true_delta_male:.2f}', xy=(0.05, 0.95), xycoords='axes fraction', ha='left', va='top')
+
+sns.regplot(x=merged_true_predicted_male["correlations_true"].astype(float), y=merged_true_predicted_male["correlations_predicted"].astype(float), ax=axs[1, 1], color="#069AF3")
+axs[1, 1].set_title('Male True vs. Predicted')
+axs[1, 1].set_xlabel('Correlation GMV vs True HGS', fontsize=14, fontweight='bold')
+axs[1, 1].set_ylabel('Correlation GMV vs Predicted HGS', fontsize=14, fontweight='bold')
+axs[1, 1].annotate(f'r = {correlation_true_predicted_male:.2f}', xy=(0.05, 0.95), xycoords='axes fraction', ha='left', va='top')
+
+# Show the plot
+plt.tight_layout()
+plt.savefig("hgs_gmv_right_hgs.png")
 plt.show()
-plt.savefig("hgs_age.png")
-
-##############################################################################
-##############################################################################
-correlation_values = pd.DataFrame(columns=["regions", "correlations", "p_values"])
-correlation_values_female = pd.DataFrame(columns=["regions", "correlations_female", "p_values_female"])
-correlation_values_male = pd.DataFrame(columns=["regions", "correlations_male", "p_values_male"])
-
-for i, region in enumerate(df_brain_correlation.columns):
-    # Compute correlations and p-values for all, female, and male datasets
-    corr, p_value = pearsonr(df_brain_correlation_overlap.iloc[:, i].values.ravel(), df_intersected['1st_scan_age'].values.ravel())
-    correlation_values.loc[i, "regions"] = region
-    correlation_values.loc[i, "correlations"] = corr
-    correlation_values.loc[i, "p_values"] = p_value
-
-    corr_female, p_value_female = pearsonr(df_brain_correlation_overlap_female.iloc[:, i].values.ravel(), df_intersected_female['1st_scan_age'].values.ravel())
-    correlation_values_female.loc[i, "regions"] = region
-    correlation_values_female.loc[i, "correlations_female"] = corr_female
-    correlation_values_female.loc[i, "p_values_female"] = p_value_female
-    
-    corr_male, p_value_male = pearsonr(df_brain_correlation_overlap_male.iloc[:, i].values.ravel(), df_intersected_male['1st_scan_age'].values.ravel())
-    correlation_values_male.loc[i, "regions"] = region
-    correlation_values_male.loc[i, "correlations_male"] = corr_male
-    correlation_values_male.loc[i, "p_values_male"] = p_value_male
-
-
-# Perform FDR correction on p-values
-reject, p_corrected, _, _ = multitest.multipletests(correlation_values['p_values'], method='fdr_bh')
-reject_female, p_corrected_female, _, _ = multitest.multipletests(correlation_values_female['p_values_female'], method='fdr_bh')
-reject_male, p_corrected_male, _, _ = multitest.multipletests(correlation_values_male['p_values_male'], method='fdr_bh')
-
-# Add corrected p-values and significance indicator columns to dataframes
-correlation_values['pcorrected'] = p_corrected
-correlation_values['significant'] = reject
-
-correlation_values_female['pcorrected_female'] = p_corrected_female
-correlation_values_female['significant_female'] = reject_female
-
-correlation_values_male['pcorrected_male'] = p_corrected_male
-correlation_values_male['significant_male'] = reject_male
-
-correlation_values_sorted = correlation_values[correlation_values['significant']].sort_values(by='pcorrected', ascending=True)
-correlation_values_sorted_female = correlation_values_female[correlation_values_female['significant_female']].sort_values(by='pcorrected_female', ascending=True)
-correlation_values_sorted_male= correlation_values_male[correlation_values_male['significant_male']].sort_values(by='pcorrected_male', ascending=True)
-
-plt.figure(figsize=(40, 10))
-
-plt.bar(correlation_values_sorted['regions'], correlation_values_sorted['pcorrected'], color='darkgrey', width=0.2)  # Plot the bars
-plt.scatter(correlation_values_sorted['regions'], correlation_values_sorted['pcorrected'], color='orange', zorder=5)  # Overlay scatter points
-plt.xlabel('Regions', fontsize=20, fontweight='bold')
-plt.ylabel('p-values', fontsize=20, fontweight='bold')
-plt.title('Age vs GMV regions (150)')
-# Get the current x-axis tick positions and labels
-current_tick_positions, current_tick_labels = plt.xticks()
-# Convert tick positions to integers
-current_tick_positions = [int(pos) for pos in current_tick_positions]
-# Add 5 units to each x-coordinate
-new_tick_positions = [pos + 10 for pos in current_tick_positions]
-plt.xticks(new_tick_positions, current_tick_labels, rotation=90)  # Set x-axis tick labels with modified positions
-
-plt.yticks(fontsize=20, fontweight='bold')  # Set y-axis tick labels with fontsize and fontweight
-plt.grid(axis='y', linestyle='--', alpha=0.7)  # Add grid lines for better visualization
-plt.tight_layout()  # Adjust layout to prevent overlapping labels
-plt.savefig("gmv_age_both_genders.png")  # Save the plot as a PNG file
-plt.show()  # Display the plot
 
 
 
 ##############################################################################
 ##############################################################################
-plt.figure(figsize=(40, 10))
-plt.bar(correlation_values_sorted_female['regions'], correlation_values_sorted_female['pcorrected_female'], color='darkgrey', width=0.2)  # Plot the bars
-plt.scatter(correlation_values_sorted_female['regions'], correlation_values_sorted_female['pcorrected_female'], color='orange', zorder=5)  # Overlay scatter points
-plt.xlabel('Regions', fontsize=20, fontweight='bold')
-plt.ylabel('p-values', fontsize=20, fontweight='bold')
-plt.title('Female - Age vs GMV regions (150)')
-# Get the current x-axis tick positions and labels
-current_tick_positions, current_tick_labels = plt.xticks()
-# Convert tick positions to integers
-current_tick_positions = [int(pos) for pos in current_tick_positions]
-# Add 5 units to each x-coordinate
-new_tick_positions = [pos + 10 for pos in current_tick_positions]
-plt.xticks(new_tick_positions, current_tick_labels, rotation=90)  # Set x-axis tick labels with modified positionsplt.yticks(fontsize=20, fontweight='bold')  # Set y-axis tick labels with fontsize and fontweight
-plt.yticks(fontsize=20, fontweight='bold')  # Set y-axis tick labels with fontsize and fontweight
-
-plt.grid(axis='y', linestyle='--', alpha=0.7)  # Add grid lines for better visualization
-plt.tight_layout()  # Adjust layout to prevent overlapping labels
-plt.savefig("gmv_age_female.png")  # Save the plot as a PNG file
-plt.show()  # Display the plot
-
-##############################################################################
-##############################################################################
-plt.figure(figsize=(40, 10))
-
-plt.bar(correlation_values_sorted_male['regions'], correlation_values_sorted_male['pcorrected_male'], color='darkgrey', width=0.2)  # Plot the bars
-plt.scatter(correlation_values_sorted_male['regions'], correlation_values_sorted_male['pcorrected_male'], color='orange', zorder=5)  # Overlay scatter points
-plt.xlabel('Regions', fontsize=20, fontweight='bold')
-plt.ylabel('p-values', fontsize=20, fontweight='bold')
-plt.title('Male - Age vs GMV regions (150)')
-# Get the current x-axis tick positions and labels
-current_tick_positions, current_tick_labels = plt.xticks()
-# Convert tick positions to integers
-current_tick_positions = [int(pos) for pos in current_tick_positions]
-# Add 5 units to each x-coordinate
-new_tick_positions = [pos + 10 for pos in current_tick_positions]
-plt.xticks(new_tick_positions, current_tick_labels, rotation=90)  # Set x-axis tick labels with modified positionsplt.yticks(fontsize=20, fontweight='bold')  # Set y-axis tick labels with fontsize and fontweight
-plt.yticks(fontsize=20, fontweight='bold')  # Set y-axis tick labels with fontsize and fontweight
-
-plt.grid(axis='y', linestyle='--', alpha=0.7)  # Add grid lines for better visualization
-plt.tight_layout()  # Adjust layout to prevent overlapping labels
-plt.savefig("gmv_age_male.png")  # Save the plot as a PNG file
-plt.show()  # Display the plot
-
-print("===== Done! =====")
-embed(globals(), locals())
-##############################################################################
-##############################################################################
-
-t_values = pd.DataFrame(columns=["regions", "t_values", "t_values_female", "t_values_male"])
 # Set the significance level
 significance_level = 0.01
-for i, region in enumerate(df_brain_correlation.columns):
-    # Perform simple linear regression: HGS ~ Feature_i
-    slope, intercept, r_value, p_value, std_err = linregress(df_brain_correlation_overlap.iloc[:, i].values.ravel(), df_intersected['1st_scan_hgs_right_true'].values.ravel())
-    # # Perform simple linear regression: HGS ~ Feature_i
-    slope_female, intercept_female, r_value_female, p_value_female, std_err_female = linregress(df_brain_correlation_overlap_female.iloc[:, i].values.ravel(), df_intersected_female['1st_scan_hgs_right_true'].values.ravel())
-     # Perform simple linear regression: HGS ~ Feature_i
-    slope_male, intercept_male, r_value_male, p_value_male, std_err_male = linregress(df_brain_correlation_overlap_male.iloc[:, i].values.ravel(), df_intersected_male['1st_scan_hgs_right_true'].values.ravel())
-    # # Calculate the t-value
-    t_values.loc[i, "regions"] = region
-    t_values.loc[i, "t_values"] = slope / std_err
-    t_values.loc[i, "t_values_female"] = slope_female / std_err_female
-    t_values.loc[i, "t_values_male"] = slope_male / std_err_male
-    
-    t_values.loc[i, "p_value"] = p_value
-    t_values.loc[i, "p_value_female"] = p_value_female
-    t_values.loc[i, "p_value_male"] = p_value_male
-    
-    # Perform FDR correction
-    p_values = [p_value, p_value_female, p_value_male]
-    rejected, p_values_corrected, _, _ = multipletests(p_values, method='fdr_bh', alpha=significance_level)
+t_values_true, t_values_true_significants = calculate_t_valuesGMV_HGS(df_brain_correlation_overlap, df_intersected, "1st_scan_hgs_right_true", x_axis, significance_level)
+t_values_true_female, t_values_true_female_significants = calculate_t_valuesGMV_HGS(df_brain_correlation_overlap_female, df_intersected_female, "1st_scan_hgs_right_true", x_axis, significance_level)
+t_values_true_male, t_values_true_male_significants = calculate_t_valuesGMV_HGS(df_brain_correlation_overlap_male, df_intersected_male, "1st_scan_hgs_right_true", x_axis, significance_level)
 
-    t_values.loc[i, "p_value_corrected"] = p_values_corrected[0]
-    t_values.loc[i, "p_value_corrected_female"] = p_values_corrected[1]
-    t_values.loc[i, "p_value_corrected_male"] = p_values_corrected[2]
-    
-    t_values.loc[i, "significant"] = 1 if rejected[0] else 0
-    t_values.loc[i, "significant_female"] = 1 if rejected[1] else 0
-    t_values.loc[i, "significant_male"] = 1 if rejected[2] else 0
+t_values_predicted, t_values_predicted_significants = calculate_t_valuesGMV_HGS(df_brain_correlation_overlap, df_intersected, "1st_scan_hgs_right_predicted", x_axis, significance_level)
+t_values_predicted_female, t_values_predicted_female_significants = calculate_t_valuesGMV_HGS(df_brain_correlation_overlap_female, df_intersected_female, "1st_scan_hgs_right_predicted", x_axis, significance_level)
+t_values_predicted_male, t_values_predicted_male_significants = calculate_t_valuesGMV_HGS(df_brain_correlation_overlap_male, df_intersected_male, "1st_scan_hgs_right_predicted", x_axis, significance_level)
 
+t_values_delta, t_values_delta_significants = calculate_t_valuesGMV_HGS(df_brain_correlation_overlap, df_intersected, "1st_scan_hgs_right_(true-predicted)", x_axis, significance_level)
+t_values_delta_female, t_values_delta_female_significants = calculate_t_valuesGMV_HGS(df_brain_correlation_overlap_female, df_intersected_female, "1st_scan_hgs_right_(true-predicted)", x_axis, significance_level)
+t_values_delta_male, t_values_delta_male_significants = calculate_t_valuesGMV_HGS(df_brain_correlation_overlap_male, df_intersected_male, "1st_scan_hgs_right_(true-predicted)", x_axis, significance_level)
+
+print("===== Done! =====")
+embed(globals(), locals())
 ##############################################################################
 ##############################################################################
+
 # Plotting
-sorted_t_values = t_values[t_values['significant']==1.0].sort_values(by='t_values', ascending=False)
-sorted_t_values_female = t_values[t_values['significant_female']==1.0].sort_values(by='t_values_female', ascending=False)
-sorted_t_values_male = t_values[t_values['significant_male']==1.0].sort_values(by='t_values_male', ascending=False)
+sorted_t_values = t_values_true_significants.sort_values(by='t_values', ascending=False)
+sorted_t_values_female = t_values_true_female_significants.sort_values(by='t_values', ascending=False)
+sorted_t_values_male = t_values_true_male_significants.sort_values(by='t_values', ascending=False)
 ##############################################################################
 ##############################################################################
 plt.figure(figsize=(40, 10))
@@ -315,13 +242,11 @@ plt.tight_layout()  # Adjust layout to prevent overlapping labels
 plt.savefig("gmv_hgs_right_dominant.png")  # Save the plot as a PNG file
 plt.show()  # Display the plot
 
-
-
 ##############################################################################
 ##############################################################################
 plt.figure(figsize=(40, 10))
-plt.bar(sorted_t_values_female['regions'], sorted_t_values_female['t_values_female'], color='darkgrey', width=0.2)  # Plot the bars
-plt.scatter(sorted_t_values_female['regions'], sorted_t_values_female['t_values_female'], color='orange', zorder=5)  # Overlay scatter points
+plt.bar(sorted_t_values_female['regions'], sorted_t_values_female['t_values'], color='darkgrey', width=0.2)  # Plot the bars
+plt.scatter(sorted_t_values_female['regions'], sorted_t_values_female['t_values'], color='orange', zorder=5)  # Overlay scatter points
 plt.xlabel('Regions', fontsize=20, fontweight='bold')
 plt.ylabel('T-values', fontsize=20, fontweight='bold')
 plt.title('Female - Right dominanct HGS vs brain regions (150)')
@@ -343,8 +268,8 @@ plt.show()  # Display the plot
 ##############################################################################
 plt.figure(figsize=(40, 10))
 
-plt.bar(sorted_t_values_male['regions'], sorted_t_values_male['t_values_male'], color='darkgrey', width=0.2)  # Plot the bars
-plt.scatter(sorted_t_values_male['regions'], sorted_t_values_male['t_values_male'], color='orange', zorder=5)  # Overlay scatter points
+plt.bar(sorted_t_values_male['regions'], sorted_t_values_male['t_values'], color='darkgrey', width=0.2)  # Plot the bars
+plt.scatter(sorted_t_values_male['regions'], sorted_t_values_male['t_values'], color='orange', zorder=5)  # Overlay scatter points
 plt.xlabel('Regions', fontsize=20, fontweight='bold')
 plt.ylabel('T-values', fontsize=20, fontweight='bold')
 plt.title('Male - Right dominanct HGS vs brain regions (150)')

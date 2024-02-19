@@ -1,3 +1,4 @@
 from .predict_hgs import predict_hgs
 from .calculate_spearman_hgs_correlation import calculate_spearman_hgs_correlation
 from .calculate_spearman_hgs_correlation_on_brain_correlations import calculate_spearman_hgs_correlation_on_brain_correlations
+from .calculate_t_values_GMV_HGS import calculate_t_valuesGMV_HGS
