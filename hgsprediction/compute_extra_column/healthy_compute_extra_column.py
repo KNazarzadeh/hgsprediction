@@ -31,8 +31,8 @@ def compute_extra_column(df, mri_status, extra_column, session):
     # elif extra_column == "age_range":
     #     df = calculate_age_range(df, session)     
 
-    elif extra_column == "hgs_cutoff":
-        df = calculate_cutoff_value_hgs(df, session)     
+    # elif extra_column == "hgs_cutoff":
+    #     df = calculate_cutoff_value_hgs(df, session)     
             
     return df
 
@@ -72,16 +72,18 @@ def calculate_handedness(df, session):
     # If handedness is equal to 1
     # Right hand is Dominant
     # Find handedness equal to 1:        
-    if session in ["0", "3"]:
-        # Add and new column "handedness"
+    if session in ["0", "1", "3"]:
+        # Add and new column "hgs_dominant"
         # And assign Right hand HGS value
-        df.loc[df["1707-0.0"] == 1.0, handedness] = 1.0
+        idx = df[df.loc[:, "1707-0.0"] == 1.0].index
+        df.loc[idx, handedness] = 1.0
         # If handedness is equal to 2
         # Right hand is Non-Dominant
         # Find handedness equal to 2:
-        # Add and new column "handedness"
-        # And assign Left hand HGS value:  
-        df.loc[df["1707-0.0"] == 2.0, handedness] = 2.0
+        # Add and new column "hgs_dominant"
+        # And assign Left hand HGS value:
+        idx = df[df.loc[:, "1707-0.0"] == 2.0].index
+        df.loc[idx, handedness] = 2.0
         # ------------------------------------
         # If handedness is equal to:
         # 3 (Use both right and left hands equally) OR
@@ -89,26 +91,41 @@ def calculate_handedness(df, session):
         # NaN value
         # Dominant will be the Highest Handgrip score from both hands.
         # Find handedness equal to 3, -3 or NaN:
-        # Add and new column "handedness"
+        # Add and new column "hgs_dominant"
         # And assign Highest HGS value among Right and Left HGS:
-        # Add and new column "handedness"
+        # Add and new column "hgs_dominant"
         # And assign lowest HGS value among Right and Left HGS:
-        df.loc[df["1707-0.0"].isin([3.0, -3.0, np.nan]), handedness] = 3.0
-        
+        idx = df[df.loc[:, "1707-0.0"].isin([3.0, -3.0, np.NaN])].index
+        df.loc[idx, handedness] = 3.0
+
     elif session == "2":
-        index = df[df.loc[:, "1707-2.0"] == 1.0].index
-        df.loc[index, handedness] = 1.0
-        index = df[df.loc[:, "1707-2.0"] == 2.0].index
-        df.loc[index, handedness] = 2.0
-            
-        index = df[df.loc[:, "1707-2.0"].isin([3.0, -3.0, np.NaN])].index
-        filtered_df = df.loc[index, :]
-        inx = filtered_df[filtered_df.loc[:, "1707-0.0"] == 1.0].index
-        df.loc[inx, handedness] = 1.0
-        inx = filtered_df[filtered_df.loc[:, "1707-0.0"] == 2.0].index
-        df.loc[inx, handedness] = 2.0
-        inx = filtered_df[filtered_df.loc[:, "1707-0.0"].isin([3.0, -3.0, np.NaN])].index
-        df.loc[inx, handedness] = 3.0
+        idx = df[df.loc[:, "1707-2.0"] == 1.0].index
+        df.loc[idx, handedness] = 1.0
+        
+        idx = df[df.loc[:, "1707-2.0"] == 2.0].index
+        df.loc[idx, handedness] = 2.0
+
+        # ------------------------------------
+        # If handedness is equal to:
+        # 3 (Use both right and left hands equally) OR
+        # -3 (handiness is not available/Prefer not to answer) OR
+        # NaN value
+        # Dominant will be the Highest Handgrip score from both hands.
+        # Find handedness equal to 3, -3 or NaN:
+        # Add and new column "hgs_dominant"
+        # And assign Highest HGS value among Right and Left HGS:
+        # Add and new column "hgs_dominant"
+        # And assign lowest HGS value among Right and Left HGS:
+        idx = df[df.loc[:, "1707-2.0"].isin([3.0, -3.0, np.NaN])].index
+        df_tmp = df.loc[idx, :]
+        idx_tmp = df_tmp[df_tmp.loc[:, "1707-0.0"] == 1.0].index
+        df.loc[idx_tmp, handedness] = 1.0
+        
+        idx_tmp = df_tmp[df_tmp.loc[:, "1707-0.0"] == 2.0].index
+        df.loc[idx_tmp, handedness] = 2.0
+
+        idx_tmp = df_tmp[df_tmp.loc[:, "1707-0.0"].isin([3.0, -3.0, np.NaN])].index
+        df.loc[idx_tmp, handedness] = 3.0
 
     return df
 ###############################################################################

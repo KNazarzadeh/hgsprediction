@@ -132,8 +132,8 @@ for target in ["hgs_L+R", "hgs_left", "hgs_right"]:
 
     df_post = pd.concat([df_healthy, df_post_stroke], axis=0)
     df_post.insert(0, "index", df_post.index)
-    print("===== Done! =====")
-    embed(globals(), locals())
+    # print("===== Done! =====")
+    # embed(globals(), locals())
     ##############################################################################
     # Define the covariates you want to use for matching
     # covariates = ["age", "bmi",  "height",  "waist_to_hip_ratio", f"{target}"]
@@ -204,21 +204,21 @@ for target in ["hgs_L+R", "hgs_left", "hgs_right"]:
                     df_female = control_samples_female.copy()
                     df_female = predict_hgs(df_female, X, y, female_best_model_trained, target)
                     df_female_stroke = predict_hgs(df_female_stroke, X, y, female_best_model_trained, target)
-                    corr_female_control = spearmanr(df_female[f"{target}_predicted"], df_female[f"{target}_actual"])[0]
-                    corr_female_stroke = spearmanr(df_female_stroke[f"{target}_predicted"], df_female_stroke[f"{target}_actual"])[0]
+                    corr_female_control = spearmanr(df_female[f"{target}_predicted"], df_female[f"{target}_true"])[0]
+                    corr_female_stroke = spearmanr(df_female_stroke[f"{target}_predicted"], df_female_stroke[f"{target}_true"])[0]
                 elif gender == "Male":                
                     control_samples_male = pd.concat([control_samples_male, control_group.iloc[indices[:,k-1].flatten()]], axis=0)
                     df_male = control_samples_male.copy()
                     df_male = predict_hgs(df_male, X, y, male_best_model_trained, target)
                     df_male_stroke = predict_hgs(df_male_stroke, X, y, male_best_model_trained, target)
-                    corr_male_control = spearmanr(df_male[f"{target}_predicted"], df_male[f"{target}_actual"])[0]
-                    corr_male_stroke = spearmanr(df_male_stroke[f"{target}_predicted"], df_male_stroke[f"{target}_actual"])[0]
+                    corr_male_control = spearmanr(df_male[f"{target}_predicted"], df_male[f"{target}_true"])[0]
+                    corr_male_stroke = spearmanr(df_male_stroke[f"{target}_predicted"], df_male_stroke[f"{target}_true"])[0]
             print(matched_data)
             print(matched_pairs)
         df_both_gender = pd.concat([df_female, df_male], axis=0)
         df_both_stroke = pd.concat([df_female_stroke, df_male_stroke], axis=0)
-        corr_control = spearmanr(df_both_gender[f"{target}_predicted"], df_both_gender[f"{target}_actual"])[0]
-        corr_stroke = spearmanr(df_both_stroke[f"{target}_predicted"], df_both_stroke[f"{target}_actual"])[0]
+        corr_control = spearmanr(df_both_gender[f"{target}_predicted"], df_both_gender[f"{target}_true"])[0]
+        corr_stroke = spearmanr(df_both_stroke[f"{target}_predicted"], df_both_stroke[f"{target}_true"])[0]
         text_control = 'r= ' + str(format(corr_control, '.3f'))
         text_stroke = 'r= ' + str(format(corr_stroke, '.3f'))
         text_control_female = 'r= ' + str(format(corr_female_control, '.3f'))
@@ -228,9 +228,9 @@ for target in ["hgs_L+R", "hgs_left", "hgs_right"]:
         print(df_both_gender)
         print(df_both_stroke)
         df_both_gender = df_both_gender.drop(columns=f"{target}")
-        df_both_gender.rename(columns={f'{target}_actual':"actual", f"{target}_predicted":"predicted", f"{target}_(actual-predicted)": "delta"}, inplace=True)
+        df_both_gender.rename(columns={f'{target}_true':"true", f"{target}_predicted":"predicted", f"{target}_(true-predicted)": "delta"}, inplace=True)
         df_both_stroke = df_both_stroke.drop(columns=f"{target}")
-        df_both_stroke.rename(columns={f'{target}_actual':"actual", f"{target}_predicted":"predicted", f"{target}_(actual-predicted)": "delta"}, inplace=True)
+        df_both_stroke.rename(columns={f'{target}_true':"true", f"{target}_predicted":"predicted", f"{target}_(true-predicted)": "delta"}, inplace=True)
         if target == "hgs_L+R":
             if stroke_cohort == "pre-stroke":
                 df_l_r_pre = df_both_gender
@@ -303,89 +303,86 @@ def add_median_labels(ax, fmt='.3f'):
     return xticks_positios_array
 ###############################################################################
 ###############################################################################
-print("===== Done! =====")
-embed(globals(), locals())
+# print("===== Done! =====")
+# embed(globals(), locals())
 df_anova=pd.concat([df,df_stroke_together])
-a = df_anova[["disease", "gender", "delta", "hgs_target", "stroke_cohort"]]
-b = a[a["hgs_target"]=="HGS L+R"]
+a = df_anova[["disease", "gender", "true", "hgs_target", "stroke_cohort"]]
+b = a[a["hgs_target"]!="HGS L+R"]
 b = b.rename(columns={"disease":"group", "stroke_cohort":"disease_time"})
 b["group"].replace(0, "healthy", inplace=True)
 b["group"].replace(1, "stroke", inplace=True)
 b["gender"].replace(0, "female", inplace=True)
 b["gender"].replace(1, "male", inplace=True)
-formula = 'delta ~ C(group) + C(disease_time) + C(hgs_target) + C(gender) + C(group):C(disease_time) + C(group):C(hgs_target) + C(group):C(gender) + C(disease_time):C(hgs_target) + C(disease_time):C(gender) + C(hgs_target):C(gender) + C(group):C(disease_time):C(hgs_target) + C(group):C(disease_time):C(gender) + C(group):C(hgs_target):C(gender) + C(disease_time):C(hgs_target):C(gender) + C(group):C(disease_time):C(hgs_target):C(gender)'
-model = ols(formula, b).fit()
+formula = 'true ~ C(group) + C(disease_time) + C(hgs_target) + C(gender) + C(group):C(disease_time) + C(group):C(hgs_target) + C(group):C(gender) + C(disease_time):C(hgs_target) + C(disease_time):C(gender) + C(hgs_target):C(gender) + C(group):C(disease_time):C(hgs_target) + C(group):C(disease_time):C(gender) + C(group):C(hgs_target):C(gender) + C(disease_time):C(hgs_target):C(gender) + C(group):C(disease_time):C(hgs_target):C(gender)'
+model = ols(formula, data=b).fit()
 anova_results = sm.stats.anova_lm(model, typ=2)
 
 print(anova_results)
-print("===== Done! =====")
-embed(globals(), locals())
+
 # Define a palette for hgs_target
 # Create a dictionary for mapping gender to colors and labels
 # Define palettes for hgs_target for Female and Male
 female_palette = {'HGS Left': 'lightcoral', 'HGS Right': 'darkred'}
 male_palette = {'HGS Left': 'lightblue', 'HGS Right': 'darkblue'}
+print("===== Done! =====")
+embed(globals(), locals())
 # Create a point plot
 plt.figure(figsize=(12, 8))
 g = sns.catplot(
-    data=b[b["gender"]=="female"], x="disease_time", y="delta", hue="hgs_target", col="group",
+    data=b[b["gender"]=="female"], x="disease_time", y="true", hue="hgs_target", col="group",
     capsize=.2, palette=female_palette, errorbar="se",
     kind="point", height=6, aspect=.75,
 )
 g.despine(left=True)
 plt.show()
-plt.savefig("anova_delta_gender_female.png")
+plt.savefig("anova_true_gender_female.png")
 plt.figure(figsize=(12, 8))
 g = sns.catplot(
-    data=b[b["gender"]=="male"], x="disease_time", y="delta", hue="hgs_target", col="group",
+    data=b[b["gender"]=="male"], x="disease_time", y="true", hue="hgs_target", col="group",
     capsize=.2, palette=male_palette, errorbar="se",
     kind="point", height=6, aspect=.75,
 )
 g.despine(left=True)
 plt.show()
-plt.savefig("anova_delta_gender_male.png")
+plt.savefig("anova_true_gender_male.png")
 # Create a point plot
 plt.figure(figsize=(12, 8))
 g = sns.catplot(
-    data=b[b["gender"]=="female"], x="group", y="delta", hue="hgs_target", col="disease_time",
+    data=b[b["gender"]=="female"], x="group", y="true", hue="hgs_target", col="disease_time",
     capsize=.2, palette=female_palette, errorbar="se",
     kind="point", height=6, aspect=.75,
 )
 g.despine(left=True)
 plt.show()
-plt.savefig("anova_group_xaxis_delta_gender_female.png")
+plt.savefig("anova_group_xaxis_true_gender_female.png")
 
 plt.figure(figsize=(12, 8))
 g = sns.catplot(
-    data=b[b["gender"]=="male"], x="group", y="delta", hue="hgs_target", col="disease_time",
+    data=b[b["gender"]=="male"], x="group", y="true", hue="hgs_target", col="disease_time",
     capsize=.2, palette=male_palette, errorbar="se",
     kind="point", height=6, aspect=.75,
 )
 g.despine(left=True)
 plt.show()
-plt.savefig("anova_group_xaxis_delta_gender_male.png")
+plt.savefig("anova_true_hgs_group_xaxis_true_gender_male.png")
 
-
+print("===== Done! =====")
+embed(globals(), locals())
 # Perform post-hoc tests on significant interactions (Tukey's HSD)
 import statsmodels.stats.multicomp as mc
 interaction_groups =  b.disease_time.astype(str) + "_"+ b.group.astype(str)+ "_" + b.hgs_target.astype(str)
 # interaction_groups =  b.disease_time.astype(str) + "_" + b.group.astype(str) + "_" + b.hgs_target.astype(str) + "_" + b.gender.astype(str)
-comp = mc.MultiComparison(b["delta"], interaction_groups)
+comp = mc.MultiComparison(b["true"], interaction_groups)
 post_hoc_res = comp.tukeyhsd()
 print(post_hoc_res.summary())
 
-from statsmodels.graphics.factorplots import interaction_plot
-fig = interaction_plot(x=b['group'], trace=b['hgs_target'], response=b['delta'], 
-    colors=['#4c061d','#d17a22', '#b4c292'])
-plt.show()
-plt.savefig("interaction_plot.png")
 ###############################################################################
 ###############################################################################
 df["hgs_target_stroke_cohort"] = df["hgs_target"] + "-" +df["stroke_cohort"]
 df_stroke_together["hgs_target_stroke_cohort"] = df_stroke_together["hgs_target"] + "-" +df_stroke_together["stroke_cohort"]
 
-df_healthy_anova = [df_left_pre["delta"], df_left_post["delta"], df_right_pre["delta"], df_right_post["delta"], df_l_r_pre["delta"], df_l_r_post["delta"]]
-df_stroke_anova = [df_left_stroke_pre["delta"], df_left_stroke_post["delta"], df_right_stroke_pre["delta"], df_right_stroke_post["delta"], df_l_r_stroke_pre["delta"], df_l_r_stroke_post["delta"]]
+df_healthy_anova = [df_left_pre["true"], df_left_post["delta"], df_right_pre["true"], df_right_post["true"], df_l_r_pre["true"], df_l_r_post["true"]]
+df_stroke_anova = [df_left_stroke_pre["true"], df_left_stroke_post["true"], df_right_stroke_pre["true"], df_right_stroke_post["true"], df_l_r_stroke_pre["true"], df_l_r_stroke_post["true"]]
 
 # Perform ANOVA
 _, p_value = stats.f_oneway(*df_healthy_anova, *df_stroke_anova)
@@ -401,10 +398,10 @@ else:
 
 ###############################################################################
 ###############################################################################
-df_healthy_pre_anova = [df_left_pre["delta"], df_right_pre["delta"], df_l_r_pre["delta"]]
-df_healthy_post_anova = [df_left_post["delta"], df_right_post["delta"], df_l_r_post["delta"]]
-df_stroke_pre_anova = [df_left_stroke_pre["delta"], df_right_stroke_pre["delta"], df_l_r_stroke_pre["delta"]]
-df_stroke_post_anova = [df_left_stroke_post["delta"], df_right_stroke_post["delta"], df_l_r_stroke_post["delta"]]
+df_healthy_pre_anova = [df_left_pre["true"], df_right_pre["true"], df_l_r_pre["true"]]
+df_healthy_post_anova = [df_left_post["true"], df_right_post["true"], df_l_r_post["true"]]
+df_stroke_pre_anova = [df_left_stroke_pre["true"], df_right_stroke_pre["true"], df_l_r_stroke_pre["true"]]
+df_stroke_post_anova = [df_left_stroke_post["true"], df_right_stroke_post["true"], df_l_r_stroke_post["true"]]
 
 # Perform two-way ANOVA for "pre" groups (healthy and stroke)
 _, p_value_pre = stats.f_oneway(*df_healthy_pre_anova, *df_stroke_pre_anova)
@@ -430,14 +427,8 @@ else:
 
 ###############################################################################
 ###############################################################################
-
-
-
-
-###############################################################################
-###############################################################################
 df_main = pd.concat([df, df_stroke_together])
-for y_axis in ["actual", "predicted", "delta"]:
+for y_axis in ["true", "predicted", "delta"]:
     melted_df = pd.melt(df_main, id_vars=["hgs_target_stroke_cohort", "disease"], value_vars=y_axis, var_name="variable", ignore_index=False)
     # Initialize a list to store the test results
     results = pd.DataFrame(columns=["hgs_target_stroke_cohort", "ranksum_stat", "ranksum_p_value", f"max_sample_{y_axis}", f"max_stroke_{y_axis}"])

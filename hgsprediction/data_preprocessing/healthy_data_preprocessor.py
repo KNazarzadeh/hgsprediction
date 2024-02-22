@@ -94,12 +94,14 @@ class HealthyDataPreprocessor:
         # Calling the modules:
         df = self.calculate_dominant_nondominant_hgs(df)
         hgs_dominant = f"hgs_dominant-{session}.0"
+        hgs_nondominant = f"hgs_nondominant-{session}.0"
         # ------------------------------------
         # Exclude all subjects who had Dominant HGS < 4:
         # The condition is applied to "hgs_dominant" columns
         # And then reset_index the new dataframe:
         df = df[(df.loc[:, hgs_dominant] >= 4) & (~df.loc[:, hgs_dominant].isna())]
-
+        df = df[(df.loc[:, hgs_nondominant] >= 4) & (~df.loc[:, hgs_nondominant].isna())]
+        
         return df
 
 ###############################################################################
@@ -161,7 +163,7 @@ class HealthyDataPreprocessor:
             df.loc[idx, hgs_dominant_side] = "left"              
             df.loc[idx, hgs_nondominant] = df.loc[idx, "47-0.0"]
             df.loc[idx, hgs_dominant_side] = "right"
-
+            
             # ------------------------------------
             # If handedness is equal to:
             # 3 (Use both right and left hands equally) OR

@@ -170,6 +170,7 @@ axs[1, 0].set_ylabel('Correlation GMV vs (True-Predicted) HGS', fontsize=14, fon
 axs[1, 0].annotate(f'r = {correlation_true_delta_male:.2f}', xy=(0.05, 0.95), xycoords='axes fraction', ha='left', va='top')
 # Plot regression linexmin, xmax = axs[1, 0].get_xlim()
 ymin, ymax = axs[1, 0].get_ylim()
+xmin, xmax = axs[1, 0].get_xlim()
 axs[1, 0].plot([xmin, xmax], [ymin, ymax], color='darkgrey', linestyle='--')
 
 sns.regplot(x=merged_true_predicted_male["correlations_true"].astype(float), y=merged_true_predicted_male["correlations_predicted"].astype(float), ax=axs[1, 1], color="#069AF3")

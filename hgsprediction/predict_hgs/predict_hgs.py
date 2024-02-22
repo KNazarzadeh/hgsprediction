@@ -7,7 +7,7 @@ from ptpython.repl import embed
 # print("===== Done! =====")
 # embed(globals(), locals())
 
-def predict_hgs(df, X, y, best_model_trained, session, target):
+def predict_hgs(df, X, y, best_model_trained, target):
     
     # y_True
     df.loc[:, f"{target}_true"] = df.loc[:, y].copy()
