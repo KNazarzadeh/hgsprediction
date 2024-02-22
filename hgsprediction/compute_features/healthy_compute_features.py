@@ -26,12 +26,12 @@ def compute_features(df, mri_status, session):
     # elif mri_status == "mri":
     #     session = "2"
     # -----------------------------------------------------------
-    df = calculate_age(df, session)
-    df = calculate_gender(df, session)
-    df = calculate_handedness(df, session)
-    # df = calculate_age_range(df, session)     
-    # df = calculate_cutoff_value_hgs(df, session)
-    df = calculate_anthropometrics(df, session)     
+    # df = calculate_age(df, session)
+    # df = calculate_gender(df, session)
+    # df = calculate_handedness(df, session)
+    # # df = calculate_age_range(df, session)     
+    # # df = calculate_cutoff_value_hgs(df, session)
+    # df = calculate_anthropometrics(df, session)     
     df = calculate_behavioral(df, session)
 
     # if feature_type == "anthropometrics":
