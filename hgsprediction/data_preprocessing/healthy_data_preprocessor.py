@@ -107,100 +107,6 @@ class HealthyDataPreprocessor:
         return df
 
 ###############################################################################
-def calculate_handedness(df, session):
-    """Calculate dominant handgrip
-    and add "handedness" column to dataframe
-
-    Parameters
-    ----------
-    df : dataframe
-        The dataframe that desired to analysis
-
-    Return
-    ----------
-    df : dataframe
-        with extra column for: Dominant hand Handgrip strength
-    """
-    # session = self.session
-    
-    assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
-    assert isinstance(session, str), "session must be a string!"
-    # -----------------------------------------------------------
-    
-    # Add a new column 'new_column'
-    handedness = f"handedness-{session}.0"    
-    # hgs_left field-ID: 46
-    # hgs_right field-ID: 47
-    # ------------------------------------
-    # ------- Handedness Field-ID: 1707
-    # Data-Coding: 100430
-    #           1	Right-handed
-    #           2	Left-handed
-    #           3	Use both right and left hands equally
-    #           -3	Prefer not to answer
-    # ------------------------------------
-    # If handedness is equal to 1
-    # Right hand is Dominant
-    # Find handedness equal to 1:        
-    if session in ["0", "1"]:
-        # Extract handedness data
-        handness = df[["1707-0.0", "1707-1.0"]]
-
-        idx = df[df.loc[:, "1707-0.0"] == 1.0].index
-        df.loc[idx, handedness] = 1.0
-        # If handedness is equal to 2
-        # Right hand is Non-Dominant
-        # Find handedness equal to 2:
-        # Add and new column "hgs_dominant"
-        # And assign Left hand HGS value:
-        idx = df[df.loc[:, "1707-0.0"] == 2.0].index
-        df.loc[idx, handedness] = 2.0
-        # ------------------------------------
-        # If handedness is equal to:
-        # 3 (Use both right and left hands equally) OR
-        # -3 (handiness is not available/Prefer not to answer) OR
-        # NaN value
-        # Dominant will be the Highest Handgrip score from both hands.
-        # Find handedness equal to 3, -3 or NaN:
-        # Add and new column "hgs_dominant"
-        # And assign Highest HGS value among Right and Left HGS:
-        # Add and new column "hgs_dominant"
-        # And assign lowest HGS value among Right and Left HGS:
-        idx = df[df.loc[:, "1707-0.0"].isin([3.0, -3.0, np.NaN])].index
-        df.loc[idx, handedness] = 3.0
-
-    elif session == "2":
-        idx = df[df.loc[:, "1707-2.0"] == 1.0].index
-        df.loc[idx, handedness] = 1.0
-        
-        idx = df[df.loc[:, "1707-2.0"] == 2.0].index
-        df.loc[idx, handedness] = 2.0
-
-        # ------------------------------------
-        # If handedness is equal to:
-        # 3 (Use both right and left hands equally) OR
-        # -3 (handiness is not available/Prefer not to answer) OR
-        # NaN value
-        # Dominant will be the Highest Handgrip score from both hands.
-        # Find handedness equal to 3, -3 or NaN:
-        # Add and new column "hgs_dominant"
-        # And assign Highest HGS value among Right and Left HGS:
-        # Add and new column "hgs_dominant"
-        # And assign lowest HGS value among Right and Left HGS:
-        idx = df[df.loc[:, "1707-2.0"].isin([3.0, -3.0, np.NaN])].index
-        df_tmp = df.loc[idx, :]
-        idx_tmp = df_tmp[df_tmp.loc[:, "1707-0.0"] == 1.0].index
-        df.loc[idx_tmp, handedness] = 1.0
-        
-        idx_tmp = df_tmp[df_tmp.loc[:, "1707-0.0"] == 2.0].index
-        df.loc[idx_tmp, handedness] = 2.0
-
-        idx_tmp = df_tmp[df_tmp.loc[:, "1707-0.0"].isin([3.0, -3.0, np.NaN])].index
-        df.loc[idx_tmp, handedness] = 3.0
-
-    return df
-
-###############################################################################
     def calculate_dominant_nondominant_hgs(self, df):
         """Calculate dominant handgrip
         and add "hgs_dominant" column to dataframe
@@ -244,7 +150,7 @@ def calculate_handedness(df, session):
         if session in ["0", "1", "3"]:
             # Add and new column "hgs_dominant"
             # And assign Right hand HGS value
-            idx = df[df.loc[:, "1707-0.0"] == 1.0].index
+            idx = df[df.loc[:, "handness"] == 1.0].index
             df.loc[idx, handedness] = 1.0
             df.loc[idx, hgs_dominant] = df.loc[idx, "47-0.0"]
             df.loc[idx, hgs_dominant_side] = "right"              
@@ -255,7 +161,7 @@ def calculate_handedness(df, session):
             # Find handedness equal to 2:
             # Add and new column "hgs_dominant"
             # And assign Left hand HGS value:
-            idx = df[df.loc[:, "1707-0.0"] == 2.0].index
+            idx = df[df.loc[:, "handness"] == 2.0].index
             df.loc[idx, handedness] = 2.0
             df.loc[idx, hgs_dominant] = df.loc[idx, "46-0.0"]
             df.loc[idx, hgs_dominant_side] = "left"              
@@ -273,7 +179,7 @@ def calculate_handedness(df, session):
             # And assign Highest HGS value among Right and Left HGS:
             # Add and new column "hgs_dominant"
             # And assign lowest HGS value among Right and Left HGS:
-            idx = df[df.loc[:, "1707-0.0"].isin([3.0, -3.0, np.NaN])].index
+            idx = df[df.loc[:, "handness"].isin([3.0, -3.0, np.NaN])].index
             df.loc[idx, handedness] = 3.0
             df_tmp = df.loc[idx, :]
             idx_tmp = df_tmp[df_tmp.loc[:, "47-0.0"] == df_tmp.loc[:, "46-0.0"]].index
@@ -296,14 +202,14 @@ def calculate_handedness(df, session):
             df.loc[condition_left.index, hgs_nondominant_side] = "right"
 
         elif session == "2":
-            idx = df[df.loc[:, "1707-2.0"] == 1.0].index
+            idx = df[df.loc[:, "handness"] == 1.0].index
             df.loc[idx, handedness] = 1.0
             df.loc[idx, hgs_dominant] = df.loc[idx, "47-2.0"]
             df.loc[idx, hgs_dominant_side] = "right"
             df.loc[idx, hgs_nondominant] = df.loc[idx, "46-2.0"]
             df.loc[idx, hgs_nondominant_side] = "left"
             
-            idx = df[df.loc[:, "1707-2.0"] == 2.0].index
+            idx = df[df.loc[:, "handness"] == 2.0].index
             df.loc[idx, handedness] = 2.0
             df.loc[idx, hgs_dominant] = df.loc[idx, "46-2.0"]
             df.loc[idx, hgs_dominant_side] = "left"             
@@ -320,7 +226,7 @@ def calculate_handedness(df, session):
             # And assign Highest HGS value among Right and Left HGS:
             # Add and new column "hgs_dominant"
             # And assign lowest HGS value among Right and Left HGS:
-            idx = df[df.loc[:, "1707-2.0"].isin([3.0, -3.0, np.NaN])].index
+            idx = df[df.loc[:, "handness"].isin([3.0, -3.0, np.NaN])].index
             df_tmp = df.loc[idx, :]
             idx_tmp = df_tmp[df_tmp.loc[:, "1707-0.0"] == 1.0].index
             df.loc[idx_tmp, handedness] = 1.0

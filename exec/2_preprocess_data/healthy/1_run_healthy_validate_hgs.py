@@ -32,8 +32,6 @@ elif mri_status == "mri":
 data_processor = HealthyDataPreprocessor(df, mri_status, session)
 # CHECK HGS AVAILABILITY
 df = data_processor.check_hgs_availability(df)
-print("===== Done! =====")
-embed(globals(), locals())
 # DATA VALIDATION
 df = data_processor.validate_handgrips(df)
 
