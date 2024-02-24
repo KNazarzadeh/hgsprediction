@@ -24,10 +24,9 @@ n_repeats = sys.argv[7]
 n_folds = sys.argv[8]
 gender = sys.argv[9]
 
-
+      
 # Read ready training data 
-df_train = healthy_load_data.load_ready_training_data(population, mri_status, feature_type, target, confound_status, gender)
-
+df_train = healthy_load_data.load_ready_training_data(population, mri_status, feature_type, target, confound_status, gender) 
 
 # a list of samplesize based on the samplesize/percentage_step (e.g. 10%)
 # Take percentage_step% (e.g. 10%) sample from the entire data
@@ -60,13 +59,12 @@ for i in range(1, 10):
         samplesize_list.insert(i, df_percent)
         # Remove the selected percentage_step% (e.g. 10%) sample from the temporary DataFrame
         df_tmp = df_tmp[~df_tmp.index.isin(df_percent.index)]
-
+      
 ###################################################################################################
 # Assuming samplesize_list contains your individual samples
 
 # list_of_interest contains percentage values like [10, 20, 40, 60, 80, 100]
 list_of_interest = [10, 20, 40, 60, 80, 100]
-
 
 for percent_interest in list_of_interest:
     df_sample = pd.DataFrame()
@@ -80,9 +78,23 @@ for percent_interest in list_of_interest:
         print(df_sample)
         
         df_sample_female = df_sample[df_sample['gender']==0]
-        df_sample_male = df_sample[df_sample['gender']==1]        
+        df_sample_male = df_sample[df_sample['gender']==1]   
         # Now, df_sample contains cumulative samples for each percentage in list_of_interest
         # Ready to save
+        save_multi_samplesize_training_data(
+            df_sample,
+            population,
+            mri_status,
+            confound_status,
+            "both_gender",
+            feature_type,
+            target,
+            model_name,
+            n_repeats,
+            n_folds,
+            samplesize,
+        )
+        
         save_multi_samplesize_training_data(
             df_sample_female,
             population,

@@ -29,6 +29,9 @@ feature_type = sys.argv[3]
 target = sys.argv[4]
 model_name = sys.argv[5]
 session = sys.argv[6]
+confound_status = sys.argv[7]
+n_repeats = sys.argv[8]
+n_folds = sys.argv[9]
 
 ###############################################################################
 female_best_model_trained = load_trained_models.load_best_model_trained(
@@ -39,8 +42,8 @@ female_best_model_trained = load_trained_models.load_best_model_trained(
                                 feature_type,
                                 target,
                                 "linear_svm",
-                                10,
-                                5,
+                                n_repeats,
+                                n_folds,
                             )
 
 print(female_best_model_trained)
@@ -53,39 +56,44 @@ male_best_model_trained = load_trained_models.load_best_model_trained(
                                 feature_type,
                                 target,
                                 "linear_svm",
-                                10,
-                                5,
+                                n_repeats,
+                                n_folds,
                             )
 print(male_best_model_trained)
 ##############################################################################
 # load data
 df = healthy_load_data.load_preprocessed_data(population, mri_status, session, gender="both_gender")
 
+df_female = df[df["gender"] == 0]
+df_male = df[df["gender"] == 1]
+
+
 features = define_features(feature_type)
 
-df_extracted = healthy_extract_data.extract_data(df, features, target, session)
+print("===== Done! =====")
+embed(globals(), locals())
+
+df_female_extracted, df_female_extracted_full_data = healthy_extract_data.extract_data(df_female, features, target, session)
+df_male_extracted, df_male_extracted_full_data = healthy_extract_data.extract_data(df_male, features, target, session)
 
 X = features
 y = target
 
-df_female = df_extracted[df_extracted["gender"] == 0]
-df_male = df_extracted[df_extracted["gender"] == 1]
-
-df_female = predict_hgs(df_female, X, y, female_best_model_trained, session, target)
-df_male = predict_hgs(df_male, X, y, male_best_model_trained, session, target)
+df_female_tmp = predict_hgs(df_female_extracted, X, y, female_best_model_trained, target)
+df_male_tmp = predict_hgs(df_male_extracted, X, y, male_best_model_trained, target)
 
 # Prefix to add to column names
-if session == "2":
-    prefix = "1st_scan_"
-elif session == "3":
-    prefix = "2nd_scan_"
+# if session == "2":
+#     prefix = "1st_scan_"
+# elif session == "3":
+#     prefix = "2nd_scan_"
 
-excluded_columns = ["gender"]
-# Rename columns, adding the prefix only to columns not in the excluded list
-for df in [df_female, df_male]:
-    for col in df.columns:
-        if col not in excluded_columns:
-            df.rename(columns={col: prefix + col}, inplace=True)
+# excluded_columns = ["gender"]
+# # Rename columns, adding the prefix only to columns not in the excluded list
+# for df in [df_female, df_male]:
+#     for col in df.columns:
+#         if col not in excluded_columns:
+#             df.rename(columns={col: prefix + col}, inplace=True)
 
 print(df_female)
 print(df_male)
@@ -104,6 +112,9 @@ save_hgs_predicted_results(
     target,
     "both_gender",
     session,
+    confound_status,
+    n_repeats,
+    n_folds,
 )
 
 save_hgs_predicted_results(
@@ -115,6 +126,9 @@ save_hgs_predicted_results(
     target,
     "female",
     session,
+    confound_status,
+    n_repeats,
+    n_folds,
 )
 
 save_hgs_predicted_results(
@@ -126,6 +140,9 @@ save_hgs_predicted_results(
     target,
     "male",
     session,
+    confound_status,
+    n_repeats,
+    n_folds,
 )
 
 ##############################################################################

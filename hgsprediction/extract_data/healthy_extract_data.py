@@ -3,36 +3,72 @@ import numpy as np
 from ptpython.repl import embed
 
 
-def extract_data(df, features, target, session):
+def extract_data(df, features, extend_features, target, mri_status, session):
     
-    features_list = features
-    add_extra_features = ["age", "gender", "handedness", "dominant", "nondominant"]
+    # Convert target and features for specific session
+    target = f"{target}-{session}.0"
 
-    for item in add_extra_features:
-        if item not in features:
-           features_list = [item] + features_list
-
-    features_columns = [col for col in df.columns if any(item in col for item in features_list)]
-    target_columns = [col for col in df.columns if col.startswith(target)]
+    feature_list = [f"{item}-{session}.0" for item in features]
+    extend_features_list = [f"{item}-{session}.0" for item in extend_features]
     
-    df = pd.concat([df[features_columns], df[target_columns]], axis=1)
+    if mri_status == "nonmri":
+        extra_columns_list = ["gender",
+                            f"age_range-{session}.0",
+                            f"1707-0.0", 
+                            f"1707-1.0", 
+                            f"handness",                             
+                            f"handedness-{session}.0", 
+                            f"46-{session}.0", 
+                            f"47-{session}.0",
+                            f"hgs_dominant-{session}.0", 
+                            f"hgs_nondominant-{session}.0",
+                            f"hgs_dominant_side-{session}.0",
+                            f"hgs_nondominant_side-{session}.0",
+                            ]
+        
     
-    df = df.dropna(subset=[col for col in df.columns if any(item in col for item in features)])
+    elif mri_status == "mri":
+        extra_columns_list = ["gender",
+                            f"age_range-{session}.0",
+                            f"1707-0.0", 
+                            f"1707-1.0", 
+                            f"1707-2.0", 
+                            f"handness",                             
+                            f"handedness-{session}.0", 
+                            f"46-{session}.0", 
+                            f"47-{session}.0",
+                            f"hgs_dominant-{session}.0", 
+                            f"hgs_nondominant-{session}.0",
+                            f"hgs_dominant_side-{session}.0",
+                            f"hgs_nondominant_side-{session}.0",
+                            ]
+
+    # Append target_list to feature_list
+    feature_list.append(target)
+    extra_columns_list.extend(extend_features_list)
+    extra_columns_list.extend(feature_list)
     
-    df = df.loc[:, ~df.columns.duplicated()]
-
-    df = rename_column_names(df, session)               
+    # Extract the specified feature and target columns
+    # Drop rows with NaN values in the combined feature and target columns
+    df_extracted = df[extra_columns_list].dropna(subset=feature_list)
     
-    return df
+    # Remove "-{session}.0" from the end of feature_list column names
+    # Substring to remove
+    substring = f"-{session}.0"
+    # Create a new list of column names with modifications
+    new_columns = []
+    for col in df_extracted.columns:
+        if col in feature_list:
+            new_columns.append(col.replace(substring, ''))
+        else:
+            new_columns.append(col)
 
-def rename_column_names(df, session):
-    if session == "0":
-        prefix = "-0.0"
-    elif session == "2":
-        prefix = "-2.0"
-    elif session == "3":
-        prefix = "-3.0"
-    # Replace prefix in column names
-    df.columns = df.columns.str.replace(prefix, '', regex=False)
+    # Update the column names of the DataFrame
+    df_extracted.columns = new_columns
 
-    return df
+    return df_extracted
+
+
+
+    
+    

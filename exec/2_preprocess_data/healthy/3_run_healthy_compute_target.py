@@ -10,11 +10,10 @@ from ptpython.repl import embed
 filename = sys.argv[0]
 population = sys.argv[1]
 mri_status = sys.argv[2]
-target = sys.argv[3]
-session = sys.argv[4]
-data_set = sys.argv[5]
+# target = sys.argv[3]
+session = sys.argv[3]
+data_set = sys.argv[4]
 
-# for target in ["hgs_L+R", "hgs_left", "hgs_right", "hgs_LI", "hgs_L-R", "hgs_dominant", "hgs_nondominant"]:
 if data_set == "test":
     folder_path = os.path.join(
         "/data",
@@ -41,11 +40,15 @@ else:
             
     df = healthy_load_data.load_preprocessed_data(population, mri_status, session, "both_gender")
 
-df = healthy_compute_target.compute_target(df, mri_status, session, target)
+for target in ["hgs_L+R", "hgs_left", "hgs_right", "hgs_LI", "hgs_L-R"]:
+    
+    df = healthy_compute_target.compute_target(df, mri_status, session, target)
 
 df_female = df[df["31-0.0"]==0.0]
 df_male = df[df["31-0.0"]==1.0]
 
+# print("===== Done! =====")
+# embed(globals(), locals())
 if data_set == "test":
     folder_path = os.path.join(
         "/data",

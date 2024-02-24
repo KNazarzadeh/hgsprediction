@@ -49,7 +49,7 @@ target = sys.argv[4]
 confound_status = sys.argv[5]
 model_name = sys.argv[6]
 n_repeats = sys.argv[7]
-n_folds, = sys.argv[8]
+n_folds = sys.argv[8]
 gender = sys.argv[9]
 samplesize = sys.argv[10]
 
@@ -71,7 +71,7 @@ df_train = load_multi_samplesize_training_data(
 
 ###############################################################################
 # Define Features:
-features = define_features(feature_type)
+features, extend_features = define_features(feature_type)
 
 ###############################################################################
 # Set X and y parameter for julearn run_cross_validation function

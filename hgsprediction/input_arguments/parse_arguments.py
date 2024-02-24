@@ -257,7 +257,7 @@ def input_arguments(args):
         print("Confound_status = With Confound Removal")
 
     print("CV Repeat Numbers =", cv_repeats_number)
-    print("CV Fold Numbers = ", cv_folds_number)
+    print("CV Fold Numbers =", cv_folds_number)
 
     print("============================================")
 

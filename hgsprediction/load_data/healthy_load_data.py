@@ -200,9 +200,9 @@ def load_ready_training_data(
         MRI status which data to be  to be analyse.
     """
     
-    if confound_status == '0':
+    if confound_status == "0":
         confound = "without_confound_removal"
-    elif confound_status == '1':
+    else:
         confound = "with_confound_removal"
         
     folder_path = os.path.join(

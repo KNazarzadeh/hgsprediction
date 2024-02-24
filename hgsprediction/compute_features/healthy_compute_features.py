@@ -26,12 +26,11 @@ def compute_features(df, mri_status, session):
     # elif mri_status == "mri":
     #     session = "2"
     # -----------------------------------------------------------
-    # df = calculate_age(df, session)
-    # df = calculate_gender(df, session)
-    # df = calculate_handedness(df, session)
-    # # df = calculate_age_range(df, session)     
-    # # df = calculate_cutoff_value_hgs(df, session)
-    # df = calculate_anthropometrics(df, session)     
+    df = calculate_age(df, session)
+    df = calculate_gender(df, session)
+    df = calculate_age_range(df, session)     
+    # df = calculate_cutoff_value_hgs(df, session)
+    df = calculate_anthropometrics(df, session)     
     df = calculate_behavioral(df, session)
 
     # if feature_type == "anthropometrics":
@@ -171,11 +170,11 @@ def calculate_age(df, session):
     assert isinstance(session, str), "session must be a string!"
     # -----------------------------------------------------------
     if session == "0":
-        df.loc[:, "age"] = df.loc[:, "Age1stVisit"]
+        df.loc[:, f"age-{session}.0"] = df.loc[:, "Age1stVisit"]
     elif session == "2":
-        df.loc[:, "age"] = df.loc[:, "AgeAtScan"]
+        df.loc[:, f"age-{session}.0"] = df.loc[:, "AgeAtScan"]
     elif session == "3":
-        df.loc[:, "age"] = df.loc[:, "AgeAt2ndScan"]
+        df.loc[:, f"age-{session}.0"] = df.loc[:, "AgeAt2ndScan"]
     return df    
 
 ###############################################################################
@@ -201,108 +200,16 @@ def calculate_gender(df, session):
         return df
 
 ###############################################################################
-def calculate_handedness(df, session):
-    """Calculate dominant handgrip
-    and add "handedness" column to dataframe
+def calculate_age_range(df, session):
+    # Define your age bins/ranges
+    bins = np.arange(35, 80, 5)
+    labels = [f"{bins[i]}-{bins[i+1]-1}" for i in range(len(bins)-1)]  # Adjusted labels
 
-    Parameters
-    ----------
-    df : dataframe
-        The dataframe that desired to analysis
-
-    Return
-    ----------
-    df : dataframe
-        with extra column for: Dominant hand Handgrip strength
-    """
-    # session = self.session
+    # Use pd.cut() to create the age range column
+    df[f"age_range-{session}.0"] = pd.cut(df[f"age-{session}.0"], bins=bins, labels=labels, right=False)  # Adjusted labels and right parameter
     
-    assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
-    assert isinstance(session, str), "session must be a string!"
-    # -----------------------------------------------------------
-    
-    # Add a new column 'new_column'
-    handedness = f"handedness-{session}.0"    
-    # hgs_left field-ID: 46
-    # hgs_right field-ID: 47
-    # ------------------------------------
-    # ------- Handedness Field-ID: 1707
-    # Data-Coding: 100430
-    #           1	Right-handed
-    #           2	Left-handed
-    #           3	Use both right and left hands equally
-    #           -3	Prefer not to answer
-    # ------------------------------------
-    # If handedness is equal to 1
-    # Right hand is Dominant
-    # Find handedness equal to 1:        
-    if session in ["0", "1", "3"]:
-        # Add and new column "hgs_dominant"
-        # And assign Right hand HGS value
-        idx = df[df.loc[:, "1707-0.0"] == 1.0].index
-        df.loc[idx, handedness] = 1.0
-        # If handedness is equal to 2
-        # Right hand is Non-Dominant
-        # Find handedness equal to 2:
-        # Add and new column "hgs_dominant"
-        # And assign Left hand HGS value:
-        idx = df[df.loc[:, "1707-0.0"] == 2.0].index
-        df.loc[idx, handedness] = 2.0
-        # ------------------------------------
-        # If handedness is equal to:
-        # 3 (Use both right and left hands equally) OR
-        # -3 (handiness is not available/Prefer not to answer) OR
-        # NaN value
-        # Dominant will be the Highest Handgrip score from both hands.
-        # Find handedness equal to 3, -3 or NaN:
-        # Add and new column "hgs_dominant"
-        # And assign Highest HGS value among Right and Left HGS:
-        # Add and new column "hgs_dominant"
-        # And assign lowest HGS value among Right and Left HGS:
-        idx = df[df.loc[:, "1707-0.0"].isin([3.0, -3.0, np.NaN])].index
-        df.loc[idx, handedness] = 3.0
-
-    elif session == "2":
-        idx = df[df.loc[:, "1707-2.0"] == 1.0].index
-        df.loc[idx, handedness] = 1.0
-        
-        idx = df[df.loc[:, "1707-2.0"] == 2.0].index
-        df.loc[idx, handedness] = 2.0
-
-        # ------------------------------------
-        # If handedness is equal to:
-        # 3 (Use both right and left hands equally) OR
-        # -3 (handiness is not available/Prefer not to answer) OR
-        # NaN value
-        # Dominant will be the Highest Handgrip score from both hands.
-        # Find handedness equal to 3, -3 or NaN:
-        # Add and new column "hgs_dominant"
-        # And assign Highest HGS value among Right and Left HGS:
-        # Add and new column "hgs_dominant"
-        # And assign lowest HGS value among Right and Left HGS:
-        idx = df[df.loc[:, "1707-2.0"].isin([3.0, -3.0, np.NaN])].index
-        df_tmp = df.loc[idx, :]
-        idx_tmp = df_tmp[df_tmp.loc[:, "1707-0.0"] == 1.0].index
-        df.loc[idx, handedness] = 1.0
-        
-        idx_tmp = df_tmp[df_tmp.loc[:, "1707-0.0"] == 2.0].index
-        df.loc[idx, handedness] = 2.0
-
-        idx_tmp = df_tmp[df_tmp.loc[:, "1707-0.0"].isin([3.0, -3.0, np.NaN])].index
-        df.loc[idx, handedness] = 3.0
-
     return df
-###############################################################################
-# def calculate_age_range(df, session):
-#     # Define your age bins/ranges
-#     bins = np.arange(35, 80, 5)
-#     labels = [f"{bins[i]}-{bins[i+1]-1}" for i in range(len(bins)-1)]  # Adjusted labels
-
-#     # Use pd.cut() to create the age range column
-#     df["age_range"] = pd.cut(df["age"], bins=bins, labels=labels, right=False)  # Adjusted labels and right parameter
-    
-#     return df
-###############################################################################
+##############################################################################
 # def calculate_cutoff_value_hgs(df, session):
 #     # Define age bins and labels
 #     bins = np.arange(35, 80, 5)

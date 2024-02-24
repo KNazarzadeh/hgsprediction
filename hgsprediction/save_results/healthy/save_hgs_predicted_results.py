@@ -14,7 +14,14 @@ def save_hgs_predicted_results(
     target,
     gender,
     session,
+    confound_status,
+    n_repeats,
+    n_folds,
 ):
+    if confound_status == "0":
+        confound = "without_confound_removal"
+    else:
+        confound = "with_confound_removal"
     # Assuming that you have already trained and instantiated the model as `model`
     folder_path = os.path.join(
             "/data",
@@ -28,7 +35,10 @@ def save_hgs_predicted_results(
             f"{session}",
             f"{feature_type}",
             f"{target}",
+            f"{confound}",
             f"{model_name}",
+            f"{n_repeats}",
+            f"{n_folds}",
             "hgs_predicted_results",
         )
         

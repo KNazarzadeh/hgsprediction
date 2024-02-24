@@ -45,16 +45,16 @@ motor, population, mri_status, feature_type, target, gender, model_name, \
 
 session="0"
 ###############################################################################
-df_train = healthy_load_data.load_preprocessed_data(population, mri_status, session, gender)
-print("===== Done! =====")
-embed(globals(), locals())
-features = define_features(feature_type)
 
-data_extracted = healthy_extract_data.extract_data(df_train, features, target, session)
+df_train = healthy_load_data.load_preprocessed_data(population, mri_status, session, gender)
+
+features, extend_features = define_features(feature_type)
+
+data_extracted = healthy_extract_data.extract_data(df_train, features, extend_features, target, mri_status, session)
 
 X = features
 y = target
-
+print(data_extracted)
 ###############################################################################
 # Define model and model parameters:
 if model_name == "linear_svm":
@@ -75,8 +75,7 @@ if confound_status == 0:
         model=model,
         return_estimator='all', scoring='r2'
     )
-# print("===== Done! =====")
-# embed(globals(), locals())
+
 ###############################################################################
 df_estimators = scores_trained.set_index(
     ['repeat', 'fold'])['estimator'].unstack()
@@ -122,8 +121,8 @@ df_prediction_scores.columns.name = 'K-fold splits'
 # For access to each dataframe use the following code:
 # for example --> df_header1 = df_validation_prediction_hgs.xs('repeat:Repeat 0 - k-fold:Fold 0')
 print(df_prediction_scores)
-print("===== Done! =====")
-embed(globals(), locals())
+# print("===== Done! =====")
+# embed(globals(), locals())
 ###############################################################################
 # SAVE THE RESULTS
 ###############################################################################
@@ -135,7 +134,6 @@ save_trained_model_results.save_extracted_data_to_train_model(
     gender,
     feature_type,
     target)
-
 ###############################################################################
 save_trained_model_results.save_best_model_trained(
     model_trained,
