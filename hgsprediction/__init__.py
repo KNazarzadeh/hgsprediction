@@ -14,10 +14,11 @@ from .save_data import healthy_save_data
 
 from .extract_data import healthy_extract_data
 
-from .save_results.healthy import save_hgs_predicted_results, save_spearman_correlation_results, save_trained_model_results
+from .save_results.healthy import save_hgs_predicted_results, save_correlation_results, save_trained_model_results
 
 from .load_results import load_trained_models
-from .load_results.healthy import load_hgs_predicted_results, load_spearman_correlation_results
+from .load_results.healthy import load_hgs_predicted_results
+# , load_correlation_results
 
 from .save_plot.save_correlations_plot import healthy_save_correlations_plot
 from .plots.plot_correlations import healthy_plot_hgs_correlations
@@ -35,7 +36,7 @@ from .save_data import stroke_save_data
 
 from .extract_data import stroke_extract_data
 from .compute_extra_column import stroke_compute_extra_column
-from .predict_hgs import calculate_spearman_hgs_correlation
+from .predict_hgs import calculate_pearson_hgs_correlation
 from .load_results.stroke import load_hgs_predicted_results, load_hgs_predicted_results_mri_records_sessions_only
 from .plots import plot_correlations
 from .save_plot import save_correlations_plot, save_correlations_plot_mri_records_sessions_only

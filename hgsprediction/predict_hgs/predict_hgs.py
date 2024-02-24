@@ -14,6 +14,6 @@ def predict_hgs(df, X, y, best_model_trained, target):
     # y_predicted
     df.loc[:, f"{target}_predicted"] = best_model_trained.predict(df.loc[:, X]).copy()
     # error: (true-predicted)
-    df.loc[:, f"{target}_(true-predicted)"] =  df.loc[:, f"{target}_true"].copy() - df.loc[:, f"{target}_predicted"].copy()
+    df.loc[:, f"{target}_delta(true-predicted)"] =  df.loc[:, f"{target}_true"].copy() - df.loc[:, f"{target}_predicted"].copy()
     
     return df

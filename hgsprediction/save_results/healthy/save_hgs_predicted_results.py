@@ -32,13 +32,12 @@ def save_hgs_predicted_results(
             "results_hgsprediction",
             f"{population}",
             f"{mri_status}",
-            f"{session}",
+            f"{session}_session_ukb",
             f"{feature_type}",
             f"{target}",
             f"{confound}",
             f"{model_name}",
-            f"{n_repeats}",
-            f"{n_folds}",
+            f"{n_repeats}_repeats_{n_folds}_folds",
             "hgs_predicted_results",
         )
         
@@ -48,7 +47,7 @@ def save_hgs_predicted_results(
     # Define the csv file path to save
     file_path = os.path.join(
         folder_path,
-        f"{gender}_hgs_predicted_results.csv")
+        f"{gender}_hgs_predicted_data.csv")
     
     df.to_csv(file_path, sep=',', index=True)
 

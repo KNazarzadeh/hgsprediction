@@ -28,7 +28,10 @@ model_name = sys.argv[3]
 feature_type = sys.argv[4]
 target = sys.argv[5]
 session = sys.argv[6]
-brain_correlation_type = sys.argv[7]
+confound_status = sys.argv[7]
+n_repeats = sys.argv[8]
+n_folds = sys.argv[9]
+brain_correlation_type = sys.argv[10]
 
 ###############################################################################
 # Fetch the Schaefer 2018 atlas with 100 regions and Yeo networks set to 17
@@ -88,9 +91,12 @@ df = healthy.load_hgs_predicted_results(
     target,
     "both_gender",
     session,
+    confound_status,
+    n_repeats,
+    n_folds,    
 )
-# print("===== Done! =====")
-# embed(globals(), locals())
+print("===== Done! =====")
+embed(globals(), locals())
 
 df_intersected = df[df.index.isin(df_brain_correlation.index)]
 # Find the intersection of indexes
