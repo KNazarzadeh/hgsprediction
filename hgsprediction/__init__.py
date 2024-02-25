@@ -53,7 +53,7 @@ from .old_define_features import stroke_define_features
 
 from .predict_hgs import predict_hgs
 
-from .predict_hgs import calculate_spearman_hgs_correlation_on_brain_correlations
+from .predict_hgs import calculate_brain_hgs
 from .predict_hgs import calculate_t_valuesGMV_HGS
 
 # from hgsprediction.input_arguments import parse_args, input_arguments

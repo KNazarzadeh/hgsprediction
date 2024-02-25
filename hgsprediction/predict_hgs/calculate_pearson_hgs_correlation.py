@@ -15,7 +15,7 @@ def calculate_pearson_hgs_correlation(df, y_axis, x_axis):
     
     for y_item in y_axis_columns:
         for x_item in x_axis_columns:
-            corr, pvalue = pearsonr(df[y_item], df[x_item])
+            corr, pvalue = pearsonr(df.loc[:, y_item], df.loc[:, x_item])
             df_corr.loc[y_item, x_item] = corr
             df_pvalue.loc[y_item, x_item] = pvalue
 

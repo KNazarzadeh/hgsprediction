@@ -71,6 +71,7 @@ y = target
 df_female = data_extracted[data_extracted["gender"] == 0]
 df_male = data_extracted[data_extracted["gender"] == 1]
 
+
 df_female = predict_hgs(df_female, X, y, female_best_model_trained, target)
 df_male = predict_hgs(df_male, X, y, male_best_model_trained, target)
 
@@ -122,7 +123,8 @@ save_hgs_predicted_results(
     n_repeats,
     n_folds,
 )
-
+# print("===== Done! =====")
+# embed(globals(), locals())
 ##############################################################################
 y_axis = ["true", "predicted", "delta(true-predicted)"]
 x_axis = ["true", "predicted"]
@@ -132,6 +134,7 @@ df_male_corr, df_male_pvalue = calculate_pearson_hgs_correlation(df_male, y_axis
 print(df_corr)
 print(df_female_corr)
 print(df_male_corr)
+
 save_correlation_results(
     df_corr,
     df_pvalue,

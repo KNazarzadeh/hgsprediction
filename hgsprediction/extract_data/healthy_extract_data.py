@@ -50,7 +50,7 @@ def extract_data(df, features, extend_features, target, mri_status, session):
     
     # Extract the specified feature and target columns
     # Drop rows with NaN values in the combined feature and target columns
-    df_extracted = df[extra_columns_list].dropna(subset=feature_list)
+    df_extracted = df.loc[:, extra_columns_list].dropna(subset=feature_list)
     
     # Remove "-{session}.0" from the end of feature_list column names
     # Substring to remove
