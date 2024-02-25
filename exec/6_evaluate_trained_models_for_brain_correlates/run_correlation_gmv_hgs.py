@@ -74,12 +74,12 @@ df = healthy.load_hgs_predicted_results(
     n_folds,    
 )
 
-
 merged_df = pd.merge(brain_df, df, left_index=True, right_index=True, how='inner')
 
 merged_df_female = merged_df[merged_df['gender']==0]
 merged_df_male = merged_df[merged_df['gender']==1]
-
+# print("===== Done! =====")
+# embed(globals(), locals())
 ##############################################################################
 n_regions = brain_df.shape[1]
 x_axis = brain_df.columns    
@@ -122,7 +122,8 @@ def plot_bar_with_scatter(data, x, y, corr_target, gender, n_regions_survived, c
 sorted_p_values_true_female = true_corr_significant_female.sort_values(by='correlations', ascending=False)
 sorted_p_values_true_male = true_corr_significant_male.sort_values(by='correlations', ascending=False)
 sorted_p_values_true = true_corr_significant.sort_values(by='correlations', ascending=False)
-
+print("===== Done! =====")
+embed(globals(), locals())
 # Females Correlations GMV vs True HGS
 plot_bar_with_scatter(sorted_p_values_true_female, 'regions', 'correlations', "true", 'female', true_n_regions_survived_female, color="red")
 # Males Correlations GMV vs True HGS

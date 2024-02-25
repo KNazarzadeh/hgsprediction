@@ -57,6 +57,8 @@ male_best_model_trained = load_trained_models.load_best_model_trained(
                                 n_folds,
                             )
 print(male_best_model_trained)
+print("===== Done! =====")
+embed(globals(), locals())
 ##############################################################################
 # load data
 df = healthy_load_data.load_preprocessed_data(population, mri_status, session, "both_gender")
@@ -71,7 +73,6 @@ y = target
 df_female = data_extracted[data_extracted["gender"] == 0]
 df_male = data_extracted[data_extracted["gender"] == 1]
 
-
 df_female = predict_hgs(df_female, X, y, female_best_model_trained, target)
 df_male = predict_hgs(df_male, X, y, male_best_model_trained, target)
 
@@ -80,8 +81,8 @@ print(df_male)
 
 df_both_gender = pd.concat([df_female, df_male], axis=0)
 print(df_both_gender)
-# print("===== Done! =====")
-# embed(globals(), locals())
+print("===== Done! =====")
+embed(globals(), locals())
 save_hgs_predicted_results(
     df_both_gender,
     population,
@@ -123,8 +124,8 @@ save_hgs_predicted_results(
     n_repeats,
     n_folds,
 )
-# print("===== Done! =====")
-# embed(globals(), locals())
+print("===== Done! =====")
+embed(globals(), locals())
 ##############################################################################
 y_axis = ["true", "predicted", "delta(true-predicted)"]
 x_axis = ["true", "predicted"]
