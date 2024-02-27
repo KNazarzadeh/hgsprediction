@@ -33,7 +33,7 @@ n_repeats = sys.argv[8]
 n_folds = sys.argv[9]
 brain_data_type = sys.argv[10]
 schaefer = sys.argv[11]
-
+stats_correlation_type = sys.argv[12]
 ###############################################################################
 folder_path = os.path.join(
             "/data",
@@ -54,8 +54,8 @@ file_path = os.path.join(
 
 brain_df = pd.read_csv(file_path, sep=',', index_col=0)
 
-print("===== Done! =====")
-embed(globals(), locals())
+# print("===== Done! =====")
+# embed(globals(), locals())
 ##############################################################################
 # load data
 df = healthy.load_hgs_predicted_results(
@@ -77,58 +77,58 @@ merged_df_female = merged_df[merged_df['gender']==0]
 merged_df_male = merged_df[merged_df['gender']==1]
 
 
-folder_path = os.path.join(
-            "/data",
-            "project",
-            "stroke_ukb",
-            "knazarzadeh",
-            "project_hgsprediction",  
-            "results_hgsprediction",
-            "brain_correlation_results",
-            f"{brain_data_type.upper()}_subcorticals_cerebellum",
-            f"data_overlap_with_{mri_status}_{population}",            
-            )
-# Define the csv file path to save
-file_path = os.path.join(
-    folder_path,
-    f"both_gender_overlap_data_with_{mri_status}_{population}.csv")
+# folder_path = os.path.join(
+#             "/data",
+#             "project",
+#             "stroke_ukb",
+#             "knazarzadeh",
+#             "project_hgsprediction",  
+#             "results_hgsprediction",
+#             "brain_correlation_results",
+#             f"{brain_data_type.upper()}_subcorticals_cerebellum",
+#             f"data_overlap_with_{mri_status}_{population}",            
+#             )
+# # Define the csv file path to save
+# file_path = os.path.join(
+#     folder_path,
+#     f"both_gender_overlap_data_with_{mri_status}_{population}.csv")
 
-merged_df.to_csv(file_path, sep=',', index=True)
+# merged_df.to_csv(file_path, sep=',', index=True)
 
-# Define the csv file path to save
-file_path = os.path.join(
-    folder_path,
-    f"female_overlap_data_with_{mri_status}_{population}.csv")
+# # Define the csv file path to save
+# file_path = os.path.join(
+#     folder_path,
+#     f"female_overlap_data_with_{mri_status}_{population}.csv")
 
-merged_df_female.to_csv(file_path, sep=',', index=True)
+# merged_df_female.to_csv(file_path, sep=',', index=True)
 
-# Define the csv file path to save
-file_path = os.path.join(
-    folder_path,
-    f"male_overlap_data_with_{mri_status}_{population}.csv")
+# # Define the csv file path to save
+# file_path = os.path.join(
+#     folder_path,
+#     f"male_overlap_data_with_{mri_status}_{population}.csv")
 
-merged_df_male.to_csv(file_path, sep=',', index=True)
+# merged_df_male.to_csv(file_path, sep=',', index=True)
 
-print("===== Done! =====")
-embed(globals(), locals())
+# print("===== Done! =====")
+# embed(globals(), locals())
 ##############################################################################
 n_regions = brain_df.shape[1]
 x_axis = brain_df.columns    
 
 # Correlation with True HGS
-true_corr_female, true_corr_significant_female, true_n_regions_survived_female = calculate_brain_hgs(merged_df_female, f"{target}_true", x_axis)
-true_corr_male, true_corr_significant_male, true_n_regions_survived_male = calculate_brain_hgs(merged_df_male, f"{target}_true", x_axis)
-true_corr, true_corr_significant, true_n_regions_survived = calculate_brain_hgs(merged_df, f"{target}_true", x_axis)
+true_corr_female, true_corr_significant_female, true_n_regions_survived_female = calculate_brain_hgs(merged_df_female, f"{target}_true", x_axis, stats_correlation_type)
+true_corr_male, true_corr_significant_male, true_n_regions_survived_male = calculate_brain_hgs(merged_df_male, f"{target}_true", x_axis, stats_correlation_type)
+true_corr, true_corr_significant, true_n_regions_survived = calculate_brain_hgs(merged_df, f"{target}_true", x_axis, stats_correlation_type)
 
 # Correlation with predicted HGS
-predicted_corr_female, predicted_corr_significant_female, predicted_n_regions_survived_female = calculate_brain_hgs(merged_df_female, f"{target}_predicted", x_axis)
-predicted_corr_male, predicted_corr_significant_male, predicted_n_regions_survived_male = calculate_brain_hgs(merged_df_male, f"{target}_predicted", x_axis)
-predicted_corr, predicted_corr_significant, predicted_n_regions_survived = calculate_brain_hgs(merged_df, f"{target}_predicted", x_axis)
+predicted_corr_female, predicted_corr_significant_female, predicted_n_regions_survived_female = calculate_brain_hgs(merged_df_female, f"{target}_predicted", x_axis, stats_correlation_type)
+predicted_corr_male, predicted_corr_significant_male, predicted_n_regions_survived_male = calculate_brain_hgs(merged_df_male, f"{target}_predicted", x_axis, stats_correlation_type)
+predicted_corr, predicted_corr_significant, predicted_n_regions_survived = calculate_brain_hgs(merged_df, f"{target}_predicted", x_axis, stats_correlation_type)
 
 # Correlation with Delta HGS
-delta_corr_female, delta_corr_significant_female, delta_n_regions_survived_female = calculate_brain_hgs(merged_df_female, f"{target}_delta(true-predicted)", x_axis)
-delta_corr_male, delta_corr_significant_male, delta_n_regions_survived_male = calculate_brain_hgs(merged_df_male, f"{target}_delta(true-predicted)", x_axis)
-delta_corr, delta_corr_significant, delta_n_regions_survived = calculate_brain_hgs(merged_df, f"{target}_delta(true-predicted)", x_axis)
+delta_corr_female, delta_corr_significant_female, delta_n_regions_survived_female = calculate_brain_hgs(merged_df_female, f"{target}_delta(true-predicted)", x_axis, stats_correlation_type)
+delta_corr_male, delta_corr_significant_male, delta_n_regions_survived_male = calculate_brain_hgs(merged_df_male, f"{target}_delta(true-predicted)", x_axis, stats_correlation_type)
+delta_corr, delta_corr_significant, delta_n_regions_survived = calculate_brain_hgs(merged_df, f"{target}_delta(true-predicted)", x_axis, stats_correlation_type)
 
 ##############################################################################
 # Plotting
@@ -145,8 +145,9 @@ def plot_bar_with_scatter(data, x, y, corr_target, gender, n_regions_survived, c
     plt.xlim(-0.5, len(data[x]) - 0.5)
     plt.tight_layout()
     plt.show()
-    plt.savefig(f"corr_gmv_{corr_target}_{target}_{gender}.png")  # Save the plot as a PNG file
-
+    plt.savefig(f"corr_gmv_{stats_correlation_type}_{model_name}_{corr_target}_{target}_{gender}.png")  # Save the plot as a PNG file
+# print("===== Done! =====")
+# embed(globals(), locals())
 ##############################################################################
 ##############################################################################
 # Plotting True HGS vs GMV

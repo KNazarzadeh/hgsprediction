@@ -1,13 +1,13 @@
 
 import pandas as pd
-from scipy.stats import pearsonr
+from scipy.stats import pearsonr, spearmanr
 from statsmodels.stats.multitest import multipletests
 
 from ptpython.repl import embed
 # print("===== Done! =====")
 # embed(globals(), locals())
 
-def calculate_brain_hgs(df, y_axis, x_axis):
+def calculate_brain_hgs(df, y_axis, x_axis, stats_correlation_type):
 
     # y_axis_columns = [col for col in df.columns if any(item in col for item in y_axis)]
     
@@ -15,7 +15,10 @@ def calculate_brain_hgs(df, y_axis, x_axis):
 
     for i, region in enumerate(x_axis):
         # Compute correlations and p-values for all, female, and male datasets
-        corr, p_value = pearsonr(df.loc[:, region], df.loc[:, y_axis])
+        if stats_correlation_type == "pearson":
+            corr, p_value = pearsonr(df.loc[:, region], df.loc[:, y_axis])
+        elif stats_correlation_type == "spearman":
+            corr, p_value = spearmanr(df.loc[:, region], df.loc[:, y_axis])
         correlation_values.loc[i, "regions"] = region
         correlation_values.loc[i, "correlations"] = corr
         correlation_values.loc[i, "p_values"] = p_value
