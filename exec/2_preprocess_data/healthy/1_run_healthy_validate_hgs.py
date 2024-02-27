@@ -25,9 +25,10 @@ if mri_status == "nonmri":
         
 elif mri_status == "mri":
     df = healthy_load_data.load_original_data(population, mri_status)
-print("===== Done! =====")
-embed(globals(), locals())
+
 data_processor = HealthyDataPreprocessor(df, mri_status, session)
+# print("===== Done! =====")
+# embed(globals(), locals())
 # CHECK HGS AVAILABILITY
 df = data_processor.check_hgs_availability(df)
 # DATA VALIDATION
@@ -38,8 +39,8 @@ df = data_processor.remove_nan_columns(df)
 
 df_female = df[df["31-0.0"]==0.0]
 df_male = df[df["31-0.0"]==1.0]
-print("===== Done! =====")
-embed(globals(), locals())
+# print("===== Done! =====")
+# embed(globals(), locals())
 if data_set == "test":
     folder_path = os.path.join(
         "/data",

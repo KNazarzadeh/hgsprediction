@@ -147,7 +147,7 @@ class HealthyDataPreprocessor:
         # If handedness is equal to 1
         # Right hand is Dominant
         # Find handedness equal to 1:        
-        if session in ["0", "1", "3"]:
+        if session in "0":
             # Add and new column "hgs_dominant"
             # And assign Right hand HGS value
             idx = df[df.loc[:, "handness"] == 1.0].index
@@ -247,42 +247,53 @@ class HealthyDataPreprocessor:
             df.loc[condition_left.index, hgs_dominant_side] = "left"
             df.loc[condition_left.index, hgs_nondominant] = df.loc[condition_left.index, "47-2.0"]
             df.loc[condition_left.index, hgs_nondominant_side] = "right"
-            # df_tmp = df.loc[idx, :]
-            # idx_tmp = df_tmp[df_tmp.loc[:, "1707-0.0"] == 1.0].index
-            # df.loc[idx_tmp, handedness] = 1.0
-            # df.loc[idx_tmp, hgs_dominant] = df.loc[idx_tmp, "47-2.0"]
-            # df.loc[idx_tmp, hgs_dominant_side] = "right"            
-            # df.loc[idx_tmp, hgs_nondominant] = df.loc[idx_tmp, "46-2.0"]
-            # df.loc[idx_tmp, hgs_nondominant_side] = "left"
             
-            # idx_tmp = df_tmp[df_tmp.loc[:, "1707-0.0"] == 2.0].index
-            # df.loc[idx_tmp, handedness] = 2.0            
-            # df.loc[idx_tmp, hgs_dominant] = df.loc[idx_tmp, "46-2.0"]
-            # df.loc[idx_tmp, hgs_dominant_side] = "left"            
-            # df.loc[idx_tmp, hgs_nondominant] = df.loc[idx_tmp, "47-2.0"]
-            # df.loc[idx_tmp, hgs_nondominant_side] = "right"
+        elif session == "3":
+            idx = df[df.loc[:, "handness"] == 1.0].index
+            df.loc[idx, handedness] = 1.0
+            df.loc[idx, hgs_dominant] = df.loc[idx, "47-3.0"]
+            df.loc[idx, hgs_dominant_side] = "right"
+            df.loc[idx, hgs_nondominant] = df.loc[idx, "46-3.0"]
+            df.loc[idx, hgs_nondominant_side] = "left"
             
-            # idx_tmp = df_tmp[df_tmp.loc[:, "1707-0.0"].isin([3.0, -3.0, np.NaN])].index
-            # df.loc[idx_tmp, handedness] = 3.0
-            # df_tmp_2 = df_tmp.loc[idx_tmp, :]
-            # idx_tmp_2 = df_tmp_2[df_tmp_2.loc[:, "47-2.0"] == df_tmp_2.loc[:, "46-2.0"]].index
-            # df.loc[idx_tmp_2, hgs_dominant] = df.loc[idx_tmp_2, "47-2.0"]
-            # df.loc[idx_tmp_2, hgs_dominant_side] = "right"              
-            # df.loc[idx_tmp_2, hgs_nondominant] = df.loc[idx_tmp_2, "46-2.0"]
-            # df.loc[idx_tmp_2, hgs_nondominant_side] = "left"
-            
-            # idx_tmp_2 = df_tmp_2[df_tmp_2.loc[:, "47-2.0"] != df_tmp_2.loc[:, "46-2.0"]].index
-            # result_column = df.loc[idx_tmp_2, ["46-2.0", "47-2.0"]].idxmax(axis=1)
-            # condition_right = result_column[result_column =='47-2.0']
-            # df.loc[condition_right.index, hgs_dominant] = df.loc[condition_right.index, "47-2.0"]
-            # df.loc[condition_right.index, hgs_dominant_side] = "right"
-            # df.loc[condition_right.index, hgs_nondominant] = df.loc[condition_right.index, "46-2.0"]
-            # df.loc[condition_right.index, hgs_nondominant_side] = "left"
-            # condition_left = result_column[result_column =='46-2.0']
-            # df.loc[condition_left.index, hgs_dominant] = df.loc[condition_left.index, "46-2.0"]
-            # df.loc[condition_left.index, hgs_dominant_side] = "left"
-            # df.loc[condition_left.index, hgs_nondominant] = df.loc[condition_left.index, "47-2.0"]
-            # df.loc[condition_left.index, hgs_nondominant_side] = "right"
+            idx = df[df.loc[:, "handness"] == 2.0].index
+            df.loc[idx, handedness] = 2.0
+            df.loc[idx, hgs_dominant] = df.loc[idx, "46-3.0"]
+            df.loc[idx, hgs_dominant_side] = "left"             
+            df.loc[idx, hgs_nondominant] = df.loc[idx, "47-3.0"]
+            df.loc[idx, hgs_nondominant_side] = "right"
+            # ------------------------------------
+            # If handedness is equal to:
+            # 3 (Use both right and left hands equally) OR
+            # -3 (handiness is not available/Prefer not to answer) OR
+            # NaN value
+            # Dominant will be the Highest Handgrip score from both hands.
+            # Find handedness equal to 3, -3 or NaN:
+            # Add and new column "hgs_dominant"
+            # And assign Highest HGS value among Right and Left HGS:
+            # Add and new column "hgs_dominant"
+            # And assign lowest HGS value among Right and Left HGS:
+            idx = df[df.loc[:, "handness"].isin([3.0, -3.0, np.NaN])].index
+            df.loc[idx, handedness] = 3.0
+            df_tmp = df.loc[idx, :]
+            idx_tmp = df_tmp[df_tmp.loc[:, "47-3.0"] == df_tmp.loc[:, "46-3.0"]].index
+            df.loc[idx_tmp, hgs_dominant] = df.loc[idx, "47-3.0"]
+            df.loc[idx_tmp, hgs_dominant_side] = "balanced_hgs"              
+            df.loc[idx_tmp, hgs_nondominant] = df.loc[idx, "46-3.0"]
+            df.loc[idx_tmp, hgs_nondominant_side] = "balanced_hgs"
+
+            idx_tmp = df_tmp[df_tmp.loc[:, "47-3.0"] != df_tmp.loc[:, "46-3.0"]].index
+            result_column = df.loc[idx_tmp, ["46-3.0", "47-3.0"]].idxmax(axis=1)
+            condition_right = result_column[result_column =='47-3.0']
+            df.loc[condition_right.index, hgs_dominant] = df.loc[condition_right.index, "47-3.0"]
+            df.loc[condition_right.index, hgs_dominant_side] = "right"
+            df.loc[condition_right.index, hgs_nondominant] = df.loc[condition_right.index, "46-3.0"]
+            df.loc[condition_right.index, hgs_nondominant_side] = "left"
+            condition_left = result_column[result_column =='46-3.0']
+            df.loc[condition_left.index, hgs_dominant] = df.loc[condition_left.index, "46-3.0"]
+            df.loc[condition_left.index, hgs_dominant_side] = "left"
+            df.loc[condition_left.index, hgs_nondominant] = df.loc[condition_left.index, "47-3.0"]
+            df.loc[condition_left.index, hgs_nondominant_side] = "right"
             
         df.loc[:, "percent_diff_bw_dominant_nonominant"] = ((df.loc[:, hgs_dominant]-df.loc[:, hgs_nondominant])/df.loc[:, hgs_dominant])*100
         

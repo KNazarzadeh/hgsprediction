@@ -10,15 +10,11 @@ def extract_data(df, features, extend_features, feature_type, target, mri_status
     
     if mri_status == "nonmri":
         if feature_type == "behavioral":
-            feature_list = [f"{item}-{session}.0" for item in features if item not in ['anxiety_score', 'anxiety_score', 'CIDI_score']]
-            extend_features_list =[]
-            print("===== Done! =====")
-            embed(globals(), locals())            
-
+            feature_list = [f"{item}-{session}.0" if item not in ['anxiety_score', 'depression_score', 'CIDI_score', 'neuroticism_score'] else item for item in features]
+            extend_features_list =[]         
         else:
             feature_list = [f"{item}-{session}.0" for item in features]
             extend_features_list = [f"{item}-{session}.0" for item in extend_features]
-
         extra_columns_list = ["gender",
                             f"age_range-{session}.0",
                             f"1707-0.0", 
@@ -32,15 +28,15 @@ def extract_data(df, features, extend_features, feature_type, target, mri_status
                             f"hgs_dominant_side-{session}.0",
                             f"hgs_nondominant_side-{session}.0",
                             ]
-        
-    
+
     elif mri_status == "mri":
         if feature_type == "behavioral":
-            feature_list = [f"{item}-{session}.0" for item in features if item not in ['anxiety_score', 'anxiety_score', 'CIDI_score']]
-            extend_features_list =[]
+            features = [f"{item}-{session}.0" if item not in ['anxiety_score', 'depression_score', 'CIDI_score', 'neuroticism_score', 'general_happiness', 'health_happiness', 'belief_life_meaningful'] else item for item in features]
+            feature_list = [f"{item}-0.0" if item in ['general_happiness', 'health_happiness', 'belief_life_meaningful'] else item for item in features]
+            extend_features_list =[]         
         else:
             feature_list = [f"{item}-{session}.0" for item in features]
-            extend_features_list = [f"{item}-{session}.0" for item in extend_features]        
+            extend_features_list = [f"{item}-{session}.0" for item in extend_features]
         extra_columns_list = ["gender",
                             f"age_range-{session}.0",
                             f"1707-0.0", 
@@ -55,7 +51,6 @@ def extract_data(df, features, extend_features, feature_type, target, mri_status
                             f"hgs_dominant_side-{session}.0",
                             f"hgs_nondominant_side-{session}.0",
                             ]
-
     # Append target_list to feature_list
     feature_list.append(target)
     extra_columns_list.extend(extend_features_list)
@@ -66,13 +61,11 @@ def extract_data(df, features, extend_features, feature_type, target, mri_status
     df_extracted = df.loc[:, extra_columns_list].dropna(subset=feature_list)
     
     # Remove "-{session}.0" from the end of feature_list column names
-    # Substring to remove
-    substring = f"-{session}.0"
     # Create a new list of column names with modifications
     new_columns = []
     for col in df_extracted.columns:
         if col in feature_list:
-            new_columns.append(col.replace(substring, ''))
+            new_columns.append(col.split('-')[0])
         else:
             new_columns.append(col)
 

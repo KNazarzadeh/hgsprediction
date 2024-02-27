@@ -55,8 +55,7 @@ data_extracted = healthy_extract_data.extract_data(df_train, features, extend_fe
 X = features
 y = target
 print(data_extracted)
-print("===== Done! =====")
-embed(globals(), locals())
+
 ###############################################################################
 # Define model and model parameters:
 if model_name == "linear_svm":

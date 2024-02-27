@@ -800,7 +800,7 @@ def calculate_cognitive_functioning(df, session):
     if session == "0":
         df.loc[:,trail_making_duration_numeric] = df.loc[:,f"20156-{session}.0"].replace(0, np.NaN)
         df.loc[:,trail_making_duration_alphanumeric] = df.loc[:,f"20157-{session}.0"].replace(0, np.NaN)
-    elif session == "2":
+    elif session in ["2", "3"]:
         df.loc[:, trail_making_duration_numeric] =  df.loc[:,f"6348-{session}.0"].replace(0, np.NaN)
         df.loc[:, trail_making_duration_alphanumeric] =  df.loc[:,f"6350-{session}.0"].replace(0, np.NaN)
     #######################################################
@@ -831,7 +831,7 @@ def calculate_cognitive_functioning(df, session):
     if session == "0":
         df.loc[:, symbol_digit_matches_attempted] =  df.loc[:, f"20195-{session}.0"]
         df.loc[:, symbol_digit_matches_corrected] =  df.loc[:, f"20159-{session}.0"]
-    elif session == "2":
+    elif session in ["2", "3"]:
         df.loc[:, symbol_digit_matches_attempted] =  df.loc[:, f"23323-{session}.0"]
         df.loc[:, symbol_digit_matches_corrected] =  df.loc[:, f"23324-{session}.0"]
     #######################################################
