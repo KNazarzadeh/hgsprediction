@@ -57,14 +57,14 @@ male_best_model_trained = load_trained_models.load_best_model_trained(
                                 n_folds,
                             )
 print(male_best_model_trained)
-print("===== Done! =====")
-embed(globals(), locals())
+
 ##############################################################################
 # load data
 df = healthy_load_data.load_preprocessed_data(population, mri_status, session, "both_gender")
 
 features, extend_features = define_features(feature_type)
-
+print("===== Done! =====")
+embed(globals(), locals())
 data_extracted = healthy_extract_data.extract_data(df, features, extend_features, target, mri_status, session)
 
 X = features

@@ -35,11 +35,6 @@ brain_data_type = sys.argv[10]
 schaefer = sys.argv[11]
 
 ###############################################################################
-# Fetch the Schaefer 2018 atlas with 100 regions and Yeo networks set to 17
-atlas = datasets.fetch_atlas_schaefer_2018(
-    n_rois=100, yeo_networks=17, resolution_mm=2, data_dir=None, base_url=None, resume=True, verbose=1)
-
-###############################################################################
 folder_path = os.path.join(
             "/data",
             "project",
@@ -48,8 +43,8 @@ folder_path = os.path.join(
             "project_hgsprediction",  
             "results_hgsprediction",
             "brain_correlation_results",
-            "brain_ready_data",
-            f"{brain_data_type.upper()}",
+            f"{brain_data_type.upper()}_subcorticals_cerebellum",
+            "brain_ready_data",            
             f"Schaefer{schaefer}",
         )
 # Define the csv file path to save
@@ -59,6 +54,8 @@ file_path = os.path.join(
 
 brain_df = pd.read_csv(file_path, sep=',', index_col=0)
 
+print("===== Done! =====")
+embed(globals(), locals())
 ##############################################################################
 # load data
 df = healthy.load_hgs_predicted_results(
@@ -78,8 +75,42 @@ merged_df = pd.merge(brain_df, df, left_index=True, right_index=True, how='inner
 
 merged_df_female = merged_df[merged_df['gender']==0]
 merged_df_male = merged_df[merged_df['gender']==1]
-# print("===== Done! =====")
-# embed(globals(), locals())
+
+
+folder_path = os.path.join(
+            "/data",
+            "project",
+            "stroke_ukb",
+            "knazarzadeh",
+            "project_hgsprediction",  
+            "results_hgsprediction",
+            "brain_correlation_results",
+            f"{brain_data_type.upper()}_subcorticals_cerebellum",
+            f"data_overlap_with_{mri_status}_{population}",            
+            )
+# Define the csv file path to save
+file_path = os.path.join(
+    folder_path,
+    f"both_gender_overlap_data_with_{mri_status}_{population}.csv")
+
+merged_df.to_csv(file_path, sep=',', index=True)
+
+# Define the csv file path to save
+file_path = os.path.join(
+    folder_path,
+    f"female_overlap_data_with_{mri_status}_{population}.csv")
+
+merged_df_female.to_csv(file_path, sep=',', index=True)
+
+# Define the csv file path to save
+file_path = os.path.join(
+    folder_path,
+    f"male_overlap_data_with_{mri_status}_{population}.csv")
+
+merged_df_male.to_csv(file_path, sep=',', index=True)
+
+print("===== Done! =====")
+embed(globals(), locals())
 ##############################################################################
 n_regions = brain_df.shape[1]
 x_axis = brain_df.columns    
@@ -122,8 +153,8 @@ def plot_bar_with_scatter(data, x, y, corr_target, gender, n_regions_survived, c
 sorted_p_values_true_female = true_corr_significant_female.sort_values(by='correlations', ascending=False)
 sorted_p_values_true_male = true_corr_significant_male.sort_values(by='correlations', ascending=False)
 sorted_p_values_true = true_corr_significant.sort_values(by='correlations', ascending=False)
-print("===== Done! =====")
-embed(globals(), locals())
+# print("===== Done! =====")
+# embed(globals(), locals())
 # Females Correlations GMV vs True HGS
 plot_bar_with_scatter(sorted_p_values_true_female, 'regions', 'correlations', "true", 'female', true_n_regions_survived_female, color="red")
 # Males Correlations GMV vs True HGS

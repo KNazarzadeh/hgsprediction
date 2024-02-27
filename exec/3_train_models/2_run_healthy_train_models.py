@@ -50,11 +50,13 @@ df_train = healthy_load_data.load_preprocessed_data(population, mri_status, sess
 
 features, extend_features = define_features(feature_type)
 
-data_extracted = healthy_extract_data.extract_data(df_train, features, extend_features, target, mri_status, session)
+data_extracted = healthy_extract_data.extract_data(df_train, features, extend_features, feature_type, target, mri_status, session)
 
 X = features
 y = target
 print(data_extracted)
+print("===== Done! =====")
+embed(globals(), locals())
 ###############################################################################
 # Define model and model parameters:
 if model_name == "linear_svm":

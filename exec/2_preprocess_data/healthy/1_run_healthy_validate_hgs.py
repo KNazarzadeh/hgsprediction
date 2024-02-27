@@ -18,14 +18,10 @@ data_set = sys.argv[4]
 if mri_status == "nonmri":
     if data_set == "training":
         df = healthy_load_data.load_original_binned_train_data(population, mri_status)
-    # elif data_set == "test":
-    #     folder_path = "/data/project/stroke_ukb/knazarzadeh/project_hgsprediction/data_hgs/healthy/splitted_data/nonmri/test_set/original_test_data"
-    #     file_path = os.path.join(folder_path, "test_set_nonmri_healthy.csv")
-    #     df = pd.read_csv(file_path, sep=',')
-       
-    #     df = df.drop(columns="index")
-    #     df = df.rename(columns={"eid": "SubjectID"})
-    #     df = df.set_index("SubjectID")
+    elif data_set == "test":
+        df = healthy_load_data.load_original_nonmri_test_data(population, mri_status)
+        print("===== Done! =====")
+        embed(globals(), locals())
         
 elif mri_status == "mri":
     df = healthy_load_data.load_original_data(population, mri_status)

@@ -21,8 +21,8 @@ def define_features(feature_type):
         # anthropometric_features, extend_features = define_anthropometrics_features()
         # features = anthropometric_features.append(define_gender_features())
     
-    # elif feature_type == "behavioral":
-    #     features = define_behavioral_features()
+    elif feature_type == "behavioral":
+        features, extend_features = define_behavioral_features()
         
     # elif feature_type == "behavioral_gender":
     #     features = define_behavioral_features() + define_gender_features()
@@ -93,3 +93,46 @@ def define_age_features():
     return age_features
 
 ###############################################################################
+def define_behavioral_features():
+    
+    cognitive_features = [
+        "fluid_intelligence",
+        "reaction_time",
+        "numeric_memory_Max_digits",
+        "trail_making_duration_numeric",
+        "trail_making_duration_alphanumeric",
+        "pairs_matching_incorrected_number_3pairs",
+        "pairs_matching_incorrected_number_6pairs",
+        "pairs_matching_completed_time_3pairs",
+        "pairs_matching_completed_time_6pairs",
+        "prospective_memory",
+        "symbol_digit_matches_corrected",
+        "symbol_digit_matches_attempted",
+        ]
+
+    depression_anxiety_features = [
+        "neuroticism_score", 
+        "anxiety_score", 
+        "depression_score",
+        "CIDI_score",
+        ]
+
+    life_satisfaction_features = [
+        "happiness",
+        "family_satisfaction",
+        "job_satisfaction",
+        "health_satisfaction",
+        "friendship_satisfaction",
+        "financial_satisfaction",
+                        ]
+
+    well_being_features = [
+        "general_happiness",
+        "health_happiness",
+        "belief_life_meaningful",
+    ]
+
+    behavioral_features = cognitive_features + depression_anxiety_features + life_satisfaction_features + well_being_features    
+    behavioral_extend_features =[]
+    return behavioral_features, behavioral_extend_features
+###############################################################################  

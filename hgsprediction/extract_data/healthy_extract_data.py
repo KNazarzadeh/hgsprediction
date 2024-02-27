@@ -3,15 +3,22 @@ import numpy as np
 from ptpython.repl import embed
 
 
-def extract_data(df, features, extend_features, target, mri_status, session):
+def extract_data(df, features, extend_features, feature_type, target, mri_status, session):
     
     # Convert target and features for specific session
     target = f"{target}-{session}.0"
-
-    feature_list = [f"{item}-{session}.0" for item in features]
-    extend_features_list = [f"{item}-{session}.0" for item in extend_features]
     
     if mri_status == "nonmri":
+        if feature_type == "behavioral":
+            feature_list = [f"{item}-{session}.0" for item in features if item not in ['anxiety_score', 'anxiety_score', 'CIDI_score']]
+            extend_features_list =[]
+            print("===== Done! =====")
+            embed(globals(), locals())            
+
+        else:
+            feature_list = [f"{item}-{session}.0" for item in features]
+            extend_features_list = [f"{item}-{session}.0" for item in extend_features]
+
         extra_columns_list = ["gender",
                             f"age_range-{session}.0",
                             f"1707-0.0", 
@@ -28,6 +35,12 @@ def extract_data(df, features, extend_features, target, mri_status, session):
         
     
     elif mri_status == "mri":
+        if feature_type == "behavioral":
+            feature_list = [f"{item}-{session}.0" for item in features if item not in ['anxiety_score', 'anxiety_score', 'CIDI_score']]
+            extend_features_list =[]
+        else:
+            feature_list = [f"{item}-{session}.0" for item in features]
+            extend_features_list = [f"{item}-{session}.0" for item in extend_features]        
         extra_columns_list = ["gender",
                             f"age_range-{session}.0",
                             f"1707-0.0", 

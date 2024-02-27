@@ -16,25 +16,9 @@ session = sys.argv[3]
 data_set = sys.argv[4]
 
 if data_set == "test":
-    folder_path = os.path.join(
-        "/data",
-        "project",
-        "stroke_ukb",
-        "knazarzadeh",
-        "project_hgsprediction",
-        "data_hgs",
-        f"{population}",
-        "preprocessed_data",
-        f"{mri_status}_{population}",
-        "test_holdout_set",
-        "validated_hgs_data",
-        f"{session}_session_ukb"
-    )
-    file_path = os.path.join(
-        folder_path,
-        f"both_gender_validate_hgs_data.csv")
     
-    df = pd.read_csv(file_path, sep=',', index_col=0)
+    df = healthy_load_data.load_validate_hgs_nonmri_test_data(population, mri_status, session, "both_gender")
+
 else:
     df = healthy_load_data.load_validate_hgs_data(population, mri_status, session, "both_gender")
 
@@ -43,8 +27,8 @@ df = healthy_compute_features.compute_features(df, mri_status, session)
 
 df_female = df[df["31-0.0"]==0.0]
 df_male = df[df["31-0.0"]==1.0]
-# print("===== Done! =====")
-# embed(globals(), locals())
+print("===== Done! =====")
+embed(globals(), locals())
 
 if data_set == "test":
     folder_path = os.path.join(
@@ -67,17 +51,17 @@ if data_set == "test":
         
     file_path = os.path.join(
         folder_path,
-        f"female_preprocessed_data_data.csv")
+        f"female_preprocessed_data.csv")
     df_female.to_csv(file_path, sep=',', index=True)
     
     file_path = os.path.join(
         folder_path,
-        f"male_preprocessed_data_data.csv")
+        f"male_preprocessed_data.csv")
     df_male.to_csv(file_path, sep=',', index=True)
     
     file_path = os.path.join(
         folder_path,
-        f"both_gender_preprocessed_data_data.csv")
+        f"both_gender_preprocessed_data.csv")
     df.to_csv(file_path, sep=',', index=True)
   
 else:

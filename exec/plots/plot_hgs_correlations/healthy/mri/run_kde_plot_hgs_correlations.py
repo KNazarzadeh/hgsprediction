@@ -26,6 +26,9 @@ model_name = sys.argv[5]
 y = sys.argv[6]
 x = sys.argv[7]
 session = sys.argv[8]
+print("===== Done! =====")
+embed(globals(), locals())
+
 ###############################################################################
 df = load_hgs_predicted_results(
     population,
@@ -51,6 +54,7 @@ df_corr, df_pvalue = load_spearman_correlation_results(
 df = df.rename(columns={f"1st_scan_{target}_predicted":"hgs_predicted", f"1st_scan_{target}_actual":"hgs_actual"})
 df_corr = df_corr.rename(columns={f"1st_scan_{target}_predicted":"hgs_predicted", f"1st_scan_{target}_actual":"hgs_actual"})
 df_corr = df_corr.rename(index={f"1st_scan_{target}_predicted":"hgs_predicted", f"1st_scan_{target}_actual":"hgs_actual"})
+
 
 healthy_plot_hgs_correlations.plot_hgs_correlations_kde_plot(
     df, 

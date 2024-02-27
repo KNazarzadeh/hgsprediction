@@ -9,8 +9,8 @@ from sklearn.metrics import r2_score
 
 import seaborn as sns
 from hgsprediction.load_results import load_trained_models
-from hgsprediction.predict_hgs import calculate_spearman_hgs_correlation
-from hgsprediction.save_results import save_spearman_correlation_results
+from hgsprediction.predict_hgs import calculate_pearson_hgs_correlation
+from hgsprediction.save_results import save_correlation_results
 from hgsprediction.load_results.healthy import load_hgs_predicted_results
 from hgsprediction.load_results.healthy import load_spearman_correlation_results
 from hgsprediction.save_plot.save_correlations_plot import healthy_save_correlations_plot
@@ -53,8 +53,8 @@ print(file_path)
 
 df = pd.read_csv (file_path, sep=',', index_col=0)
 
-df = df.rename(columns={f"{target}_(actual-predicted)":"hgs_(actual-predicted)"})
-df = df.rename(columns={f"{target}":"hgs", f"{target}_predicted":"hgs_predicted", f"{target}_actual":"hgs_actual"}) 
+df = df.rename(columns={f"{target}_(true-predicted)":"hgs_(true-predicted)"})
+df = df.rename(columns={f"{target}":"hgs", f"{target}_predicted":"hgs_predicted", f"{target}_true":"hgs_true"}) 
 # print("===== Done! =====")
 # embed(globals(), locals())
 
@@ -72,22 +72,22 @@ plt.rcParams.update({"font.weight": "bold",
 
 sns.set_style("whitegrid", {'axes.grid' : False})
 
-g = sns.jointplot(data=df, x="hgs_actual", y="hgs_predicted", hue="gender", palette=custom_palette,  marker="$\circ$", s=50)
+g = sns.jointplot(data=df, x="hgs_true", y="hgs_predicted", hue="gender", palette=custom_palette,  marker="$\circ$", s=50)
 
 for gender_type, gr in df.groupby(df['gender']):
-    slope, intercept, r_value, p_value, std_err = linregress(gr["hgs_actual"], gr["hgs_predicted"])
+    slope, intercept, r_value, p_value, std_err = linregress(gr["hgs_true"], gr["hgs_predicted"])
     if gr['gender'].any() == 0:
-        female_corr = pearsonr(gr["hgs_predicted"], gr["hgs_actual"])[0]
-        female_R2 = r2_score(gr["hgs_actual"], gr["hgs_predicted"])
+        female_corr = pearsonr(gr["hgs_predicted"], gr["hgs_true"])[0]
+        female_R2 = r2_score(gr["hgs_true"], gr["hgs_predicted"])
         print(female_corr)
         print("female_r2=", female_R2)
     elif gr['gender'].any() == 1:
-        male_corr = pearsonr(gr["hgs_predicted"], gr["hgs_actual"])[0]
-        male_R2 = r2_score(gr["hgs_actual"], gr["hgs_predicted"])
+        male_corr = pearsonr(gr["hgs_predicted"], gr["hgs_true"])[0]
+        male_R2 = r2_score(gr["hgs_true"], gr["hgs_predicted"])
         print(male_corr)
         print("male_r2=", male_R2)
     color = custom_palette[gender_type]
-    p = sns.regplot(x="hgs_actual", y="hgs_predicted", data=gr, scatter=False, ax=g.ax_joint, color=color, line_kws={'label': f'{gender_type} Regression (r={r_value:.2f})'})
+    p = sns.regplot(x="hgs_true", y="hgs_predicted", data=gr, scatter=False, ax=g.ax_joint, color=color, line_kws={'label': f'{gender_type} Regression (r={r_value:.2f})'})
     print(r_value)
     
 # remove the legend from ax_joint
@@ -107,7 +107,7 @@ g.ax_joint.set_xticks(np.arange(0, round(xmax), 30))
 g.ax_joint.plot([xmin, xmax], [ymin, ymax], color='darkgrey', linestyle='--')
 
 plt.show()
-plt.savefig(f"scatter_test_set_{model_name}_{target}.png")
+plt.savefig(f"new_scatter_test_set_{model_name}_{target}.png")
 plt.close()
 print("===== Done! =====")
 embed(globals(), locals())
