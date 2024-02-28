@@ -94,8 +94,8 @@ for region in brain_regions:
 
 residuals_df.index = residuals_df.index.str.replace("sub-", "")
 residuals_df.index = residuals_df.index.map(int)
-print("===== Done! =====")
-embed(globals(), locals())
+# print("===== Done! =====")
+# embed(globals(), locals())
 ##############################################################################
 visual_net_list = []
 somatomotor_net_list = []
@@ -148,7 +148,7 @@ default_net = residuals_df[default_net_list]
 
 # Calculate row-wise average
 # Add the row-wise average as a new column
-visual_net.loc['visual_net_average'] = visual_net.mean(axis=1)
+visual_net['visual_net_average'] = visual_net.mean(axis=1)
 somatomotor_net['somatomotor_net_average'] = somatomotor_net.mean(axis=1)
 dorsal_net['dorsal_net_average'] = dorsal_net.mean(axis=1)
 salience_ventral_net['salience_ventral_net_average'] = salience_ventral_net.mean(axis=1)
@@ -163,11 +163,10 @@ residuals_df = pd.concat([residuals_df, dorsal_net.loc[:, 'dorsal_net_average']]
 residuals_df = pd.concat([residuals_df, salience_ventral_net.loc[:, 'salience_ventral_net_average']], axis=1)
 residuals_df = pd.concat([residuals_df, control_net.loc[:, 'control_net_average']], axis=1)
 residuals_df = pd.concat([residuals_df, limbic_net.loc[:, 'limbic_net_average']], axis=1)
-residuals_df = pd.concat([residuals_df, dorsal_net.loc[:, 'dorsal_net_average']], axis=1)
 residuals_df = pd.concat([residuals_df, default_net.loc[:, 'default_net_average']], axis=1)
 
-print("===== Done! =====")
-embed(globals(), locals())
+
+residuals_df = residuals_df[['visual_net_average', 'somatomotor_net_average', 'dorsal_net_average', 'salience_ventral_net_average', 'control_net_average', 'limbic_net_average', 'default_net_average']]
 ##############################################################################
 # load data
 df = healthy.load_hgs_predicted_results(
@@ -187,3 +186,54 @@ merged_df = pd.merge(residuals_df, df, left_index=True, right_index=True, how='i
 
 merged_df_female = merged_df[merged_df['gender']==0]
 merged_df_male = merged_df[merged_df['gender']==1]
+
+##############################################################################
+##############################################################################
+n_regions = residuals_df.shape[1]
+x_axis = residuals_df.columns    
+
+delta_corr_female, delta_corr_significant_female, delta_n_regions_survived_female = calculate_brain_hgs(merged_df_female, f"{target}_delta(true-predicted)", x_axis, stats_correlation_type)
+delta_corr_male, delta_corr_significant_male, delta_n_regions_survived_male = calculate_brain_hgs(merged_df_male, f"{target}_delta(true-predicted)", x_axis, stats_correlation_type)
+
+
+positive_delta_corr_female, positive_delta_corr_significant_female, positive_delta_n_regions_survived_female = calculate_brain_hgs(merged_df_female[merged_df_female['hgs_L+R_delta(true-predicted)']>0], f"{target}_delta(true-predicted)", x_axis, stats_correlation_type)
+positive_delta_corr_male, positive_delta_corr_significant_male, positive_delta_n_regions_survived_male = calculate_brain_hgs(merged_df_male[merged_df_male['hgs_L+R_delta(true-predicted)']>0], f"{target}_delta(true-predicted)", x_axis, stats_correlation_type)
+
+
+negative_delta_corr_female, negative_delta_corr_significant_female, negative_delta_n_regions_survived_female = calculate_brain_hgs(merged_df_female[merged_df_female['hgs_L+R_delta(true-predicted)']<0], f"{target}_delta(true-predicted)", x_axis, stats_correlation_type)
+negative_delta_corr_male, negative_delta_corr_significant_male, negative_delta_n_regions_survived_male = calculate_brain_hgs(merged_df_male[merged_df_male['hgs_L+R_delta(true-predicted)']<0], f"{target}_delta(true-predicted)", x_axis, stats_correlation_type)
+
+##############################################################################
+##############################################################################
+def plot_bar_with_scatter(data, x, y, corr_target, gender, n_regions_survived, color):
+    if len(residuals_df.columns) == 7:
+        plt.figure(figsize=(12, 10))
+    else:
+        plt.figure(figsize=(250, 10))
+    sns.barplot(data=data, x=x, y=y, color='darkgrey', errorbar=None, width=0.3)
+    sns.scatterplot(data=data, x=x, y=y, color=color, zorder=5, s=100)
+    plt.xlabel(x.capitalize(), fontsize=20, fontweight='bold')
+    plt.ylabel(f'Correlations {corr_target} HGS vs brain regions', fontsize=20, fontweight='bold')
+    plt.title(f"{gender.capitalize()} - {corr_target.capitalize()} {target.replace('hgs_', '')} HGS vs brain regions - survived regions({n_regions_survived}/{len(residuals_df.columns)})-Schaefer{schaefer}", fontsize=20, fontweight='bold')
+    plt.xticks(rotation=90, fontsize=15, fontweight='bold')
+    plt.yticks(fontsize=15, fontweight='bold')
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+    plt.xlim(-0.5, len(data[x]) - 0.5)
+    plt.tight_layout()
+    plt.show()
+    plt.savefig(f"corr_gmv_average_networks_without_TIV_schaefer{schaefer}_{stats_correlation_type}_{model_name}_{corr_target}_{target}_{gender}.png")  # Save the plot as a PNG file
+
+##############################################################################
+##############################################################################    
+    # Plotting Delta HGS vs GMV
+sorted_p_values_delta_female = delta_corr_significant_female.sort_values(by='correlations', ascending=False)
+sorted_p_values_delta_male = delta_corr_significant_male.sort_values(by='correlations', ascending=False)
+
+# Females Correlations GMV vs True HGS
+if not sorted_p_values_delta_female.empty:
+    plot_bar_with_scatter(sorted_p_values_delta_female, 'regions', 'correlations', "delta(true-predicted)", 'female', delta_n_regions_survived_female, color="red")
+# Males Correlations GMV vs True HGS
+plot_bar_with_scatter(sorted_p_values_delta_male, 'regions', 'correlations', "delta(true-predicted)", 'male', delta_n_regions_survived_male, color="#069AF3")
+# Both gender Correlations GMV vs True HGS
+print("===== Done! =====")
+embed(globals(), locals())
