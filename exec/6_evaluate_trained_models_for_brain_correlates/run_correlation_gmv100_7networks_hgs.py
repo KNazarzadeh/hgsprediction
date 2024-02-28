@@ -100,9 +100,9 @@ embed(globals(), locals())
 visual_net_list = []
 somatomotor_net_list = []
 dorsal_net_list = []
-ventral_net_list = []
+salience_ventral_net_list = []
 limbic_net_list = []
-frontoparietal_net_list = []
+control_net_list = []
 default_net_list = []
 
 def extract_substring_between_underscores(input_string):
@@ -124,11 +124,37 @@ def extract_substring_between_underscores(input_string):
 for region in brain_regions:
     result = extract_substring_between_underscores(region)
     if result == "Vis":
-        
+       visual_net_list.append(region)
+    elif result == "SomMot":
+           somatomotor_net_list.append(region)
+    elif result == "DorsAttn":
+           dorsal_net_list.append(region)
+    elif result == "SalVentAttn":
+           salience_ventral_net_list.append(region)
+    elif result == "Cont":
+           control_net_list.append(region)      
+    elif result == "Limbic":
+           limbic_net_list.append(region)
+    elif result == "Default":
+           default_net_list.append(region)
 
+visual_net = residuals_df[visual_net_list]
+somatomotor_net = residuals_df[somatomotor_net_list]
+dorsal_net = residuals_df[dorsal_net_list]
+salience_ventral_net = residuals_df[salience_ventral_net_list]
+control_net = residuals_df[control_net_list]
+limbic_net = residuals_df[limbic_net_list]
+default_net = residuals_df[default_net_list]
 
-
-
+# Calculate row-wise average
+# Add the row-wise average as a new column
+visual_net['visual_net_average'] = visual_net.mean(axis=1)
+somatomotor_net['somatomotor_net_average'] = somatomotor_net.mean(axis=1)
+dorsal_net['dorsal_net_average'] = dorsal_net.mean(axis=1)
+salience_ventral_net['salience_ventral_net_average'] = salience_ventral_net.mean(axis=1)
+control_net['control_net_average'] = control_net.mean(axis=1)
+limbic_net['limbic_net_average'] = limbic_net.mean(axis=1)
+default_net['default_net_average'] = default_net.mean(axis=1)
 
 ##############################################################################
 # load data
