@@ -9,3 +9,5 @@ from .parkinson.load_hgs_predicted_results import load_hgs_predicted_results
 
 
 from .load_multi_samples_trained_models_results import *
+
+from .load_brain_correlates_results import *

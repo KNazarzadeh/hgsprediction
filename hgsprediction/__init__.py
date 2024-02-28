@@ -90,3 +90,9 @@ from .save_results import save_multi_samples_trained_model_results
 
 from .load_data import load_multi_samplesize_training_data
 from .load_results.load_multi_samples_trained_models_results import load_scores_trained
+
+
+from .save_results.brain_save_correlates_results import *
+
+
+from .load_results.load_brain_correlates_results import *

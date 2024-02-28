@@ -29,8 +29,10 @@ schaefer_file = os.path.join(jay_path, f"{brain_data_type.upper()}_Schaefer{scha
 dt_schaefer = dt.fread(schaefer_file)
 df_schaefer = dt_schaefer.to_pandas()
 df_schaefer.set_index('SubjectID', inplace=True)
-
-tian_file = os.path.join(jay_path, f"4_gmd_tianS1_all_subjects.jay")
+if schaefer == '100':
+    tian_file = os.path.join(jay_path, f"4_gmd_tianS1_all_subjects.jay")
+elif schaefer == '400':
+    tian_file = os.path.join(jay_path, f"{brain_data_type.upper()}_Tian_Mean.jay")
 dt_tian = dt.fread(tian_file)
 df_tian = dt_tian.to_pandas()
 df_tian.set_index('SubjectID', inplace=True)
@@ -47,18 +49,30 @@ merged_df = pd.merge(merged_df, df_suit, left_index=True, right_index=True, how=
 merged_df = merged_df.dropna()
 merged_df.index = merged_df.index.str.replace("sub-", "")
 merged_df.index = merged_df.index.map(int)
+# print("===== Done! =====")
+# embed(globals(), locals())
+folder_path = os.path.join(
+            "/data",
+            "project",
+            "stroke_ukb",
+            "knazarzadeh",
+            "project_hgsprediction",  
+            "results_hgsprediction",
+            "brain_correlation_results",
+            f"{brain_data_type.upper()}_subcorticals_cerebellum",
+            f"schaefer{schaefer}",
+            "brain_ready_data",
+        )
 
-tiv_path = os.path.join(
-    "/data",
-    "project",
-    "stroke_ukb",
-    "knazarzadeh",
-    "project_hgsprediction",
-    "brain_imaging_data",
-    f"TIV",
-)
+if(not os.path.isdir(folder_path)):
+    os.makedirs(folder_path)
+# Define the csv file path to save
+file_path = os.path.join(
+    folder_path,
+    f"brain_{brain_data_type}_Schaefer{schaefer}_data.csv")
 
-df_tiv = pd.read_csv(f"{tiv_path}/cat_rois_Schaefer2018_600Parcels_17Networks_order.csv", sep=',', index_col=0)
+merged_df.to_csv(file_path, sep=',', index=True)
+
 print("===== Done! =====")
 embed(globals(), locals())
 ##############################################################################
