@@ -148,7 +148,7 @@ default_net = residuals_df[default_net_list]
 
 # Calculate row-wise average
 # Add the row-wise average as a new column
-visual_net.loc[:, 'visual_net_average'] = visual_net.mean(axis=1)
+visual_net.loc['visual_net_average'] = visual_net.mean(axis=1)
 somatomotor_net['somatomotor_net_average'] = somatomotor_net.mean(axis=1)
 dorsal_net['dorsal_net_average'] = dorsal_net.mean(axis=1)
 salience_ventral_net['salience_ventral_net_average'] = salience_ventral_net.mean(axis=1)
@@ -156,6 +156,18 @@ control_net['control_net_average'] = control_net.mean(axis=1)
 limbic_net['limbic_net_average'] = limbic_net.mean(axis=1)
 default_net['default_net_average'] = default_net.mean(axis=1)
 
+# Concatenate DataFrames horizontally (axis=1)
+residuals_df = pd.concat([residuals_df, visual_net.loc[:, 'visual_net_average']], axis=1)
+residuals_df = pd.concat([residuals_df, somatomotor_net.loc[:, 'somatomotor_net_average']], axis=1)
+residuals_df = pd.concat([residuals_df, dorsal_net.loc[:, 'dorsal_net_average']], axis=1)
+residuals_df = pd.concat([residuals_df, salience_ventral_net.loc[:, 'salience_ventral_net_average']], axis=1)
+residuals_df = pd.concat([residuals_df, control_net.loc[:, 'control_net_average']], axis=1)
+residuals_df = pd.concat([residuals_df, limbic_net.loc[:, 'limbic_net_average']], axis=1)
+residuals_df = pd.concat([residuals_df, dorsal_net.loc[:, 'dorsal_net_average']], axis=1)
+residuals_df = pd.concat([residuals_df, default_net.loc[:, 'default_net_average']], axis=1)
+
+print("===== Done! =====")
+embed(globals(), locals())
 ##############################################################################
 # load data
 df = healthy.load_hgs_predicted_results(
