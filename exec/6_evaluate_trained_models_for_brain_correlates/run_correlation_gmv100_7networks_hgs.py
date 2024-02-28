@@ -148,7 +148,7 @@ default_net = residuals_df[default_net_list]
 
 # Calculate row-wise average
 # Add the row-wise average as a new column
-visual_net['visual_net_average'] = visual_net.mean(axis=1)
+visual_net.loc[:, 'visual_net_average'] = visual_net.mean(axis=1)
 somatomotor_net['somatomotor_net_average'] = somatomotor_net.mean(axis=1)
 dorsal_net['dorsal_net_average'] = dorsal_net.mean(axis=1)
 salience_ventral_net['salience_ventral_net_average'] = salience_ventral_net.mean(axis=1)
