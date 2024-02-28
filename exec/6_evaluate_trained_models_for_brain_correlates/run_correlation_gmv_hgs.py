@@ -56,6 +56,8 @@ file_path = os.path.join(
 
 brain_df = pd.read_csv(file_path, sep=',', index_col=0)
 
+brain_df = brain_df.index + '-sub'
+###############################################################################
 tiv_path = os.path.join(
     "/data",
     "project",
@@ -71,13 +73,15 @@ df_tiv = pd.read_csv(f"{tiv_path}/cat_rois_Schaefer2018_600Parcels_17Networks_or
 tiv = df_tiv[df_tiv['Session']=='ses-2']['TIV']
 
 brain_df.index = "sub-" + brain_df.index.astype(str)
-
+print("===== Done! =====")
+embed(globals(), locals())
 merged_gmv_tiv = pd.merge(brain_df, tiv , left_index=True, right_index=True, how='inner')
 
+brain_regions = brain_df.columns
 # Initialize a DataFrame to store residuals
-residuals_df = pd.DataFrame(index=merged_gmv_tiv.index, columns=merged_gmv_tiv.iloc[:, 0:-1].columns)
+residuals_df = pd.DataFrame(index=merged_gmv_tiv.index, columns=brain_regions)
 # Loop through each region
-for region in merged_gmv_tiv.iloc[:, 0:-1].columns:
+for region in brain_regions:
     # Extract TIV values
     X = merged_gmv_tiv.loc[:, 'TIV'].values.reshape(-1, 1)
     # Extract the region's values
@@ -97,7 +101,8 @@ for region in merged_gmv_tiv.iloc[:, 0:-1].columns:
 
 residuals_df.index = residuals_df.index.str.replace("sub-", "")
 residuals_df.index = residuals_df.index.map(int)
-
+print("===== Done! =====")
+embed(globals(), locals())
 ##############################################################################
 # load data
 df = healthy.load_hgs_predicted_results(
@@ -117,8 +122,10 @@ merged_df = pd.merge(residuals_df, df, left_index=True, right_index=True, how='i
 
 merged_df_female = merged_df[merged_df['gender']==0]
 merged_df_male = merged_df[merged_df['gender']==1]
-# print("===== Done! =====")
-# embed(globals(), locals())
+
+
+print("===== Done! =====")
+embed(globals(), locals())
 save_brain_overlap_data_results(
     merged_df,
     population,

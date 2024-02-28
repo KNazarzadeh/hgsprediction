@@ -4,7 +4,8 @@ import numpy as np
 import sys
 import matplotlib.pyplot as plt
 import seaborn as sns
-from matplotlib_venn import venn3
+from matplotlib_venn import venn3, venn3_circles
+
 
 from hgsprediction.load_results.load_brain_correlates_results import load_brain_overlap_data_results, load_brain_hgs_correlation_results
 
@@ -60,25 +61,12 @@ for gender in ["female", "male"]:
         # Find the common items among the three sets
         matching_items = regions_df1.intersection(regions_df2, regions_df3)
 
-        # Create a Venn diagram
-        # venn_diagram = venn3(subsets=(len(regions_df1 - regions_df2 - regions_df3), len(regions_df2 - regions_df1 - regions_df3), len(regions_df1 & regions_df2 - regions_df3),
-        #                             len(regions_df3 - regions_df1 - regions_df2), len(regions_df1 & regions_df3 - regions_df2), len(regions_df2 & regions_df3 - regions_df1),
-        #                             len(regions_df1 & regions_df2 & regions_df3)),
-        #                     set_labels=('HGS_L+R', 'HGS_Left', 'HGS_Right'))
-
-        # # Annotate the matching items
-        # for idx, label in enumerate(venn_diagram.subset_labels):
-        #     if idx == 7:  # Index corresponding to the intersection of all three sets
-        #         label.set_text(", ".join(matching_items))
-
-        # plt.title("Venn_Matching Items_{gender}_{corr_target}.png")
-        # plt.show()
-        # plt.close()
         print("Matching Items:")
         for item in matching_items:
             print(item)
         # Create a Venn diagram
-        venn = venn3(subsets=(regions_df1, regions_df2, regions_df3), set_labels=('HGS_L+R', 'HGS_Left', 'HGS_Right'))
+        venn3_circles(subsets=(regions_df1, regions_df2, regions_df3),linestyle='dashed', linewidth=2)
+        venn3(subsets=(regions_df1, regions_df2, regions_df3), alpha=0.3, set_labels=('HGS_L+R', 'HGS_Left', 'HGS_Right'), set_colors=("red", "blue", "green"))
 
         # Show the plot
         plt.show()
