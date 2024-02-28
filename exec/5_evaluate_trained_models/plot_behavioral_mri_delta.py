@@ -94,9 +94,9 @@ print("===== Done! =====")
 embed(globals(), locals())
 # Plotting
 def plot_bar_with_scatter(data, x, y, corr_target, gender, n_features_survived, color):
-    plt.figure(figsize=(40, 10))
-    sns.barplot(data=data, x=x, y=y, color='darkgrey', errorbar=None, width=0.3)
-    sns.scatterplot(data=data, x=x, y=y, color=color, zorder=5, s=100)
+    plt.figure(figsize=(10, 40))
+    sns.barplot(data=data, x=y, y=x, color='darkgrey', errorbar=None, width=0.3)
+    sns.scatterplot(data=data, x=y, y=x, color=color, zorder=5, s=100)
     plt.xlabel(x.capitalize(), fontsize=20, fontweight='bold')
     plt.ylabel(f'{corr_target.capitalize()} HGS', fontsize=20, fontweight='bold')
     plt.title(f"{gender.capitalize()} - {corr_target.capitalize()} {target.replace('hgs_', '')} HGS vs brain features - survived features({n_features_survived}/150)", fontsize=20, fontweight='bold')
@@ -108,12 +108,35 @@ def plot_bar_with_scatter(data, x, y, corr_target, gender, n_features_survived, 
     plt.show()
     plt.savefig(f"corr_features_{stats_correlation_type}_{model_name}_{corr_target}_{target}_{gender}.png")  # Save the plot as a PNG file
 
-sorted_p_values_female = corr_significant_female.sort_values(by='correlations', ascending=False)
-sorted_p_values_male = corr_significant_male.sort_values(by='correlations', ascending=False)
+sorted_p_values_female = corr_female.sort_values(by='correlations', ascending=True)
+sorted_p_values_male = corr_male.sort_values(by='correlations', ascending=True)
 
 plot_bar_with_scatter(sorted_p_values_female, 'feature_name', 'correlations', "delta", 'female', n_features_survived_female, color="red")
-plot_bar_with_scatter(sorted_p_values_male, 'feature_name', 'correlations', "delta", 'male', n_features_survived_female, color="red")
+plot_bar_with_scatter(sorted_p_values_male, 'feature_name', 'correlations', "delta", 'male', n_features_survived_female, color="#069AF3")
 
+
+def plot_custom_palette(df_sorted, target):
+    custom_palette = ["#eb0917", "#86AD21", "#5ACACA", "#B382D6"]
+    plt.figure(figsize=(20,30))
+    plt.rcParams.update({"font.weight": "bold", 
+                        "axes.labelweight": "bold",
+                        "ytick.labelsize": 25,
+                        "xtick.labelsize": 25})
+    ax = sns.barplot(x='significance', y='feature_name', data=df_sorted, hue="cognitive_type", palette=custom_palette, width=0.5)
+    for container in ax.containers:
+        ax.bar_label(container, fmt='%.1f', padding=3, fontsize=25, color='black')
+    plt.xlabel('-log(p-value)', weight="bold", fontsize=30)
+    plt.ylabel('')
+    plt.xticks(range(0, 25, 5))
+    plt.title(f'non-MRI Controls (N={len(df)})', weight="bold", fontsize=30)
+    plt.legend(fontsize='20', bbox_to_anchor=(1.05, 1), loc='upper left')
+    plt.tight_layout()
+    plt.show()
+    plt.savefig(f"both_gender_cognitive_{target}.png")
+    plt.close()
+
+
+plot_custom_palette()
 ###############################################################################
 ###############################################################################
 def plot_correlation(df, population, mri_status, target, model_name, x_axis, y_axis):

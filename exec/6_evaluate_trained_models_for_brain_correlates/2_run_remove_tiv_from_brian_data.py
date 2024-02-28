@@ -48,29 +48,17 @@ merged_df = merged_df.dropna()
 merged_df.index = merged_df.index.str.replace("sub-", "")
 merged_df.index = merged_df.index.map(int)
 
+tiv_path = os.path.join(
+    "/data",
+    "project",
+    "stroke_ukb",
+    "knazarzadeh",
+    "project_hgsprediction",
+    "brain_imaging_data",
+    f"TIV",
+)
 
-folder_path = os.path.join(
-            "/data",
-            "project",
-            "stroke_ukb",
-            "knazarzadeh",
-            "project_hgsprediction",  
-            "results_hgsprediction",
-            "brain_correlation_results",
-            "brain_ready_data",
-            f"{brain_data_type.upper()}",
-            f"Schaefer{schaefer}",
-        )
-        
-if(not os.path.isdir(folder_path)):
-    os.makedirs(folder_path)
-
-# Define the csv file path to save
-file_path = os.path.join(
-    folder_path,
-    f"brain_{brain_data_type}_Schaefer{schaefer}_data.csv")
-
-merged_df.to_csv(file_path, sep=',', index=True)
+df_tiv = pd.read_csv(f"{tiv_path}/cat_rois_Schaefer2018_600Parcels_17Networks_order.csv", sep=',', index_col=0)
 print("===== Done! =====")
 embed(globals(), locals())
 ##############################################################################
