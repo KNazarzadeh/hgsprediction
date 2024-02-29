@@ -56,7 +56,7 @@ file_path = os.path.join(
 
 brain_df = pd.read_csv(file_path, sep=',', index_col=0)
 
-brain_df = brain_df.index + '-sub'
+brain_df.index = 'sub-' + brain_df.index.astype(str)
 ###############################################################################
 tiv_path = os.path.join(
     "/data",
@@ -72,9 +72,6 @@ df_tiv = pd.read_csv(f"{tiv_path}/cat_rois_Schaefer2018_600Parcels_17Networks_or
 
 tiv = df_tiv[df_tiv['Session']=='ses-2']['TIV']
 
-brain_df.index = "sub-" + brain_df.index.astype(str)
-print("===== Done! =====")
-embed(globals(), locals())
 merged_gmv_tiv = pd.merge(brain_df, tiv , left_index=True, right_index=True, how='inner')
 
 brain_regions = brain_df.columns
@@ -101,8 +98,8 @@ for region in brain_regions:
 
 residuals_df.index = residuals_df.index.str.replace("sub-", "")
 residuals_df.index = residuals_df.index.map(int)
-print("===== Done! =====")
-embed(globals(), locals())
+# print("===== Done! =====")
+# embed(globals(), locals())
 ##############################################################################
 # load data
 df = healthy.load_hgs_predicted_results(
@@ -363,3 +360,69 @@ embed(globals(), locals())
 
 ##############################################################################
 ##############################################################################
+
+custom_palette = {1: '#069AF3', 0: 'red'}
+
+fig = plt.figure(figsize=(12,12))
+
+plt.rcParams.update({"font.weight": "bold", 
+                     "axes.labelweight": "bold",
+                     "ytick.labelsize": 12,
+                     "xtick.labelsize": 12,
+                     })
+
+sns.set_style("whitegrid", {'axes.grid' : False})
+
+g = sns.jointplot(data=df_combined, x=f'1st_scan_{target}_actual', y=f'1st_scan_{target}_(actual-predicted)', hue="gender", palette=custom_palette,  marker="$\circ$", s=120)
+# Lists to store correlation coefficients and p-values
+# correlation_coefficients = []
+# p_values = []
+
+for gender_type, gr in df_combined.groupby('gender'):
+    
+    slope, intercept, r_value, p_value, std_err = linregress(gr[f'1st_scan_{target}_actual'], gr[f'1st_scan_{target}_(actual-predicted)'])
+    # correlation_coefficients.append(r_value)
+    # p_values.append(p_value)
+    # Perform FDR correction
+    reject, corrected_p_values, _, _ = sm.multipletests(p_value, alpha=0.05, method='fdr_bh')  
+# Plot regression lines and label significant correlations
+# for i, (gender_type, gr) in enumerate(df_combined.groupby('gender')):
+    # Plot regression line
+    sns.regplot(x=gr[f'1st_scan_{target}_actual'], y=gr[f'1st_scan_{target}_(actual-predicted)'], ax=g.ax_joint, scatter=False, color=custom_palette[gender_type])
+    # Label significant correlations
+    if reject:
+        g.ax_joint.text(gr[f'1st_scan_{target}_actual'].mean(), gr[f'1st_scan_{target}_(actual-predicted)'].mean(), 'Significant', ha='center', va='center', color='black', fontsize=10)
+    slope, intercept, r_value, p_value, std_err = linregress(gr[f'1st_scan_{target}_actual'], gr[f'1st_scan_{target}_(actual-predicted)'])
+    if gr['gender'].any() == 0:
+        female_corr = pearsonr(gr[f'1st_scan_{target}_(actual-predicted)'], gr[f'1st_scan_{target}_actual'])[0]
+        female_R2 = r2_score(gr[f'1st_scan_{target}_actual'], gr[f'1st_scan_{target}_(actual-predicted)'])
+        print(female_corr)
+        print("female_r2=", female_R2)
+    elif gr['gender'].any() == 1:
+        male_corr = pearsonr(gr[f'1st_scan_{target}_(actual-predicted)'], gr[f'1st_scan_{target}_actual'])[0]
+        male_R2 = r2_score(gr[f'1st_scan_{target}_actual'], gr[f'1st_scan_{target}_(actual-predicted)'])
+        print(male_corr)
+        print("male_r2=", male_R2)
+        
+    sns.regplot(x=gr[f'1st_scan_{target}_actual'], y=gr[f'1st_scan_{target}_(actual-predicted)'], ax=g.ax_joint, scatter=False, color=custom_palette[gender_type])
+   
+# remove the legend from ax_joint
+g.ax_joint.legend_.remove()
+
+g.fig.suptitle(f"{population} {mri_status}: {target}", fontsize=10, fontweight="bold")
+g.fig.subplots_adjust(top=0.95) # Reduce plot to make room 
+
+g.ax_joint.set_xlabel("Correlation of True HGS and GMV", fontsize=12, fontweight="bold")
+g.ax_joint.set_ylabel("Correlation of Delta HGS and GMV correlation", fontsize=12, fontweight="bold")
+
+xmin, xmax = g.ax_joint.get_xlim()
+ymin, ymax = g.ax_joint.get_ylim()
+# g.ax_joint.set_xticks(np.arange(0, round(xmax), 30))
+
+ # Plot regression line
+g.ax_joint.plot([xmin, xmax], [ymin, ymax], color='darkgrey', linestyle='--')
+plt.tight_layout()
+
+plt.show()
+plt.savefig(f"correlate_mri_delta_true_{target}_FDR.png")
+plt.close()

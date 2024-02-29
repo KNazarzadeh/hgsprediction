@@ -131,7 +131,7 @@ n_regions = df_brain_correlation_overlap.shape[1]
 y_axis = ["actual", "predicted", "actual-predicted"]
 x_axis = df_brain_correlation_overlap.columns.tolist()[:n_regions]
 
-df_corr, df_pvalue = calculate_spearman_hgs_correlation_on_brain_correlations(df_brain_correlation_overlap, df_intersected, y_axis, x_axis)
+df_corr, df_pvalue = calculate_hgs_correlation_on_brain_correlations(df_brain_correlation_overlap, df_intersected, y_axis, x_axis)
 df_female_corr, df_female_pvalue = calculate_spearman_hgs_correlation_on_brain_correlations(df_brain_correlation_overlap_heighest_female, top_10_percent_heighst_female, y_axis, x_axis)
 df_male_corr, df_male_pvalue = calculate_spearman_hgs_correlation_on_brain_correlations(df_brain_correlation_overlap_heighest_male, top_10_percent_heighst_male, y_axis, x_axis)
 print(df_corr)
