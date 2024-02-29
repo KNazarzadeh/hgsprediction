@@ -15,7 +15,8 @@ population = sys.argv[1]
 mri_status = sys.argv[2]
 
 df_original = stroke_load_data.load_original_data(population=population, mri_status=mri_status)
-
+print("===== Done! =====")
+embed(globals(), locals())
 ###############################################################################
 
 data_processor = stroke_data_preprocessor.StrokeMainDataPreprocessor(df_original)
