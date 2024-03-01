@@ -109,9 +109,9 @@ for idx, (train_val_index, validation_index) \
     score = r2_score(y_true, y_pred)
     df_prediction_scores.loc[f'{repeat}', f'{fold}'] = score
     df_tmp = data_extracted.iloc[validation_index].assign(hgs_pred=y_pred.values)
-    repeat_label = f"Repeat {repeat}"
-    fold_label = f"Fold {fold}"
-    df_tmp.columns.name = f"Repeat:{repeat_label} - K-fold:{fold_label}"
+    # repeat_label = f"Repeat {repeat}"
+    # fold_label = f"Fold {fold}"
+    # df_tmp.columns.name = f"Repeat:{repeat_label} - K-fold:{fold_label}"
     # List of DataFrames
     list_of_dfs.append(df_tmp)
     # Concatenate the DataFrames vertically with MultiIndex columns
@@ -122,8 +122,8 @@ df_prediction_scores.columns.name = 'K-fold splits'
 # For access to each dataframe use the following code:
 # for example --> df_header1 = df_validation_prediction_hgs.xs('repeat:Repeat 0 - k-fold:Fold 0')
 print(df_prediction_scores)
-# print("===== Done! =====")
-# embed(globals(), locals())
+print("===== Done! =====")
+embed(globals(), locals())
 ###############################################################################
 # SAVE THE RESULTS
 ###############################################################################
