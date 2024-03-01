@@ -361,9 +361,9 @@ embed(globals(), locals())
 ##############################################################################
 ##############################################################################
 
-custom_palette = {1: '#069AF3', 0: 'red'}
-
-fig = plt.figure(figsize=(12,12))
+###############################################################################
+###############################################################################
+fig = plt.figure(figsize=(8,8))
 
 plt.rcParams.update({"font.weight": "bold", 
                      "axes.labelweight": "bold",
@@ -372,57 +372,20 @@ plt.rcParams.update({"font.weight": "bold",
                      })
 
 sns.set_style("whitegrid", {'axes.grid' : False})
+sns.regplot(x=true_corr_female["correlations"].astype(float), y=delta_corr_female["correlations"].astype(float), color='red',  marker="$\circ$", scatter_kws={'s': 50})
+sns.regplot(x=true_corr_male["correlations"].astype(float), y=delta_corr_male["correlations"].astype(float), color='#069AF3',  marker="$\circ$", scatter_kws={'s': 50})
 
-g = sns.jointplot(data=df_combined, x=f'1st_scan_{target}_actual', y=f'1st_scan_{target}_(actual-predicted)', hue="gender", palette=custom_palette,  marker="$\circ$", s=120)
-# Lists to store correlation coefficients and p-values
-# correlation_coefficients = []
-# p_values = []
+plt.xlabel("Correlation GMV and true HGS", fontsize=12, fontweight="bold")
+plt.ylabel("Correlation GMV and delta(true-predicted) HGS", fontsize=12, fontweight="bold")
 
-for gender_type, gr in df_combined.groupby('gender'):
-    
-    slope, intercept, r_value, p_value, std_err = linregress(gr[f'1st_scan_{target}_actual'], gr[f'1st_scan_{target}_(actual-predicted)'])
-    # correlation_coefficients.append(r_value)
-    # p_values.append(p_value)
-    # Perform FDR correction
-    reject, corrected_p_values, _, _ = sm.multipletests(p_value, alpha=0.05, method='fdr_bh')  
-# Plot regression lines and label significant correlations
-# for i, (gender_type, gr) in enumerate(df_combined.groupby('gender')):
-    # Plot regression line
-    sns.regplot(x=gr[f'1st_scan_{target}_actual'], y=gr[f'1st_scan_{target}_(actual-predicted)'], ax=g.ax_joint, scatter=False, color=custom_palette[gender_type])
-    # Label significant correlations
-    if reject:
-        g.ax_joint.text(gr[f'1st_scan_{target}_actual'].mean(), gr[f'1st_scan_{target}_(actual-predicted)'].mean(), 'Significant', ha='center', va='center', color='black', fontsize=10)
-    slope, intercept, r_value, p_value, std_err = linregress(gr[f'1st_scan_{target}_actual'], gr[f'1st_scan_{target}_(actual-predicted)'])
-    if gr['gender'].any() == 0:
-        female_corr = pearsonr(gr[f'1st_scan_{target}_(actual-predicted)'], gr[f'1st_scan_{target}_actual'])[0]
-        female_R2 = r2_score(gr[f'1st_scan_{target}_actual'], gr[f'1st_scan_{target}_(actual-predicted)'])
-        print(female_corr)
-        print("female_r2=", female_R2)
-    elif gr['gender'].any() == 1:
-        male_corr = pearsonr(gr[f'1st_scan_{target}_(actual-predicted)'], gr[f'1st_scan_{target}_actual'])[0]
-        male_R2 = r2_score(gr[f'1st_scan_{target}_actual'], gr[f'1st_scan_{target}_(actual-predicted)'])
-        print(male_corr)
-        print("male_r2=", male_R2)
-        
-    sns.regplot(x=gr[f'1st_scan_{target}_actual'], y=gr[f'1st_scan_{target}_(actual-predicted)'], ax=g.ax_joint, scatter=False, color=custom_palette[gender_type])
-   
-# remove the legend from ax_joint
-g.ax_joint.legend_.remove()
-
-g.fig.suptitle(f"{population} {mri_status}: {target}", fontsize=10, fontweight="bold")
-g.fig.subplots_adjust(top=0.95) # Reduce plot to make room 
-
-g.ax_joint.set_xlabel("Correlation of True HGS and GMV", fontsize=12, fontweight="bold")
-g.ax_joint.set_ylabel("Correlation of Delta HGS and GMV correlation", fontsize=12, fontweight="bold")
-
-xmin, xmax = g.ax_joint.get_xlim()
-ymin, ymax = g.ax_joint.get_ylim()
-# g.ax_joint.set_xticks(np.arange(0, round(xmax), 30))
+xmin, xmax = plt.xlim()
+ymin, ymax = plt.ylim()
 
  # Plot regression line
-g.ax_joint.plot([xmin, xmax], [ymin, ymax], color='darkgrey', linestyle='--')
-plt.tight_layout()
+plt.plot([xmin, xmax], [ymin, ymax], color='darkgrey', linestyle='--')
 
 plt.show()
-plt.savefig(f"correlate_mri_delta_true_{target}_FDR.png")
+plt.savefig(f"delta_true_hgs_jointplot_circles_{population} {mri_status}: {target}_{model_name}_gmv_new.png")
 plt.close()
+print("===== Done! =====")
+embed(globals(), locals())
