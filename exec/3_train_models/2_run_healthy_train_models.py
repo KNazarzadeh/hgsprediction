@@ -96,26 +96,36 @@ df_prediction_scores = pd.DataFrame()
 # Define dataframe as the result of dataframe of list of dataframes 
 df_validation_prediction_hgs = pd.DataFrame()
 # Define list for list of dataframes
-list_of_dfs = []
+# list_of_dfs = []
 for idx, (train_val_index, validation_index) \
         in enumerate(cv.split(data_extracted)):
+    print(len(train_val_index))
+    print(len(validation_index))
     repeat = scores_trained['repeat'][idx]
     fold = scores_trained['fold'][idx]
     estimator = scores_trained['estimator'][idx]
     y_pred = pd.Series(
-        estimator.predict(data_extracted.iloc[validation_index][X]), name='y_pred')
+        estimator.predict(data_extracted.iloc[validation_index][X]), name=f"{target}_predicted")
     y_true = data_extracted.iloc[validation_index][y]
     # use 'r2_score' scoring
     score = r2_score(y_true, y_pred)
     df_prediction_scores.loc[f'{repeat}', f'{fold}'] = score
-    df_tmp = data_extracted.iloc[validation_index].assign(hgs_pred=y_pred.values)
+    # Create a temporary DataFrame by selecting rows from 'data_extracted' using 'validation_index',
+    # and add a new column 'hgs_pred' with values from 'y_pred'.
+    df_tmp = data_extracted.iloc[validation_index].copy()
+    df_tmp.loc[:, f"{target}_predicted"] = y_pred.values
+    # df_tmp = data_extracted.iloc[validation_index].assign(hgs_pred=y_pred.values)
+    df_tmp.loc[:, "cv_fold"] = fold
+    df_tmp.loc[:, "cv_repeat"] = repeat
+    df_tmp.loc[:, f"{target}_delta(true-predicted)"] = df_tmp.loc[:, f"{target}"] - df_tmp.loc[:, f"{target}_predicted"]
     # repeat_label = f"Repeat {repeat}"
     # fold_label = f"Fold {fold}"
     # df_tmp.columns.name = f"Repeat:{repeat_label} - K-fold:{fold_label}"
     # List of DataFrames
-    list_of_dfs.append(df_tmp)
+    # list_of_dfs.append(df_tmp)
     # Concatenate the DataFrames vertically with MultiIndex columns
-    df_validation_prediction_hgs = pd.concat(list_of_dfs, axis=0, keys=[df.columns.name for df in list_of_dfs])
+    # df_validation_prediction_hgs = pd.concat(list_of_dfs, axis=0, keys=[df.columns.name for df in list_of_dfs])
+    df_validation_prediction_hgs = pd.concat([df_validation_prediction_hgs,df_tmp], axis=0)
 df_prediction_scores.index.name = 'Repeats'
 df_prediction_scores.columns.name = 'K-fold splits'
 
