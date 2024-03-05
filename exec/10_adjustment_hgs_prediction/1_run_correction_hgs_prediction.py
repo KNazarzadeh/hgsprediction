@@ -100,10 +100,10 @@ df_male = pd.read_pickle(file_path)
 def calculate_correlations(df, n_folds, target):
     df_corrected = pd.DataFrame()
     df_correlations = pd.DataFrame(columns=["cv_fold", 
-                                                    "r_values_true_raw_predicted_female", "r2_values_true_raw_predicted_female",
-                                                    "r_values_true_raw_delta_female", "r2_values_true_raw_delta_female",
-                                                    "r_values_true_corrected_predicted_female", "r2_values_true_corrected_predicted_female",
-                                                    "r_values_true_corrected_delta_female", "r2_values_true_corrected_delta_female"])
+                                                    "r_values_true_raw_predicted", "r2_values_true_raw_predicted",
+                                                    "r_values_true_raw_delta", "r2_values_true_raw_delta",
+                                                    "r_values_true_corrected_predicted", "r2_values_true_corrected_predicted",
+                                                    "r_values_true_corrected_delta", "r2_values_true_corrected_delta"])
 
     model = LinearRegression()
     for fold in range(int(n_folds)):
@@ -115,29 +115,29 @@ def calculate_correlations(df, n_folds, target):
         df_half_rest = df_tmp[~df_tmp.index.isin(df_half.index)]
         
         df_half_rest.loc[:, "corrected_predicted_hgs"] = (df_half_rest.loc[:, f"{target}_predicted"] - intercept) / slope
-        df_half_rest.loc[:, "corrected_delta_hgs"] = df_half_rest.loc[:, f"{target}"] - df_half_rest.loc[:, "corrected_predicted_hgs"]
+        df_half_rest.loc[:, "corrected_delta_hgs"] =  df_half_rest.loc[:, f"{target}"] - df_half_rest.loc[:, "corrected_predicted_hgs"]
 
-        r_values_true_raw_predicted_female = pearsonr(df_half_rest.loc[:, f"{target}"],df_half_rest.loc[:,f"{target}_predicted"])[0]
-        r2_values_true_raw_predicted_female = r2_score(df_half_rest.loc[:, f"{target}"],df_half_rest.loc[:,f"{target}_predicted"])
+        r_values_true_raw_predicted = pearsonr(df_half_rest.loc[:, f"{target}"],df_half_rest.loc[:,f"{target}_predicted"])[0]
+        r2_values_true_raw_predicted = r2_score(df_half_rest.loc[:, f"{target}"],df_half_rest.loc[:,f"{target}_predicted"])
 
-        r_values_true_raw_delta_female = pearsonr(df_half_rest.loc[:, f"{target}"],df_half_rest.loc[:,f"{target}_delta(true-predicted)"])[0]
-        r2_values_true_raw_delta_female = r2_score(df_half_rest.loc[:, f"{target}"],df_half_rest.loc[:,f"{target}_delta(true-predicted)"])
+        r_values_true_raw_delta = pearsonr(df_half_rest.loc[:, f"{target}"],df_half_rest.loc[:,f"{target}_delta(true-predicted)"])[0]
+        r2_values_true_raw_delta = r2_score(df_half_rest.loc[:, f"{target}"],df_half_rest.loc[:,f"{target}_delta(true-predicted)"])
 
-        r_values_true_corrected_predicted_female = pearsonr(df_half_rest.loc[:, f"{target}"],df_half_rest.loc[:,"corrected_predicted_hgs"])[0]
-        r2_values_true_corrected_predicted_female = r2_score(df_half_rest.loc[:, f"{target}"],df_half_rest.loc[:,"corrected_predicted_hgs"])
+        r_values_true_corrected_predicted = pearsonr(df_half_rest.loc[:, f"{target}"],df_half_rest.loc[:,"corrected_predicted_hgs"])[0]
+        r2_values_true_corrected_predicted = r2_score(df_half_rest.loc[:, f"{target}"],df_half_rest.loc[:,"corrected_predicted_hgs"])
 
-        r_values_true_corrected_delta_female = pearsonr(df_half_rest.loc[:, f"{target}"],df_half_rest.loc[:,"corrected_delta_hgs"])[0]
-        r2_values_true_corrected_delta_female = r2_score(df_half_rest.loc[:, f"{target}"],df_half_rest.loc[:,"corrected_delta_hgs"])
+        r_values_true_corrected_delta = pearsonr(df_half_rest.loc[:, f"{target}"],df_half_rest.loc[:,"corrected_delta_hgs"])[0]
+        r2_values_true_corrected_delta = r2_score(df_half_rest.loc[:, f"{target}"],df_half_rest.loc[:,"corrected_delta_hgs"])
 
         df_correlations.loc[fold, "cv_fold"] = fold
-        df_correlations.loc[fold, "r_values_true_raw_predicted_female"] = r_values_true_raw_predicted_female
-        df_correlations.loc[fold, "r2_values_true_raw_predicted_female"] = r2_values_true_raw_predicted_female
-        df_correlations.loc[fold, "r_values_true_raw_delta_female"] = r_values_true_raw_delta_female
-        df_correlations.loc[fold, "r2_values_true_raw_delta_female"] = r2_values_true_raw_delta_female
-        df_correlations.loc[fold, "r_values_true_corrected_predicted_female"] = r_values_true_corrected_predicted_female
-        df_correlations.loc[fold, "r2_values_true_corrected_predicted_female"] = r2_values_true_corrected_predicted_female
-        df_correlations.loc[fold, "r_values_true_corrected_delta_female"] = r_values_true_corrected_delta_female
-        df_correlations.loc[fold, "r2_values_true_corrected_delta_female"] = r2_values_true_corrected_delta_female
+        df_correlations.loc[fold, "r_values_true_raw_predicted"] = r_values_true_raw_predicted
+        df_correlations.loc[fold, "r2_values_true_raw_predicted"] = r2_values_true_raw_predicted
+        df_correlations.loc[fold, "r_values_true_raw_delta"] = r_values_true_raw_delta
+        df_correlations.loc[fold, "r2_values_true_raw_delta"] = r2_values_true_raw_delta
+        df_correlations.loc[fold, "r_values_true_corrected_predicted"] = r_values_true_corrected_predicted
+        df_correlations.loc[fold, "r2_values_true_corrected_predicted"] = r2_values_true_corrected_predicted
+        df_correlations.loc[fold, "r_values_true_corrected_delta"] = r_values_true_corrected_delta
+        df_correlations.loc[fold, "r2_values_true_corrected_delta"] = r2_values_true_corrected_delta
 
         df_corrected = pd.concat([df_corrected, df_half_rest], axis=0)
     
@@ -179,8 +179,8 @@ for i in range(2):
             ax.set_xlabel("")            
             ax.set_title(f"Fold:{fold}", fontsize=40, fontweight="bold")            
             
-            r_text_female = f"R:{df_female_correlations.loc[fold, 'r_values_true_raw_predicted_female']:.3f}\nR2:{df_female_correlations.loc[fold, 'r2_values_true_raw_predicted_female']:.3f}"
-            r_text_male = f"R:{df_male_correlations.loc[fold, 'r_values_true_raw_predicted_male']:.3f}\nR2:{df_male_correlations.loc[fold, 'r2_values_true_raw_predicted_male']:.3f}"
+            r_text_female = f"r:{df_female_correlations.loc[fold, 'r_values_true_raw_predicted']:.3f}\nR2:{df_female_correlations.loc[fold, 'r2_values_true_raw_predicted']:.3f}"
+            r_text_male = f"r:{df_male_correlations.loc[fold, 'r_values_true_raw_predicted']:.3f}\nR2:{df_male_correlations.loc[fold, 'r2_values_true_raw_predicted']:.3f}"
             ax.annotate(r_text_female, xy=(0.05, 0.9), xycoords='axes fraction', fontsize=30, fontweight="bold", color='red')
             ax.annotate(r_text_male, xy=(0.05, 0.8), xycoords='axes fraction', fontsize=30, fontweight="bold", color='#069AF3')
         elif i == 1:
@@ -189,8 +189,8 @@ for i in range(2):
             ax.set_ylabel("Corrected predicted HGS", fontsize=40, fontweight="bold")
             ax.set_xlabel("True HGS", fontsize=40, fontweight="bold")
 
-            r_text_female = f"R:{df_female_correlations.loc[fold, 'r_values_true_corrected_predicted_female']:.3f}\nR2:{df_female_correlations.loc[fold, 'r2_values_true_corrected_predicted_female']:.3f}"
-            r_text_male = f"R:{df_male_correlations.loc[fold, 'r_values_true_corrected_predicted_male']:.3f}\nR2:{df_male_correlations.loc[fold, 'r2_values_true_corrected_predicted_male']:.3f}"
+            r_text_female = f"r:{df_female_correlations.loc[fold, 'r_values_true_corrected_predicted']:.3f}\nR2:{df_female_correlations.loc[fold, 'r2_values_true_corrected_predicted']:.3f}"
+            r_text_male = f"r:{df_male_correlations.loc[fold, 'r_values_true_corrected_predicted']:.3f}\nR2:{df_male_correlations.loc[fold, 'r2_values_true_corrected_predicted']:.3f}"
             ax.annotate(r_text_female, xy=(0.05, 0.9), xycoords='axes fraction', fontsize=30, fontweight="bold", color='red')
             ax.annotate(r_text_male, xy=(0.05, 0.8), xycoords='axes fraction', fontsize=30, fontweight="bold", color='#069AF3')
         
@@ -229,8 +229,8 @@ for i in range(2):
             ax.set_xlabel("")                        
             ax.set_title(f"Fold:{fold}", fontsize=40, fontweight="bold")            
             
-            r_text_female = f"R:{df_female_correlations.loc[fold, 'r_values_true_raw_delta_female']:.3f}\nR2:{df_female_correlations.loc[fold, 'r2_values_true_raw_delta_female']:.3f}"
-            r_text_male = f"R:{df_male_correlations.loc[fold, 'r_values_true_raw_delta_male']:.3f}\nR2:{df_male_correlations.loc[fold, 'r2_values_true_raw_delta_male']:.3f}"
+            r_text_female = f"r:{df_female_correlations.loc[fold, 'r_values_true_raw_delta']:.3f}\nR2:{df_female_correlations.loc[fold, 'r2_values_true_raw_delta']:.3f}"
+            r_text_male = f"r:{df_male_correlations.loc[fold, 'r_values_true_raw_delta']:.3f}\nR2:{df_male_correlations.loc[fold, 'r2_values_true_raw_delta']:.3f}"
             ax.annotate(r_text_female, xy=(0.05, 0.9), xycoords='axes fraction', fontsize=30, fontweight="bold", color='red')
             ax.annotate(r_text_male, xy=(0.05, 0.8), xycoords='axes fraction', fontsize=30, fontweight="bold", color='#069AF3')
         elif i == 1:
@@ -239,8 +239,8 @@ for i in range(2):
             ax.set_ylabel("Corrected delta HGS", fontsize=40, fontweight="bold")
             ax.set_xlabel("True HGS", fontsize=40, fontweight="bold")
 
-            r_text_female = f"R:{df_female_correlations.loc[fold, 'r_values_true_corrected_delta_female']:.3f}\nR2:{df_female_correlations.loc[fold, 'r2_values_true_corrected_delta_female']:.3f}"
-            r_text_male = f"R:{df_male_correlations.loc[fold, 'r_values_true_corrected_delta_male']:.3f}\nR2:{df_male_correlations.loc[fold, 'r2_values_true_corrected_delta_male']:.3f}"
+            r_text_female = f"r:{df_female_correlations.loc[fold, 'r_values_true_corrected_delta']:.3f}\nR2:{df_female_correlations.loc[fold, 'r2_values_true_corrected_delta']:.3f}"
+            r_text_male = f"r:{df_male_correlations.loc[fold, 'r_values_true_corrected_delta']:.3f}\nR2:{df_male_correlations.loc[fold, 'r2_values_true_corrected_delta']:.3f}"
             ax.annotate(r_text_female, xy=(0.05, 0.9), xycoords='axes fraction', fontsize=30, fontweight="bold", color='red')
             ax.annotate(r_text_male, xy=(0.05, 0.8), xycoords='axes fraction', fontsize=30, fontweight="bold", color='#069AF3')
         
