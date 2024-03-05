@@ -43,120 +43,50 @@ if confound_status == '0':
         confound = "without_confound_removal"
 else:
     confound = "with_confound_removal"
-folder_path = os.path.join(
-        "/data",
-            "project",
-            "stroke_ukb",
-            "knazarzadeh",
-            "project_hgsprediction",
-            "results_hgsprediction",
-            f"{population}",
-            f"{mri_status}",
-            f"{feature_type}",
-            f"{target}",
-            f"{confound}",
-            f"{model_name}",
-            f"{n_repeats}_repeats_{n_folds}_folds",
-            f"female",
-            "prediction_hgs_on_validation_set_trained",
-        )
 
-# Define the csv file path to save
-file_path = os.path.join(
-    folder_path,
-    f"prediction_hgs_on_validation_set_trained_trained.pkl")
+for gender in ["female", "male"]:
+    main_folder_path = os.path.join(
+                "/data",
+                "project",
+                "stroke_ukb",
+                "knazarzadeh",
+                "project_hgsprediction",  
+                "results_hgsprediction",
+                f"{population}",
+                f"{mri_status}",
+                f"{feature_type}",
+                f"{target}",
+                f"{confound}",
+                f"{model_name}",
+                f"{n_repeats}_repeats_{n_folds}_folds",
+                f"{gender}",
+            )
 
-df_female = pd.read_pickle(file_path)
+    subfolders = ["corrected_predictions", "corrected_correlations"]
 
-folder_path = os.path.join(
-        "/data",
-            "project",
-            "stroke_ukb",
-            "knazarzadeh",
-            "project_hgsprediction",
-            "results_hgsprediction",
-            f"{population}",
-            f"{mri_status}",
-            f"{feature_type}",
-            f"{target}",
-            f"{confound}",
-            f"{model_name}",
-            f"{n_repeats}_repeats_{n_folds}_folds",
-            f"male",
-            "prediction_hgs_on_validation_set_trained",
-        )
-
-# Define the csv file path to save
-file_path = os.path.join(
-    folder_path,
-    f"prediction_hgs_on_validation_set_trained_trained.pkl")
-
-df_male = pd.read_pickle(file_path)
-
-# print("===== Done! =====")
-# embed(globals(), locals())
-
-###############################################################################
-def calculate_correlations(df, n_folds, target):
-    df_corrected = pd.DataFrame()
-    df_correlations = pd.DataFrame(columns=["cv_fold", 
-                                                    "r_values_true_raw_predicted", "r2_values_true_raw_predicted",
-                                                    "r_values_true_raw_delta", "r2_values_true_raw_delta",
-                                                    "r_values_true_corrected_predicted", "r2_values_true_corrected_predicted",
-                                                    "r_values_true_corrected_delta", "r2_values_true_corrected_delta"])
-
-    model = LinearRegression()
-    for fold in range(int(n_folds)):
-        df_tmp = df[df['cv_fold']==fold]
-        df_half = df_tmp.sample(frac=0.5, random_state=42) 
-        model.fit(df_half.loc[:, f"{target}"].values.reshape(-1, 1), df_half.loc[:, f"{target}_predicted"])
-        slope = model.coef_[0]
-        intercept = model.intercept_
-        df_half_rest = df_tmp[~df_tmp.index.isin(df_half.index)]
-        
-        df_half_rest.loc[:, "corrected_predicted_hgs"] = (df_half_rest.loc[:, f"{target}_predicted"] - intercept) / slope
-        df_half_rest.loc[:, "corrected_delta_hgs"] =  df_half_rest.loc[:, f"{target}"] - df_half_rest.loc[:, "corrected_predicted_hgs"]
-
-        r_values_true_raw_predicted = pearsonr(df_half_rest.loc[:, f"{target}"],df_half_rest.loc[:,f"{target}_predicted"])[0]
-        r2_values_true_raw_predicted = r2_score(df_half_rest.loc[:, f"{target}"],df_half_rest.loc[:,f"{target}_predicted"])
-
-        r_values_true_raw_delta = pearsonr(df_half_rest.loc[:, f"{target}"],df_half_rest.loc[:,f"{target}_delta(true-predicted)"])[0]
-        r2_values_true_raw_delta = r2_score(df_half_rest.loc[:, f"{target}"],df_half_rest.loc[:,f"{target}_delta(true-predicted)"])
-
-        r_values_true_corrected_predicted = pearsonr(df_half_rest.loc[:, f"{target}"],df_half_rest.loc[:,"corrected_predicted_hgs"])[0]
-        r2_values_true_corrected_predicted = r2_score(df_half_rest.loc[:, f"{target}"],df_half_rest.loc[:,"corrected_predicted_hgs"])
-
-        r_values_true_corrected_delta = pearsonr(df_half_rest.loc[:, f"{target}"],df_half_rest.loc[:,"corrected_delta_hgs"])[0]
-        r2_values_true_corrected_delta = r2_score(df_half_rest.loc[:, f"{target}"],df_half_rest.loc[:,"corrected_delta_hgs"])
-
-        df_correlations.loc[fold, "cv_fold"] = fold
-        df_correlations.loc[fold, "r_values_true_raw_predicted"] = r_values_true_raw_predicted
-        df_correlations.loc[fold, "r2_values_true_raw_predicted"] = r2_values_true_raw_predicted
-        df_correlations.loc[fold, "r_values_true_raw_delta"] = r_values_true_raw_delta
-        df_correlations.loc[fold, "r2_values_true_raw_delta"] = r2_values_true_raw_delta
-        df_correlations.loc[fold, "r_values_true_corrected_predicted"] = r_values_true_corrected_predicted
-        df_correlations.loc[fold, "r2_values_true_corrected_predicted"] = r2_values_true_corrected_predicted
-        df_correlations.loc[fold, "r_values_true_corrected_delta"] = r_values_true_corrected_delta
-        df_correlations.loc[fold, "r2_values_true_corrected_delta"] = r2_values_true_corrected_delta
-
-        df_corrected = pd.concat([df_corrected, df_half_rest], axis=0)
+    for subfolder in subfolders:
+        subfolder_path = os.path.join(main_folder_path, subfolder)
     
-    df_correlations = df_correlations.set_index("cv_fold")
-    return df_corrected, df_correlations
-
-
-###############################################################################
-
-df_female_corrected, df_female_correlations = calculate_correlations(df_female, n_folds, target)
-df_male_corrected, df_male_correlations = calculate_correlations(df_male, n_folds, target)
-
-df_female_correlations.to_csv("female_corrected_correlations.csv", sep=',', float_format='%.3f')
-df_male_correlations.to_csv("male_corrected_correlations.csv", sep=',', float_format='%.3f')
-
+        file_path = os.path.join(subfolder_path, f"{gender}_{subfolder}.csv")
+        
+        if subfolder == "corrected_predictions":
+            df_corrected = pd.read_csv(file_path, sep=',', index_col=0)
+            
+        elif subfolder == "corrected_correlations":
+            df_correlations = pd.read_csv(file_path, sep=',', index_col=0)
+    if gender == "female":
+        df_female_corrected = df_corrected.copy()
+        df_female_correlations = df_correlations.copy()
+    
+    elif gender == "male":
+        df_male_corrected = df_corrected.copy()
+        df_male_correlations = df_correlations.copy()
 print("===== Done! =====")
 embed(globals(), locals())
 ###############################################################################
-
+# Predicted vs True HGS
+# Raw predicted HGS vs True HGS
+# Corrected predicted HGS vs True HGS
 fig, axes = plt.subplots(2, 5, figsize=(100, 25))
 
 plt.rcParams.update({"font.weight": "bold", 
@@ -204,9 +134,10 @@ plt.show()
 plt.savefig(f"true_predicted.png")
 plt.close()
 
-
 ###############################################################################
-
+# Delta vs True HGS
+# Raw delta HGS vs True HGS
+# Corrected delta HGS vs True HGS
 fig, axes = plt.subplots(2, 5, figsize=(100, 25))
 
 plt.rcParams.update({"font.weight": "bold", 
@@ -253,7 +184,3 @@ plt.tight_layout()
 plt.show()
 plt.savefig(f"true_delta.png")
 plt.close()
-
-print("===== Done! =====")
-embed(globals(), locals())
-
