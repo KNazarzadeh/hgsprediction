@@ -128,7 +128,7 @@ folder_path = os.path.join(
         f"{target}",
         f"{confound}",
         f"{model_name}",
-        f"{n_repeats}_repeats_{n_folds}_folds",
+        f"10_repeats_10_folds",
         "hgs_predicted_results",
     )
 
@@ -155,7 +155,7 @@ folder_path = os.path.join(
         f"{target}",
         f"{confound}",
         f"{model_name}",
-        f"{n_repeats}_repeats_{n_folds}_folds",
+        f"10_repeats_10_folds",
         "hgs_predicted_results",
     )
 
@@ -277,7 +277,7 @@ for i in range(2):
 
 plt.tight_layout()
 plt.show()
-plt.savefig(f"true_predicted.png")
+plt.savefig(f"true_predicted_10_10.png")
 plt.close()
 
 ###############################################################################
@@ -325,6 +325,6 @@ for i in range(2):
 
 plt.tight_layout()
 plt.show()
-plt.savefig(f"true_delta.png")
+plt.savefig(f"true_delta_10_10.png")
 plt.close()
     
