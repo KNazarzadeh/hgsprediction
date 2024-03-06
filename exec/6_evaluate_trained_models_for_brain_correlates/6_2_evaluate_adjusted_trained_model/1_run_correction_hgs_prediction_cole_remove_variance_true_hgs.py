@@ -234,11 +234,11 @@ df_male_mri_correlations.loc[0, "r2_values_true_corrected_delta"] = r2_values_tr
 
 ###############################################################################
 ###############################################################################
-# print("===== Done! =====")
-# embed(globals(), locals())
 
 df = pd.concat([df_female_mri, df_male_mri], axis=0)
 
+# print("===== Done! =====")
+# embed(globals(), locals())
 ###############################################################################
 folder_path = os.path.join(
             "/data",
@@ -259,8 +259,9 @@ file_path = os.path.join(
 
 brain_df = pd.read_csv(file_path, sep=',', index_col=0)
 
-brain_df.index = 'sub-' + brain_df.index.astype(str)
 ###############################################################################
+brain_df.index = 'sub-' + brain_df.index.astype(str)
+
 tiv_path = os.path.join(
     "/data",
     "project",
@@ -279,11 +280,13 @@ merged_gmv_tiv = pd.merge(brain_df, tiv , left_index=True, right_index=True, how
 
 brain_regions = brain_df.columns
 # Initialize a DataFrame to store residuals
-residuals_df = pd.DataFrame(index=merged_gmv_tiv.index, columns=brain_regions)
+residuals_df1 = pd.DataFrame(index=merged_gmv_tiv.index, columns=brain_regions)
 # Loop through each region
 for region in brain_regions:
     # Extract TIV values
     X = merged_gmv_tiv.loc[:, 'TIV'].values.reshape(-1, 1)
+    # Reshape X to have two columns
+    # X = X.reshape(-1, 2)
     # Extract the region's values
     y = merged_gmv_tiv.loc[:, region].values.reshape(-1, 1)
     
@@ -297,16 +300,50 @@ for region in brain_regions:
     # Calculate residuals
     residuals = y - y_pred
     # Store residuals in the DataFrame
-    residuals_df.loc[:, region] = residuals
+    residuals_df1.loc[:, region] = residuals
+    
+residuals_df1.index = residuals_df1.index.str.replace("sub-", "")
+residuals_df1.index = residuals_df1.index.map(int)
+# print("===== Done! =====")
+# embed(globals(), locals())
+true_hgs = df.loc[:, f'{target}']
 
-residuals_df.index = residuals_df.index.str.replace("sub-", "")
-residuals_df.index = residuals_df.index.map(int)
+merged_gmv_true = pd.merge(residuals_df1, true_hgs , left_index=True, right_index=True, how='inner')
+
+# Initialize a DataFrame to store residuals
+residuals_df2 = pd.DataFrame(index=merged_gmv_true.index, columns=brain_regions)
+
+# Loop through each region
+for region in brain_regions:
+    # Extract TIV values
+    X = merged_gmv_true.loc[:, f'{target}'].values.reshape(-1, 1)
+    # Reshape X to have two columns
+    # X = X.reshape(-1, 2)
+    # Extract the region's values
+    y = merged_gmv_true.loc[:, region].values.reshape(-1, 1)
+    
+    # Fit linear regression model
+    model = LinearRegression()
+    model.fit(X, y)
+    
+    # Predict using the model
+    y_pred = model.predict(X)
+    
+    # Calculate residuals
+    residuals = y - y_pred
+    # Store residuals in the DataFrame
+    residuals_df2.loc[:, region] = residuals
+
 ##############################################################################
 
-merged_df = pd.merge(residuals_df, df, left_index=True, right_index=True, how='inner')
+merged_df = pd.merge(residuals_df2, df, left_index=True, right_index=True, how='inner')
 
 merged_df_female = merged_df[merged_df['gender']==0]
 merged_df_male = merged_df[merged_df['gender']==1]
+# merged_df = pd.merge(residuals_df, df, left_index=True, right_index=True, how='inner')
+
+# merged_df_female = merged_df[merged_df['gender']==0]
+# merged_df_male = merged_df[merged_df['gender']==1]
 
 ##############################################################################
 n_regions = brain_df.shape[1]
@@ -326,8 +363,8 @@ corrected_predicted_corr_male, corrected_predicted_corr_significant_male, correc
 # Correlation with Delta HGS
 corrected_delta_corr_female, corrected_delta_corr_significant_female, corrected_delta_n_regions_survived_female = calculate_brain_hgs(merged_df_female, "corrected_delta_hgs", x_axis, stats_correlation_type)
 corrected_delta_corr_male, corrected_delta_corr_significant_male, corrected_delta_n_regions_survived_male = calculate_brain_hgs(merged_df_male, "corrected_delta_hgs", x_axis, stats_correlation_type)
-print("===== Done! =====")
-embed(globals(), locals())
+# print("===== Done! =====")
+# embed(globals(), locals())
 
 ##############################################################################
 # Plotting
@@ -347,7 +384,7 @@ def plot_bar_with_scatter(data, x, y, corr_target, gender, n_regions_survived, c
     plt.xlim(-0.5, len(data[x]) - 0.5)
     plt.tight_layout()
     plt.show()
-    plt.savefig(f"corr_gmv_without_TIV_schaefer{schaefer}_{stats_correlation_type}_{model_name}_{corr_target}_{target}_{gender}.png")  # Save the plot as a PNG file
+    plt.savefig(f"corr_gmv_without_TIV_true_hgs_schaefer{schaefer}_{stats_correlation_type}_{model_name}_{corr_target}_{target}_{gender}.png")  # Save the plot as a PNG file
 # print("===== Done! =====")
 # embed(globals(), locals())
 ##############################################################################
@@ -393,8 +430,8 @@ print("Females - Delta - Last 30 survival regions:")
 print(sorted_p_values_delta_female.tail(30))
 print("Males - Delta - Last 30 survival regions:")
 print(sorted_p_values_delta_male.tail(30))
-print("===== Done! =====")
-embed(globals(), locals())
+# print("===== Done! =====")
+# embed(globals(), locals())
 
 ##############################################################################
 
@@ -428,7 +465,7 @@ ymin, ymax = plt.ylim()
 plt.plot([xmin, xmax], [ymin, ymax], color='darkgrey', linestyle='--')
 
 plt.show()
-plt.savefig(f"corrected_delta_true_hgs_jointplot_circles_{population} {mri_status}: {target}_{model_name}_gmv_new.png")
+plt.savefig(f"corrected_delta_true__noTIV_no_true_hgs_jointplot_circles_{population} {mri_status}: {target}_{model_name}_gmv_new.png")
 plt.close()
 
 ###############################################################################
@@ -477,7 +514,7 @@ for i in range(2):
 fig.suptitle(f"MRI (N={len(pd.concat([df_female_mri, df_male_mri]))})", fontsize=40, fontweight="bold")
 plt.tight_layout()
 plt.show()
-plt.savefig(f"true_delta_10_10.png")
+plt.savefig(f"true_delta_10_10_no_true_tiv.png")
 plt.close()
 
 ###############################################################################
@@ -536,7 +573,9 @@ for i in range(2):
 fig.suptitle(f"MRI (N={len(pd.concat([merged_df_female, merged_df_male]))}) overlap with GMV", fontsize=40, fontweight="bold")
 plt.tight_layout()
 plt.show()
-plt.savefig(f"true_corrected_delta_10_10.png")
+plt.savefig(f"true_corrected_delta_10_10no_true_tiv.png")
 plt.close()
 
 ###############################################################################
+print("===== Done! =====")
+embed(globals(), locals())
