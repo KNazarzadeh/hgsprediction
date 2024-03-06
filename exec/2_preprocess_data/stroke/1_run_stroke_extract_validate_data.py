@@ -15,8 +15,7 @@ population = sys.argv[1]
 mri_status = sys.argv[2]
 
 df_original = stroke_load_data.load_original_data(population=population, mri_status=mri_status)
-print("===== Done! =====")
-embed(globals(), locals())
+
 ###############################################################################
 
 data_processor = stroke_data_preprocessor.StrokeMainDataPreprocessor(df_original)
@@ -30,6 +29,8 @@ df = data_processor.define_followup_days(df)
 df_preprocessed = data_processor.preprocess_stroke_df(df)
 # Calculate and Add dominant and nondominant hgs to data
 df_preprocessed = data_processor.calculate_dominant_nondominant_hgs(df_preprocessed)
+print("===== Done! =====")
+embed(globals(), locals())
 # Remove all columns with all NaN values
 df_preprocessed = data_processor.remove_nan_columns(df_preprocessed)
 

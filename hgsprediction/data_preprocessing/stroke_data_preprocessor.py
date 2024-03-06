@@ -43,6 +43,23 @@ class StrokeMainDataPreprocessor:
         return df
     
 ###############################################################################
+    def define_handness(self, df):
+        
+        handness = df["1707-0.0", "1707-1.0", "1707-2.0"]
+        # Replace NaN values in the first column with maximum of respective row
+        index_NaN = handness[handness.loc[:, "1707-0.0"].isna()].index
+        max_value = handness.loc[index_NaN, ["1707-1.0", "1707-2.0"]].max(axis=1)
+        handness.loc[index_NaN, "1707-0.0"] = max_value
+
+        # Replace occurrences of -3 in the first column with NaN
+        index_no_answer = handness[handness.loc[:, "1707-0.0"] == -3.0].index
+        handness.loc[index_no_answer, "1707-0.0"] = np.NaN
+        
+        # Remove all columns except the first one
+        df.loc[:, "handness"] = handness.loc[:, "1707-0.0"]
+        
+        return df
+###############################################################################
     def remove_missing_hgs(self, df):
         
         # Handgrip strength info
@@ -57,9 +74,9 @@ class StrokeMainDataPreprocessor:
         for ses in range(sessions):
             df_tmp = df[
                 ((~df[f'{hgs_left}-{ses}.0'].isna()) &
-                (df[f'{hgs_left}-{ses}.0'] !=  0))
+                (df[f'{hgs_left}-{ses}.0'] !=  0) & (df[f'{hgs_left}-{ses}.0'] >= 4.0))
                 & ((~df[f'{hgs_right}-{ses}.0'].isna()) &
-                (df[f'{hgs_right}-{ses}.0'] !=  0))
+                (df[f'{hgs_right}-{ses}.0'] !=  0) & (df[f'{hgs_right}-{ses}.0'] >= 4.0))
             ]
             df_output = pd.concat([df_output, df_tmp])
 
@@ -303,12 +320,13 @@ class StrokeMainDataPreprocessor:
                     session_column = f"3rd_{stroke_cohort}_session"
                 elif visit_session == 4:
                     session_column = f"4th_{stroke_cohort}_session" 
-
                 # Add a new column 'new_column'
                 hgs_dominant = session_column.replace(substring_to_remove, "hgs_dominant")
                 hgs_nondominant = session_column.replace(substring_to_remove, "hgs_nondominant")
                 hgs_dominant_side = session_column.replace(substring_to_remove, "hgs_dominant_side")
                 hgs_nondominant_side = session_column.replace(substring_to_remove, "hgs_nondominant_side")
+                handedness = session_column.replace(substring_to_remove, "handedness")    
+
                 # -----------------------------------------------------------
 
                 # hgs_left field-ID: 46
@@ -324,137 +342,44 @@ class StrokeMainDataPreprocessor:
                 # If handedness is equal to 1
                 # Right hand is Dominant
                 # Find handedness equal to 1:
-                index = df[df.loc[:, session_column] == 0.0].index
-                filtered_df = df.loc[index, :]
-                idx = filtered_df[filtered_df.loc[:, "1707-0.0"] == 1.0].index
-                df.loc[idx, hgs_dominant] = df.loc[idx, "47-0.0"]
-                df.loc[idx, hgs_dominant_side] = "right"              
-                df.loc[idx, hgs_nondominant] = df.loc[idx, "46-0.0"]
-                df.loc[idx, hgs_nondominant_side] = "left"
-                
-                idx = filtered_df[filtered_df.loc[:, "1707-0.0"] == 2.0].index
-                df.loc[idx, hgs_dominant] = df.loc[idx, "46-0.0"]
-                df.loc[idx, hgs_dominant_side] = "left"                
-                df.loc[idx, hgs_nondominant] = df.loc[idx, "47-0.0"]
-                df.loc[idx, hgs_nondominant_side] = "right"
-                
-                idx = filtered_df[filtered_df.loc[:, "1707-0.0"].isin([3.0, -3.0, np.NaN])].index
-                result_column = df.loc[idx, ["46-0.0", "47-0.0"]].idxmax(axis=1)
-                condition_left = result_column[result_column =='46-0.0']
-                df.loc[condition_left.index, hgs_dominant] = df.loc[condition_left.index, "46-0.0"]
-                df.loc[condition_left.index, hgs_dominant_side] = "left"
-                df.loc[condition_left.index, hgs_nondominant] = df.loc[condition_left.index, "47-0.0"]
-                df.loc[condition_left.index, hgs_nondominant_side] = "right"
-                condition_right = result_column[result_column =='47-0.0']
-                df.loc[condition_right.index, hgs_dominant] = df.loc[condition_right.index, "47-0.0"]
-                df.loc[condition_right.index, hgs_dominant_side] = "right"
-                df.loc[condition_right.index, hgs_nondominant] = df.loc[condition_right.index, "46-0.0"]
-                df.loc[condition_right.index, hgs_nondominant_side] = "left"
-                # df.loc[idx, hgs_dominant] = df.loc[idx, ["46-0.0", "47-0.0"]].max(axis=1)
-                # df.loc[idx, hgs_nondominant] = df.loc[idx, ["46-0.0", "47-0.0"]].min(axis=1)
-                # ------------------------------------
-                index = df[df.loc[:, session_column] == 1.0].index
-                filtered_df = df.loc[index, :]
-                idx = filtered_df[filtered_df.loc[:, "1707-0.0"] == 1.0].index
-                df.loc[idx, hgs_dominant] = df.loc[idx, "47-1.0"]
-                df.loc[idx, hgs_dominant_side] = "right"
-                df.loc[idx, hgs_nondominant] = df.loc[idx, "46-1.0"]
-                df.loc[idx, hgs_nondominant_side] = "left"
-                idx = filtered_df[filtered_df.loc[:, "1707-0.0"] == 2.0].index
-                df.loc[idx, hgs_dominant] = df.loc[idx, "46-1.0"]
-                df.loc[idx, hgs_dominant_side] = "left"
-                df.loc[idx, hgs_nondominant] = df.loc[idx, "47-1.0"]
-                df.loc[idx, hgs_nondominant_side] = "right"
-                idx = filtered_df[filtered_df.loc[:, "1707-0.0"].isin([3.0, -3.0, np.NaN])].index
-                result_column = df.loc[idx, ["46-0.0", "47-0.0"]].idxmax(axis=1)
-                condition_left = result_column[result_column =='46-0.0']
-                df.loc[condition_left.index, hgs_dominant] = df.loc[condition_left.index, "46-1.0"]
-                df.loc[condition_left.index, hgs_dominant_side] = "left"
-                df.loc[condition_left.index, hgs_nondominant] = df.loc[condition_left.index, "47-1.0"]
-                df.loc[condition_left.index, hgs_nondominant_side] = "right"
-                condition_right = result_column[result_column =='47-0.0']
-                df.loc[condition_right.index, hgs_dominant] = df.loc[condition_right.index, "47-1.0"]
-                df.loc[condition_right.index, hgs_dominant_side] = "right"
-                df.loc[condition_right.index, hgs_nondominant] = df.loc[condition_right.index, "46-1.0"]
-                df.loc[condition_right.index, hgs_nondominant_side] = "left"
-                
-                # df.loc[idx, hgs_dominant] = df.loc[idx, ["46-1.0", "47-1.0"]].max(axis=1)
-                # df.loc[idx, hgs_nondominant] = df.loc[idx, ["46-1.0", "47-1.0"]].min(axis=1)
-                # ------------------------------------
-                index = df[df.loc[:, session_column] == 3.0].index
-                filtered_df = df.loc[index, :]
-                idx = filtered_df[filtered_df.loc[:, "1707-0.0"] == 1.0].index
-                df.loc[idx, hgs_dominant] = df.loc[idx, "47-3.0"]
-                df.loc[idx, hgs_dominant_side] = "right"
-                df.loc[idx, hgs_nondominant] = df.loc[idx, "46-3.0"]
-                df.loc[idx, hgs_nondominant_side] = "left"
-                
-                idx = filtered_df[filtered_df.loc[:, "1707-0.0"] == 2.0].index
-                df.loc[idx, hgs_dominant] = df.loc[idx, "46-3.0"]
-                df.loc[idx, hgs_dominant_side] = "left"
-                df.loc[idx, hgs_nondominant] = df.loc[idx, "47-3.0"]
-                df.loc[idx, hgs_nondominant_side] = "right"
-                
-                idx = filtered_df[filtered_df.loc[:, "1707-0.0"].isin([3.0, -3.0, np.NaN])].index
-                result_column = df.loc[idx, ["46-0.0", "47-0.0"]].idxmax(axis=1)
-                condition_left = result_column[result_column =='46-0.0']
-                df.loc[condition_left.index, hgs_dominant] = df.loc[condition_left.index, "46-3.0"]
-                df.loc[condition_left.index, hgs_dominant_side] = "left"
-                df.loc[condition_left.index, hgs_nondominant] = df.loc[condition_left.index, "47-3.0"]
-                df.loc[condition_left.index, hgs_nondominant_side] = "right"
-                condition_right = result_column[result_column =='47-0.0']
-                df.loc[condition_right.index, hgs_dominant] = df.loc[condition_right.index, "47-3.0"]
-                df.loc[condition_right.index, hgs_dominant_side] = "right"
-                df.loc[condition_right.index, hgs_nondominant] = df.loc[condition_right.index, "46-3.0"]
-                df.loc[condition_right.index, hgs_nondominant_side] = "left"
-                
-                # df.loc[idx, hgs_dominant] = df.loc[idx, ["46-3.0", "47-3.0"]].max(axis=1)
-                # df.loc[idx, hgs_nondominant] = df.loc[idx, ["46-3.0", "47-3.0"]].min(axis=1)
-                # ------------------------------------
-                index = df[df.loc[:, session_column] == 2.0].index
-                filtered_df = df.loc[index, :]
-                idx = filtered_df[filtered_df.loc[:, "1707-2.0"] == 1.0].index
-                df.loc[idx, hgs_dominant] = df.loc[idx, "47-2.0"]
-                df.loc[idx, hgs_dominant_side] = "right"
-                df.loc[idx, hgs_nondominant] = df.loc[idx, "46-2.0"]
-                df.loc[idx, hgs_nondominant_side] = "left"
-                
-                idx = filtered_df[filtered_df.loc[:, "1707-2.0"] == 2.0].index
-                df.loc[idx, hgs_dominant] = df.loc[idx, "46-2.0"]
-                df.loc[idx, hgs_dominant_side] = "left"             
-                df.loc[idx, hgs_nondominant] = df.loc[idx, "47-2.0"]
-                df.loc[idx, hgs_nondominant_side] = "right"
-                
-                idx = filtered_df[filtered_df.loc[:, "1707-2.0"].isin([3.0, -3.0, np.NaN])].index
-                df_tmp = filtered_df.loc[idx, :]
-                idx_tmp = df_tmp[df_tmp.loc[:, "1707-0.0"] == 1.0].index
-                df.loc[idx_tmp, hgs_dominant] = df.loc[idx_tmp, "47-2.0"]
-                df.loc[idx_tmp, hgs_dominant_side] = "right"            
-                df.loc[idx_tmp, hgs_nondominant] = df.loc[idx_tmp, "46-2.0"]
-                df.loc[idx_tmp, hgs_nondominant_side] = "left"
-                
-                idx_tmp = df_tmp[df_tmp.loc[:, "1707-0.0"] == 2.0].index
-                df.loc[idx_tmp, hgs_dominant] = df.loc[idx_tmp, "46-2.0"]
-                df.loc[idx_tmp, hgs_dominant_side] = "left"            
-                df.loc[idx_tmp, hgs_nondominant] = df.loc[idx_tmp, "47-2.0"]
-                df.loc[idx_tmp, hgs_nondominant_side] = "right"
-                
-                idx_tmp = df_tmp[df_tmp.loc[:, "1707-0.0"].isin([3.0, -3.0, np.NaN])].index
-                result_column = df.loc[idx_tmp, ["46-0.0", "47-0.0"]].idxmax(axis=1)
-                condition_left = result_column[result_column =='46-0.0']
-                df.loc[condition_left.index, hgs_dominant] = df.loc[condition_left.index, "46-2.0"]
-                df.loc[condition_left.index, hgs_dominant_side] = "left"
-                df.loc[condition_left.index, hgs_nondominant] = df.loc[condition_left.index, "47-2.0"]
-                df.loc[condition_left.index, hgs_nondominant_side] = "right"
-                condition_right = result_column[result_column =='47-0.0']
-                df.loc[condition_right.index, hgs_dominant] = df.loc[condition_right.index, "47-2.0"]
-                df.loc[condition_right.index, hgs_dominant_side] = "right"
-                df.loc[condition_right.index, hgs_nondominant] = df.loc[condition_right.index, "46-2.0"]
-                df.loc[condition_right.index, hgs_nondominant_side] = "left"
-                
-                
-                # df.loc[idx_tmp, hgs_dominant] = df.loc[idx_tmp, ["46-2.0", "47-2.0"]].max(axis=1)
-                # df.loc[idx_tmp, hgs_nondominant] = df.loc[idx_tmp, ["46-2.0", "47-2.0"]].min(axis=1)
+                for ses in range(4):
+                    index = df[df.loc[:, session_column] == ses].index
+                    filtered_df = df.loc[index, :]
+                    idx = filtered_df[filtered_df.loc[:, "handness"] == 1.0].index
+                    df.loc[idx, handedness] = 1.0
+                    df.loc[idx, hgs_dominant] = df.loc[idx, f"47-{ses}"]
+                    df.loc[idx, hgs_dominant_side] = "right"
+                    df.loc[idx, hgs_nondominant] = df.loc[idx, f"46-{ses}"]
+                    df.loc[idx, hgs_nondominant_side] = "left"
+
+                    idx = filtered_df[filtered_df.loc[:, "handness"] == 2.0].index
+                    df.loc[idx, handedness] = 2.0
+                    df.loc[idx, hgs_dominant] = df.loc[idx, f"46-{ses}"]
+                    df.loc[idx, hgs_dominant_side] = "left"
+                    df.loc[idx, hgs_nondominant] = df.loc[idx, f"47-{ses}"]
+                    df.loc[idx, hgs_nondominant_side] = "right"
+
+                    idx = filtered_df[filtered_df.loc[:, "handness"].isin([3.0, -3.0, np.NaN])].index
+                    df.loc[idx, handedness] = 3.0
+                    df_tmp = df.loc[idx, :]
+                    idx_tmp = df_tmp[df_tmp.loc[:, f"47-{ses}"] == df_tmp.loc[:, f"46-{ses}"]].index
+                    df.loc[idx_tmp, hgs_dominant] = df.loc[idx, f"47-{ses}"]
+                    df.loc[idx_tmp, hgs_dominant_side] = "balanced_hgs"
+                    df.loc[idx_tmp, hgs_nondominant] = df.loc[idx, f"46-{ses}"]
+                    df.loc[idx_tmp, hgs_nondominant_side] = "balanced_hgs"
+
+                    idx_tmp = df_tmp[df_tmp.loc[:, f"47-{ses}"] != df_tmp.loc[:, f"46-{ses}"]].index
+                    result_column = df.loc[idx_tmp, [f"46-{ses}", f"47-{ses}"]].idxmax(axis=1)
+                    condition_right = result_column[result_column == f"47-{ses}"]
+                    df.loc[condition_right.index, hgs_dominant] = df.loc[condition_right.index, f"47-{ses}"]
+                    df.loc[condition_right.index, hgs_dominant_side] = "right"
+                    df.loc[condition_right.index, hgs_nondominant] = df.loc[condition_right.index, f"46-{ses}"]
+                    df.loc[condition_right.index, hgs_nondominant_side] = "left"
+                    condition_left = result_column[result_column == f"46-{ses}"]
+                    df.loc[condition_left.index, hgs_dominant] = df.loc[condition_left.index, f"46-{ses}"]
+                    df.loc[condition_left.index, hgs_dominant_side] = "left"
+                    df.loc[condition_left.index, hgs_nondominant] = df.loc[condition_left.index, f"47-{ses}"]
+                    df.loc[condition_left.index, hgs_nondominant_side] = "right"
             
         return df
 
@@ -476,6 +401,8 @@ class StrokeMainDataPreprocessor:
             """
             assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
             # -----------------------------------------------------------
+            print("===== Done! =====")
+            embed(globals(), locals())
             if df[session_column].isna().sum() < len(df):
                 df = df[df[session_column]>=0]
                 
@@ -666,256 +593,259 @@ class StrokeMainDataPreprocessor:
         
         return df
 
-###############################################################################
-class StrokeValidateDataPreprocessor:
-    def __init__(self, 
-                 df, 
-                 mri_status,
-                 stroke_cohort, 
-                 visit_session):
-        """Preprocess data, Calculate and Add new columns to dataframe
+# ###############################################################################
+# class StrokeValidateDataPreprocessor:
+#     def __init__(self, 
+#                  df, 
+#                  mri_status,
+#                  stroke_cohort, 
+#                  visit_session):
+#         """Preprocess data, Calculate and Add new columns to dataframe
 
-        Parameters
-        ----------
-        df : dataframes
-            The dataframe that desired to analysis
-        """
-        self.df = df
-        self.mri_status = mri_status
-        self.stroke_cohort = stroke_cohort
-        self.visit_session = visit_session
+#         Parameters
+#         ----------
+#         df : dataframes
+#             The dataframe that desired to analysis
+#         """
+#         self.df = df
+#         self.mri_status = mri_status
+#         self.stroke_cohort = stroke_cohort
+#         self.visit_session = visit_session
         
-        assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
-        assert isinstance(mri_status, str), "mri_status must be a string!"
-        assert isinstance(stroke_cohort, str), "stroke_cohort must be a string!"
-        assert isinstance(visit_session, int), "visit_session must be a string!"
+#         assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
+#         assert isinstance(mri_status, str), "mri_status must be a string!"
+#         assert isinstance(stroke_cohort, str), "stroke_cohort must be a string!"
+#         assert isinstance(visit_session, int), "visit_session must be a string!"
 
-        if visit_session == 1:
-            self.session_column = f"1st_{stroke_cohort}_session"
-        elif visit_session == 2:
-            self.session_column = f"2nd_{stroke_cohort}_session"
-        elif visit_session == 3:
-            self.session_column = f"3rd_{stroke_cohort}_session"
-        elif visit_session == 4:
-            self.session_column = f"4th_{stroke_cohort}_session"
-################################ EXTRACT DATA ##############################
-# The main goal of data validation is to verify that the data is 
-# accurate, reliable, and suitable for the intended analysis.
-###############################################################################
-    def extract_data(self, df):
-            """Exclude all subjects who had Dominant HGS < 4 and != NaN:
+#         if visit_session == 1:
+#             self.session_column = f"1st_{stroke_cohort}_session"
+#         elif visit_session == 2:
+#             self.session_column = f"2nd_{stroke_cohort}_session"
+#         elif visit_session == 3:
+#             self.session_column = f"3rd_{stroke_cohort}_session"
+#         elif visit_session == 4:
+#             self.session_column = f"4th_{stroke_cohort}_session"
+# ################################ EXTRACT DATA ##############################
+# # The main goal of data validation is to verify that the data is 
+# # accurate, reliable, and suitable for the intended analysis.
+# ###############################################################################
+#     def extract_data(self, df):
+#             """Exclude all subjects who had Dominant HGS < 4 and != NaN:
 
-            Parameters
-            ----------
-            df : dataframe
-                The dataframe that desired to analysis
+#             Parameters
+#             ----------
+#             df : dataframe
+#                 The dataframe that desired to analysis
 
-            Return
-            ----------
-            df : dataframe
-            """        
-            # Assign corresponding session number from the Class:
-            session_column = self.session_column
+#             Return
+#             ----------
+#             df : dataframe
+#             """        
+#             # Assign corresponding session number from the Class:
+#             session_column = self.session_column
             
-            assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
-            assert isinstance(session_column, str), "session_column must be a string!"
-            # -----------------------------------------------------------
-            if df[session_column].isna().sum() < len(df):
-                df = df[df[session_column]>=0]
+#             assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
+#             assert isinstance(session_column, str), "session_column must be a string!"
+#             # -----------------------------------------------------------
+#             if df[session_column].isna().sum() < len(df):
+#                 df = df[df[session_column]>=0]
                 
-            elif df[session_column].isna().sum() == len(df):
-                # Drop all rows from the DataFrame
-                df = pd.DataFrame(columns=df.columns)
-                # Display message to the user
-                print(f"******* No patient has assessed for {session_column} *******")
+#             elif df[session_column].isna().sum() == len(df):
+#                 # Drop all rows from the DataFrame
+#                 df = pd.DataFrame(columns=df.columns)
+#                 # Display message to the user
+#                 print(f"******* No patient has assessed for {session_column} *******")
                 
-            return df, session_column
+#             return df, session_column
 
-################################ DATA VALIDATION ##############################
-# The main goal of data validation is to verify that the data is 
-# accurate, reliable, and suitable for the intended analysis.
-###############################################################################
-    def validate_handgrips(self, df):
-        """Exclude all subjects who had Dominant HGS < 4 and != NaN:
+# ################################ DATA VALIDATION ##############################
+# # The main goal of data validation is to verify that the data is 
+# # accurate, reliable, and suitable for the intended analysis.
+# ###############################################################################
+#     def validate_handgrips(self, df):
+#         """Exclude all subjects who had Dominant HGS < 4 and != NaN:
 
-        Parameters
-        ----------
-        df : dataframe
-            The dataframe that desired to analysis
+#         Parameters
+#         ----------
+#         df : dataframe
+#             The dataframe that desired to analysis
 
-        Return
-        ----------
-        df : dataframe
-        """        
-        # Assign corresponding session number from the Class:
-        session_column = self.session_column
+#         Return
+#         ----------
+#         df : dataframe
+#         """        
+#         # Assign corresponding session number from the Class:
+#         session_column = self.session_column
         
-        assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
-        assert isinstance(session_column, str), "session_column must be a string!"
-        # -----------------------------------------------------------
-        substring_to_remove = "session"
-        if df[session_column].isna().sum() < len(df):
-            # Calculate Dominant HGS by
-            # Calling the modules
-            df = self.remove_missing_hgs_pre_post_stroke(df)
-            df = self.calculate_dominant_nondominant_hgs(df)
-            hgs_dominant = session_column.replace(substring_to_remove, "hgs_dominant")
-            # ------------------------------------
-            # Exclude all subjects who had Dominant HGS < 4:
-            # The condition is applied to "hgs_dominant" columns
-            # And then reset_index the new dataframe:
-            # df = df[df.loc[:, f"{session_column[:, len(substring_to_remove)].strip()}hgs_dominant"] >=4]
-            df = df[df[hgs_dominant] >= 4 & ~df[hgs_dominant].isna()]
+#         assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
+#         assert isinstance(session_column, str), "session_column must be a string!"
+#         # -----------------------------------------------------------
+#         substring_to_remove = "session"
+#         if df[session_column].isna().sum() < len(df):
+#             # Calculate Dominant HGS by
+#             # Calling the modules
+#             df = self.remove_missing_hgs_pre_post_stroke(df)
+#             df = self.calculate_dominant_nondominant_hgs(df)
+#             hgs_dominant = session_column.replace(substring_to_remove, "hgs_dominant")
+#             # ------------------------------------
+#             # Exclude all subjects who had Dominant HGS < 4:
+#             # The condition is applied to "hgs_dominant" columns
+#             # And then reset_index the new dataframe:
+#             # df = df[df.loc[:, f"{session_column[:, len(substring_to_remove)].strip()}hgs_dominant"] >=4]
+#             df = df[df[hgs_dominant] >= 4 & ~df[hgs_dominant].isna()]
         
-        elif df[session_column].isna().sum() == len(df):
-            # Drop all rows from the DataFrame
-            df = pd.DataFrame(columns=df.columns)
-            # Display message to the user
-            print(f"******* No patient has assessed for {session_column} *******")
+#         elif df[session_column].isna().sum() == len(df):
+#             # Drop all rows from the DataFrame
+#             df = pd.DataFrame(columns=df.columns)
+#             # Display message to the user
+#             print(f"******* No patient has assessed for {session_column} *******")
 
-        return df, session_column
+#         return df, session_column
 
-###############################################################################
-    def remove_missing_hgs_pre_post_stroke(self, df):
+# ###############################################################################
+#     def remove_missing_hgs_pre_post_stroke(self, df):
         
-        # Assign corresponding session number from the Class:
-        session_column = self.session_column
+#         # Assign corresponding session number from the Class:
+#         session_column = self.session_column
         
-        assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
-        assert isinstance(session_column, str), "session_column must be a string!"
-        # -----------------------------------------------------------
-         # Handgrip strength info
-        # for Left and Right Hands
-        hgs_left = "46"  # Handgrip_strength_(left)
-        hgs_right = "47"  # Handgrip_strength_(right)
-        # print("===== Done! =====")
-        # embed(globals(), locals())
-        for idx in df.index:
-            session = df.loc[idx, session_column]
-            # hgs_left field-ID: 46
-            # hgs_right field-ID: 47
-            if ((df.loc[idx, f"{hgs_left}-{session}"] == 0) | (np.isnan(df.loc[idx, f"{hgs_left}-{session}"]))) | \
-                ((df.loc[idx, f"{hgs_right}-{session}"] == 0) | (np.isnan(df.loc[idx, f"{hgs_right}-{session}"]))):
-                    df = df.drop(index=idx)
+#         assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
+#         assert isinstance(session_column, str), "session_column must be a string!"
+#         # -----------------------------------------------------------
+#          # Handgrip strength info
+#         # for Left and Right Hands
+#         hgs_left = "46"  # Handgrip_strength_(left)
+#         hgs_right = "47"  # Handgrip_strength_(right)
+#         # print("===== Done! =====")
+#         # embed(globals(), locals())
+#         for idx in df.index:
+#             session = df.loc[idx, session_column]
+#             # hgs_left field-ID: 46
+#             # hgs_right field-ID: 47
+#             if ((df.loc[idx, f"{hgs_left}-{session}"] == 0) | (np.isnan(df.loc[idx, f"{hgs_left}-{session}"]))) | \
+#                 ((df.loc[idx, f"{hgs_right}-{session}"] == 0) | (np.isnan(df.loc[idx, f"{hgs_right}-{session}"]))):
+#                     df = df.drop(index=idx)
 
-        return df
+#         return df
 
-###############################################################################
-    def calculate_dominant_nondominant_hgs(self, df):
-        """Calculate dominant handgrip
-        and add "hgs_dominant" column to dataframe
+# ###############################################################################
+#     def calculate_dominant_nondominant_hgs(self, df):
+#         """Calculate dominant handgrip
+#         and add "hgs_dominant" column to dataframe
 
-        Parameters
-        ----------
-        df : dataframe
-            The dataframe that desired to analysis
+#         Parameters
+#         ----------
+#         df : dataframe
+#             The dataframe that desired to analysis
 
-        Return
-        ----------
-        df : dataframe
-            with extra column for: Dominant hand Handgrip strength
-        """
-        # Assign corresponding session number from the Class:
-        session_column = self.session_column
+#         Return
+#         ----------
+#         df : dataframe
+#             with extra column for: Dominant hand Handgrip strength
+#         """
+#         # Assign corresponding session number from the Class:
+#         session_column = self.session_column
         
-        assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
-        assert isinstance(session_column, str), "session_column must be a string!"
-        # -----------------------------------------------------------
-        substring_to_remove = "session"
-        # Add a new column 'new_column'
-        hgs_dominant = session_column.replace(substring_to_remove, "hgs_dominant")
-        hgs_nondominant = session_column.replace(substring_to_remove, "hgs_nondominant")
+#         assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
+#         assert isinstance(session_column, str), "session_column must be a string!"
+#         # -----------------------------------------------------------
+#         substring_to_remove = "session"
+#         # Add a new column 'new_column'
+#         hgs_dominant = session_column.replace(substring_to_remove, "hgs_dominant")
+#         hgs_nondominant = session_column.replace(substring_to_remove, "hgs_nondominant")
+#         hgs_dominant_side = session_column.replace(substring_to_remove, "hgs_dominant_side")
+#         hgs_nondominant_side = session_column.replace(substring_to_remove, "hgs_nondominant_side")
+#         handedness = f"handedness-{session}.0"
         
-        # hgs_left field-ID: 46
-        # hgs_right field-ID: 47
-        # ------------------------------------
-        # ------- Handedness Field-ID: 1707
-        # Data-Coding: 100430
-        #           1	Right-handed
-        #           2	Left-handed
-        #           3	Use both right and left hands equally
-        #           -3	Prefer not to answer
-        # ------------------------------------
-        # If handedness is equal to 1
-        # Right hand is Dominant
-        # Find handedness equal to 1:
-        index = df[df.loc[:, session_column] == 0.0].index
-        filtered_df = df.loc[index, :]
-        idx = filtered_df[filtered_df.loc[:, "1707-0.0"] == 1.0].index
-        df.loc[idx, hgs_dominant] = df.loc[idx, "47-0.0"]
-        df.loc[idx, hgs_nondominant] = df.loc[idx, "46-0.0"]
-        idx = filtered_df[filtered_df.loc[:, "1707-0.0"] == 2.0].index
-        df.loc[idx, hgs_dominant] = df.loc[idx, "46-0.0"]
-        df.loc[idx, hgs_nondominant] = df.loc[idx, "47-0.0"]
-        idx = filtered_df[filtered_df.loc[:, "1707-0.0"].isin([3.0, -3.0, np.NaN])].index
-        df.loc[idx, hgs_dominant] = df.loc[idx, ["46-0.0", "47-0.0"]].max(axis=1)
-        df.loc[idx, hgs_nondominant] = df.loc[idx, ["46-0.0", "47-0.0"]].min(axis=1)
-        # ------------------------------------
-        index = df[df.loc[:, session_column] == 1.0].index
-        filtered_df = df.loc[index, :]
-        idx = filtered_df[filtered_df.loc[:, "1707-0.0"] == 1.0].index
-        df.loc[idx, hgs_dominant] = df.loc[idx, "47-1.0"]
-        df.loc[idx, hgs_nondominant] = df.loc[idx, "46-1.0"]
-        idx = filtered_df[filtered_df.loc[:, "1707-0.0"] == 2.0].index
-        df.loc[idx, hgs_dominant] = df.loc[idx, "46-1.0"]
-        df.loc[idx, hgs_nondominant] = df.loc[idx, "47-1.0"]
-        idx = filtered_df[filtered_df.loc[:, "1707-0.0"].isin([3.0, -3.0, np.NaN])].index
-        df.loc[idx, hgs_dominant] = df.loc[idx, ["46-1.0", "47-1.0"]].max(axis=1)
-        df.loc[idx, hgs_nondominant] = df.loc[idx, ["46-1.0", "47-1.0"]].min(axis=1)
-        # ------------------------------------
-        index = df[df.loc[:, session_column] == 3.0].index
-        filtered_df = df.loc[index, :]
-        idx = filtered_df[filtered_df.loc[:, "1707-0.0"] == 1.0].index
-        df.loc[idx, hgs_dominant] = df.loc[idx, "47-3.0"]
-        df.loc[idx, hgs_nondominant] = df.loc[idx, "46-3.0"]
-        idx = filtered_df[filtered_df.loc[:, "1707-0.0"] == 2.0].index
-        df.loc[idx, hgs_dominant] = df.loc[idx, "46-3.0"]
-        df.loc[idx, hgs_nondominant] = df.loc[idx, "47-3.0"]
-        idx = filtered_df[filtered_df.loc[:, "1707-0.0"].isin([3.0, -3.0, np.NaN])].index
-        df.loc[idx, hgs_dominant] = df.loc[idx, ["46-3.0", "47-3.0"]].max(axis=1)
-        df.loc[idx, hgs_nondominant] = df.loc[idx, ["46-3.0", "47-3.0"]].min(axis=1)
-        # ------------------------------------
-        index = df[df.loc[:, session_column] == 2.0].index
-        filtered_df = df.loc[index, :]
-        idx = filtered_df[filtered_df.loc[:, "1707-2.0"] == 1.0].index
-        df.loc[idx, hgs_dominant] = df.loc[idx, "47-2.0"]
-        df.loc[idx, hgs_nondominant] = df.loc[idx, "46-2.0"]
-        idx = filtered_df[filtered_df.loc[:, "1707-2.0"] == 2.0].index
-        df.loc[idx, hgs_dominant] = df.loc[idx, "46-2.0"]
-        df.loc[idx, hgs_nondominant] = df.loc[idx, "47-2.0"]
-        idx = filtered_df[filtered_df.loc[:, "1707-2.0"].isin([3.0, -3.0, np.NaN])].index
-        df_tmp = filtered_df.loc[idx, :]
-        idx_tmp = df_tmp[df_tmp.loc[:, "1707-0.0"] == 1.0].index
-        df.loc[idx_tmp, hgs_dominant] = df.loc[idx_tmp, "47-2.0"]
-        df.loc[idx_tmp, hgs_nondominant] = df.loc[idx_tmp, "46-2.0"]
-        idx_tmp = df_tmp[df_tmp.loc[:, "1707-0.0"] == 2.0].index
-        df.loc[idx_tmp, hgs_dominant] = df.loc[idx_tmp, "46-2.0"]
-        df.loc[idx_tmp, hgs_nondominant] = df.loc[idx_tmp, "47-2.0"]
-        idx_tmp = df_tmp[df_tmp.loc[:, "1707-0.0"].isin([3.0, -3.0, np.NaN])].index
-        df.loc[idx_tmp, hgs_dominant] = df.loc[idx_tmp, ["46-2.0", "47-2.0"]].max(axis=1)
-        df.loc[idx_tmp, hgs_nondominant] = df.loc[idx_tmp, ["46-2.0", "47-2.0"]].min(axis=1)
+#         # hgs_left field-ID: 46
+#         # hgs_right field-ID: 47
+#         # ------------------------------------
+#         # ------- Handedness Field-ID: 1707
+#         # Data-Coding: 100430
+#         #           1	Right-handed
+#         #           2	Left-handed
+#         #           3	Use both right and left hands equally
+#         #           -3	Prefer not to answer
+#         # ------------------------------------
+#         # If handedness is equal to 1
+#         # Right hand is Dominant
+#         # Find handedness equal to 1:
+#         index = df[df.loc[:, session_column] == 0.0].index
+#         filtered_df = df.loc[index, :]
+#         idx = filtered_df[filtered_df.loc[:, "1707-0.0"] == 1.0].index
+#         df.loc[idx, hgs_dominant] = df.loc[idx, "47-0.0"]
+#         df.loc[idx, hgs_nondominant] = df.loc[idx, "46-0.0"]
+#         idx = filtered_df[filtered_df.loc[:, "1707-0.0"] == 2.0].index
+#         df.loc[idx, hgs_dominant] = df.loc[idx, "46-0.0"]
+#         df.loc[idx, hgs_nondominant] = df.loc[idx, "47-0.0"]
+#         idx = filtered_df[filtered_df.loc[:, "1707-0.0"].isin([3.0, -3.0, np.NaN])].index
+#         df.loc[idx, hgs_dominant] = df.loc[idx, ["46-0.0", "47-0.0"]].max(axis=1)
+#         df.loc[idx, hgs_nondominant] = df.loc[idx, ["46-0.0", "47-0.0"]].min(axis=1)
+#         # ------------------------------------
+#         index = df[df.loc[:, session_column] == 1.0].index
+#         filtered_df = df.loc[index, :]
+#         idx = filtered_df[filtered_df.loc[:, "1707-0.0"] == 1.0].index
+#         df.loc[idx, hgs_dominant] = df.loc[idx, "47-1.0"]
+#         df.loc[idx, hgs_nondominant] = df.loc[idx, "46-1.0"]
+#         idx = filtered_df[filtered_df.loc[:, "1707-0.0"] == 2.0].index
+#         df.loc[idx, hgs_dominant] = df.loc[idx, "46-1.0"]
+#         df.loc[idx, hgs_nondominant] = df.loc[idx, "47-1.0"]
+#         idx = filtered_df[filtered_df.loc[:, "1707-0.0"].isin([3.0, -3.0, np.NaN])].index
+#         df.loc[idx, hgs_dominant] = df.loc[idx, ["46-1.0", "47-1.0"]].max(axis=1)
+#         df.loc[idx, hgs_nondominant] = df.loc[idx, ["46-1.0", "47-1.0"]].min(axis=1)
+#         # ------------------------------------
+#         index = df[df.loc[:, session_column] == 3.0].index
+#         filtered_df = df.loc[index, :]
+#         idx = filtered_df[filtered_df.loc[:, "1707-0.0"] == 1.0].index
+#         df.loc[idx, hgs_dominant] = df.loc[idx, "47-3.0"]
+#         df.loc[idx, hgs_nondominant] = df.loc[idx, "46-3.0"]
+#         idx = filtered_df[filtered_df.loc[:, "1707-0.0"] == 2.0].index
+#         df.loc[idx, hgs_dominant] = df.loc[idx, "46-3.0"]
+#         df.loc[idx, hgs_nondominant] = df.loc[idx, "47-3.0"]
+#         idx = filtered_df[filtered_df.loc[:, "1707-0.0"].isin([3.0, -3.0, np.NaN])].index
+#         df.loc[idx, hgs_dominant] = df.loc[idx, ["46-3.0", "47-3.0"]].max(axis=1)
+#         df.loc[idx, hgs_nondominant] = df.loc[idx, ["46-3.0", "47-3.0"]].min(axis=1)
+#         # ------------------------------------
+#         index = df[df.loc[:, session_column] == 2.0].index
+#         filtered_df = df.loc[index, :]
+#         idx = filtered_df[filtered_df.loc[:, "1707-2.0"] == 1.0].index
+#         df.loc[idx, hgs_dominant] = df.loc[idx, "47-2.0"]
+#         df.loc[idx, hgs_nondominant] = df.loc[idx, "46-2.0"]
+#         idx = filtered_df[filtered_df.loc[:, "1707-2.0"] == 2.0].index
+#         df.loc[idx, hgs_dominant] = df.loc[idx, "46-2.0"]
+#         df.loc[idx, hgs_nondominant] = df.loc[idx, "47-2.0"]
+#         idx = filtered_df[filtered_df.loc[:, "1707-2.0"].isin([3.0, -3.0, np.NaN])].index
+#         df_tmp = filtered_df.loc[idx, :]
+#         idx_tmp = df_tmp[df_tmp.loc[:, "1707-0.0"] == 1.0].index
+#         df.loc[idx_tmp, hgs_dominant] = df.loc[idx_tmp, "47-2.0"]
+#         df.loc[idx_tmp, hgs_nondominant] = df.loc[idx_tmp, "46-2.0"]
+#         idx_tmp = df_tmp[df_tmp.loc[:, "1707-0.0"] == 2.0].index
+#         df.loc[idx_tmp, hgs_dominant] = df.loc[idx_tmp, "46-2.0"]
+#         df.loc[idx_tmp, hgs_nondominant] = df.loc[idx_tmp, "47-2.0"]
+#         idx_tmp = df_tmp[df_tmp.loc[:, "1707-0.0"].isin([3.0, -3.0, np.NaN])].index
+#         df.loc[idx_tmp, hgs_dominant] = df.loc[idx_tmp, ["46-2.0", "47-2.0"]].max(axis=1)
+#         df.loc[idx_tmp, hgs_nondominant] = df.loc[idx_tmp, ["46-2.0", "47-2.0"]].min(axis=1)
             
-        return df
+#         return df
 
-###############################################################################
-############################## Remove NaN coulmns #############################
-# Remove columns if their values are all NAN
-###############################################################################
-# Remove columns that all values are NaN
-    def remove_nan_columns(self, df):
-        """Remove columns with all NAN values
+# ###############################################################################
+# ############################## Remove NaN coulmns #############################
+# # Remove columns if their values are all NAN
+# ###############################################################################
+# # Remove columns that all values are NaN
+#     def remove_nan_columns(self, df):
+#         """Remove columns with all NAN values
       
-        Parameters
-        ----------
-        df : dataframe
-            The dataframe that desired to analysis
+#         Parameters
+#         ----------
+#         df : dataframe
+#             The dataframe that desired to analysis
 
-        Return
-        ----------
-        df : dataframe
-        """ 
+#         Return
+#         ----------
+#         df : dataframe
+#         """ 
         
-        nan_cols = df.columns[df.isna().all()].tolist()
-        df = df.drop(nan_cols, axis=1)
+#         nan_cols = df.columns[df.isna().all()].tolist()
+#         df = df.drop(nan_cols, axis=1)
         
-        return df
+#         return df
