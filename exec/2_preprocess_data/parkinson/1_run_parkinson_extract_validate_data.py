@@ -39,7 +39,7 @@ print("===== Done! =====")
 embed(globals(), locals())
 ###############################################################################
 for parkinson_cohort in ["pre-parkinson", "post-parkinson"]:
-    for visit_session in range(1, 3):
+    for visit_session in range(1, 4):
         if mri_status == "mri":
             if visit_session == 1:
                 session_column = f"1st_{parkinson_cohort}_session"

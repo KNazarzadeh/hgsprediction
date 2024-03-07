@@ -22,6 +22,13 @@ from .load_results.healthy import load_hgs_predicted_results
 
 from .save_plot.save_correlations_plot import healthy_save_correlations_plot
 from .plots.plot_correlations import healthy_plot_hgs_correlations
+
+
+############## Disorders ##################
+# Load Stroke Data
+from .load_data import disorder_load_data
+# Save Stroke Data
+from .save_data import disorder_save_data
 ############### STROKE FUNCTIONS ###############
 # Load Stroke Data
 from .load_data import stroke_load_data
