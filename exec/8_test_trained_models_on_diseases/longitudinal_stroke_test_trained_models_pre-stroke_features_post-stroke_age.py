@@ -70,10 +70,13 @@ print(male_best_model_trained)
 # load data
 if visit_session == "1":
     session_column = f"1st_{stroke_cohort}_session"
-df_longitudinal = stroke_load_data.load_preprocessed_data(population, mri_status, session_column, stroke_cohort)
-df_longitudinal = df_longitudinal[df_longitudinal["1st_pre-stroke_height"]>= df_longitudinal["1st_post-stroke_height"]]
 
-features = define_features(feature_type)
+df_longitudinal = stroke_load_data.load_preprocessed_data(population, mri_status, session_column, stroke_cohort)
+
+data_extracted = healthy_extract_data.extract_data(df, features, extend_features, feature_type, target, mri_status, session)
+
+features, extend_features = define_features(feature_type)
+
 X = features
 y = target
 

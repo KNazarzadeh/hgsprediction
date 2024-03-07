@@ -24,6 +24,7 @@ for disorder_cohort in [f"pre-{population}", f"post-{population}", f"longitudina
             if visit_session == 1:
                 session_column = f"1st_{disorder_cohort}_session"
             df = disorder_load_data.load_preprocessed_data(population, mri_status, session_column, disorder_cohort)
+
             for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
                 if visit_session == 1:
                     subgroup_session_column = f"1st_{disorder_subgroup}_session"

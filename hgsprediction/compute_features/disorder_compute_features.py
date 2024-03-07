@@ -261,12 +261,8 @@ def calculate_gender(df, session_column):
         # Assign corresponding session number from the Class:
             
         assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
-        assert isinstance(session_column, str), "session_column must be a string!"
-        substring_to_remove = "session"
         # -----------------------------------------------------------
-        gender = session_column.replace(substring_to_remove, "gender")
-
-        df[gender] = df.apply(lambda row: row[f"31-0.0"], axis=1)
+        df.loc[:, "gender"] = df.loc[:, "31-0.0"]
         
         return df
 

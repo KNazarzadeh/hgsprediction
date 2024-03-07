@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from sklearn.linear_model import LinearRegression
 
-from hgsprediction.load_results.load_trained_model_results import load_prediction_on_cv_validation_set
+from hgsprediction.load_results.load_trained_model_results.load_prediction_on_cv_validation_set import load_prediction_on_cv_validation_set
 
 from ptpython.repl import embed
 # print("===== Done! =====")

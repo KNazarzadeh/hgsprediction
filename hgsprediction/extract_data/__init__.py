@@ -4,3 +4,4 @@ from .stroke_extract_data import extract_data
 from .parkinson_extract_data import extract_data
 
 from .depression_extract_data import extract_data
+from .disorder_extract_data import extract_data

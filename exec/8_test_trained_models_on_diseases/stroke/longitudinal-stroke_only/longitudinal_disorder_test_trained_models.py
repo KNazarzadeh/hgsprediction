@@ -5,23 +5,15 @@ import sys
 
 from hgsprediction.load_results import load_trained_models
 from hgsprediction.define_features import define_features
-from hgsprediction.extract_data import stroke_extract_data
 from hgsprediction.predict_hgs import predict_hgs
+from hgsprediction.extract_data import disorder_extract_data
+
 # from hgsprediction.predict_hgs import calculate_spearman_hgs_correlation
-from hgsprediction.save_results.stroke_save_spearman_correlation_results import stroke_save_spearman_correlation_results
-from hgsprediction.save_results.stroke_save_hgs_predicted_results import stroke_save_hgs_predicted_results
+# from hgsprediction.save_results.stroke_save_spearman_correlation_results import stroke_save_spearman_correlation_results
+from hgsprediction.save_results.disorder_save_hgs_predicted_results import disorder_save_hgs_predicted_results
 
-from hgsprediction.load_data import stroke_load_data
+from hgsprediction.load_data import disorder_load_data
 from hgsprediction.load_results import load_trained_models
-
-
-from scipy.stats import spearmanr
-import matplotlib.pyplot as plt
-import seaborn as sns
-
-# from hgsprediction.plots import plot_correlations
-from hgsprediction.save_plot.save_correlations_plot import stroke_save_correlations_plot
-
 
 from ptpython.repl import embed
 # print("===== Done! =====")
@@ -31,7 +23,7 @@ from ptpython.repl import embed
 filename = sys.argv[0]
 population = sys.argv[1]
 mri_status = sys.argv[2]
-stroke_cohort = sys.argv[3]
+disorder_cohort = sys.argv[3]
 visit_session = sys.argv[4]
 feature_type = sys.argv[5]
 target = sys.argv[6]
@@ -68,56 +60,67 @@ male_best_model_trained = load_trained_models.load_best_model_trained(
                                 n_folds,
                             )
 print(male_best_model_trained)
-print("===== Done! =====")
-embed(globals(), locals())
+# print("===== Done! =====")
+# embed(globals(), locals())
 ##############################################################################
 # load data
+disorder_cohort = f"{disorder_cohort}-{population}"
 if visit_session == "1":
-    session_column = f"1st_{stroke_cohort}_session"
+    session_column = f"1st_{disorder_cohort}_session"
+
 if mri_status == "mri+nonmri":
-    df_longitudinal_mri = stroke_load_data.load_preprocessed_data(population, "mri", session_column, stroke_cohort)
-    df_longitudinal_nonmri = stroke_load_data.load_preprocessed_data(population, "nonmri", session_column, stroke_cohort)
-    df_longitudinal = pd.concat([df_longitudinal_mri, df_longitudinal_nonmri])
+    df_longitudinal_mri = disorder_load_data.load_preprocessed_data(population, "mri", session_column, disorder_cohort)
+    df_longitudinal_nonmri = disorder_load_data.load_preprocessed_data(population, "nonmri", session_column, disorder_cohort)
+    df_longitudinal = pd.concat([df_longitudinal_mri, df_longitudinal_nonmri]).dropna(axis=1, how='all')
 else:
-    df_longitudinal = stroke_load_data.load_preprocessed_data(population, mri_status, session_column, stroke_cohort)
-print("===== Done! =====")
-embed(globals(), locals())
+    df_longitudinal = disorder_load_data.load_preprocessed_data(population, mri_status, session_column, disorder_cohort)
 
+features, extend_features = define_features(feature_type)
 
-features = define_features(feature_type)
 X = features
 y = target
 
-df_merged = pd.DataFrame()
-for stroke_subgroup in ["pre-stroke", "post-stroke"]:
-    df_extracted = df_longitudinal[[col for col in df_longitudinal.columns if stroke_subgroup in col]]
-    df_extracted = stroke_extract_data.extract_data(df_extracted, stroke_subgroup, visit_session, features, target)
+df_both = pd.DataFrame()
+for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
+    df_extracted = disorder_extract_data.extract_data(df_longitudinal, population, features, extend_features, target, disorder_subgroup, visit_session)
 
     df_female = df_extracted[df_extracted["gender"] == 0]
     df_male = df_extracted[df_extracted["gender"] == 1]
     
     df_female = predict_hgs(df_female, X, y, female_best_model_trained, target)
-    df_male = predict_hgs(df_male, X, y, male_best_model_trained, target) 
+    df_male = predict_hgs(df_male, X, y, male_best_model_trained, target)
+
+    df_tmp = pd.concat([df_female, df_male], axis=0)
+        
     if visit_session == "1":
-        # Define the string to add
-        prefix = f"1st_{stroke_subgroup}_"
-        # Add the suffix to all column names
-        df_female.columns = [prefix + col for col in df_female.columns]
-        df_male.columns = [prefix + col for col in df_male.columns]
+        prefix = f"1st_{disorder_subgroup}_"
+    elif visit_session == "2":
+        prefix = f"2nd_{disorder_subgroup}_"
+    elif visit_session == "3":
+        prefix = f"3rd_{disorder_subgroup}_"
+    elif visit_session == "4":
+        prefix = f"4th_{disorder_subgroup}_"
 
-    df_both_gender = pd.concat([df_female, df_male], axis=0)
-    df_merged = pd.concat([df_merged, df_both_gender], axis=1)
-    
-df_merged = df_merged.dropna()
-if df_merged['1st_pre-stroke_gender'].astype(float).equals((df_merged['1st_post-stroke_gender'].astype(float))):
-    df_merged.insert(0, "gender", df_merged["1st_pre-stroke_gender"])
-    df_merged = df_merged.drop(columns=['1st_pre-stroke_gender', '1st_post-stroke_gender'])
+    # Filter columns that require the prefix to be added
+    filtered_columns = [col for col in df_tmp.columns if col in features + [target]]
 
-df_female = df_merged[df_merged["gender"] == 0]
-df_male = df_merged[df_merged["gender"] == 1]
+    # Add the prefix to selected column names
+    for col in filtered_columns:
+        new_col_name = prefix + col
+        df_tmp.rename(columns={col: new_col_name}, inplace=True)
 
-stroke_save_hgs_predicted_results(
-    df_merged,
+    # Concatenate the DataFrames
+    df_both = pd.concat([df_both, df_tmp], axis=1)
+
+    # Drop duplicate columns
+    df_both = df_both.loc[:,~df_both.columns.duplicated()]
+
+df_female = df_both[df_both["gender"] == 0]
+df_male = df_both[df_both["gender"] == 1]
+print("===== Done! =====")
+embed(globals(), locals())
+disorder_save_hgs_predicted_results(
+    df_both,
     population,
     mri_status,
     session_column,
@@ -127,7 +130,7 @@ stroke_save_hgs_predicted_results(
     "both_gender",
 )
 
-stroke_save_hgs_predicted_results(
+disorder_save_hgs_predicted_results(
     df_female,
     population,
     mri_status,
@@ -138,7 +141,7 @@ stroke_save_hgs_predicted_results(
     "female",
 )
 
-stroke_save_hgs_predicted_results(
+disorder_save_hgs_predicted_results(
     df_male,
     population,
     mri_status,
