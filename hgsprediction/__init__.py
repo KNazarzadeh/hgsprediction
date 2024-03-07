@@ -107,3 +107,7 @@ from .save_results.brain_save_correlates_results import *
 
 
 from .load_results.load_brain_correlates_results import *
+
+from .load_results.load_trained_model_results import *
+
+from .prediction_corrector_model import *

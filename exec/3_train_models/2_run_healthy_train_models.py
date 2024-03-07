@@ -118,13 +118,7 @@ for idx, (train_val_index, validation_index) \
     df_tmp.loc[:, "cv_fold"] = fold
     df_tmp.loc[:, "cv_repeat"] = repeat
     df_tmp.loc[:, f"{target}_delta(true-predicted)"] = df_tmp.loc[:, f"{target}"] - df_tmp.loc[:, f"{target}_predicted"]
-    # repeat_label = f"Repeat {repeat}"
-    # fold_label = f"Fold {fold}"
-    # df_tmp.columns.name = f"Repeat:{repeat_label} - K-fold:{fold_label}"
-    # List of DataFrames
-    # list_of_dfs.append(df_tmp)
-    # Concatenate the DataFrames vertically with MultiIndex columns
-    # df_validation_prediction_hgs = pd.concat(list_of_dfs, axis=0, keys=[df.columns.name for df in list_of_dfs])
+    
     df_validation_prediction_hgs = pd.concat([df_validation_prediction_hgs,df_tmp], axis=0)
 df_prediction_scores.index.name = 'Repeats'
 df_prediction_scores.columns.name = 'K-fold splits'
