@@ -6,8 +6,7 @@ import pandas as pd
 import numpy as np
 from datetime import datetime as dt
 from ptpython.repl import embed
-# print('Done!')
-# embed(globals(), locals())
+
 # Add the warning suppression code here
 ###############################################################################
 class StrokeMainDataPreprocessor:
@@ -38,14 +37,14 @@ class StrokeMainDataPreprocessor:
         df : pandas.DataFrame
             DataFrame of data specified.   
         """
-        df = df[~df['42006-0.0'].isna() & df['42006-0.0'] != "1900-01-01"]
+        df = df[~df.loc[:, "42006-0.0"].isna() & df.loc[:, "42006-0.0"] != "1900-01-01"]
 
         return df
     
 ###############################################################################
     def define_handness(self, df):
         
-        handness = df["1707-0.0", "1707-1.0", "1707-2.0"]
+        handness = df.loc[:, ["1707-0.0", "1707-1.0", "1707-2.0"]]
         # Replace NaN values in the first column with maximum of respective row
         index_NaN = handness[handness.loc[:, "1707-0.0"].isna()].index
         max_value = handness.loc[index_NaN, ["1707-1.0", "1707-2.0"]].max(axis=1)
@@ -73,12 +72,12 @@ class StrokeMainDataPreprocessor:
         
         for ses in range(sessions):
             df_tmp = df[
-                ((~df[f'{hgs_left}-{ses}.0'].isna()) &
-                (df[f'{hgs_left}-{ses}.0'] !=  0) & (df[f'{hgs_left}-{ses}.0'] >= 4.0))
-                & ((~df[f'{hgs_right}-{ses}.0'].isna()) &
-                (df[f'{hgs_right}-{ses}.0'] !=  0) & (df[f'{hgs_right}-{ses}.0'] >= 4.0))
+                ((~df.loc[:, f"{hgs_left}-{ses}.0"].isna()) &
+                (df.loc[:, f"{hgs_left}-{ses}.0"] !=  0) & (df.loc[:, f"{hgs_left}-{ses}.0"] >= 4.0))
+                & ((~df.loc[:, f"{hgs_right}-{ses}.0"].isna()) &
+                (df.loc[:, f"{hgs_right}-{ses}.0"] !=  0) & (df.loc[:, f"{hgs_right}-{ses}.0"] >= 4.0))
             ]
-            df_output = pd.concat([df_output, df_tmp])
+            df_output = pd.concat([df_output, df_tmp], axis=0)
 
         # Drop the duplicated subjects
         # based on 'eid' column (subject ID)
@@ -110,10 +109,10 @@ class StrokeMainDataPreprocessor:
             DataFrame of data specified.
         """
         sessions = 4
-        onset_date = pd.to_datetime(df['42006-0.0'])
+        onset_date = pd.to_datetime(df.loc[:, "42006-0.0"])
 
         for ses in range(0, sessions):
-            attendance_date = pd.to_datetime(df[f'53-{ses}.0'])
+            attendance_date = pd.to_datetime(df.loc[:, f"53-{ses}.0"])
             df[f'followup_days-{ses}.0'] = (attendance_date-onset_date).dt.days
 
         return df
@@ -347,38 +346,39 @@ class StrokeMainDataPreprocessor:
                     filtered_df = df.loc[index, :]
                     idx = filtered_df[filtered_df.loc[:, "handness"] == 1.0].index
                     df.loc[idx, handedness] = 1.0
-                    df.loc[idx, hgs_dominant] = df.loc[idx, f"47-{ses}"]
+                    df.loc[idx, hgs_dominant] = df.loc[idx, f"47-{ses}.0"]
                     df.loc[idx, hgs_dominant_side] = "right"
-                    df.loc[idx, hgs_nondominant] = df.loc[idx, f"46-{ses}"]
+                    df.loc[idx, hgs_nondominant] = df.loc[idx, f"46-{ses}.0"]
                     df.loc[idx, hgs_nondominant_side] = "left"
 
                     idx = filtered_df[filtered_df.loc[:, "handness"] == 2.0].index
                     df.loc[idx, handedness] = 2.0
-                    df.loc[idx, hgs_dominant] = df.loc[idx, f"46-{ses}"]
+                    df.loc[idx, hgs_dominant] = df.loc[idx, f"46-{ses}.0"]
                     df.loc[idx, hgs_dominant_side] = "left"
-                    df.loc[idx, hgs_nondominant] = df.loc[idx, f"47-{ses}"]
+                    df.loc[idx, hgs_nondominant] = df.loc[idx, f"47-{ses}.0"]
                     df.loc[idx, hgs_nondominant_side] = "right"
 
                     idx = filtered_df[filtered_df.loc[:, "handness"].isin([3.0, -3.0, np.NaN])].index
                     df.loc[idx, handedness] = 3.0
                     df_tmp = df.loc[idx, :]
-                    idx_tmp = df_tmp[df_tmp.loc[:, f"47-{ses}"] == df_tmp.loc[:, f"46-{ses}"]].index
-                    df.loc[idx_tmp, hgs_dominant] = df.loc[idx, f"47-{ses}"]
+                    idx_tmp = df_tmp[df_tmp.loc[:, f"47-{ses}.0"] == df_tmp.loc[:, f"46-{ses}.0"]].index
+                    df.loc[idx_tmp, hgs_dominant] = df.loc[idx, f"47-{ses}.0"]
                     df.loc[idx_tmp, hgs_dominant_side] = "balanced_hgs"
-                    df.loc[idx_tmp, hgs_nondominant] = df.loc[idx, f"46-{ses}"]
+                    df.loc[idx_tmp, hgs_nondominant] = df.loc[idx, f"46-{ses}.0"]
                     df.loc[idx_tmp, hgs_nondominant_side] = "balanced_hgs"
 
-                    idx_tmp = df_tmp[df_tmp.loc[:, f"47-{ses}"] != df_tmp.loc[:, f"46-{ses}"]].index
-                    result_column = df.loc[idx_tmp, [f"46-{ses}", f"47-{ses}"]].idxmax(axis=1)
-                    condition_right = result_column[result_column == f"47-{ses}"]
-                    df.loc[condition_right.index, hgs_dominant] = df.loc[condition_right.index, f"47-{ses}"]
+                    idx_tmp = df_tmp[df_tmp.loc[:, f"47-{ses}.0"] != df_tmp.loc[:, f"46-{ses}.0"]].index
+                    # Find the column with the maximum value among '46-{ses}.0' and '47-{ses}.0' for filtered rows
+                    result_column = df.loc[idx_tmp, [f"46-{ses}.0", f"47-{ses}.0"]].idxmax(axis=1)
+                    condition_right = result_column[result_column == f"47-{ses}.0"]
+                    df.loc[condition_right.index, hgs_dominant] = df.loc[condition_right.index, f"47-{ses}.0"]
                     df.loc[condition_right.index, hgs_dominant_side] = "right"
-                    df.loc[condition_right.index, hgs_nondominant] = df.loc[condition_right.index, f"46-{ses}"]
+                    df.loc[condition_right.index, hgs_nondominant] = df.loc[condition_right.index, f"46-{ses}.0"]
                     df.loc[condition_right.index, hgs_nondominant_side] = "left"
-                    condition_left = result_column[result_column == f"46-{ses}"]
-                    df.loc[condition_left.index, hgs_dominant] = df.loc[condition_left.index, f"46-{ses}"]
+                    condition_left = result_column[result_column == f"46-{ses}.0"]
+                    df.loc[condition_left.index, hgs_dominant] = df.loc[condition_left.index, f"46-{ses}.0"]
                     df.loc[condition_left.index, hgs_dominant_side] = "left"
-                    df.loc[condition_left.index, hgs_nondominant] = df.loc[condition_left.index, f"47-{ses}"]
+                    df.loc[condition_left.index, hgs_nondominant] = df.loc[condition_left.index, f"47-{ses}.0"]
                     df.loc[condition_left.index, hgs_nondominant_side] = "right"
             
         return df
@@ -401,8 +401,6 @@ class StrokeMainDataPreprocessor:
             """
             assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
             # -----------------------------------------------------------
-            print("===== Done! =====")
-            embed(globals(), locals())
             if df[session_column].isna().sum() < len(df):
                 df = df[df[session_column]>=0]
                 
@@ -438,14 +436,16 @@ class StrokeMainDataPreprocessor:
             # Calling the modules
             df = self.remove_missing_hgs_pre_post_stroke(df, session_column)
             hgs_dominant = session_column.replace(substring_to_remove, "hgs_dominant")
+            hgs_nondominant = session_column.replace(substring_to_remove, "hgs_nondominant")
             # ------------------------------------
             # Exclude all subjects who had Dominant HGS < 4:
             # The condition is applied to "hgs_dominant" columns
             # And then reset_index the new dataframe:
-            # df = df[df.loc[:, f"{session_column[:, len(substring_to_remove)].strip()}hgs_dominant"] >=4]
-            df = df[df[hgs_dominant] >= 4 & ~df[hgs_dominant].isna()]
-        
-        elif df[session_column].isna().sum() == len(df):
+            df = df[df.loc[:, hgs_dominant] >= 4 & ~df.loc[:, hgs_dominant].isna()]
+            df = df[(df.loc[:, hgs_nondominant] >= 4) & (~df.loc[:, hgs_nondominant].isna())]
+            df = df[(df.loc[:, hgs_dominant] >= df.loc[:, hgs_nondominant])]
+
+        elif df.loc[:, session_column].isna().sum() == len(df):
             # Drop all rows from the DataFrame
             df = pd.DataFrame(columns=df.columns)
             # Display message to the user
@@ -462,8 +462,7 @@ class StrokeMainDataPreprocessor:
         # for Left and Right Hands
         hgs_left = "46"  # Handgrip_strength_(left)
         hgs_right = "47"  # Handgrip_strength_(right)
-        # print("===== Done! =====")
-        # embed(globals(), locals())
+        
         for idx in df.index:
             session = df.loc[idx, session_column]
             # hgs_left field-ID: 46

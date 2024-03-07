@@ -43,7 +43,7 @@ def load_original_data(population, mri_status):
         folder_path,
         f"{mri_status}_{population}.csv")
     
-    df = pd.read_csv(file_path, sep=',', index_col=0)
+    df = pd.read_csv(file_path, sep=',', index_col=0, low_memory=False)
   
     return df
 
