@@ -29,6 +29,10 @@ from .plots.plot_correlations import healthy_plot_hgs_correlations
 from .load_data import disorder_load_data
 # Save Stroke Data
 from .save_data import disorder_save_data
+
+from .compute_features import disorder_compute_features
+# Target Computing
+from .compute_target import disorder_compute_target
 ############### STROKE FUNCTIONS ###############
 # Load Stroke Data
 from .load_data import stroke_load_data

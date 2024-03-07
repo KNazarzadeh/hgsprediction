@@ -1,2 +1,4 @@
 from .healthy_compute_target import compute_target
+from .disorder_compute_target import compute_target
+
 from .stroke_compute_target import compute_target

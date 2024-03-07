@@ -1,4 +1,7 @@
 from .healthy_compute_features import compute_features
+
+from .disorder_compute_features import compute_features
+
 from .stroke_compute_features import compute_features
 from .parkinson_compute_features import compute_features
 from .depression_compute_features import compute_features

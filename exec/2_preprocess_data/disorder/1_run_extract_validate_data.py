@@ -52,10 +52,7 @@ for disorder_cohort in [f"pre-{population}", f"post-{population}"]:
             df_validated = data_processor.validate_handgrips(df_extracted, session_column)
             disorder_save_data.save_primary_extracted_data(df_extracted, population, mri_status, session_column, disorder_cohort)
             disorder_save_data.save_validated_hgs_data(df_validated, population, mri_status, session_column, disorder_cohort)
-            print(disorder_cohort)
-            print(visit_session, session_column)
-            print(df_extracted)
-            print(df_validated)
+            
         elif mri_status == "nonmri":
             if visit_session == 1:
                 session_column = f"1st_{disorder_cohort}_session"
@@ -65,11 +62,6 @@ for disorder_cohort in [f"pre-{population}", f"post-{population}"]:
             df_validated = data_processor.validate_handgrips(df_extracted, session_column)
             disorder_save_data.save_primary_extracted_data(df_extracted, population, mri_status, session_column, disorder_cohort)
             disorder_save_data.save_validated_hgs_data(df_validated, population, mri_status, session_column, disorder_cohort)
-            print(disorder_cohort)
-            print(visit_session, session_column)
-            print(df_extracted)
-            print(df_validated)
-
 ###############################################################################
 disorder_cohort = f"post-{population}"
 df_post = data_processor.extract_post_disorder_df(df_preprocessed, mri_status)
