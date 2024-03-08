@@ -9,6 +9,7 @@ from sklearn.neighbors import NearestNeighbors
 from hgsprediction.load_results.load_zscore_results import load_zscore_results
 from hgsprediction.load_results.load_disorder_corrected_prediction_results import load_disorder_corrected_prediction_results
 from hgsprediction.define_features import define_features
+from hgsprediction.save_results.save_disorder_matched_samples_results import save_disorder_matched_samples_results
 
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -79,6 +80,9 @@ df_disorder = load_disorder_corrected_prediction_results(
 
 df_disorder.loc[:, "disorder"] = 1
 
+###############################################################################
+df_control_matched = pd.DataFrame()
+
 for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
 
     if visit_session == "1":
@@ -128,7 +132,6 @@ for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
     # Dictionary to store matched samples for each subject
     matched_samples = {}
     df_matched_tmp = pd.DataFrame()
-    df_control_matched = pd.DataFrame()
     
     # Iterate over each row in treatment dataframe
     for subject_id, row in df_disorder_tmp.iterrows():
@@ -149,9 +152,26 @@ for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
     # Print matched samples for each subject
     for subject_id, matches in matched_samples.items():
         print(f"SubjectID: {subject_id}, Matches: {matches}")
-        
+
+##############################################################################
+
+save_disorder_matched_samples_results(
+    df_control_matched,
+    df_disorder,
+    population,
+    mri_status,
+    session_column,
+    model_name,
+    feature_type,
+    target,
+    gender,
+    confound_status,
+    n_repeats,
+    n_folds,
+    n_samples,
+)
     
 print("===== Done! =====")
 embed(globals(), locals())
 
-##############################################################################
+
