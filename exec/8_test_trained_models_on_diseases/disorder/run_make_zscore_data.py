@@ -41,19 +41,16 @@ df = load_corrected_prediction_results(
 
 features, extend_features = define_features(feature_type)
 
-# Filter columns that start with the specified prefix
-filtered_columns = [col for col in df.columns if col in features + [target]]
+# Define feature columns including the target
+feature_columns = features + [target]
 
-# Remove the prefix from selected column names
-for col in filtered_columns:
-    new_col_name = col.replace("1st_scan", "")
-    df.rename(columns={col: new_col_name}, inplace=True)
-
-
+# Set the threshold for outlier detection
 threshold = 3
 
-z_scores = zscore(df[[features + [target]]])
-df_z_scores = pd.DataFrame(z_scores, columns=[features + [target]])
+# Calculate z-scores for the selected features
+df_z_scores = zscore(df.loc[:, feature_columns])
+
+# Identify outliers based on z-scores exceeding the threshold
 outliers = (df_z_scores > threshold) | (df_z_scores < -threshold)
 # Remove outliers
 df_no_outliers = df_z_scores[~outliers.any(axis=1)]
@@ -61,6 +58,8 @@ df_outliers = df_z_scores[outliers.any(axis=1)]
 
 df = df[df.index.isin(df_no_outliers.index)]
 
+print("===== Done! =====")
+embed(globals(), locals())
 save_zscore_results(
     df,
     population,
