@@ -28,6 +28,8 @@ df = data_processor.remove_missing_hgs(df)
 if population == "stroke":
     df = data_processor.define_disorder_type(df, population)
 df = data_processor.define_followup_days(df, population)
+print("===== Done! =====")
+embed(globals(), locals())
 ###############################################################################
 df_preprocessed = data_processor.preprocess_disorder_df(df, population)
 # Calculate and Add dominant and nondominant hgs to data
