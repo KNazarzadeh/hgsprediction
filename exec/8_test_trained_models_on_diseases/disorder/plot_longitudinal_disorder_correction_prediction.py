@@ -152,10 +152,9 @@ for i, disorder_subgroup in enumerate([f"pre-{population}", f"post-{population}"
 
 plt.tight_layout()
 plt.show()
-plt.savefig(f"true_predicted_{population}_{feature_type}_{target}_{model_name}_{n_repeats}_{n_folds}_.png")
+plt.savefig(f"{population}_true_predicted_{population}_{feature_type}_{target}_{model_name}_{n_repeats}_{n_folds}_.png")
 plt.close()
-print("===== Done! =====")
-embed(globals(), locals())
+
 ###############################################################################
 # Delta vs True HGS
 # Raw delta HGS vs True HGS
@@ -185,22 +184,22 @@ for i, disorder_subgroup in enumerate([f"pre-{population}", f"post-{population}"
         if j == 0:
             sns.regplot(data=df_female, x=f"{prefix}_{target}", y=f"{prefix}_{target}_delta(true-predicted)", color='lightcoral', marker="$\circ$", scatter_kws={'s': 40, 'linewidths': 15}, line_kws={"color": "red"}, ax=ax)
             sns.regplot(data=df_male, x=f"{prefix}_{target}", y=f"{prefix}_{target}_delta(true-predicted)", color='#069AF3', marker="$\circ$", scatter_kws={'s': 40, 'linewidths': 15}, line_kws={"color": "blue"}, ax=ax)
-            ax.set_ylabel("Predicted HGS", fontsize=30, fontweight="bold")
+            ax.set_ylabel("Delta HGS", fontsize=30, fontweight="bold")
             ax.set_xlabel("")    
             ax.set_title(f"{disorder_subgroup}(females={len(df_female)}, males={len(df_male)})", fontsize=30, fontweight="bold")            
 
-            r_text_female = f"r:{df_female_correlations.loc[0, f'{prefix}_r_values_true_delta(true-predicted)']:.3f}\nR2:{df_female_r2_values.loc[0, f'{prefix}_r2_values_true_delta(true-predicted)']:.3f}"
-            r_text_male = f"r:{df_male_correlations.loc[0, f'{prefix}_r_values_true_delta(true-predicted)']:.3f}\nR2:{df_male_r2_values.loc[0, f'{prefix}_r2_values_true_delta(true-predicted)']:.3f}"
+            r_text_female = f"r:{df_female_correlations.loc[0, f'{prefix}_r_values_true_delta']:.3f}\nR2:{df_female_r2_values.loc[0, f'{prefix}_r2_values_true_delta']:.3f}"
+            r_text_male = f"r:{df_male_correlations.loc[0, f'{prefix}_r_values_true_delta']:.3f}\nR2:{df_male_r2_values.loc[0, f'{prefix}_r2_values_true_delta']:.3f}"
             ax.annotate(r_text_female, xy=(0.05, 0.9), xycoords='axes fraction', fontsize=30, fontweight="bold", color='red')
             ax.annotate(r_text_male, xy=(0.05, 0.8), xycoords='axes fraction', fontsize=30, fontweight="bold", color='#069AF3')
         elif j == 1:
             sns.regplot(data=df_female, x=f"{prefix}_{target}", y=f"{prefix}_{target}_corrected_delta(true-predicted)", color='lightcoral', marker="$\circ$", scatter_kws={'s': 40, 'linewidths': 15}, line_kws={"color": "red"}, ax=ax)
             sns.regplot(data=df_male, x=f"{prefix}_{target}", y=f"{prefix}_{target}_corrected_delta(true-predicted)", color='#069AF3', marker="$\circ$", scatter_kws={'s': 40, 'linewidths': 15}, line_kws={"color": "blue"}, ax=ax)
-            ax.set_ylabel("Corrected predicted HGS", fontsize=30, fontweight="bold")
+            ax.set_ylabel("Corrected delta HGS", fontsize=30, fontweight="bold")
             ax.set_xlabel("True HGS", fontsize=30, fontweight="bold")
             
-            r_text_female = f"r:{df_female_correlations.loc[0, f'{prefix}_r_values_true_corrected_delta(true-predicted)']:.3f}\nR2:{df_female_r2_values.loc[0, f'{prefix}_r2_values_true_corrected_delta(true-predicted)']:.3f}"
-            r_text_male = f"r:{df_male_correlations.loc[0, f'{prefix}_r_values_true_corrected_delta(true-predicted)']:.3f}\nR2:{df_male_r2_values.loc[0, f'{prefix}_r2_values_true_corrected_delta(true-predicted)']:.3f}"
+            r_text_female = f"r:{df_female_correlations.loc[0, f'{prefix}_r_values_true_corrected_delta']:.3f}\nR2:{df_female_r2_values.loc[0, f'{prefix}_r2_values_true_corrected_delta']:.3f}"
+            r_text_male = f"r:{df_male_correlations.loc[0, f'{prefix}_r_values_true_corrected_delta']:.3f}\nR2:{df_male_r2_values.loc[0, f'{prefix}_r2_values_true_corrected_delta']:.3f}"
             ax.annotate(r_text_female, xy=(0.05, 0.9), xycoords='axes fraction', fontsize=30, fontweight="bold", color='red')
             ax.annotate(r_text_male, xy=(0.05, 0.8), xycoords='axes fraction', fontsize=30, fontweight="bold", color='#069AF3')
             
@@ -214,3 +213,6 @@ plt.tight_layout()
 plt.show()
 plt.savefig(f"{population}_true_delta_{population}_{feature_type}_{target}_{model_name}_{n_repeats}_{n_folds}_.png")
 plt.close()
+
+print("===== Done! =====")
+embed(globals(), locals())
