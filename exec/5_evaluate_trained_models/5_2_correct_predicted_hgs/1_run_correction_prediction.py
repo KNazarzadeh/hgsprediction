@@ -88,21 +88,10 @@ save_corrected_prediction_results(
 print("===== Done! =====")
 embed(globals(), locals())
 
-df_correlations = pd.DataFrame(columns=["r_values_true_predicted",
-                                        "r_values_true_delta",
-                                        "r_values_true_corrected_predicted",
-                                        "r_values_true_corrected_delta"])
-
-df_p_values = pd.DataFrame(columns=["p_values_true_predicted",
-                                    "p_values_true_delta",
-                                    "p_values_true_corrected_predicted",
-                                    "p_values_true_corrected_delta"])
-
-df_r2_values = pd.DataFrame(columns=["r2_values_true_predicted",
-                                    "r2_values_true_delta",
-                                    "r2_values_true_corrected_predicted",
-                                    "r2_values_true_corrected_delta"])
-
+###############################################################################
+df_correlations = pd.DataFrame()
+df_p_values = pd.DataFrame()
+df_r2_values = pd.DataFrame()
 
 df_correlations.loc[0, "r_values_true_predicted"] = pearsonr(df.loc[:, f"{target}"],df.loc[:, f"{target}_predicted"])[0]
 df_correlations.loc[0, "r_values_true_delta"] = pearsonr(df.loc[:, f"{target}"],df.loc[:, f"{target}_delta(true-predicted)"])[0]

@@ -21,3 +21,4 @@ from .load_corrected_prediction_results import load_corrected_prediction_results
 from .load_hgs_predicted_results import load_hgs_predicted_results
 from .load_zscore_results import load_zscore_results
 from .load_disorder_hgs_predicted_results import load_disorder_hgs_predicted_results
+from .load_disorder_corrected_prediction_results import load_disorder_corrected_prediction_results

@@ -16,10 +16,8 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 
-from hgsprediction.prediction_corrector_model import prediction_corrector_model
-from hgsprediction.load_results.healthy.load_hgs_predicted_results import load_hgs_predicted_results
-from hgsprediction.load_results.load_corrected_prediction_results import load_corrected_prediction_results
-from hgsprediction.load_results.load_corrected_prediction_correlation_results import load_corrected_prediction_correlation_results
+from hgsprediction.load_results.load_disorder_corrected_prediction_results import load_disorder_corrected_prediction_results
+from hgsprediction.load_results.load_disorder_corrected_prediction_correlation_results import load_disorder_corrected_prediction_correlation_results
 
 #--------------------------------------------------------------------------#
 from ptpython.repl import embed
