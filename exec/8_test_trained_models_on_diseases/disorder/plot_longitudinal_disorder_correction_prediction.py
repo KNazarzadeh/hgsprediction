@@ -30,64 +30,67 @@ from ptpython.repl import embed
 filename = sys.argv[0]
 population = sys.argv[1]
 mri_status = sys.argv[2]
-feature_type = sys.argv[3]
-target = sys.argv[4]
-model_name = sys.argv[5]
-session = sys.argv[6]
-confound_status = sys.argv[7]
-n_repeats = sys.argv[8]
-n_folds = sys.argv[9]
-# print("===== Done! =====")
-# embed(globals(), locals())
+disorder_cohort = sys.argv[3]
+visit_session = sys.argv[4]
+feature_type = sys.argv[5]
+target = sys.argv[6]
+model_name = sys.argv[7]
+confound_status = sys.argv[8]
+n_repeats = sys.argv[9]
+n_folds = sys.argv[10]
 ###############################################################################
+# load data
+disorder_cohort = f"{disorder_cohort}-{population}"
+if visit_session == "1":
+    session_column = f"1st_{disorder_cohort}_session"
 
-df_female = load_corrected_prediction_results(
+df_female = load_disorder_corrected_prediction_results(
     population,
     mri_status,
+    session_column,
     model_name,
     feature_type,
     target,
     "female",
-    session,
     confound_status,
     n_repeats,
     n_folds,
 )
 
-df_male = load_corrected_prediction_results(
+df_male = load_disorder_corrected_prediction_results(
     population,
     mri_status,
+    session_column,
     model_name,
     feature_type,
     target,
     "male",
-    session,
     confound_status,
     n_repeats,
     n_folds,
 )
 
-df_female_correlations, df_female_p_values, df_female_r2_values = load_corrected_prediction_correlation_results(   
+df_female_correlations, df_female_p_values, df_female_r2_values = load_disorder_corrected_prediction_correlation_results(   
                                                                                         population,
                                                                                         mri_status,
+                                                                                        session_column,
                                                                                         model_name,
                                                                                         feature_type,
                                                                                         target,
                                                                                         "female",
-                                                                                        session,
                                                                                         confound_status,
                                                                                         n_repeats,
                                                                                         n_folds,    
                                                                                     )
 
-df_male_correlations, df_male_p_values, df_male_r2_values = load_corrected_prediction_correlation_results(   
+df_male_correlations, df_male_p_values, df_male_r2_values = load_disorder_corrected_prediction_correlation_results(   
                                                                                         population,
                                                                                         mri_status,
+                                                                                        session_column,
                                                                                         model_name,
                                                                                         feature_type,
                                                                                         target,
                                                                                         "male",
-                                                                                        session,
                                                                                         confound_status,
                                                                                         n_repeats,
                                                                                         n_folds,    
@@ -101,7 +104,7 @@ embed(globals(), locals())
 # Predicted vs True HGS
 # Raw predicted HGS vs True HGS
 # Corrected predicted HGS vs True HGS
-fig, axes = plt.subplots(2, 1, figsize=(25, 25))
+fig, axes = plt.subplots(2, 2, figsize=(25, 25))
 
 plt.rcParams.update({"font.weight": "bold", 
                      "axes.labelweight": "bold",
