@@ -38,8 +38,9 @@ def load_disorder_matched_samples_results(
             f"{confound}",
             f"{model_name}",
             f"{n_repeats}_repeats_{n_folds}_folds",
-            "matched_samples_results",
+            "matched_control_samples_results",
             f"1_to_{n_samples}_samples",
+            "matched_control_samples_data",
         )
         
     if(not os.path.isdir(folder_path)):
@@ -62,40 +63,3 @@ def load_disorder_matched_samples_results(
 
     return df_disorder_matched, df_mathced_controls
 ##############################################################################    
-def disorder_save_hgs_predicted_results_mri_records_sessions_only(
-    df,
-    population,
-    mri_status,
-    session_column,
-    model_name,
-    feature_type,
-    target,
-    gender,
-):
-    # Assuming that you have already trained and instantiated the model as `model`
-    folder_path = os.path.join(
-            "/data",
-            "project",
-            "stroke_ukb",
-            "knazarzadeh",
-            "project_hgsprediction",  
-            "results_hgsprediction",
-            f"{population}",
-            f"{mri_status}",
-            f"{session_column}",
-            "mri_records_sessions_only",
-            f"{feature_type}",
-            f"{target}",
-            f"{model_name}",
-            "hgs_predicted_results",
-        )
-        
-    if(not os.path.isdir(folder_path)):
-        os.makedirs(folder_path)
-
-    # Define the csv file path to save
-    file_path = os.path.join(
-        folder_path,
-        f"{gender}_hgs_predicted_results.csv")
-    
-    df.to_csv(file_path, sep=',', index=True)
