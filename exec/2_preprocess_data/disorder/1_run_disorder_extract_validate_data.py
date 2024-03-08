@@ -21,6 +21,7 @@ df_original = disorder_load_data.load_original_data(population, mri_status)
 data_processor = disorder_data_preprocessor.DisorderMainDataPreprocessor(df_original, population)    
 df = data_processor.define_handness(df_original)
 df = data_processor.remove_missing_disorder_dates(df, population)
+
 df = data_processor.remove_missing_hgs(df)
 
 ###############################################################################

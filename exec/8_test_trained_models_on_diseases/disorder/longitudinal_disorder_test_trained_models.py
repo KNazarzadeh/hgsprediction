@@ -10,7 +10,7 @@ from hgsprediction.extract_data import disorder_extract_data
 
 # from hgsprediction.predict_hgs import calculate_spearman_hgs_correlation
 # from hgsprediction.save_results.stroke_save_spearman_correlation_results import stroke_save_spearman_correlation_results
-from hgsprediction.save_results.disorder_save_hgs_predicted_results import disorder_save_hgs_predicted_results
+from hgsprediction.save_results.save_disorder_hgs_predicted_results import save_disorder_hgs_predicted_results
 
 from hgsprediction.load_data import disorder_load_data
 from hgsprediction.load_results import load_trained_models
@@ -102,7 +102,7 @@ for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
         prefix = f"4th_{disorder_subgroup}_"
 
     # Filter columns that require the prefix to be added
-    filtered_columns = [col for col in df_tmp.columns if col in features + [target]]
+    filtered_columns = [col for col in df_tmp.columns if col in features + [target] + [f"{target}_predicted"] + [f"{target}_delta(true-predicted)"]]
 
     # Add the prefix to selected column names
     for col in filtered_columns:
@@ -119,7 +119,7 @@ df_female = df_both[df_both["gender"] == 0]
 df_male = df_both[df_both["gender"] == 1]
 print("===== Done! =====")
 embed(globals(), locals())
-disorder_save_hgs_predicted_results(
+save_disorder_hgs_predicted_results(
     df_both,
     population,
     mri_status,
@@ -128,9 +128,12 @@ disorder_save_hgs_predicted_results(
     feature_type,
     target,
     "both_gender",
+    confound_status,
+    n_repeats,
+    n_folds,
 )
 
-disorder_save_hgs_predicted_results(
+save_disorder_hgs_predicted_results(
     df_female,
     population,
     mri_status,
@@ -139,9 +142,12 @@ disorder_save_hgs_predicted_results(
     feature_type,
     target,
     "female",
+    confound_status,
+    n_repeats,
+    n_folds,
 )
 
-disorder_save_hgs_predicted_results(
+save_disorder_hgs_predicted_results(
     df_male,
     population,
     mri_status,
@@ -150,6 +156,9 @@ disorder_save_hgs_predicted_results(
     feature_type,
     target,
     "male",
+    confound_status,
+    n_repeats,
+    n_folds,
 )
 
 ##############################################################################

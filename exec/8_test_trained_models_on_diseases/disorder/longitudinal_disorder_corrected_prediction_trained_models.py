@@ -1,0 +1,94 @@
+import os
+import pandas as pd
+import numpy as np
+import sys
+
+from hgsprediction.prediction_corrector_model import prediction_corrector_model
+from hgsprediction.load_results.load_disorder_hgs_predicted_results import load_disorder_hgs_predicted_results
+from hgsprediction.save_results.save_disorder_corrected_prediction_results import save_disorder_corrected_prediction_results
+
+
+from ptpython.repl import embed
+# print("===== Done! =====")
+# embed(globals(), locals())
+
+###############################################################################
+filename = sys.argv[0]
+population = sys.argv[1]
+mri_status = sys.argv[2]
+disorder_cohort = sys.argv[3]
+visit_session = sys.argv[4]
+feature_type = sys.argv[5]
+target = sys.argv[6]
+model_name = sys.argv[7]
+confound_status = sys.argv[8]
+n_repeats = sys.argv[9]
+n_folds = sys.argv[10]
+gender = sys.argv[11]
+
+###############################################################################
+
+slope, intercept = prediction_corrector_model(
+    "healthy",
+    "nonmri",
+    model_name,
+    feature_type,
+    target,
+    gender,
+    confound_status,
+)
+
+print("slope=", slope)
+print("intercept=", intercept)
+##############################################################################
+# load data
+disorder_cohort = f"{disorder_cohort}-{population}"
+if visit_session == "1":
+    session_column = f"1st_{disorder_cohort}_session"
+
+df = load_disorder_hgs_predicted_results(
+    population,
+    mri_status,
+    session_column,
+    model_name,
+    feature_type,
+    target,
+    gender,
+    confound_status,
+    n_repeats,
+    n_folds,
+)
+
+###############################################################################
+for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
+    if visit_session == "1":
+        prefix = f"1st_{disorder_subgroup}"
+    elif visit_session == "2":
+        prefix = f"2nd_{disorder_subgroup}"
+    elif visit_session == "3":
+        prefix = f"3rd_{disorder_subgroup}"
+    elif visit_session == "4":
+        prefix = f"4th_{disorder_subgroup}"
+    
+    df.loc[:, f"{prefix}_{target}_corrected_predicted"] = (df.loc[:, f"{prefix}_{target}_predicted"] - intercept) / slope
+    df.loc[:, f"{prefix}_{target}_corrected_delta(true-predicted)"] =  df.loc[:, f"{prefix}_{target}"] - df.loc[:, f"{prefix}_{target}_corrected_predicted"]
+
+print("===== Done! =====")
+embed(globals(), locals())
+###############################################################################
+save_disorder_corrected_prediction_results(
+    df,
+    population,
+    mri_status,
+    session_column,
+    model_name,
+    feature_type,
+    target,
+    gender,
+    confound_status,
+    n_repeats,
+    n_folds,
+)
+
+print("===== Done! =====")
+embed(globals(), locals())

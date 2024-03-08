@@ -44,7 +44,14 @@ class DisorderMainDataPreprocessor:
             df = df[(~df.loc[:, "131022-0.0"].isna()) & (df.loc[:, "131022-0.0"] != "1900-01-01")]
             
         elif disorder == "depression":
-            df = df[(~df.loc[:, "130894-0.0"].isna()) & (~df.loc[:, "130894-0.0"].isin(["1900-01-01", "1901-01-01", "1902-02-02", "1903-03-03", "1909-09-09", "2037-07-07"]))]
+            ## Convert both columns to datetime
+            df.loc[:, "130894-0.0"] = pd.to_datetime(df.loc[:, "130894-0.0"])
+            df.loc[:, "130896-0.0"] = pd.to_datetime(df.loc[:, "130896-0.0"])
+            
+            # Compare date of F32 and F33
+            df["depression_onset"] = df.loc[:, ["130894-0.0", "130896-0.0"]].min(axis=1)
+
+            df = df[(~df.loc[:, "depression_onset"].isna()) & (~df.loc[:, "depression_onset"].isin(["1900-01-01", "1901-01-01", "1902-02-02", "1903-03-03", "1909-09-09", "2037-07-07"]))]
 
         return df
     
@@ -123,7 +130,7 @@ class DisorderMainDataPreprocessor:
             onset_date = pd.to_datetime(df.loc[:, "131022-0.0"])
             
         elif disorder == "depression":
-            onset_date = pd.to_datetime(df.loc[:, "130894-0.0"])
+            onset_date = pd.to_datetime(df.loc[:, "depression_onset"])
 
         for ses in range(0, sessions):
             attendance_date = pd.to_datetime(df.loc[:, f"53-{ses}.0"])

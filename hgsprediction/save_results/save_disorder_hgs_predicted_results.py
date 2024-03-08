@@ -5,7 +5,7 @@ from ptpython.repl import embed
 # print("===== Done! =====")
 # embed(globals(), locals())
 
-def disorder_save_hgs_predicted_results(
+def save_disorder_hgs_predicted_results(
     df,
     population,
     mri_status,
@@ -14,7 +14,14 @@ def disorder_save_hgs_predicted_results(
     feature_type,
     target,
     gender,
+    confound_status,
+    n_repeats,
+    n_folds,
 ):
+    if confound_status == "0":
+        confound = "without_confound_removal"
+    else:
+        confound = "with_confound_removal"
     # Assuming that you have already trained and instantiated the model as `model`
     folder_path = os.path.join(
             "/data",
@@ -28,7 +35,9 @@ def disorder_save_hgs_predicted_results(
             f"{session_column}",
             f"{feature_type}",
             f"{target}",
+            f"{confound}",
             f"{model_name}",
+            f"{n_repeats}_repeats_{n_folds}_folds",
             "hgs_predicted_results",
         )
         
@@ -38,7 +47,7 @@ def disorder_save_hgs_predicted_results(
     # Define the csv file path to save
     file_path = os.path.join(
         folder_path,
-        f"{gender}_hgs_predicted_results.csv")
+        f"{gender}_hgs_predicted_data.csv")
     
     df.to_csv(file_path, sep=',', index=True)
 

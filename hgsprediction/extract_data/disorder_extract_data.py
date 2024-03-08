@@ -49,7 +49,7 @@ def extract_data(df, population, features, extend_features, target, disorder_sub
     elif population == "parkinson":
         extend_features = extend_features + ["131022-0.0"]
     if population == "depression":
-        extend_features = extend_features + ["130894-0.0"]
+        extend_features = extend_features + ["130894-0.0", "130896-0.0", "depression_onset" ]
         
     features_extra_list = [col for col in df.columns if any(col.startswith(prefix) and col.endswith(item) for item in features_extra_list)]
     
