@@ -7,6 +7,7 @@ from ptpython.repl import embed
 # embed(globals(), locals())
 
 def save_disorder_anova_results(
+    df,
     df_anova_result,
     df_post_hoc_result_without_gender,
     df_post_hoc_result_with_gender,
@@ -51,6 +52,13 @@ def save_disorder_anova_results(
     if(not os.path.isdir(folder_path)):
         os.makedirs(folder_path)
 
+    # Define the csv file path to save
+    file_path = os.path.join(
+        folder_path,
+        "anova_contact_control_disorder_data.csv")
+    
+    df.to_csv(file_path, sep=',', index=True)
+    
     # Define the csv file path to save
     file_path = os.path.join(
         folder_path,
