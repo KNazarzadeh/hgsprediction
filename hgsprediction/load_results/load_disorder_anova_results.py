@@ -51,6 +51,13 @@ def load_disorder_anova_results(
     # Define the csv file path to save
     file_path = os.path.join(
         folder_path,
+        "anova_contact_control_disorder_data.csv")
+    
+    df = pd.read_csv(file_path, sep=',', index_col=0)
+    
+    # Define the csv file path to save
+    file_path = os.path.join(
+        folder_path,
         "anova_table.csv")
     
     df_anova_result = pd.read_csv(file_path, sep=',', index_col=0)
@@ -70,4 +77,4 @@ def load_disorder_anova_results(
     
     df_post_hoc_result_with_gender = pd.read_pickle(file_path)
   
-    return  df_anova_result, df_post_hoc_result_without_gender, df_post_hoc_result_with_gender
+    return  df, df_anova_result, df_post_hoc_result_without_gender, df_post_hoc_result_with_gender

@@ -29,14 +29,9 @@ disorder_cohort = sys.argv[9]
 visit_session = sys.argv[10]
 n_samples = sys.argv[11]
 target = sys.argv[12]
-anova_target = sys.argv[13]
 ##############################################################################
-if anova_target != "hgs":
-    main_extracted_columns = ["gender", "treatment", "disorder_episode", "hgs_target", "hgs"]
-else:
-    main_extracted_columns = ["gender", "treatment", "disorder_episode", "hgs_target"]
-    
-extract_columns = main_extracted_columns + [anova_target]
+
+main_extracted_columns = ["gender", "handedness", "hgs_dominant", "hgs_dominant_side", "hgs_nondominant", "hgs_nondominant_side", "age", "bmi", "height", "waist_to_hip_ratio", "treatment", "disorder_episode", "hgs_target", "hgs", "hgs_predicted", "hgs_delta", "hgs_corrected_predicted", "hgs_corrected_delta"]
 
 df_disorder = pd.DataFrame()
 df_control = pd.DataFrame()
@@ -128,65 +123,71 @@ for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
 
         df_extracted_post.rename(columns=lambda x: x.replace("delta(true-predicted)", "delta") if "delta(true-predicted)" in x else x, inplace=True)
 
-df_tmp = pd.concat([df_extracted_pre.loc[:, extract_columns], df_extracted_post.loc[:, extract_columns]], axis=0)
+df_tmp = pd.concat([df_extracted_pre.loc[:, main_extracted_columns], df_extracted_post.loc[:, main_extracted_columns]], axis=0)
 
 df_disorder = pd.concat([df_disorder, df_tmp], axis=0)
-df_control = pd.concat([df_control, df_control_tmp.loc[:, extract_columns]], axis=0)
+df_control = df_control_tmp[[col for col in df_control_tmp.columns if any(col.startswith(item) for item in main_extracted_columns)]]
+df_control.columns = df_control.columns.str.replace(f"-{session}.0", "", regex=True)
 
 ##############################################################################
+
 # Perform the ANOVA
 df = pd.concat([df_control, df_disorder], axis=0)
 df["gender"].replace(0, "female", inplace=True)
 df["gender"].replace(1, "male", inplace=True)
 
-formula = (
-    f'{anova_target} ~ '
-    'C(gender) + C(treatment) + C(disorder_episode) + C(hgs_target) + '
-    'C(gender):C(treatment) + C(gender):C(disorder_episode) + C(gender):C(hgs_target) + '
-    'C(treatment):C(disorder_episode) + C(treatment):C(hgs_target) + '
-    'C(disorder_episode):C(hgs_target) + '
-    'C(treatment):C(disorder_episode):C(hgs_target) + '
-    'C(disorder_episode):C(hgs_target):C(gender) + '
-    'C(treatment):C(disorder_episode):C(hgs_target):C(gender)'
-)
+for anova_target in ["hgs", "hgs_predicted", "hgs_corrected_predicted", "hgs_delta", "hgs_corrected_delta"]:
+    print(anova_target)
+    formula = (
+        f'{anova_target} ~ '
+        'C(gender) + C(treatment) + C(disorder_episode) + C(hgs_target) + '
+        'C(gender):C(treatment) + C(gender):C(disorder_episode) + C(gender):C(hgs_target) + '
+        'C(treatment):C(disorder_episode) + C(treatment):C(hgs_target) + '
+        'C(disorder_episode):C(hgs_target) + '
+        'C(treatment):C(disorder_episode):C(hgs_target) + '
+        'C(disorder_episode):C(hgs_target):C(gender) + '
+        'C(treatment):C(disorder_episode):C(hgs_target):C(gender)'
+    )
 
-model = ols(formula, data=df).fit()
-df_anova_result = sm.stats.anova_lm(model)
+    model = ols(formula, data=df).fit()
+    df_anova_result = sm.stats.anova_lm(model)
 
-print(df_anova_result)
+    print(df_anova_result)
 
-# Perform post-hoc tests on significant interactions (Tukey's HSD)
-# interaction_groups =  df.treatment.astype(str) + "_"+ df.disorder_episode.astype(str)+ "_" + df.hgs_target.astype(str)
-interaction_groups =  df.disorder_episode.astype(str) + " | " + df.hgs_target.astype(str)
-comp = mc.MultiComparison(df[f"{anova_target}"], interaction_groups)
-df_post_hoc_result_without_gender = comp.tukeyhsd()
-print(df_post_hoc_result_without_gender.summary())
+    # Perform post-hoc tests on significant interactions (Tukey's HSD)
+    # interaction_groups =  df.treatment.astype(str) + "_"+ df.disorder_episode.astype(str)+ "_" + df.hgs_target.astype(str)
+    interaction_groups =  df.disorder_episode.astype(str) + " | " + df.hgs_target.astype(str)
+    comp = mc.MultiComparison(df[f"{anova_target}"], interaction_groups)
+    df_post_hoc_result_without_gender = comp.tukeyhsd()
+    print(df_post_hoc_result_without_gender.summary())
 
-interaction_groups =  df.gender.astype(str) + " | " + df.disorder_episode.astype(str) + " | " + df.hgs_target.astype(str)
-comp = mc.MultiComparison(df[f"{anova_target}"], interaction_groups)
-df_post_hoc_result_with_gender = comp.tukeyhsd()
-print(df_post_hoc_result_with_gender.summary())
+    interaction_groups =  df.gender.astype(str) + " | " + df.disorder_episode.astype(str) + " | " + df.hgs_target.astype(str)
+    comp = mc.MultiComparison(df[f"{anova_target}"], interaction_groups)
+    df_post_hoc_result_with_gender = comp.tukeyhsd()
+    print(df_post_hoc_result_with_gender.summary())
 
-# print("===== Done! =====")
-# embed(globals(), locals())
+    print(anova_target)
+    print(target)
+    print(formula)
+    print(population)
 
-save_disorder_anova_results(
-    df,
-    df_anova_result,
-    df_post_hoc_result_without_gender,
-    df_post_hoc_result_with_gender,
-    population,
-    mri_status,
-    session_column,
-    model_name,
-    feature_type,
-    target,
-    confound_status,
-    n_repeats,
-    n_folds,
-    n_samples,
-    anova_target,
-)
+    save_disorder_anova_results(
+        df,
+        df_anova_result,
+        df_post_hoc_result_without_gender,
+        df_post_hoc_result_with_gender,
+        population,
+        mri_status,
+        session_column,
+        model_name,
+        feature_type,
+        target,
+        confound_status,
+        n_repeats,
+        n_folds,
+        n_samples,
+        anova_target,
+    )
 
 
 print("===== Done! =====")

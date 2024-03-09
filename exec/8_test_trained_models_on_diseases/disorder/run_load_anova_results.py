@@ -37,7 +37,7 @@ if visit_session == "1":
     
 target = f"anova_results_for_both_{target_1}_and_{target_2}"
 
-df_anova_result, df_post_hoc_result_without_gender, df_post_hoc_result_with_gender =  load_disorder_anova_results(
+df, df_anova_result, df_post_hoc_result_without_gender, df_post_hoc_result_with_gender =  load_disorder_anova_results(
     population,
     mri_status,
     session_column,
