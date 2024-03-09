@@ -52,6 +52,8 @@ slope, intercept = prediction_corrector_model(
     confound_status,
 )
 
+print(slope)
+print(intercept)
 ###############################################################################
 
 df = load_hgs_predicted_results(
@@ -71,7 +73,8 @@ df = load_hgs_predicted_results(
 
 df.loc[:, f"{target}_corrected_predicted"] = (df.loc[:, f"{target}_predicted"] - intercept) / slope
 df.loc[:, f"{target}_corrected_delta(true-predicted)"] =  df.loc[:, f"{target}"] - df.loc[:, f"{target}_corrected_predicted"]
-
+# print("===== Done! =====")
+# embed(globals(), locals())
 save_corrected_prediction_results(
     df,
     population,
@@ -85,8 +88,8 @@ save_corrected_prediction_results(
     n_repeats,
     n_folds,
 )
-print("===== Done! =====")
-embed(globals(), locals())
+# print("===== Done! =====")
+# embed(globals(), locals())
 
 ###############################################################################
 df_correlations = pd.DataFrame()
@@ -109,8 +112,7 @@ df_r2_values.loc[0, "r2_values_true_delta"] = r2_score(df.loc[:, f"{target}"],df
 df_r2_values.loc[0, "r2_values_true_corrected_predicted"] = r2_score(df.loc[:, f"{target}"],df.loc[:, f"{target}_corrected_predicted"])
 df_r2_values.loc[0, "r2_values_true_corrected_delta"] = r2_score(df.loc[:, f"{target}"],df.loc[:, f"{target}_corrected_delta(true-predicted)"])
 
-print("===== Done! =====")
-embed(globals(), locals())
+
 
 save_corrected_prediction_correlation_results(
     df_correlations,
@@ -127,3 +129,5 @@ save_corrected_prediction_correlation_results(
     n_repeats,
     n_folds,    
 )
+print("===== Done! =====")
+embed(globals(), locals())

@@ -72,8 +72,7 @@ if mri_status == "mri+nonmri":
     df_longitudinal_mri = disorder_load_data.load_preprocessed_data(population, "mri", session_column, disorder_cohort)
     df_longitudinal_nonmri = disorder_load_data.load_preprocessed_data(population, "nonmri", session_column, disorder_cohort)
     df_longitudinal = pd.concat([df_longitudinal_mri, df_longitudinal_nonmri]).dropna(axis=1, how='all')
-    print("===== Done! =====")
-    embed(globals(), locals())
+
 else:
     df_longitudinal = disorder_load_data.load_preprocessed_data(population, mri_status, session_column, disorder_cohort)
 
