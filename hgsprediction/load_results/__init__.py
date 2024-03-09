@@ -25,3 +25,5 @@ from .load_disorder_corrected_prediction_results import load_disorder_corrected_
 from .load_disorder_corrected_prediction_correlation_results import load_disorder_corrected_prediction_correlation_results
 
 from .load_disorder_matched_samples_results import load_disorder_matched_samples_results
+
+from .load_disorder_anova_results import load_disorder_anova_results

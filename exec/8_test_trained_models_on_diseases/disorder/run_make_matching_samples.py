@@ -126,7 +126,7 @@ for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
     
     df_disorder.loc[:, f"{prefix}propensity_scores"] = df_disorder_tmp.loc[:, "propensity_scores"]
     
-    caliper = np.std(df.loc[:, "propensity_scores"]) * 0.25
+    # caliper = np.std(df.loc[:, "propensity_scores"]) * 0.25
 
     # Fit nearest neighbors model on control group using propensity scores
     nbrs = NearestNeighbors(n_neighbors=10, algorithm='auto').fit(df_control_tmp['propensity_scores'].values.reshape(-1, 1))
