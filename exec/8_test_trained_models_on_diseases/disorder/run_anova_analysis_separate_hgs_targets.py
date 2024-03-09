@@ -189,6 +189,23 @@ for anova_target in ["hgs", "hgs_predicted", "hgs_corrected_predicted", "hgs_del
         anova_target,
     )
 
+    save_disorder_anova_results(
+            df,
+            df_anova_result,
+            df_post_hoc_result_without_gender,
+            df_post_hoc_result_with_gender,
+            population,
+            mri_status,
+            session_column,
+            model_name,
+            feature_type,
+            target,
+            confound_status,
+            n_repeats,
+            n_folds,
+            n_samples,
+            anova_target,
+        )
 
 print("===== Done! =====")
 embed(globals(), locals())
