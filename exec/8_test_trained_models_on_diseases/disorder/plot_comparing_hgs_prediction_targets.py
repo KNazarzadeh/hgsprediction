@@ -56,8 +56,8 @@ for target in ["hgs_left", "hgs_right", "hgs_L+R"]:
     
     df = pd.concat([df, df_data], axis=0)
     
-df_pre_episode = df[df["disorder_episode"].str.startswith("pre")]
-df_post_episode = df[df["disorder_episode"].str.startswith("post")]
+df_pre = df[df["disorder_episode"].str.startswith("pre")]
+df_post = df[df["disorder_episode"].str.startswith("post")]
 
 ###############################################################################
 def add_median_labels(ax, fmt='.3f'):
@@ -80,13 +80,26 @@ def add_median_labels(ax, fmt='.3f'):
     return xticks_positions_array
 ###############################################################################
 # Create the boxplot
-fig, ax = plt.subplots(1, 2, figsize=(18, 10))
+fig, axes = plt.subplots(2, 2, figsize=(18, 10))
+
+plt.rcParams.update({"font.weight": "bold", 
+                     "axes.labelweight": "bold",
+                     "ytick.labelsize": 30,
+                     "xtick.labelsize": 30,
+                     })
 
 # Set the style of seaborn
-sns.set(style="whitegrid")
+sns.set_style("whitegrid")
+for i, disorder_subgroup in enumerate([f"pre-{population}", f"post-{population}"]):
+    for j in range(2):
+        ax = axes[j][i]
 
-ax[0] = sns.boxplot(data=df_pre_episode, x='hgs_target', y='hgs_delta', hue='treatment', palette='Set3')
-ax[1] = sns.boxplot(data=df_pre_episode, x='hgs_target', y='hgs_corrected_delta', hue='treatment', palette='Set3')
+        if j == 0:
+            sns.boxplot(data=df_pre, x='hgs_target', y='hgs_delta', hue='treatment', palette='Set3', ax=ax)
+            sns.boxplot(data=df_pre, x='hgs_target', y='hgs_corrected_delta', hue='treatment', palette='Set3', ax=ax)
+        if j == 1:
+            sns.boxplot(data=df_post, x='hgs_target', y='hgs_delta', hue='treatment', palette='Set3', ax=ax)
+            sns.boxplot(data=df_post, x='hgs_target', y='hgs_corrected_delta', hue='treatment', palette='Set3', ax=ax)
 
 # Add labels and title
 ax[0].set_ylabel(f"Delta HGS", fontsize=20, fontweight="bold")
