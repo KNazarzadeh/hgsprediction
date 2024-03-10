@@ -114,23 +114,20 @@ def add_median_labels(ax, fmt='.3f'):
 xtick_labels = ['Left HGS', 'Right HGS', 'Combined HGS']
 palette_tmp = sns.color_palette("Pastel1")
 custome_palette = [palette_tmp[1], palette_tmp[0]]
+ymin = 0
+ymax =0
 # Create the boxplot
-fig, axes = plt.subplots(2, 2, figsize=(20, 20))
+fig, axes = plt.subplots(2, 2, figsize=(24, 22))
 
 plt.rcParams.update({"font.weight": "bold", 
                      "axes.labelweight": "bold",
-                     "ytick.labelsize": 20,
-                     "xtick.labelsize": 20,
+                     "ytick.labelsize": 16,
+                     "xtick.labelsize": 16,
                      })
 
 # Set the style of seaborn
 sns.set_style("whitegrid")
 for i, y_hgs in enumerate(plot_target):
-    # parts = y_hgs.split('_')
-    # capitalized_parts = [part.capitalize() for part in parts]
-    # result = ' '.join(capitalized_parts[1])
-    # print(result)
-
     for j in range(2):
         ax = axes[i][j]
         if j == 0:
@@ -144,7 +141,7 @@ for i, y_hgs in enumerate(plot_target):
             # Setting the xtick labels
             ax.set_xticklabels(xtick_labels) 
             if i == 0:
-                ax.set_title(f"Pre-episode - {population}(N={int(len(df_pre[df_pre['treatment']==population])/3)}) - matched controls(N={int(len(df_pre[df_pre['treatment']=='control'])/3)})", fontsize=20, fontweight="bold")            
+                ax.set_title(f"Pre-episode - {population}(N={int(len(df_pre[df_pre['treatment']==population])/3)}) - matched controls(N={int(len(df_pre[df_pre['treatment']=='control'])/3)})", fontsize=12, fontweight="bold")            
             if y_hgs == "hgs_delta":
                 ax.set_ylabel("Delta HGS", fontsize=30, fontweight="bold")
             elif y_hgs == "hgs_corrected_delta":
@@ -164,10 +161,16 @@ for i, y_hgs in enumerate(plot_target):
                     idx = "hgs_L+R"
                 x1 = xticks_positios_array[x_box_pos]
                 x2 = xticks_positios_array[x_box_pos+1]
-                y, h, col = df_yaxis_max.loc[idx, f"pre_{y_hgs}_max_value"] + 2, 2, 'k'
+                y, h, col = df_yaxis_max.loc[idx, f"pre_{y_hgs}_max_value"] + 1, 2, 'k'
                 ax.plot([x1, x1, x2, x2], [y, y+h, y+h, y], lw=1.5, c=col)
                 ax.text((x1+x2)*.5, y+h, f"p={df_ranksum.loc[idx, f'pre_{y_hgs}_p_value']:.3f}", ha='center', va='bottom', fontsize=14, weight='bold',  color=col)
-
+            ymin_tmp, ymax_tmp = ax.get_ylim()
+            
+            if ymin_tmp < ymin:
+                ymin = ymin_tmp
+            if ymax_tmp > ymax:
+                ymax = ymax_tmp
+            
         if j == 1:
             sns.boxplot(data=df_post, x='hgs_target', y=f'{y_hgs}', hue='treatment', palette=custome_palette, ax=ax)
             ax.legend().set_visible(False)
@@ -178,7 +181,7 @@ for i, y_hgs in enumerate(plot_target):
             # Setting the xtick labels
             ax.set_xticklabels(xtick_labels)       
             if i == 0:
-                ax.set_title(f"Post-episode - {population}(N={int(len(df_pre[df_pre['treatment']==population])/3)})- matched controls(N={int(len(df_pre[df_pre['treatment']=='control'])/3)})", fontsize=20, fontweight="bold")                                
+                ax.set_title(f"Post-episode - {population}(N={int(len(df_pre[df_pre['treatment']==population])/3)})- matched controls(N={int(len(df_pre[df_pre['treatment']=='control'])/3)})", fontsize=12, fontweight="bold")                                
             if y_hgs == "hgs_delta":
                 ax.set_ylabel("Delta HGS", fontsize=30, fontweight="bold")
             elif y_hgs == "hgs_corrected_delta":
@@ -199,20 +202,31 @@ for i, y_hgs in enumerate(plot_target):
                     idx = "hgs_L+R"
                 x1 = xticks_positios_array[x_box_pos]
                 x2 = xticks_positios_array[x_box_pos+1]
-                y, h, col = df_yaxis_max.loc[idx, f"post_{y_hgs}_max_value"] + 2, 2, 'k'
+                y, h, col = df_yaxis_max.loc[idx, f"post_{y_hgs}_max_value"], 2, 'k'
                 ax.plot([x1, x1, x2, x2], [y, y+h, y+h, y], lw=1.5, c=col)
                 ax.text((x1+x2)*.5, y+h, f"p={df_ranksum.loc[idx, f'post_{y_hgs}_p_value']:.3f}", ha='center', va='bottom', fontsize=14, weight='bold',  color=col)
-            
-# add_median_labels(ax)
+            if ymin_tmp < ymin:
+                ymin = ymin_tmp
+            if ymax_tmp > ymax:
+                ymax = ymax_tmp
+
+if population == "depression":
+    ylim_range = range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+30, 10) 
+else:
+    ylim_range = range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+10, 10) 
+for i in range(2):
+    for j in range(2):
+        ax=axes[i][j]            
+        ax.set_ylim(min(ylim_range), max(ylim_range))
+        ax.set_yticks(range(min(ylim_range), max(ylim_range)+1, 20))
 
 # Adjust layout
 plt.tight_layout()
 
 # Show the plot
 plt.show()
-plt.savefig(f"{population}_{anova_target}_.png")
+plt.savefig(f"{population}_{anova_target}_corrected_predictions_matched_controls.png")
 plt.close()
 
 print("===== Done! =====")
 embed(globals(), locals())
-
