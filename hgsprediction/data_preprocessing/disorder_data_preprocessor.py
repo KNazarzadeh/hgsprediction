@@ -192,6 +192,7 @@ class DisorderMainDataPreprocessor:
         ############### Extract All Post disorder Subjects #################
         ##################################################################
         disorder_cohort = f"post-{disorder}"
+        
         # Drop rows where values in all four columns of followup_days 
         # are less than 0 (Drop All Pre-disorder subjects)
         # And keep rows with at least one value (>= 0)
@@ -293,6 +294,7 @@ class DisorderMainDataPreprocessor:
                                f"2nd_post-{disorder}_session",
                                f"3rd_post-{disorder}_session",
                                f"4th_post-{disorder}_session"]
+
         # Join pre_visits columns from df_all_pre_disorder_visits into longitudinal_disorder_df    
         df_longitudinal_disorder = df_longitudinal_disorder.join(pre_disorder_visits_df[pre_disorder_visits_df.index.isin(duplicate_index)][pre_visits_columns])
         # Join post_visits columns from df_all_post_disorder_visits into longitudinal_disorder_df
@@ -309,9 +311,7 @@ class DisorderMainDataPreprocessor:
         # Reindex the merged dataframe to align with the original index of df,
         # ensuring consistent indexing for further analysis or operations.
         preprocessed_df = merged_df.reindex(df.index)
-        
-        # preprocessed_df = self.remove_nan_columns(preprocessed_df)
-        
+                
         return preprocessed_df
 
 ###############################################################################

@@ -146,7 +146,7 @@ for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
 
         df_matched_tmp = pd.concat([df_matched_tmp, df_control[df_control.index.isin(matches)]], axis=0)
         df_matched_tmp.loc[matches, "propensity_scores"] = df_control_tmp[df_control_tmp.index.isin(matches)].loc[:, "propensity_scores"]
-
+      
     df_matched_tmp.loc[:, "disorder_episode"] = disorder_subgroup
     
     df_control_matched = pd.concat([df_control_matched, df_matched_tmp], axis=0)
@@ -154,7 +154,8 @@ for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
     # Print matched samples for each subject
     for subject_id, matches in matched_samples.items():
         print(f"SubjectID: {subject_id}, Matches: {matches}")
-
+print("===== Done! =====")
+embed(globals(), locals())   
 ##############################################################################
 save_disorder_matched_samples_results(
     df_control_matched,

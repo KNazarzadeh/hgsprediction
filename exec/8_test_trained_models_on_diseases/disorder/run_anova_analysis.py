@@ -170,7 +170,8 @@ for anova_target in ["hgs", "hgs_predicted", "hgs_corrected_predicted", "hgs_del
     df_post_hoc_result_with_gender = comp.tukeyhsd()
     print(df_post_hoc_result_with_gender.summary())
 
-
+    print("===== Done! =====")
+    embed(globals(), locals())
     print(anova_target)
     print(target)
     print(formula)
