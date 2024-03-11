@@ -38,6 +38,9 @@ if anova_target == "hgs_delta":
 elif anova_target == "hgs_predicted":
     plot_target = ["hgs_predicted", "hgs_corrected_predicted"]
 
+elif anova_target == "hgs":
+    plot_target = ["hgs"]
+
 ##############################################################################
 
 df = pd.DataFrame()
@@ -71,22 +74,21 @@ df_post_control= df_post[df_post['treatment']=="control"]
 df_ranksum = pd.DataFrame(index=["hgs_left", "hgs_right", "hgs_L+R"])
 df_yaxis_max = pd.DataFrame(index=["hgs_left", "hgs_right", "hgs_L+R"])
 
-if anova_target == "hgs_delta":
-    for target in ["hgs_left", "hgs_right", "hgs_L+R"]:
-        for i, y_hgs in enumerate(plot_target):
-            stat_pre, p_value_pre = ranksums(df_pre_control[df_pre_control["hgs_target"]==target][y_hgs], df_pre_disorder[df_pre_disorder["hgs_target"]==target][y_hgs])
-            stat_post, p_value_post = ranksums(df_post_control[df_post_control["hgs_target"]==target][y_hgs], df_post_disorder[df_post_disorder["hgs_target"]==target][y_hgs])
+for target in ["hgs_left", "hgs_right", "hgs_L+R"]:
+    for i, y_hgs in enumerate(plot_target):
+        stat_pre, p_value_pre = ranksums(df_pre_control[df_pre_control["hgs_target"]==target][y_hgs], df_pre_disorder[df_pre_disorder["hgs_target"]==target][y_hgs])
+        stat_post, p_value_post = ranksums(df_post_control[df_post_control["hgs_target"]==target][y_hgs], df_post_disorder[df_post_disorder["hgs_target"]==target][y_hgs])
 
-            df_ranksum.loc[target, f"pre_{y_hgs}_p_value"] = p_value_pre
-            df_ranksum.loc[target, f"pre_{y_hgs}_stat_value"] = stat_pre
-            df_ranksum.loc[target, f"post_{y_hgs}_p_value"] = p_value_post
-            df_ranksum.loc[target, f"post_{y_hgs}_stat_value"] = stat_post
-            
-            max_value_pre = max(df_pre_control[df_pre_control["hgs_target"] == target][y_hgs].max(),df_pre_disorder[df_pre_disorder["hgs_target"] == target][y_hgs].max())
-            max_value_post = max(df_post_control[df_post_control["hgs_target"] == target][y_hgs].max(),df_post_disorder[df_post_disorder["hgs_target"] == target][y_hgs].max())
+        df_ranksum.loc[target, f"pre_{y_hgs}_p_value"] = p_value_pre
+        df_ranksum.loc[target, f"pre_{y_hgs}_stat_value"] = stat_pre
+        df_ranksum.loc[target, f"post_{y_hgs}_p_value"] = p_value_post
+        df_ranksum.loc[target, f"post_{y_hgs}_stat_value"] = stat_post
+        
+        max_value_pre = max(df_pre_control[df_pre_control["hgs_target"] == target][y_hgs].max(),df_pre_disorder[df_pre_disorder["hgs_target"] == target][y_hgs].max())
+        max_value_post = max(df_post_control[df_post_control["hgs_target"] == target][y_hgs].max(),df_post_disorder[df_post_disorder["hgs_target"] == target][y_hgs].max())
 
-            df_yaxis_max.loc[target, f"pre_{y_hgs}_max_value"] = max_value_pre
-            df_yaxis_max.loc[target, f"post_{y_hgs}_max_value"] = max_value_post
+        df_yaxis_max.loc[target, f"pre_{y_hgs}_max_value"] = max_value_pre
+        df_yaxis_max.loc[target, f"post_{y_hgs}_max_value"] = max_value_post
 
 ###############################################################################
 def add_median_labels(ax, fmt='.3f'):
@@ -126,12 +128,22 @@ ymax =0
 # Set the style of seaborn
 sns.set_style("whitegrid")
 # Create the boxplot
-fig, axes = plt.subplots(2, 2, figsize=(24, 22))
+if anova_target == "hgs":
+    n_row = 1
+    n_col = 2
+else:
+    n_row = 2
+    n_col = 2 
 
-for i, y_hgs in enumerate(plot_target):
-    for j in range(2):
-        ax = axes[i][j]
-        
+fig, axes = plt.subplots(n_row, n_col, figsize=(24, 22))
+
+for i, y_hgs in enumerate(plot_target): 
+    for j in range(n_col):
+        if n_row == 1:
+            ax = axes[j]
+        else:
+            ax = axes[i][j]
+
         if j == 0:
             sns.boxplot(data=df_pre, x='hgs_target', y=f'{y_hgs}', hue='treatment', palette=custome_palette, ax=ax)
             sns.set_style("whitegrid")
@@ -154,7 +166,9 @@ for i, y_hgs in enumerate(plot_target):
                 ax.set_ylabel("Predicted HGS", fontsize=30, fontweight="bold")
             elif y_hgs == "hgs_corrected_predicted":
                 ax.set_ylabel("Corrected predicted HGS", fontsize=30, fontweight="bold")
-            
+            elif y_hgs == "hgs":
+                ax.set_ylabel("True HGS", fontsize=30, fontweight="bold")
+                
             xticks_positios_array = add_median_labels(ax)
             for x_box_pos in np.arange(0,6,2):
                 if x_box_pos == 0:
@@ -196,6 +210,8 @@ for i, y_hgs in enumerate(plot_target):
                 ax.set_ylabel("Predicted HGS", fontsize=30, fontweight="bold")
             elif y_hgs == "hgs_corrected_predicted":
                 ax.set_ylabel("Corrected predicted HGS", fontsize=30, fontweight="bold")
+            elif y_hgs == "hgs":
+                ax.set_ylabel("True HGS", fontsize=30, fontweight="bold")
 
             xticks_positios_array = add_median_labels(ax)
 
@@ -217,12 +233,17 @@ for i, y_hgs in enumerate(plot_target):
                 ymax = ymax_tmp
 
 if population == "depression":
-    ylim_range = range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+40, 20) 
-else:
-    ylim_range = range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+40, 20) 
-for i in range(2):
-    for j in range(2):
-        ax=axes[i][j]            
+    ylim_range = range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+60, 20) 
+if population == "parkinson":
+    ylim_range = range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+30, 20) 
+if population == "stroke":
+    ylim_range = range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+20, 20) 
+for i in range(n_row):
+    for j in range(n_col):
+        if n_row == 1:
+            ax = axes[j]
+        else:
+            ax = axes[i][j]
         ax.set_ylim(min(ylim_range), max(ylim_range))
         ax.set_yticks(range(min(ylim_range), max(ylim_range)+1, 20))
         ax.set_yticklabels(ax.get_yticks(), size=16, weight='bold')
@@ -232,7 +253,7 @@ plt.tight_layout()
 
 # Show the plot
 plt.show()
-plt.savefig(f"{population}_{anova_target}_corrected_predictions_matched_controls_1.png")
+plt.savefig(f"{population}_{anova_target}_corrected_predictions_matched_controls.png")
 plt.close()
 
 print("===== Done! =====")
