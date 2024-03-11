@@ -98,10 +98,13 @@ def add_median_labels(ax, fmt='.3f'):
         x, y = (data.mean() for data in median.get_data())
         # choose value depending on horizontal or vertical plot orientation
         value = x if (median.get_xdata()[1] - median.get_xdata()[0]) == 0 else y
+        text = ax.text(x, y, f'{value:{fmt}}', ha='center', va='center',  color='black', fontsize=14, fontweight='bold')
         text = ax.text(x, y, f'{value:{fmt}}', ha='center', va='center',  color='white', fontsize=14)
+        
                     #    fontweight='bold',
         # create median-colored border around white text for contrast
         text.set_path_effects([
+            # path_effects.Stroke(linewidth=3, foreground='none'),
             path_effects.Stroke(linewidth=3, foreground=median.get_color()),
             path_effects.Normal(),
         ])
@@ -112,26 +115,27 @@ def add_median_labels(ax, fmt='.3f'):
 # embed(globals(), locals())
 ###############################################################################
 xtick_labels = ['Left HGS', 'Right HGS', 'Combined HGS']
-palette_tmp = sns.color_palette("Pastel1")
-custome_palette = [palette_tmp[1], palette_tmp[0]]
+# palette_tmp = sns.color_palette("Pastel1")
+# custome_palette = [palette_tmp[1], palette_tmp[0]]
+
+palette_tmp = sns.color_palette("Set2")
+custome_palette = [palette_tmp[0], palette_tmp[5]]
 ymin = 0
 ymax =0
-# Create the boxplot
-fig, axes = plt.subplots(2, 2, figsize=(24, 22))
-
-plt.rcParams.update({"font.weight": "bold", 
-                     "axes.labelweight": "bold",
-                     "ytick.labelsize": 16,
-                     "xtick.labelsize": 16,
-                     })
 
 # Set the style of seaborn
 sns.set_style("whitegrid")
+# Create the boxplot
+fig, axes = plt.subplots(2, 2, figsize=(24, 22))
+
 for i, y_hgs in enumerate(plot_target):
     for j in range(2):
         ax = axes[i][j]
+        
         if j == 0:
             sns.boxplot(data=df_pre, x='hgs_target', y=f'{y_hgs}', hue='treatment', palette=custome_palette, ax=ax)
+            sns.set_style("whitegrid")
+
             ax.legend().set_visible(False)
             if i == 1:             
                 ax.set_xlabel("HGS target", fontsize=30, fontweight="bold")
@@ -139,7 +143,7 @@ for i, y_hgs in enumerate(plot_target):
                 ax.set_xlabel("")
 
             # Setting the xtick labels
-            ax.set_xticklabels(xtick_labels) 
+            ax.set_xticklabels(xtick_labels, size=16, weight='bold')
             if i == 0:
                 ax.set_title(f"Pre-episode - {population}(N={int(len(df_pre[df_pre['treatment']==population])/3)}) - matched controls(N={int(len(df_pre[df_pre['treatment']=='control'])/3)})", fontsize=12, fontweight="bold")            
             if y_hgs == "hgs_delta":
@@ -173,13 +177,15 @@ for i, y_hgs in enumerate(plot_target):
             
         if j == 1:
             sns.boxplot(data=df_post, x='hgs_target', y=f'{y_hgs}', hue='treatment', palette=custome_palette, ax=ax)
+            sns.set_style("whitegrid")
+
             ax.legend().set_visible(False)
             if i == 1:             
                 ax.set_xlabel("HGS target", fontsize=30, fontweight="bold")
             else:
                 ax.set_xlabel("")
             # Setting the xtick labels
-            ax.set_xticklabels(xtick_labels)       
+            ax.set_xticklabels(xtick_labels, size=16, weight='bold')       
             if i == 0:
                 ax.set_title(f"Post-episode - {population}(N={int(len(df_pre[df_pre['treatment']==population])/3)})- matched controls(N={int(len(df_pre[df_pre['treatment']=='control'])/3)})", fontsize=12, fontweight="bold")                                
             if y_hgs == "hgs_delta":
@@ -211,21 +217,22 @@ for i, y_hgs in enumerate(plot_target):
                 ymax = ymax_tmp
 
 if population == "depression":
-    ylim_range = range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+30, 10) 
+    ylim_range = range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+40, 20) 
 else:
-    ylim_range = range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+10, 10) 
+    ylim_range = range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+40, 20) 
 for i in range(2):
     for j in range(2):
         ax=axes[i][j]            
         ax.set_ylim(min(ylim_range), max(ylim_range))
         ax.set_yticks(range(min(ylim_range), max(ylim_range)+1, 20))
+        ax.set_yticklabels(ax.get_yticks(), size=16, weight='bold')
 
 # Adjust layout
 plt.tight_layout()
 
 # Show the plot
 plt.show()
-plt.savefig(f"{population}_{anova_target}_corrected_predictions_matched_controls.png")
+plt.savefig(f"{population}_{anova_target}_corrected_predictions_matched_controls_1.png")
 plt.close()
 
 print("===== Done! =====")

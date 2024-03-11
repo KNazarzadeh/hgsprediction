@@ -146,7 +146,8 @@ for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
 
         df_matched_tmp = pd.concat([df_matched_tmp, df_control[df_control.index.isin(matches)]], axis=0)
         df_matched_tmp.loc[matches, "propensity_scores"] = df_control_tmp[df_control_tmp.index.isin(matches)].loc[:, "propensity_scores"]
-        
+        print("===== Done! =====")
+        embed(globals(), locals())
     df_matched_tmp.loc[:, "matched_disorder_subgroup"] = disorder_subgroup
     
     df_control_matched = pd.concat([df_control_matched, df_matched_tmp], axis=0)

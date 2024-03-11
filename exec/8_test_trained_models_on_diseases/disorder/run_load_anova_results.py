@@ -55,7 +55,7 @@ print(df_anova_result)
 print("Post-hoc results without Gender")
 print(df_post_hoc_result_without_gender)
 print("Post-hoc results with Gender included")
-print(df_post_hoc_result_without_gender)
+print(df_post_hoc_result_with_gender)
 
 print("===== Done! =====")
 embed(globals(), locals())
