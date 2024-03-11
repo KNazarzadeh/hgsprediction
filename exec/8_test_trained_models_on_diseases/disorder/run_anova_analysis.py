@@ -87,7 +87,6 @@ for target in [f"{target_1}", f"{target_2}"]:
     df_disorder_tmp.columns = [col.replace(f"{target}", "hgs") if f"{target}" in col else col for col in df_disorder_tmp.columns]    
     df_control_tmp.columns = [col.replace(f"{target}", "hgs") if f"{target}" in col else col for col in df_control_tmp.columns]
 
-    df_control_tmp = df_control_tmp.rename(columns={"matched_disorder_subgroup":"disorder_episode"})
     # Replace values in the column
     df_control_tmp.loc[:, "disorder_episode"] = df_control_tmp.loc[:, "disorder_episode"].replace({f"pre-{population}": "pre-control", f"post-{population}": "post-control"})
     

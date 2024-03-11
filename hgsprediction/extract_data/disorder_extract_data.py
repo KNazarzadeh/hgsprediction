@@ -59,7 +59,7 @@ def extract_data(df, population, features, extend_features, target, disorder_sub
     # Extract the specified feature and target columns
     # Drop rows with NaN values in the combined feature and target columns
     df_tmp = df.loc[:, all_featurtes].dropna(subset=features) 
-    
+
     if disorder_subgroup == f"pre-{population}":
         df_extracted = df_tmp[[col for col in df_tmp.columns if f"post-{population}" not in col]]
 

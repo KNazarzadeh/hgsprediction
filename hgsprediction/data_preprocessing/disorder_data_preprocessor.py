@@ -85,12 +85,13 @@ class DisorderMainDataPreprocessor:
         df_output = pd.DataFrame()
         
         for ses in range(sessions):
-            df_tmp = df[
-                ((~df.loc[:, f"{hgs_left}-{ses}.0"].isna()) &
-                (df.loc[:, f"{hgs_left}-{ses}.0"] !=  0) & (df.loc[:, f"{hgs_left}-{ses}.0"] >= 4.0))
-                & ((~df.loc[:, f"{hgs_right}-{ses}.0"].isna()) &
-                (df.loc[:, f"{hgs_right}-{ses}.0"] !=  0) & (df.loc[:, f"{hgs_right}-{ses}.0"] >= 4.0))
-            ]
+            # df_tmp = df[
+            #     ((~df.loc[:, f"{hgs_left}-{ses}.0"].isna()) &
+            #     (df.loc[:, f"{hgs_left}-{ses}.0"] !=  0) & (df.loc[:, f"{hgs_left}-{ses}.0"] >= 4.0))
+            #     & ((~df.loc[:, f"{hgs_right}-{ses}.0"].isna()) &
+            #     (df.loc[:, f"{hgs_right}-{ses}.0"] !=  0) & (df.loc[:, f"{hgs_right}-{ses}.0"] >= 4.0))
+            # ]
+            df_tmp = df[(~df.loc[:, f"{hgs_left}-{ses}.0"].isna()) & ((~df.loc[:, f"{hgs_right}-{ses}.0"].isna()))]
             df_output = pd.concat([df_output, df_tmp], axis=0)
 
         # Drop the duplicated subjects
@@ -464,9 +465,7 @@ class DisorderMainDataPreprocessor:
             # Exclude all subjects who had Dominant HGS < 4:
             # The condition is applied to "hgs_dominant" columns
             # And then reset_index the new dataframe:
-            df = df[df.loc[:, hgs_dominant] >= 4 & ~df.loc[:, hgs_dominant].isna()]
-            df = df[(df.loc[:, hgs_nondominant] >= 4) & (~df.loc[:, hgs_nondominant].isna())]
-            df = df[(df.loc[:, hgs_dominant] >= df.loc[:, hgs_nondominant])]
+            df = df[(~df.loc[:, hgs_dominant].isna()) & (~df.loc[:, hgs_nondominant].isna())]
 
         elif df.loc[:, session_column].isna().sum() == len(df):
             # Drop all rows from the DataFrame
@@ -490,8 +489,7 @@ class DisorderMainDataPreprocessor:
             session = df.loc[idx, session_column]
             # hgs_left field-ID: 46
             # hgs_right field-ID: 47
-            if ((df.loc[idx, f"{hgs_left}-{session}"] == 0) | (np.isnan(df.loc[idx, f"{hgs_left}-{session}"]))) | \
-                ((df.loc[idx, f"{hgs_right}-{session}"] == 0) | (np.isnan(df.loc[idx, f"{hgs_right}-{session}"]))):
+            if ((np.isnan(df.loc[idx, f"{hgs_left}-{session}"])) | (np.isnan(df.loc[idx, f"{hgs_right}-{session}"]))):
                     df = df.drop(index=idx)
 
         return df

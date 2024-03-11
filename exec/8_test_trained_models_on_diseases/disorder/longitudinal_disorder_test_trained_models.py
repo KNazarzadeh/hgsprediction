@@ -118,8 +118,7 @@ for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
 
 df_female = df_both[df_both["gender"] == 0]
 df_male = df_both[df_both["gender"] == 1]
-print("===== Done! =====")
-embed(globals(), locals())
+
 save_disorder_hgs_predicted_results(
     df_both,
     population,
@@ -161,7 +160,8 @@ save_disorder_hgs_predicted_results(
     n_repeats,
     n_folds,
 )
-
+print("===== Done! =====")
+embed(globals(), locals())
 ##############################################################################
 # y_axis = ["actual", "predicted", "actual-predicted"]
 # x_axis = ["actual", "predicted", "years"]

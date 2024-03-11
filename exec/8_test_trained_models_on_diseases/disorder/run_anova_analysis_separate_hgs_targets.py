@@ -84,7 +84,6 @@ df_control_tmp = pd.concat([df_mathced_controls_female, df_mathced_controls_male
 df_disorder_tmp.columns = [col.replace(f"{target}", "hgs") if f"{target}" in col else col for col in df_disorder_tmp.columns]    
 df_control_tmp.columns = [col.replace(f"{target}", "hgs") if f"{target}" in col else col for col in df_control_tmp.columns]
 
-df_control_tmp = df_control_tmp.rename(columns={"matched_disorder_subgroup":"disorder_episode"})
 # Replace values in the column
 df_control_tmp.loc[:, "disorder_episode"] = df_control_tmp.loc[:, "disorder_episode"].replace({f"pre-{population}": "pre-control", f"post-{population}": "post-control"})
 
@@ -136,6 +135,7 @@ df = pd.concat([df_control, df_disorder], axis=0)
 df["gender"].replace(0, "female", inplace=True)
 df["gender"].replace(1, "male", inplace=True)
 
+    
 for anova_target in ["hgs", "hgs_predicted", "hgs_corrected_predicted", "hgs_delta", "hgs_corrected_delta"]:
     print(anova_target)
     formula = (
@@ -170,24 +170,6 @@ for anova_target in ["hgs", "hgs_predicted", "hgs_corrected_predicted", "hgs_del
     print(target)
     print(formula)
     print(population)
-
-    save_disorder_anova_results(
-        df,
-        df_anova_result,
-        df_post_hoc_result_without_gender,
-        df_post_hoc_result_with_gender,
-        population,
-        mri_status,
-        session_column,
-        model_name,
-        feature_type,
-        target,
-        confound_status,
-        n_repeats,
-        n_folds,
-        n_samples,
-        anova_target,
-    )
 
     save_disorder_anova_results(
             df,

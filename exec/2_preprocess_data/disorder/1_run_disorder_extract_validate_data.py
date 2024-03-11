@@ -20,6 +20,7 @@ df_original = disorder_load_data.load_original_data(population, mri_status)
 
 data_processor = disorder_data_preprocessor.DisorderMainDataPreprocessor(df_original, population)    
 df = data_processor.define_handness(df_original)
+
 df = data_processor.remove_missing_disorder_dates(df, population)
 
 df = data_processor.remove_missing_hgs(df)
@@ -28,8 +29,8 @@ df = data_processor.remove_missing_hgs(df)
 if population == "stroke":
     df = data_processor.define_disorder_type(df, population)
 df = data_processor.define_followup_days(df, population)
-print("===== Done! =====")
-embed(globals(), locals())
+# print("===== Done! =====")
+# embed(globals(), locals())
 ###############################################################################
 df_preprocessed = data_processor.preprocess_disorder_df(df, population)
 # Calculate and Add dominant and nondominant hgs to data
@@ -119,6 +120,8 @@ for visit_session in range(1, 2):
         disorder_cohort = f"post-{population}"
         session_column = f"1st_{disorder_cohort}_session"
         df_extracted_post = data_processor.extract_data(df_preprocessed, session_column)
+        # print("===== Done! =====")
+        # embed(globals(), locals())
         df_validated_post = data_processor.validate_handgrips(df_extracted_post, session_column)   
     
     # Assuming you have DataFrames called 'df_pre' and 'df_post'
@@ -132,6 +135,17 @@ for visit_session in range(1, 2):
     session_column = f"1st_{disorder_cohort}_session"
     disorder_save_data.save_primary_extracted_data(df_longitudinal_extracted, population, mri_status, session_column, disorder_cohort=f"longitudinal-{population}")
     disorder_save_data.save_validated_hgs_data(df_longitudinal_validated, population, mri_status, session_column, disorder_cohort=f"longitudinal-{population}")
+
+
+print("dominant<4", len(df_longitudinal_extracted[df_longitudinal_extracted[f"1st_pre-{population}_hgs_dominant"]<4]))
+print("dominant==0", len(df_longitudinal_extracted[df_longitudinal_extracted[f"1st_pre-{population}_hgs_dominant"]==0]))
+print("dominant<4", len(df_longitudinal[df_longitudinal[f"1st_pre-{population}_hgs_dominant"]<4]))
+print("dominant<nondominant", len(df_longitudinal_extracted[df_longitudinal_extracted[f"1st_pre-{population}_hgs_dominant"]<df_longitudinal_extracted[f"1st_pre-{population}_hgs_nondominant"]]))
+print("dominant<nondominant", len(df_longitudinal[df_longitudinal[f"1st_pre-{population}_hgs_dominant"]<df_longitudinal[f"1st_pre-{population}_hgs_nondominant"]]))
+print("dominant.isna", len(df_longitudinal_extracted[df_longitudinal_extracted[f"1st_pre-{population}_hgs_dominant"].isna()]))
+print("nondominant.isna", len(df_longitudinal_extracted[df_longitudinal_extracted[f"1st_pre-{population}_hgs_nondominant"].isna()]))
+print("len validate",len(df_longitudinal_validated))
+print("len validate",len(df_longitudinal_extracted))
 
 ###############################################################################
 print("===== Done! =====")

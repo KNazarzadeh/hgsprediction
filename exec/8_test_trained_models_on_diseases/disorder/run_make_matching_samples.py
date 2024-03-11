@@ -146,9 +146,8 @@ for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
 
         df_matched_tmp = pd.concat([df_matched_tmp, df_control[df_control.index.isin(matches)]], axis=0)
         df_matched_tmp.loc[matches, "propensity_scores"] = df_control_tmp[df_control_tmp.index.isin(matches)].loc[:, "propensity_scores"]
-        print("===== Done! =====")
-        embed(globals(), locals())
-    df_matched_tmp.loc[:, "matched_disorder_subgroup"] = disorder_subgroup
+
+    df_matched_tmp.loc[:, "disorder_episode"] = disorder_subgroup
     
     df_control_matched = pd.concat([df_control_matched, df_matched_tmp], axis=0)
         
@@ -180,7 +179,7 @@ df_r2_values = pd.DataFrame(index=[f"pre-{population}", f"post-{population}"])
 
 for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
 
-    df = df_control_matched[df_control_matched["matched_disorder_subgroup"] == disorder_subgroup]
+    df = df_control_matched[df_control_matched["disorder_episode"] == disorder_subgroup]
 
     df_correlations.loc[disorder_subgroup, "r_values_true_predicted"] = pearsonr(df.loc[:, f"{target}"],df.loc[:, f"{target}_predicted"])[0]
     df_correlations.loc[disorder_subgroup, "r_values_true_delta"] = pearsonr(df.loc[:, f"{target}"],df.loc[:, f"{target}_delta(true-predicted)"])[0]
