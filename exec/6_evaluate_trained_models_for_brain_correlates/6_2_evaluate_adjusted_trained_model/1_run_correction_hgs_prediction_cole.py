@@ -22,7 +22,9 @@ from hgsprediction.define_features import define_features
 from hgsprediction.predict_hgs import predict_hgs
 from hgsprediction.extract_data import healthy_extract_data
 from hgsprediction.predict_hgs import calculate_brain_hgs                    
-
+from hgsprediction.prediction_corrector_model import prediction_corrector_model
+from hgsprediction.load_results import load_corrected_prediction_results
+from hgsprediction.load_results import load_corrected_prediction_correlation_results
 #--------------------------------------------------------------------------#
 from ptpython.repl import embed
 # print("===== Done! =====")
@@ -49,196 +51,37 @@ stats_correlation_type = sys.argv[12]
 # embed(globals(), locals())
 ###############################################################################
 
-if confound_status == '0':
-        confound = "without_confound_removal"
-else:
-    confound = "with_confound_removal"
-folder_path = os.path.join(
-        "/data",
-            "project",
-            "stroke_ukb",
-            "knazarzadeh",
-            "project_hgsprediction",
-            "results_hgsprediction",
-            f"{population}",
-            f"{mri_status}",
-            f"{feature_type}",
-            f"{target}",
-            f"{confound}",
-            f"{model_name}",
-            f"{n_repeats}_repeats_{n_folds}_folds",
-            f"female",
-            "prediction_hgs_on_validation_set_trained",
-        )
+df_female = load_corrected_prediction_results(
+    population,
+    mri_status,
+    model_name,
+    feature_type,
+    target,
+    "female",
+    session,
+    confound_status,
+    n_repeats,
+    n_folds,
+)
 
-# Define the csv file path to save
-file_path = os.path.join(
-    folder_path,
-    f"prediction_hgs_on_validation_set_trained_trained.pkl")
-
-df_female = pd.read_pickle(file_path)
-
-
-folder_path = os.path.join(
-        "/data",
-            "project",
-            "stroke_ukb",
-            "knazarzadeh",
-            "project_hgsprediction",
-            "results_hgsprediction",
-            f"{population}",
-            f"{mri_status}",
-            f"{feature_type}",
-            f"{target}",
-            f"{confound}",
-            f"{model_name}",
-            f"{n_repeats}_repeats_{n_folds}_folds",
-            f"male",
-            "prediction_hgs_on_validation_set_trained",
-        )
-
-# Define the csv file path to save
-file_path = os.path.join(
-    folder_path,
-    f"prediction_hgs_on_validation_set_trained_trained.pkl")
-
-df_male = pd.read_pickle(file_path)
+df_male = load_corrected_prediction_results(
+    population,
+    mri_status,
+    model_name,
+    feature_type,
+    target,
+    "male",
+    session,
+    confound_status,
+    n_repeats,
+    n_folds,
+)
 
 ###############################################################################
 
-model_female = LinearRegression()
-model_female.fit(df_female.loc[:, f"{target}"].values.reshape(-1, 1), df_female.loc[:, f"{target}_predicted"])
-slope_female = model_female.coef_[0]
-intercept_female = model_female.intercept_
-
-model_male = LinearRegression()
-model_male.fit(df_male.loc[:, f"{target}"].values.reshape(-1, 1), df_male.loc[:, f"{target}_predicted"])
-slope_male = model_male.coef_[0]
-intercept_male = model_male.intercept_
-
-###############################################################################
-# Assuming that you have already trained and instantiated the model as `model`
-folder_path = os.path.join(
-        "/data",
-        "project",
-        "stroke_ukb",
-        "knazarzadeh",
-        "project_hgsprediction",  
-        "results_hgsprediction",
-        f"{population}",
-        "mri",
-        "2_session_ukb",
-        f"{feature_type}",
-        f"{target}",
-        f"{confound}",
-        f"{model_name}",
-        f"10_repeats_10_folds",
-        "hgs_predicted_results",
-    )
-
-# Define the csv file path to save
-file_path = os.path.join(
-    folder_path,
-    "female_hgs_predicted_data.csv")
-
-df_female_mri = pd.read_csv(file_path, sep=',', index_col=0)
-    
-
-# Assuming that you have already trained and instantiated the model as `model`
-folder_path = os.path.join(
-        "/data",
-        "project",
-        "stroke_ukb",
-        "knazarzadeh",
-        "project_hgsprediction",  
-        "results_hgsprediction",
-        f"{population}",
-        "mri",
-        "2_session_ukb",
-        f"{feature_type}",
-        f"{target}",
-        f"{confound}",
-        f"{model_name}",
-        f"10_repeats_10_folds",
-        "hgs_predicted_results",
-    )
-
-# Define the csv file path to save
-file_path = os.path.join(
-    folder_path,
-    "male_hgs_predicted_data.csv")
-
-df_male_mri = pd.read_csv(file_path, sep=',', index_col=0)
-
-###############################################################################
-df_female_mri_correlations = pd.DataFrame(columns=["r_values_true_raw_predicted", "r2_values_true_raw_predicted",
-                                            "r_values_true_raw_delta", "r2_values_true_raw_delta",
-                                            "r_values_true_corrected_predicted", "r2_values_true_corrected_predicted",
-                                            "r_values_true_corrected_delta", "r2_values_true_corrected_delta"])
-
-df_female_mri.loc[:, "corrected_predicted_hgs"] = (df_female_mri.loc[:, f"{target}_predicted"] - intercept_female) / slope_female
-df_female_mri.loc[:, "corrected_delta_hgs"] =  df_female_mri.loc[:, f"{target}"] - df_female_mri.loc[:, "corrected_predicted_hgs"]
-
-r_values_true_raw_predicted = pearsonr(df_female_mri.loc[:, f"{target}"],df_female_mri.loc[:,f"{target}_predicted"])[0]
-r2_values_true_raw_predicted = r2_score(df_female_mri.loc[:, f"{target}"],df_female_mri.loc[:,f"{target}_predicted"])
-
-r_values_true_raw_delta = pearsonr(df_female_mri.loc[:, f"{target}"],df_female_mri.loc[:,f"{target}_delta(true-predicted)"])[0]
-r2_values_true_raw_delta = r2_score(df_female_mri.loc[:, f"{target}"],df_female_mri.loc[:,f"{target}_delta(true-predicted)"])
-
-r_values_true_corrected_predicted = pearsonr(df_female_mri.loc[:, f"{target}"],df_female_mri.loc[:,"corrected_predicted_hgs"])[0]
-r2_values_true_corrected_predicted = r2_score(df_female_mri.loc[:, f"{target}"],df_female_mri.loc[:,"corrected_predicted_hgs"])
-
-r_values_true_corrected_delta = pearsonr(df_female_mri.loc[:, f"{target}"],df_female_mri.loc[:,"corrected_delta_hgs"])[0]
-r2_values_true_corrected_delta = r2_score(df_female_mri.loc[:, f"{target}"],df_female_mri.loc[:,"corrected_delta_hgs"])
-
-df_female_mri_correlations.loc[0, "r_values_true_raw_predicted"] = r_values_true_raw_predicted
-df_female_mri_correlations.loc[0, "r2_values_true_raw_predicted"] = r2_values_true_raw_predicted
-df_female_mri_correlations.loc[0, "r_values_true_raw_delta"] = r_values_true_raw_delta
-df_female_mri_correlations.loc[0, "r2_values_true_raw_delta"] = r2_values_true_raw_delta
-df_female_mri_correlations.loc[0, "r_values_true_corrected_predicted"] = r_values_true_corrected_predicted
-df_female_mri_correlations.loc[0, "r2_values_true_corrected_predicted"] = r2_values_true_corrected_predicted
-df_female_mri_correlations.loc[0, "r_values_true_corrected_delta"] = r_values_true_corrected_delta
-df_female_mri_correlations.loc[0, "r2_values_true_corrected_delta"] = r2_values_true_corrected_delta
-
-
-###############################################################################
-
-df_male_mri_correlations = pd.DataFrame(columns=["r_values_true_raw_predicted", "r2_values_true_raw_predicted",
-                                            "r_values_true_raw_delta", "r2_values_true_raw_delta",
-                                            "r_values_true_corrected_predicted", "r2_values_true_corrected_predicted",
-                                            "r_values_true_corrected_delta", "r2_values_true_corrected_delta"])
-
-df_male_mri.loc[:, "corrected_predicted_hgs"] = (df_male_mri.loc[:, f"{target}_predicted"] - intercept_male) / slope_male
-df_male_mri.loc[:, "corrected_delta_hgs"] =  df_male_mri.loc[:, f"{target}"] - df_male_mri.loc[:, "corrected_predicted_hgs"]
-
-r_values_true_raw_predicted = pearsonr(df_male_mri.loc[:, f"{target}"],df_male_mri.loc[:,f"{target}_predicted"])[0]
-r2_values_true_raw_predicted = r2_score(df_male_mri.loc[:, f"{target}"],df_male_mri.loc[:,f"{target}_predicted"])
-
-r_values_true_raw_delta = pearsonr(df_male_mri.loc[:, f"{target}"],df_male_mri.loc[:,f"{target}_delta(true-predicted)"])[0]
-r2_values_true_raw_delta = r2_score(df_male_mri.loc[:, f"{target}"],df_male_mri.loc[:,f"{target}_delta(true-predicted)"])
-
-r_values_true_corrected_predicted = pearsonr(df_male_mri.loc[:, f"{target}"],df_male_mri.loc[:,"corrected_predicted_hgs"])[0]
-r2_values_true_corrected_predicted = r2_score(df_male_mri.loc[:, f"{target}"],df_male_mri.loc[:,"corrected_predicted_hgs"])
-
-r_values_true_corrected_delta = pearsonr(df_male_mri.loc[:, f"{target}"],df_male_mri.loc[:,"corrected_delta_hgs"])[0]
-r2_values_true_corrected_delta = r2_score(df_male_mri.loc[:, f"{target}"],df_male_mri.loc[:,"corrected_delta_hgs"])
-
-df_male_mri_correlations.loc[0, "r_values_true_raw_predicted"] = r_values_true_raw_predicted
-df_male_mri_correlations.loc[0, "r2_values_true_raw_predicted"] = r2_values_true_raw_predicted
-df_male_mri_correlations.loc[0, "r_values_true_raw_delta"] = r_values_true_raw_delta
-df_male_mri_correlations.loc[0, "r2_values_true_raw_delta"] = r2_values_true_raw_delta
-df_male_mri_correlations.loc[0, "r_values_true_corrected_predicted"] = r_values_true_corrected_predicted
-df_male_mri_correlations.loc[0, "r2_values_true_corrected_predicted"] = r2_values_true_corrected_predicted
-df_male_mri_correlations.loc[0, "r_values_true_corrected_delta"] = r_values_true_corrected_delta
-df_male_mri_correlations.loc[0, "r2_values_true_corrected_delta"] = r2_values_true_corrected_delta
-
-###############################################################################
-###############################################################################
+df = pd.concat([df_female, df_male], axis=0)
 # print("===== Done! =====")
 # embed(globals(), locals())
-
-df = pd.concat([df_female_mri, df_male_mri], axis=0)
-
 ###############################################################################
 folder_path = os.path.join(
             "/data",
@@ -302,32 +145,36 @@ for region in brain_regions:
 residuals_df.index = residuals_df.index.str.replace("sub-", "")
 residuals_df.index = residuals_df.index.map(int)
 ##############################################################################
-
 merged_df = pd.merge(residuals_df, df, left_index=True, right_index=True, how='inner')
 
 merged_df_female = merged_df[merged_df['gender']==0]
 merged_df_male = merged_df[merged_df['gender']==1]
-
+# print("===== Done! =====")
+# embed(globals(), locals())
 ##############################################################################
 n_regions = brain_df.shape[1]
 x_axis = brain_df.columns    
 
 # Correlation with True HGS
-true_corr_female, true_corr_significant_female, true_n_regions_survived_female = calculate_brain_hgs(merged_df_female, f"{target}_true", x_axis, stats_correlation_type)
-true_corr_male, true_corr_significant_male, true_n_regions_survived_male = calculate_brain_hgs(merged_df_male, f"{target}_true", x_axis, stats_correlation_type)
-
-
-
+true_corr_female, true_corr_significant_female, true_n_regions_survived_female = calculate_brain_hgs(merged_df_female, f"{target}", x_axis, stats_correlation_type)
+true_corr_male, true_corr_significant_male, true_n_regions_survived_male = calculate_brain_hgs(merged_df_male, f"{target}", x_axis, stats_correlation_type)
 
 # Correlation with predicted HGS
-corrected_predicted_corr_female, corrected_predicted_corr_significant_female, corrected_predicted_n_regions_survived_female = calculate_brain_hgs(merged_df_female, "corrected_predicted_hgs", x_axis, stats_correlation_type)
-corrected_predicted_corr_male, corrected_predicted_corr_significant_male, corrected_predicted_n_regions_survived_male = calculate_brain_hgs(merged_df_male, "corrected_predicted_hgs", x_axis, stats_correlation_type)
+predicted_corr_female, predicted_corr_significant_female, predicted_n_regions_survived_female = calculate_brain_hgs(merged_df_female, f"{target}_predicted", x_axis, stats_correlation_type)
+predicted_corr_male, predicted_corr_significant_male, predicted_n_regions_survived_male = calculate_brain_hgs(merged_df_male, f"{target}_predicted", x_axis, stats_correlation_type)
+
+# Correlation with corrected predicted HGS
+corrected_predicted_corr_female, corrected_predicted_corr_significant_female, corrected_predicted_n_regions_survived_female = calculate_brain_hgs(merged_df_female, f"{target}_corrected_predicted", x_axis, stats_correlation_type)
+corrected_predicted_corr_male, corrected_predicted_corr_significant_male, corrected_predicted_n_regions_survived_male = calculate_brain_hgs(merged_df_male, f"{target}_corrected_predicted", x_axis, stats_correlation_type)
 
 # Correlation with Delta HGS
-corrected_delta_corr_female, corrected_delta_corr_significant_female, corrected_delta_n_regions_survived_female = calculate_brain_hgs(merged_df_female, "corrected_delta_hgs", x_axis, stats_correlation_type)
-corrected_delta_corr_male, corrected_delta_corr_significant_male, corrected_delta_n_regions_survived_male = calculate_brain_hgs(merged_df_male, "corrected_delta_hgs", x_axis, stats_correlation_type)
-print("===== Done! =====")
-embed(globals(), locals())
+delta_corr_female, delta_corr_significant_female,delta_n_regions_survived_female = calculate_brain_hgs(merged_df_female, f"{target}_delta(true-predicted)", x_axis, stats_correlation_type)
+delta_corr_male, delta_corr_significant_male, delta_n_regions_survived_male = calculate_brain_hgs(merged_df_male, f"{target}_delta(true-predicted)", x_axis, stats_correlation_type)
+
+# Correlation with corrected Delta HGS
+corrected_delta_corr_female, corrected_delta_corr_significant_female, corrected_delta_n_regions_survived_female = calculate_brain_hgs(merged_df_female, f"{target}_corrected_delta(true-predicted)", x_axis, stats_correlation_type)
+corrected_delta_corr_male, corrected_delta_corr_significant_male, corrected_delta_n_regions_survived_male = calculate_brain_hgs(merged_df_male, f"{target}_corrected_delta(true-predicted)", x_axis, stats_correlation_type)
+
 
 ##############################################################################
 # Plotting
@@ -374,15 +221,43 @@ plot_bar_with_scatter(sorted_p_values_predicted_male, 'regions', 'correlations',
 
 ##############################################################################
 ##############################################################################
+sorted_p_values_delta_female = predicted_corr_significant_female.sort_values(by='correlations', ascending=False)
+sorted_p_values_delta_male = predicted_corr_significant_male.sort_values(by='correlations', ascending=False)
+
+# Females Correlations GMV vs True HGS
+plot_bar_with_scatter(sorted_p_values_delta_female, 'regions', 'correlations', "predicted", 'female', predicted_n_regions_survived_female, color="red")
+# Males Correlations GMV vs True HGS
+plot_bar_with_scatter(sorted_p_values_delta_male, 'regions', 'correlations', "predicted", 'male', predicted_n_regions_survived_male, color="#069AF3")
+
+
+##############################################################################
+##############################################################################
 # Plotting Delta HGS vs GMV
 sorted_p_values_delta_female = corrected_delta_corr_significant_female.sort_values(by='correlations', ascending=False)
 sorted_p_values_delta_male = corrected_delta_corr_significant_male.sort_values(by='correlations', ascending=False)
 
 # Females Correlations GMV vs True HGS
-plot_bar_with_scatter(sorted_p_values_delta_female, 'regions', 'correlations', "corrected_delta_hgs", 'female', corrected_delta_n_regions_survived_female, color="red")
+plot_bar_with_scatter(sorted_p_values_delta_female, 'regions', 'correlations', "corrected_delta", 'female', corrected_delta_n_regions_survived_female, color="red")
 # Males Correlations GMV vs True HGS
-plot_bar_with_scatter(sorted_p_values_delta_male, 'regions', 'correlations', "corrected_delta_hgs", 'male', corrected_delta_n_regions_survived_male, color="#069AF3")
+plot_bar_with_scatter(sorted_p_values_delta_male, 'regions', 'correlations', "corrected_delta", 'male', corrected_delta_n_regions_survived_male, color="#069AF3")
 
+##############################################################################
+##############################################################################
+sorted_p_values_delta_female = delta_corr_significant_female.sort_values(by='correlations', ascending=False)
+sorted_p_values_delta_male = delta_corr_significant_male.sort_values(by='correlations', ascending=False)
+
+# Females Correlations GMV vs True HGS
+plot_bar_with_scatter(sorted_p_values_delta_female, 'regions', 'correlations', "delta", 'female', delta_n_regions_survived_female, color="red")
+# Males Correlations GMV vs True HGS
+plot_bar_with_scatter(sorted_p_values_delta_male, 'regions', 'correlations', "delta", 'male', delta_n_regions_survived_male, color="#069AF3")
+
+##############################################################################
+##############################################################################
+
+print("===== Done! =====")
+embed(globals(), locals())
+##############################################################################
+##############################################################################
 
 print("Females - Delta - First 30 survival regions:")
 print(sorted_p_values_delta_female.iloc[0:30, :])
@@ -435,6 +310,28 @@ plt.close()
 # Delta vs True HGS
 # Raw delta HGS vs True HGS
 # Corrected delta HGS vs True HGS
+df_female_correlations, df_female_p_values, df_female_r2_values = load_corrected_prediction_correlation_results(population,
+    mri_status,
+    model_name,
+    feature_type,
+    target,
+    "female",
+    session,
+    confound_status,
+    n_repeats,
+    n_folds,)
+
+df_male_correlations, df_male_p_values, df_male_r2_values =  load_corrected_prediction_correlation_results(population,
+    mri_status,
+    model_name,
+    feature_type,
+    target,
+    "female",
+    session,
+    confound_status,
+    n_repeats,
+    n_folds,)
+
 fig, axes = plt.subplots(2, 1, figsize=(25, 25))
 
 plt.rcParams.update({"font.weight": "bold", 
@@ -449,23 +346,23 @@ for i in range(2):
     ax = axes[i]
     
     if i == 0:
-        sns.regplot(data=df_female_mri, x=f"{target}", y=f"{target}_delta(true-predicted)", color='lightcoral', marker="$\circ$", scatter_kws={'s': 50, 'linewidths': 12}, line_kws={"color": "red"}, ax=ax)
-        sns.regplot(data=df_male_mri, x=f"{target}", y=f"{target}_delta(true-predicted)", color='#069AF3', marker="$\circ$", scatter_kws={'s': 50, 'linewidths': 12}, line_kws={"color": "blue"}, ax=ax)
+        sns.regplot(data=df_female, x=f"{target}", y=f"{target}_delta(true-predicted)", color='lightcoral', marker="$\circ$", scatter_kws={'s': 50, 'linewidths': 12}, line_kws={"color": "red"}, ax=ax)
+        sns.regplot(data=df_male, x=f"{target}", y=f"{target}_delta(true-predicted)", color='#069AF3', marker="$\circ$", scatter_kws={'s': 50, 'linewidths': 12}, line_kws={"color": "blue"}, ax=ax)
         ax.set_ylabel("Delta HGS", fontsize=40, fontweight="bold")
         ax.set_xlabel("")                        
         
-        r_text_female = f"r:{df_female_mri_correlations.loc[0, 'r_values_true_raw_delta']:.3f}\nR2:{df_female_mri_correlations.loc[0, 'r2_values_true_raw_delta']:.3f}"
-        r_text_male = f"r:{df_male_mri_correlations.loc[0, 'r_values_true_raw_delta']:.3f}\nR2:{df_male_mri_correlations.loc[0, 'r2_values_true_raw_delta']:.3f}"
+        r_text_female = f"r:{df_female_correlations.loc[0, 'r_values_true_delta']:.3f}\nR2:{df_female_r2_values.loc[0, 'r2_values_true_delta']:.3f}"
+        r_text_male = f"r:{df_male_correlations.loc[0, 'r_values_true_delta']:.3f}\nR2:{df_male_r2_values.loc[0, 'r2_values_true_delta']:.3f}"
         ax.annotate(r_text_female, xy=(0.05, 0.9), xycoords='axes fraction', fontsize=30, fontweight="bold", color='red')
         ax.annotate(r_text_male, xy=(0.05, 0.8), xycoords='axes fraction', fontsize=30, fontweight="bold", color='#069AF3')
     elif i == 1:
-        sns.regplot(data=df_female_mri, x=f"{target}", y=f"corrected_delta_hgs", color='lightcoral', marker="$\circ$", scatter_kws={'s': 50, 'linewidths': 5}, line_kws={"color": "red"}, ax=ax)
-        sns.regplot(data=df_male_mri, x=f"{target}", y=f"corrected_delta_hgs", color='#069AF3', marker="$\circ$", scatter_kws={'s': 50, 'linewidths': 5}, line_kws={"color": "blue"}, ax=ax)
+        sns.regplot(data=df_female, x=f"{target}", y=f"{target}_corrected_delta(true-predicted)", color='lightcoral', marker="$\circ$", scatter_kws={'s': 50, 'linewidths': 5}, line_kws={"color": "red"}, ax=ax)
+        sns.regplot(data=df_male, x=f"{target}", y=f"{target}_corrected_delta(true-predicted)", color='#069AF3', marker="$\circ$", scatter_kws={'s': 50, 'linewidths': 5}, line_kws={"color": "blue"}, ax=ax)
         ax.set_ylabel("Corrected delta HGS", fontsize=40, fontweight="bold")
         ax.set_xlabel("True HGS", fontsize=40, fontweight="bold")
 
-        r_text_female = f"r:{df_female_mri_correlations.loc[0, 'r_values_true_corrected_delta']:.3f}\nR2:{df_female_mri_correlations.loc[0, 'r2_values_true_corrected_delta']:.3f}"
-        r_text_male = f"r:{df_male_mri_correlations.loc[0, 'r_values_true_corrected_delta']:.3f}\nR2:{df_male_mri_correlations.loc[0, 'r2_values_true_corrected_delta']:.3f}"
+        r_text_female = f"r:{df_female_correlations.loc[0, 'r_values_true_corrected_delta']:.3f}\nR2:{df_female_r2_values.loc[0, 'r2_values_true_corrected_delta']:.3f}"
+        r_text_male = f"r:{df_male_correlations.loc[0, 'r_values_true_corrected_delta']:.3f}\nR2:{df_male_r2_values.loc[0, 'r2_values_true_corrected_delta']:.3f}"
         ax.annotate(r_text_female, xy=(0.05, 0.9), xycoords='axes fraction', fontsize=30, fontweight="bold", color='red')
         ax.annotate(r_text_male, xy=(0.05, 0.8), xycoords='axes fraction', fontsize=30, fontweight="bold", color='#069AF3')
     
@@ -474,10 +371,10 @@ for i in range(2):
 
     ax.plot([xmin, xmax], [ymin, ymax], color='darkgrey', linestyle='--', linewidth=12)
     
-fig.suptitle(f"MRI (N={len(pd.concat([df_female_mri, df_male_mri]))})", fontsize=40, fontweight="bold")
+fig.suptitle(f"MRI (N={len(pd.concat([df_female, df_male]))})", fontsize=40, fontweight="bold")
 plt.tight_layout()
 plt.show()
-plt.savefig(f"true_delta_10_10.png")
+plt.savefig(f"true_delta_corrected_delta10_10_new.png")
 plt.close()
 
 ###############################################################################
@@ -536,7 +433,7 @@ for i in range(2):
 fig.suptitle(f"MRI (N={len(pd.concat([merged_df_female, merged_df_male]))}) overlap with GMV", fontsize=40, fontweight="bold")
 plt.tight_layout()
 plt.show()
-plt.savefig(f"true_corrected_delta_10_10.png")
+plt.savefig(f"true_corrected_delta_10_10_new.png")
 plt.close()
 
 ###############################################################################

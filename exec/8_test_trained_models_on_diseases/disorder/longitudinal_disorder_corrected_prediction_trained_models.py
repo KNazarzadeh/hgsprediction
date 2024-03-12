@@ -43,6 +43,8 @@ slope, intercept = prediction_corrector_model(
 
 print("slope=", slope)
 print("intercept=", intercept)
+
+
 ##############################################################################
 # load data
 disorder_cohort = f"{disorder_cohort}-{population}"
@@ -61,7 +63,8 @@ df = load_disorder_hgs_predicted_results(
     n_repeats,
     n_folds,
 )
-
+# print("===== Done! =====")
+# embed(globals(), locals())
 ###############################################################################
 for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
     if visit_session == "1":
@@ -73,9 +76,15 @@ for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
     elif visit_session == "4":
         prefix = f"4th_{disorder_subgroup}"
     
-    df.loc[:, f"{prefix}_{target}_corrected_predicted"] = (df.loc[:, f"{prefix}_{target}_predicted"] - intercept) / slope
+    # df.loc[:, f"{prefix}_{target}_corrected_predicted"] = (df.loc[:, f"{prefix}_{target}_predicted"] - intercept) / slope
+    # df.loc[:, f"{prefix}_{target}_corrected_predicted"] = (df.loc[:, f"{prefix}_{target}_predicted"] + (df.loc[:, f"{prefix}_{target}"]-((slope * df.loc[:, f"{prefix}_{target}"]) + intercept)))
+    
+    # Beheshti Method:
+    df.loc[:, f"{prefix}_{target}_corrected_predicted"] = (df.loc[:, f"{prefix}_{target}_predicted"] + ((slope * df.loc[:, f"{prefix}_{target}"]) + intercept))
+    
     df.loc[:, f"{prefix}_{target}_corrected_delta(true-predicted)"] =  df.loc[:, f"{prefix}_{target}"] - df.loc[:, f"{prefix}_{target}_corrected_predicted"]
-
+# print("===== Done! =====")
+# embed(globals(), locals())
 ###############################################################################
 save_disorder_corrected_prediction_results(
     df,
@@ -141,5 +150,5 @@ save_disorder_corrected_prediction_correlation_results(
     n_repeats,
     n_folds,    
 )
-print("===== Done! =====")
+print("===== Done! End =====")
 embed(globals(), locals())

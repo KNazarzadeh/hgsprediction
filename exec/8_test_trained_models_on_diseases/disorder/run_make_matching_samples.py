@@ -129,7 +129,7 @@ for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
     # caliper = np.std(df.loc[:, "propensity_scores"]) * 0.25
 
     # Fit nearest neighbors model on control group using propensity scores
-    nbrs = NearestNeighbors(n_neighbors=10, algorithm='auto').fit(df_control_tmp['propensity_scores'].values.reshape(-1, 1))
+    nbrs = NearestNeighbors(n_neighbors=int(n_samples), algorithm='auto').fit(df_control_tmp['propensity_scores'].values.reshape(-1, 1))
 
     # Dictionary to store matched samples for each subject
     matched_samples = {}
@@ -154,8 +154,7 @@ for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
     # Print matched samples for each subject
     for subject_id, matches in matched_samples.items():
         print(f"SubjectID: {subject_id}, Matches: {matches}")
-print("===== Done! =====")
-embed(globals(), locals())   
+   
 ##############################################################################
 save_disorder_matched_samples_results(
     df_control_matched,

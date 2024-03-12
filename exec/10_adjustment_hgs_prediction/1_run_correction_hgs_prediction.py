@@ -81,13 +81,20 @@ def calculate_correlations(df, n_folds, target):
     model = LinearRegression()
     for fold in range(int(n_folds)):
         df_tmp = df[df['cv_fold']==fold]
-        df_half = df_tmp.sample(frac=0.5, random_state=42) 
-        model.fit(df_half.loc[:, f"{target}"].values.reshape(-1, 1), df_half.loc[:, f"{target}_predicted"])
+        df_half = df_tmp.sample(frac=0.5, random_state=47)
+        # Beheshti Method:
+        X = df_half.loc[:, f"{target}"].values.reshape(-1, 1)
+        y = df_half.loc[:, f"{target}_delta(true-predicted)"].values
+        model.fit(X, y)
+        # model.fit(df_half.loc[:, f"{target}"].values.reshape(-1, 1), df_half.loc[:, f"{target}_predicted"])
         slope = model.coef_[0]
         intercept = model.intercept_
         df_half_rest = df_tmp[~df_tmp.index.isin(df_half.index)]
         
-        df_half_rest.loc[:, "corrected_predicted_hgs"] = (df_half_rest.loc[:, f"{target}_predicted"] - intercept) / slope
+        # Beheshti Method:
+        df_half_rest.loc[:, "corrected_predicted_hgs"] = (df_half_rest.loc[:, f"{target}_predicted"] - ((slope * df_half_rest.loc[:, f"{target}"]) + intercept))
+
+        # df_half_rest.loc[:, "corrected_predicted_hgs"] = (df_half_rest.loc[:, f"{target}_predicted"] - intercept) / slope
         df_half_rest.loc[:, "corrected_delta_hgs"] =  df_half_rest.loc[:, f"{target}"] - df_half_rest.loc[:, "corrected_predicted_hgs"]
 
         r_values_true_raw_predicted = pearsonr(df_half_rest.loc[:, f"{target}"],df_half_rest.loc[:,f"{target}_predicted"])[0]

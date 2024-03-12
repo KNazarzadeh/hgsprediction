@@ -64,8 +64,8 @@ for target in ["hgs_left", "hgs_right", "hgs_L+R"]:
 df_pre = df[df["disorder_episode"].str.startswith("pre")]
 df_post = df[df["disorder_episode"].str.startswith("post")]
 
-df_pre = df_pre[df_pre["gender"]=="male"]
-df_post = df_post[df_post["gender"]=="male"]
+# df_pre = df_pre[df_pre["gender"]=="male"]
+# df_post = df_post[df_post["gender"]=="male"]
 
 df_pre_disorder = df_pre[df_pre['treatment']==f"{population}"]
 df_post_disorder = df_post[df_post['treatment']==f"{population}"]
@@ -115,19 +115,15 @@ def add_median_labels(ax, fmt='.3f'):
         ])
         xticks_positios_array.append(x)
     return xticks_positios_array
-print("===== Done! =====")
-embed(globals(), locals())
-###############################################################################
-xtick_labels = ['Left HGS', 'Right HGS', 'Combined HGS']
-# palette_tmp = sns.color_palette("Pastel1")
-# custome_palette = [palette_tmp[1], palette_tmp[0]]
-palette_control = sns.color_palette("Paired")
-palette_disorder = sns.color_palette("PiYG")
 # print("===== Done! =====")
 # embed(globals(), locals())
+###############################################################################
+xtick_labels = ['Left HGS', 'Right HGS', 'Combined HGS']
+
+palette_control = sns.color_palette("Paired")
+palette_disorder = sns.color_palette("PiYG")
 custome_palette = [palette_control[1], palette_disorder[0]]
-# palette_tmp = sns.color_palette("Set2")
-# custome_palette = [palette_tmp[0], palette_tmp[5]]
+
 ymin = 0
 ymax =0
 
@@ -259,7 +255,7 @@ plt.tight_layout()
 
 # Show the plot
 plt.show()
-plt.savefig(f"{population}_{anova_target}_corrected_predictions_matched_controls.png")
+plt.savefig(f"{population}_{anova_target}_corrected_predictions_matched_controls_100_samples.png")
 plt.close()
 
 print("===== Done! =====")

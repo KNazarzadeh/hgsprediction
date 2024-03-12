@@ -71,7 +71,13 @@ df = load_hgs_predicted_results(
 
 ###############################################################################
 
-df.loc[:, f"{target}_corrected_predicted"] = (df.loc[:, f"{target}_predicted"] - intercept) / slope
+#Beheshti Method:
+df.loc[:, f"{target}_corrected_predicted"] = (df.loc[:, f"{target}_predicted"] + ((slope * df.loc[:, f"{target}"]) + intercept))
+# de Lange Method:
+# df.loc[:, f"{target}_corrected_predicted"] = df.loc[:, f"{target}_predicted"] + (df.loc[:, f"{target}"] - ((slope * df.loc[:, f"{target}"]) + intercept))
+# Cole Mathod:
+# df.loc[:, f"{target}_corrected_predicted"] = (df.loc[:, f"{target}_predicted"] - intercept) / slope
+# Calculate Corrected Delta
 df.loc[:, f"{target}_corrected_delta(true-predicted)"] =  df.loc[:, f"{target}"] - df.loc[:, f"{target}_corrected_predicted"]
 # print("===== Done! =====")
 # embed(globals(), locals())
@@ -129,5 +135,5 @@ save_corrected_prediction_correlation_results(
     n_repeats,
     n_folds,    
 )
-print("===== Done! =====")
+print("===== Done! End =====")
 embed(globals(), locals())
