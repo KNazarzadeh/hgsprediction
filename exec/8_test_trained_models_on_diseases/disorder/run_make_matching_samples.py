@@ -154,7 +154,7 @@ for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
     # Print matched samples for each subject
     for subject_id, matches in matched_samples.items():
         print(f"SubjectID: {subject_id}, Matches: {matches}")
-   
+
 ##############################################################################
 save_disorder_matched_samples_results(
     df_control_matched,
@@ -196,7 +196,6 @@ for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
     df_r2_values.loc[disorder_subgroup, "r2_values_true_delta"] = r2_score(df.loc[:, f"{target}"],df.loc[:, f"{target}_delta(true-predicted)"])
     df_r2_values.loc[disorder_subgroup, "r2_values_true_corrected_predicted"] = r2_score(df.loc[:, f"{target}"],df.loc[:, f"{target}_corrected_predicted"])
     df_r2_values.loc[disorder_subgroup, "r2_values_true_corrected_delta"] = r2_score(df.loc[:, f"{target}"],df.loc[:, f"{target}_corrected_delta(true-predicted)"])
-
 
 save_disorder_matched_control_samples_correlation_results(
     df_correlations,

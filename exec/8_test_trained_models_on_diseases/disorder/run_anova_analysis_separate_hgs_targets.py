@@ -134,8 +134,7 @@ df_control.columns = df_control.columns.str.replace(f"-{session}.0", "", regex=T
 df = pd.concat([df_control, df_disorder], axis=0)
 df["gender"].replace(0, "female", inplace=True)
 df["gender"].replace(1, "male", inplace=True)
-# print("===== Done! =====")
-# embed(globals(), locals())
+
 for anova_target in ["hgs", "hgs_predicted", "hgs_corrected_predicted", "hgs_delta", "hgs_corrected_delta"]:
     print(anova_target)
     formula = (
@@ -184,6 +183,6 @@ for anova_target in ["hgs", "hgs_predicted", "hgs_corrected_predicted", "hgs_del
             anova_target,
         )
 
-print("===== Done! =====")
+print("===== Done! End =====")
 embed(globals(), locals())
 

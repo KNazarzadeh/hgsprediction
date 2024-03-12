@@ -63,8 +63,7 @@ df = load_disorder_hgs_predicted_results(
     n_repeats,
     n_folds,
 )
-# print("===== Done! =====")
-# embed(globals(), locals())
+
 ###############################################################################
 for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
     if visit_session == "1":
@@ -83,8 +82,7 @@ for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
     df.loc[:, f"{prefix}_{target}_corrected_predicted"] = (df.loc[:, f"{prefix}_{target}_predicted"] + ((slope * df.loc[:, f"{prefix}_{target}"]) + intercept))
     
     df.loc[:, f"{prefix}_{target}_corrected_delta(true-predicted)"] =  df.loc[:, f"{prefix}_{target}"] - df.loc[:, f"{prefix}_{target}_corrected_predicted"]
-# print("===== Done! =====")
-# embed(globals(), locals())
+
 ###############################################################################
 save_disorder_corrected_prediction_results(
     df,
@@ -99,9 +97,6 @@ save_disorder_corrected_prediction_results(
     n_repeats,
     n_folds,
 )
-
-# print("===== Done! =====")
-# embed(globals(), locals())
 
 ###############################################################################
 df_correlations = pd.DataFrame()
