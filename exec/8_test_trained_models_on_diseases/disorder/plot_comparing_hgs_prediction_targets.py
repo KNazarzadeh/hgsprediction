@@ -64,14 +64,11 @@ for target in ["hgs_left", "hgs_right", "hgs_L+R"]:
 df_pre = df[df["disorder_episode"].str.startswith("pre")]
 df_post = df[df["disorder_episode"].str.startswith("post")]
 
-# df_pre = df_pre[df_pre["gender"]=="male"]
-# df_post = df_post[df_post["gender"]=="male"]
-
 df_pre_disorder = df_pre[df_pre['treatment']==f"{population}"]
 df_post_disorder = df_post[df_post['treatment']==f"{population}"]
 
-df_pre_control = df_pre[df_pre['treatment']=="control"]
-df_post_control= df_post[df_post['treatment']=="control"]
+df_control_pre = df_pre[df_pre['treatment']=="control"]
+df_control_post= df_post[df_post['treatment']=="control"]
 
 ###############################################################################
 df_ranksum = pd.DataFrame(index=["hgs_left", "hgs_right", "hgs_L+R"])
@@ -79,16 +76,16 @@ df_yaxis_max = pd.DataFrame(index=["hgs_left", "hgs_right", "hgs_L+R"])
 
 for target in ["hgs_left", "hgs_right", "hgs_L+R"]:
     for i, y_hgs in enumerate(plot_target):
-        stat_pre, p_value_pre = ranksums(df_pre_control[df_pre_control["hgs_target"]==target][y_hgs], df_pre_disorder[df_pre_disorder["hgs_target"]==target][y_hgs])
-        stat_post, p_value_post = ranksums(df_post_control[df_post_control["hgs_target"]==target][y_hgs], df_post_disorder[df_post_disorder["hgs_target"]==target][y_hgs])
+        stat_pre, p_value_pre = ranksums(df_control_pre[df_control_pre["hgs_target"]==target][y_hgs], df_pre_disorder[df_pre_disorder["hgs_target"]==target][y_hgs])
+        stat_post, p_value_post = ranksums(df_control_post[df_control_post["hgs_target"]==target][y_hgs], df_post_disorder[df_post_disorder["hgs_target"]==target][y_hgs])
        
         df_ranksum.loc[target, f"pre_{y_hgs}_p_value"] = p_value_pre
         df_ranksum.loc[target, f"pre_{y_hgs}_stat_value"] = stat_pre
         df_ranksum.loc[target, f"post_{y_hgs}_p_value"] = p_value_post
         df_ranksum.loc[target, f"post_{y_hgs}_stat_value"] = stat_post
    
-        max_value_pre = max(df_pre_control[df_pre_control["hgs_target"] == target][y_hgs].max(),df_pre_disorder[df_pre_disorder["hgs_target"] == target][y_hgs].max())
-        max_value_post = max(df_post_control[df_post_control["hgs_target"] == target][y_hgs].max(),df_post_disorder[df_post_disorder["hgs_target"] == target][y_hgs].max())
+        max_value_pre = max(df_control_pre[df_control_pre["hgs_target"] == target][y_hgs].max(),df_pre_disorder[df_pre_disorder["hgs_target"] == target][y_hgs].max())
+        max_value_post = max(df_control_post[df_control_post["hgs_target"] == target][y_hgs].max(),df_post_disorder[df_post_disorder["hgs_target"] == target][y_hgs].max())
 
         df_yaxis_max.loc[target, f"pre_{y_hgs}_max_value"] = max_value_pre
         df_yaxis_max.loc[target, f"post_{y_hgs}_max_value"] = max_value_post
@@ -103,20 +100,16 @@ def add_median_labels(ax, fmt='.3f'):
         x, y = (data.mean() for data in median.get_data())
         # choose value depending on horizontal or vertical plot orientation
         value = x if (median.get_xdata()[1] - median.get_xdata()[0]) == 0 else y
-        text = ax.text(x, y, f'{value:{fmt}}', ha='center', va='center',  color='black', fontsize=14, fontweight='bold')
-        text = ax.text(x, y, f'{value:{fmt}}', ha='center', va='center',  color='white', fontsize=14)
-        
+        text = ax.text(x, y, f'{value:{fmt}}', ha='center', va='center',  color='white', fontsize=12)
                     #    fontweight='bold',
         # create median-colored border around white text for contrast
         text.set_path_effects([
-            # path_effects.Stroke(linewidth=3, foreground='none'),
             path_effects.Stroke(linewidth=3, foreground=median.get_color()),
             path_effects.Normal(),
         ])
         xticks_positios_array.append(x)
     return xticks_positios_array
-# print("===== Done! =====")
-# embed(globals(), locals())
+
 ###############################################################################
 xtick_labels = ['Left HGS', 'Right HGS', 'Combined HGS']
 
@@ -235,11 +228,11 @@ for i, y_hgs in enumerate(plot_target):
                 ymax = ymax_tmp
 
 if population == "depression":
-    ylim_range = range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+60, 20) 
-if population == "parkinson":
-    ylim_range = range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+30, 20) 
-if population == "stroke":
     ylim_range = range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+20, 20) 
+if population == "parkinson":
+    ylim_range = range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+20, 20) 
+if population == "stroke":
+    ylim_range = range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+40, 20) 
 for i in range(n_row):
     for j in range(n_col):
         if n_row == 1:
@@ -255,32 +248,8 @@ plt.tight_layout()
 
 # Show the plot
 plt.show()
-plt.savefig(f"{population}_{anova_target}_corrected_predictions_matched_controls_100_samples.png")
+plt.savefig(f"Beheshti_{population}_{anova_target}_corrected_predictions_matched_controls.png")
 plt.close()
 
-print("===== Done! =====")
+print("===== Done! End =====")
 embed(globals(), locals())
-
-palette_control = sns.color_palette("Paired")
-palette_disorder = sns.color_palette("PiYG")
-# print("===== Done! =====")
-# embed(globals(), locals())
-fig, ax = plt.subplots(figsize=(12, 10))
-custome_palette = [palette_control[1], palette_disorder[0]]
-sns.boxplot(data=df_post[df_post['hgs_target']=="hgs_L+R"], x='hgs_target', y='hgs', hue='treatment', palette=custome_palette, ax=ax)
-add_median_labels(ax)
-plt.show()
-plt.savefig("parkinson_male.png")
-plt.close()
-
-ranksums(df_post_control[df_post_control["hgs_target"]=="hgs_L+R"]['hgs'], df_post_disorder[df_post_disorder["hgs_target"]=="hgs_L+R"]['hgs'])
-
-fig, ax = plt.subplots(figsize=(12, 10))
-custome_palette = [palette_control[1], palette_disorder[0]]
-sns.boxplot(data=df_post[df_post['hgs_target']=="hgs_L+R"], x='hgs_target', y='hgs_predicted', hue='treatment', palette=custome_palette, ax=ax)
-add_median_labels(ax)
-plt.show()
-plt.savefig("parkinson_male_raw_predicted.png")
-plt.close()
-
-ranksums(df_post_control[df_post_control["hgs_target"]=="hgs_L+R"]['hgs_predicted'], df_post_disorder[df_post_disorder["hgs_target"]=="hgs_L+R"]['hgs_predicted'])

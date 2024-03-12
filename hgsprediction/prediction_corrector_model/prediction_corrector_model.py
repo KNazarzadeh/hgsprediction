@@ -39,9 +39,7 @@ def prediction_corrector_model(
     # Beheshti Method:
     X = df.loc[:, f"{target}"].values.reshape(-1, 1)
     y = df.loc[:, f"{target}_delta(true-predicted)"].values
-    # de Lange Method:
-    # X = df.loc[:, f"{target}"].values.reshape(-1, 1)
-    # y = df.loc[:, f"{target}_predicted"].values
+
     model.fit(X, y)
     slope = model.coef_[0]
     intercept = model.intercept_   
