@@ -126,8 +126,6 @@ df_prediction_scores.columns.name = 'K-fold splits'
 # For access to each dataframe use the following code:
 # for example --> df_header1 = df_validation_prediction_hgs.xs('repeat:Repeat 0 - k-fold:Fold 0')
 print(df_prediction_scores)
-print("===== Done! =====")
-embed(globals(), locals())
 ###############################################################################
 # SAVE THE RESULTS
 ###############################################################################

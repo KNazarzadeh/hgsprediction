@@ -68,8 +68,7 @@ data_extracted = healthy_extract_data.extract_data(df, features, extend_features
 
 X = features
 y = target
-print("===== Done! =====")
-embed(globals(), locals())
+
 df_female = data_extracted[data_extracted["gender"] == 0]
 df_male = data_extracted[data_extracted["gender"] == 1]
 

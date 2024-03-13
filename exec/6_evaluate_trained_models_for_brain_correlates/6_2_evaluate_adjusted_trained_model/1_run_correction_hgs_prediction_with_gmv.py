@@ -149,8 +149,7 @@ merged_df = pd.merge(residuals_df, df, left_index=True, right_index=True, how='i
 
 merged_df_female = merged_df[merged_df['gender']==0]
 merged_df_male = merged_df[merged_df['gender']==1]
-# print("===== Done! =====")
-# embed(globals(), locals())
+
 ##############################################################################
 n_regions = brain_df.shape[1]
 x_axis = brain_df.columns    
@@ -194,7 +193,7 @@ def plot_bar_with_scatter(data, x, y, corr_target, gender, n_regions_survived, c
     plt.xlim(-0.5, len(data[x]) - 0.5)
     plt.tight_layout()
     plt.show()
-    plt.savefig(f"corr_gmv_without_TIV_schaefer{schaefer}_{stats_correlation_type}_{model_name}_{corr_target}_{target}_{gender}.png")  # Save the plot as a PNG file
+    plt.savefig(f"beheshti_corr_gmv_without_TIV_schaefer{schaefer}_{stats_correlation_type}_{model_name}_{corr_target}_{target}_{gender}.png")  # Save the plot as a PNG file
 # print("===== Done! =====")
 # embed(globals(), locals())
 ##############################################################################
@@ -253,6 +252,47 @@ plot_bar_with_scatter(sorted_p_values_delta_male, 'regions', 'correlations', "de
 
 ##############################################################################
 ##############################################################################
+# Assuming predicted_corr_significant_female and true_corr_significant_female are pandas Series objects
+predicted_corr_series = predicted_corr_significant_female["correlations"]
+true_corr_series = true_corr_significant_female["correlations"]
+
+# Iterate over each element in the Series and compare their absolute values
+predicted_corr_stronger = 0
+true_corr_stronger = 0
+for pred_corr, true_corr in zip(predicted_corr_series, true_corr_series):
+    if abs(pred_corr) > abs(true_corr):
+        predicted_corr_stronger += 1
+    elif abs(pred_corr) < abs(true_corr):
+        true_corr_stronger += 1
+
+# Check which one is stronger based on the count of comparisons
+if predicted_corr_stronger > true_corr_stronger:
+    print("predicted_corr_significant_female is stronger")
+elif predicted_corr_stronger < true_corr_stronger:
+    print("true_corr_significant_female is stronger")
+else:
+    print("Both correlations have equal strength")
+    
+    
+predicted_corr_series = predicted_corr_significant_male["correlations"]
+true_corr_series = true_corr_significant_male["correlations"]
+
+# Iterate over each element in the Series and compare their absolute values
+predicted_corr_stronger = 0
+true_corr_stronger = 0
+for pred_corr, true_corr in zip(predicted_corr_series, true_corr_series):
+    if abs(pred_corr) > abs(true_corr):
+        predicted_corr_stronger += 1
+    elif abs(pred_corr) < abs(true_corr):
+        true_corr_stronger += 1
+
+# Check which one is stronger based on the count of comparisons
+if predicted_corr_stronger > true_corr_stronger:
+    print("predicted_corr_significant_male is stronger")
+elif predicted_corr_stronger < true_corr_stronger:
+    print("true_corr_significant_male is stronger")
+else:
+    print("Both correlations have equal strength")
 
 print("===== Done! =====")
 embed(globals(), locals())

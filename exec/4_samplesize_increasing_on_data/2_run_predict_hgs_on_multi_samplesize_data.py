@@ -77,7 +77,8 @@ features, extend_features = define_features(feature_type)
 # Set X and y parameter for julearn run_cross_validation function
 X = features
 y = target
-
+print("===== Done! =====")
+embed(globals(), locals())
 ###############################################################################
 # Define model and model parameters:
 if model_name == "linear_svm":

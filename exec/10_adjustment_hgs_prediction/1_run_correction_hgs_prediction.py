@@ -73,8 +73,8 @@ df = pd.read_pickle(file_path)
 def calculate_correlations(df, n_folds, target):
     df_corrected = pd.DataFrame()
     df_correlations = pd.DataFrame(columns=["cv_fold", 
-                                                    "r_values_true_raw_predicted", "r2_values_true_raw_predicted",
-                                                    "r_values_true_raw_delta", "r2_values_true_raw_delta",
+                                                    "r_values_true_predicted", "r2_values_true_predicted",
+                                                    "r_values_true_delta", "r2_values_true_delta",
                                                     "r_values_true_corrected_predicted", "r2_values_true_corrected_predicted",
                                                     "r_values_true_corrected_delta", "r2_values_true_corrected_delta"])
 
@@ -83,41 +83,42 @@ def calculate_correlations(df, n_folds, target):
         df_tmp = df[df['cv_fold']==fold]
         df_half = df_tmp.sample(frac=0.5, random_state=47)
         # Beheshti Method:
-        X = df_half.loc[:, f"{target}"].values.reshape(-1, 1)
-        y = df_half.loc[:, f"{target}_delta(true-predicted)"].values
+        X = df.loc[:, f"{target}"].values.reshape(-1, 1)
+        y = df.loc[:, f"{target}_delta(true-predicted)"].values
         model.fit(X, y)
         # model.fit(df_half.loc[:, f"{target}"].values.reshape(-1, 1), df_half.loc[:, f"{target}_predicted"])
         slope = model.coef_[0]
-        intercept = model.intercept_
+        intercept = model.intercept_   
         df_half_rest = df_tmp[~df_tmp.index.isin(df_half.index)]
         
         # Beheshti Method:
-        df_half_rest.loc[:, "corrected_predicted_hgs"] = (df_half_rest.loc[:, f"{target}_predicted"] - ((slope * df_half_rest.loc[:, f"{target}"]) + intercept))
-
+        df_half_rest.loc[:, f"{target}_corrected_predicted"] = (df_half_rest.loc[:, f"{target}_predicted"] + ((slope * df_half_rest.loc[:, f"{target}"]) + intercept))
+        # Cole Method
         # df_half_rest.loc[:, "corrected_predicted_hgs"] = (df_half_rest.loc[:, f"{target}_predicted"] - intercept) / slope
-        df_half_rest.loc[:, "corrected_delta_hgs"] =  df_half_rest.loc[:, f"{target}"] - df_half_rest.loc[:, "corrected_predicted_hgs"]
+        df_half_rest.loc[:, f"{target}_corrected_delta(true-predicted)"] =  df_half_rest.loc[:, f"{target}"] - df_half_rest.loc[:, f"{target}_corrected_predicted"]
 
-        r_values_true_raw_predicted = pearsonr(df_half_rest.loc[:, f"{target}"],df_half_rest.loc[:,f"{target}_predicted"])[0]
-        r2_values_true_raw_predicted = r2_score(df_half_rest.loc[:, f"{target}"],df_half_rest.loc[:,f"{target}_predicted"])
+        r_values_true_predicted = pearsonr(df_half_rest.loc[:, f"{target}"], df_half_rest.loc[:,f"{target}_predicted"])[0]
+        r2_values_true_predicted = r2_score(df_half_rest.loc[:, f"{target}"], df_half_rest.loc[:,f"{target}_predicted"])
 
-        r_values_true_raw_delta = pearsonr(df_half_rest.loc[:, f"{target}"],df_half_rest.loc[:,f"{target}_delta(true-predicted)"])[0]
-        r2_values_true_raw_delta = r2_score(df_half_rest.loc[:, f"{target}"],df_half_rest.loc[:,f"{target}_delta(true-predicted)"])
+        r_values_true_delta = pearsonr(df_half_rest.loc[:, f"{target}"], df_half_rest.loc[:,f"{target}_delta(true-predicted)"])[0]
+        r2_values_true_delta = r2_score(df_half_rest.loc[:, f"{target}"], df_half_rest.loc[:,f"{target}_delta(true-predicted)"])
 
-        r_values_true_corrected_predicted = pearsonr(df_half_rest.loc[:, f"{target}"],df_half_rest.loc[:,"corrected_predicted_hgs"])[0]
-        r2_values_true_corrected_predicted = r2_score(df_half_rest.loc[:, f"{target}"],df_half_rest.loc[:,"corrected_predicted_hgs"])
+        r_values_true_corrected_predicted = pearsonr(df_half_rest.loc[:, f"{target}"], df_half_rest.loc[:, f"{target}_corrected_predicted"])[0]
+        r2_values_true_corrected_predicted = r2_score(df_half_rest.loc[:, f"{target}"], df_half_rest.loc[:, f"{target}_corrected_predicted"])
 
-        r_values_true_corrected_delta = pearsonr(df_half_rest.loc[:, f"{target}"],df_half_rest.loc[:,"corrected_delta_hgs"])[0]
-        r2_values_true_corrected_delta = r2_score(df_half_rest.loc[:, f"{target}"],df_half_rest.loc[:,"corrected_delta_hgs"])
+        r_values_true_corrected_delta = pearsonr(df_half_rest.loc[:, f"{target}"], df_half_rest.loc[:,f"{target}_corrected_delta(true-predicted)"])[0]
+        r2_values_true_corrected_delta = r2_score(df_half_rest.loc[:, f"{target}"], df_half_rest.loc[:,f"{target}_corrected_delta(true-predicted)"])
 
         df_correlations.loc[fold, "cv_fold"] = fold
-        df_correlations.loc[fold, "r_values_true_raw_predicted"] = r_values_true_raw_predicted
-        df_correlations.loc[fold, "r2_values_true_raw_predicted"] = r2_values_true_raw_predicted
-        df_correlations.loc[fold, "r_values_true_raw_delta"] = r_values_true_raw_delta
-        df_correlations.loc[fold, "r2_values_true_raw_delta"] = r2_values_true_raw_delta
+        df_correlations.loc[fold, "r_values_true_predicted"] = r_values_true_predicted
+        df_correlations.loc[fold, "r2_values_true_predicted"] = r2_values_true_predicted
+        df_correlations.loc[fold, "r_values_true_delta"] = r_values_true_delta
+        df_correlations.loc[fold, "r2_values_true_delta"] = r2_values_true_delta
         df_correlations.loc[fold, "r_values_true_corrected_predicted"] = r_values_true_corrected_predicted
         df_correlations.loc[fold, "r2_values_true_corrected_predicted"] = r2_values_true_corrected_predicted
         df_correlations.loc[fold, "r_values_true_corrected_delta"] = r_values_true_corrected_delta
         df_correlations.loc[fold, "r2_values_true_corrected_delta"] = r2_values_true_corrected_delta
+
 
         df_corrected = pd.concat([df_corrected, df_half_rest], axis=0)
     
@@ -131,8 +132,6 @@ df_corrected, df_correlations = calculate_correlations(df, n_folds, target)
 
 ###############################################################################
 
-print("===== Done! =====")
-embed(globals(), locals())
 
 main_folder_path = os.path.join(
             "/data",
@@ -166,3 +165,7 @@ for subfolder in subfolders:
         
     elif subfolder == "corrected_correlations":
         df_correlations.to_csv(file_path, sep=',', index=True)
+
+
+print("===== Done! =====")
+embed(globals(), locals())
