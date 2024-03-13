@@ -113,6 +113,7 @@ ymin, ymax = plt.ylim()
 y_step_value = 0.01
 plt.yticks(np.arange(round(ymin/0.01)*.01-y_step_value, round(ymax/0.01)*.01, 0.01), fontsize=18, weight='bold')
 
+
 # Place legend outside the plot
 plt.legend(title="Samples", title_fontsize='24', fontsize='20', bbox_to_anchor=(1.05, 1), loc='upper left')
 

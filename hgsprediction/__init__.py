@@ -109,7 +109,7 @@ from .save_results.brain_save_correlates_results import *
 
 from .load_results.load_brain_correlates_results import *
 
-from .load_results.load_trained_model_results import *
+from .load_results.load_trained_scores_results import *
 
 from .prediction_corrector_model import *
 
@@ -139,3 +139,5 @@ from .load_results.load_disorder_matched_samples_results import load_disorder_ma
 from .save_results.save_disorder_matched_samples_correlation_results import save_disorder_matched_control_samples_correlation_results
 from .save_results.save_disorder_anova_results import save_disorder_anova_results
 from .load_results.load_disorder_anova_results import load_disorder_anova_results
+
+from .load_results.load_trained_scores_results import load_test_scores_trained, load_scores_trained

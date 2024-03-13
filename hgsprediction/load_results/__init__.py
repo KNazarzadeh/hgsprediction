@@ -12,7 +12,7 @@ from .load_multi_samples_trained_models_results import *
 
 from .load_brain_correlates_results import *
 
-from .load_trained_model_results import *
+from .load_trained_scores_results import *
 
 from .load_corrected_prediction_correlation_results import load_corrected_prediction_correlation_results
 from .load_corrected_prediction_results import load_corrected_prediction_results
@@ -27,3 +27,6 @@ from .load_disorder_corrected_prediction_correlation_results import load_disorde
 from .load_disorder_matched_samples_results import load_disorder_matched_samples_results
 
 from .load_disorder_anova_results import load_disorder_anova_results
+
+
+from .load_trained_scores_results import load_scores_trained, load_test_scores_trained
