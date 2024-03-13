@@ -207,7 +207,8 @@ def save_scores_trained(
         
 ###############################################################################     
 def save_test_scores_trained(
-    df,
+    r2_df,
+    r_df,
     population,
     mri_status,
     confound_status,
@@ -248,11 +249,20 @@ def save_test_scores_trained(
     # Define the csv file path to save
     file_path = os.path.join(
         folder_path,
-        f"test_scores_trained.pkl")
+        f"test_r2_scores_trained.pkl")
     
     # Save the scores to pickle format
     with open(file_path, 'wb') as f:
-        pickle.dump(df, f)
+        pickle.dump(r2_df, f)
+        
+    # Define the csv file path to save
+    file_path = os.path.join(
+        folder_path,
+        f"test_pearson_r_scores_trained.pkl")
+    
+    # Save the scores to pickle format
+    with open(file_path, 'wb') as f:
+        pickle.dump(r_df, f)
         
 ###############################################################################     
 def save_prediction_hgs_on_validation_set(

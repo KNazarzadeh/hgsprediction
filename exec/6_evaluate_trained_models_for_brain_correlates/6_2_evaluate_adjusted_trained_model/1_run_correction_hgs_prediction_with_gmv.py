@@ -253,16 +253,16 @@ plot_bar_with_scatter(sorted_p_values_delta_male, 'regions', 'correlations', "de
 ##############################################################################
 ##############################################################################
 # Assuming predicted_corr_significant_female and true_corr_significant_female are pandas Series objects
-predicted_corr_series = predicted_corr_significant_female["correlations"]
-true_corr_series = true_corr_significant_female["correlations"]
+predicted_corr_series = predicted_corr_significant_female["p_values"]
+true_corr_series = true_corr_significant_female["p_values"]
 
 # Iterate over each element in the Series and compare their absolute values
 predicted_corr_stronger = 0
 true_corr_stronger = 0
 for pred_corr, true_corr in zip(predicted_corr_series, true_corr_series):
-    if abs(pred_corr) > abs(true_corr):
+    if abs(pred_corr) < abs(true_corr):
         predicted_corr_stronger += 1
-    elif abs(pred_corr) < abs(true_corr):
+    elif abs(pred_corr) > abs(true_corr):
         true_corr_stronger += 1
 
 # Check which one is stronger based on the count of comparisons
@@ -274,16 +274,16 @@ else:
     print("Both correlations have equal strength")
     
     
-predicted_corr_series = predicted_corr_significant_male["correlations"]
-true_corr_series = true_corr_significant_male["correlations"]
+predicted_corr_series = predicted_corr_significant_male["p_values"]
+true_corr_series = true_corr_significant_male["p_values"]
 
 # Iterate over each element in the Series and compare their absolute values
 predicted_corr_stronger = 0
 true_corr_stronger = 0
 for pred_corr, true_corr in zip(predicted_corr_series, true_corr_series):
-    if abs(pred_corr) > abs(true_corr):
+    if abs(pred_corr) < abs(true_corr):
         predicted_corr_stronger += 1
-    elif abs(pred_corr) < abs(true_corr):
+    elif abs(pred_corr) > abs(true_corr):
         true_corr_stronger += 1
 
 # Check which one is stronger based on the count of comparisons

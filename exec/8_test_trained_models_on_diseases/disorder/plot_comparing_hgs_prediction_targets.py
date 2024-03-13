@@ -89,7 +89,8 @@ for target in ["hgs_left", "hgs_right", "hgs_L+R"]:
 
         df_yaxis_max.loc[target, f"pre_{y_hgs}_max_value"] = max_value_pre
         df_yaxis_max.loc[target, f"post_{y_hgs}_max_value"] = max_value_post
-
+print("===== Done! =====")
+embed(globals(), locals())
 ###############################################################################
 def add_median_labels(ax, fmt='.3f'):
     xticks_positios_array = []

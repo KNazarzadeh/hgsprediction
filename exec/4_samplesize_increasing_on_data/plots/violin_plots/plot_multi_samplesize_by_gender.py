@@ -111,7 +111,7 @@ ax = sns.violinplot(data=df_combined_models_scores, x="model_sample", y="test_sc
 plt.title(f"Performance of anthropometrics and age features for increasing sample sizes by gender - HGS(Left+Right)", fontsize=40, fontweight="bold", y=1.03)
 
 plt.xlabel("Samples", fontsize=80, fontweight="bold")
-plt.ylabel("R2 score", fontsize=80, fontweight="bold")
+plt.ylabel("R score", fontsize=80, fontweight="bold")
 
 ymin, ymax = plt.ylim()
 y_step_value = 0.03

@@ -11,15 +11,15 @@ def define_features(feature_type):
     extend_features = []
 
     if feature_type == "anthropometrics":
-        features = define_anthropometrics_features()
+        features, extend_features= define_anthropometrics_features()
         
     elif feature_type == "anthropometrics_age":
         anthropometric_features, extend_features = define_anthropometrics_features()        
         features = anthropometric_features + define_age_features()
         
-    # elif feature_type == "anthropometrics_gender":
-        # anthropometric_features, extend_features = define_anthropometrics_features()
-        # features = anthropometric_features.append(define_gender_features())
+    elif feature_type == "anthropometrics_gender":
+        anthropometric_features, extend_features = define_anthropometrics_features()        
+        features = anthropometric_features + define_gender_features()
     
     elif feature_type == "behavioral":
         features, extend_features = define_behavioral_features()

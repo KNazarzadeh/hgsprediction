@@ -2,11 +2,10 @@ import sys
 import numpy as np
 import pandas as pd
 import math
-from scipy.stats import pearsonr
+from scipy.stats import ranksums
 import matplotlib.pyplot as plt
 import seaborn as sns
 import matplotlib.patheffects as path_effects
-from scipy.stats import ttest_ind
 
 
 from hgsprediction.load_results.load_disorder_anova_results import load_disorder_anova_results
@@ -69,7 +68,21 @@ df_pre_disorder = df_pre[df_pre['treatment']==f"{population}"]
 df_post_disorder = df_post[df_post['treatment']==f"{population}"]
 
 df_pre_control = df_pre[df_pre['treatment']=="control"]
-df_post_control = df_post[df_post['treatment']=="control"]
+df_post_control= df_post[df_post['treatment']=="control"]
+
+###############################################################################
+df_ranksum = pd.DataFrame(index=["hgs_left", "hgs_right", "hgs_L+R"])
+df_yaxis_max = pd.DataFrame(index=["hgs_left", "hgs_right", "hgs_L+R"])
+
+for target in ["hgs_left", "hgs_right", "hgs_L+R"]:
+    for i, y_hgs in enumerate(plot_target):
+        stat_pre, p_value_pre = ranksums(df_pre_control[df_pre_control["hgs_target"]==target][y_hgs], df_pre_disorder[df_pre_disorder["hgs_target"]==target][y_hgs])
+        stat_post, p_value_post = ranksums(df_post_control[df_post_control["hgs_target"]==target][y_hgs], df_post_disorder[df_post_disorder["hgs_target"]==target][y_hgs])
+       
+        df_ranksum.loc[target, f"pre_{y_hgs}_p_value"] = p_value_pre
+        df_ranksum.loc[target, f"pre_{y_hgs}_stat_value"] = stat_pre
+        df_ranksum.loc[target, f"post_{y_hgs}_p_value"] = p_value_post
+        df_ranksum.loc[target, f"post_{y_hgs}_stat_value"] = stat_post
 
 print("===== Done! =====")
 embed(globals(), locals())

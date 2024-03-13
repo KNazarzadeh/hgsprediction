@@ -6,7 +6,7 @@ from ptpython.repl import embed
 def extract_data(df, features, extend_features, feature_type, target, mri_status, session):
     
     # Convert target and features for specific session
-    target = f"{target}-{session}.0"
+    target_tmp = f"{target}-{session}.0"
     
     if mri_status == "nonmri":
         if feature_type == "behavioral":
@@ -52,7 +52,7 @@ def extract_data(df, features, extend_features, feature_type, target, mri_status
                             f"hgs_nondominant_side-{session}.0",
                             ]
     # Append target_list to feature_list
-    feature_list.append(target)
+    feature_list.append(target_tmp)
     extra_columns_list.extend(extend_features_list)
     extra_columns_list.extend(feature_list)
     
@@ -72,6 +72,9 @@ def extract_data(df, features, extend_features, feature_type, target, mri_status
     # Update the column names of the DataFrame
     df_extracted.columns = new_columns
 
+    if target in ["hgs_dominant", "hgs_nondominant"]:
+        df_extracted = df_extracted.loc[:, ~df_extracted.columns.duplicated()]
+    
     return df_extracted
 
 
