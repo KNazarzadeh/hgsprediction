@@ -97,6 +97,9 @@ df_train = load_multi_samplesize_training_data(
     samplesize,
     )
 
+print(len(df_train))
+print("===== Done! =====")
+embed(globals(), locals())
 feature_type = "anthropometrics"
 ###############################################################################
 # Define Features:

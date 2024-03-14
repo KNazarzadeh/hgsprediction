@@ -129,8 +129,6 @@ for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
     df_r2_values.loc[0, f"{prefix}_r2_values_true_corrected_predicted"] = r2_score(df.loc[:, f"{prefix}_{target}"],df.loc[:, f"{prefix}_{target}_corrected_predicted"])
     df_r2_values.loc[0, f"{prefix}_r2_values_true_corrected_delta"] = r2_score(df.loc[:, f"{prefix}_{target}"],df.loc[:, f"{prefix}_{target}_corrected_delta(true-predicted)"])
 
-print("===== Done! End =====")
-embed(globals(), locals())
 
 save_disorder_corrected_prediction_correlation_results(
     df_correlations,

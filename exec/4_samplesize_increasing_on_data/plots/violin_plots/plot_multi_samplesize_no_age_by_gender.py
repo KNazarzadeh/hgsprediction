@@ -64,8 +64,7 @@ for samplesize in samplesize_list:
     df_tmp = pd.concat([df_female, df_male], axis=0)
     df = pd.concat([df, df_tmp], axis=0)
     
-print("===== Done! =====")
-embed(globals(), locals())
+
 
 ##############################################################################
 # Create a custom color palette dictionary
@@ -81,21 +80,22 @@ fig = plt.figure(figsize=(15, 10))
 
 sns.set_style("whitegrid")
 # Plot the violin plot
-sns.violinplot(data=df, x="samplesize_percent", y="test_pearson_corr", hue="gender", palette=custom_color, linewidth=1.5, inner="box")
+sns.violinplot(data=df, x="samplesize_percent", y="test_pearson_corr", hue="gender", palette=custom_color, linewidth=3, inner="box")
         
 plt.title(f"Predicting HGS from anthropometric features for increasing sample sizes by gender - combined dominant and non-dominant", fontsize=10, fontweight="bold", y=1.03)
 
-plt.xlabel("Samples", fontsize=50, fontweight="bold")
+plt.xlabel("Samples", fontsize=35, fontweight="bold")
 # Set xlabel, ylabel, and title
 plt.xlabel("Samples")
-plt.ylabel("r value", fontsize=50, fontweight="bold")
+plt.ylabel("r value", fontsize=35, fontweight="bold")
 # Change x-axis tick labels
 new_xticklabels = ["10%", "20%", "40%", "60%", "80%", "100%"]  # Replace with your desired labels
-plt.xticks(ticks=[0, 1, 2, 3, 4, 5], labels=new_xticklabels, fontsize=20, weight='bold')
+plt.xticks(ticks=[0, 1, 2, 3, 4, 5], labels=new_xticklabels, fontsize=24, weight='bold')
 
 ymin, ymax = plt.ylim()
 y_step_value = 0.02
-plt.yticks(np.arange(round(ymin/0.01)*.01, round(ymax/0.01)*.01+.03, y_step_value), fontsize=20, weight='bold', y=1.01)
+# plt.yticks(np.arange(round(ymin/0.01)*.01, round(ymax/0.01)*.01+.03, y_step_value), fontsize=18, weight='bold', y=1.01)
+plt.yticks(np.arange(0.20, 0.50, y_step_value), fontsize=18, weight='bold', y=1.01)
 
 # Place legend outside the plot
 plt.legend(title="Gender", title_fontsize='20', fontsize='18', bbox_to_anchor=(1.0005, 1), loc='upper left')
@@ -107,7 +107,7 @@ plt.savefig("crc_plot_by_gender.png")
 # Close the figure
 plt.close()
 
-# print("===== Done! =====")
-# embed(globals(), locals())
+print("===== Done! =====")
+embed(globals(), locals())
 
 
