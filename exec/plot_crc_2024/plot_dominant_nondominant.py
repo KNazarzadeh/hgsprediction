@@ -92,17 +92,17 @@ df = pd.concat([df_dominant, df_nondominant], axis=0)
 
 ###############################################################################
 # Create a figure with the desired size
-palette_colors = sns.color_palette("Paired")
-custome_palette = {"Dominant": palette_colors[3], "Non-Dominant":palette_colors[2]}
-fig = plt.figure(figsize=(17, 15))
+palette_colors = sns.color_palette("RdBu")
+custome_palette = {"Dominant": palette_colors[0], "Non-Dominant":palette_colors[1]}
+fig = plt.figure(figsize=(18, 16))
 
 sns.set_style("whitegrid")
 # Plot the violin plot
-sns.violinplot(data=df, x="hgs_target", y="test_pearson_corr", hue="hgs_target", palette=custome_palette, linewidth=5, inner="box")
+sns.violinplot(data=df, x="hgs_target", y="test_pearson_corr", hue="hgs_target", palette=custome_palette, linewidth=3, inner="box")
 
 # Set xlabel, ylabel, and title
 plt.xlabel("")
-plt.ylabel("r score", fontsize=50, fontweight="bold")
+plt.ylabel("r value", fontsize=50, fontweight="bold")
 
 # Change x-axis tick labels
 # new_xticklabels = ["Dominant", "Non-Dominant"]  # Replace with your desired labels
@@ -131,15 +131,15 @@ palette_male = sns.color_palette("Paired")
 palette_female = sns.color_palette("PiYG")
 custom_color = {'Female': palette_female[0], 'Male': palette_male[1]}
 
-fig = plt.figure(figsize=(17, 15))
+fig = plt.figure(figsize=(18, 16))
 
 sns.set_style("whitegrid")
 # Plot the violin plot
-sns.violinplot(data=df, x="hgs_target", y="test_pearson_corr", hue="gender", palette=custom_color, linewidth=5, inner="box")
+sns.violinplot(data=df, x="hgs_target", y="test_pearson_corr", hue="gender", palette=custom_color, linewidth=3, inner="box")
 
 # Set xlabel, ylabel, and title
 plt.xlabel("")
-plt.ylabel("r score", fontsize=50, fontweight="bold")
+plt.ylabel("r value", fontsize=50, fontweight="bold")
 plt.xticks(fontsize=30, weight='bold')
 
 ymin, ymax = plt.ylim()
@@ -149,7 +149,7 @@ plt.yticks(np.arange(round(ymin/0.01)*.01, round(ymax/0.01)*.01+.03, y_step_valu
 plt.title("Predicting HGS from anthropometric features", fontsize=20, fontweight="bold", y=1.03)
 
 # Place legend outside the plot
-plt.legend(title="Gender", title_fontsize='24', fontsize='20', bbox_to_anchor=(1.05, 1), loc='upper left')
+plt.legend(title="Gender", title_fontsize='24', fontsize='20', bbox_to_anchor=(1.001, 1), loc='upper left')
 # Show the plot
 plt.show()
 # Save the plot to a file
