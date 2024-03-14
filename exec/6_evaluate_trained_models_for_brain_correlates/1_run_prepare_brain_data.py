@@ -31,7 +31,7 @@ df_schaefer = dt_schaefer.to_pandas()
 df_schaefer.set_index('SubjectID', inplace=True)
 if schaefer == '100':
     tian_file = os.path.join(jay_path, f"4_gmd_tianS1_all_subjects.jay")
-elif schaefer == '400':
+elif schaefer == '1000':
     tian_file = os.path.join(jay_path, f"{brain_data_type.upper()}_Tian_Mean.jay")
 dt_tian = dt.fread(tian_file)
 df_tian = dt_tian.to_pandas()
@@ -49,8 +49,8 @@ merged_df = pd.merge(merged_df, df_suit, left_index=True, right_index=True, how=
 merged_df = merged_df.dropna()
 merged_df.index = merged_df.index.str.replace("sub-", "")
 merged_df.index = merged_df.index.map(int)
-# print("===== Done! =====")
-# embed(globals(), locals())
+print("===== Done! =====")
+embed(globals(), locals())
 folder_path = os.path.join(
             "/data",
             "project",

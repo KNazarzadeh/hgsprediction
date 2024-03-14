@@ -92,9 +92,9 @@ df = pd.concat([df_dominant, df_nondominant], axis=0)
 
 ###############################################################################
 # Create a figure with the desired size
-palette_colors = sns.color_palette("RdBu")
-custome_palette = {"Dominant": palette_colors[0], "Non-Dominant":palette_colors[1]}
-fig = plt.figure(figsize=(18, 16))
+palette_colors = sns.color_palette("Paired")
+custome_palette = {"Dominant": palette_colors[1], "Non-Dominant":palette_colors[0]}
+fig = plt.figure(figsize=(15, 10))
 
 sns.set_style("whitegrid")
 # Plot the violin plot
@@ -107,11 +107,11 @@ plt.ylabel("r value", fontsize=50, fontweight="bold")
 # Change x-axis tick labels
 # new_xticklabels = ["Dominant", "Non-Dominant"]  # Replace with your desired labels
 # plt.xticks(ticks=[0, 1], labels=new_xticklabels, fontsize=30, weight='bold')
-plt.xticks(fontsize=30, weight='bold')
+plt.xticks(fontsize=20, weight='bold')
 
 ymin, ymax = plt.ylim()
 y_step_value = 0.02
-plt.yticks(np.arange(round(ymin/0.01)*.01, round(ymax/0.01)*.01+.03, y_step_value), fontsize=30, weight='bold', y=1.01)
+plt.yticks(np.arange(round(ymin/0.01)*.01, round(ymax/0.01)*.01+.03, y_step_value), fontsize=20, weight='bold', y=1.01)
 
 plt.title("Predicting HGS from anthropometric features", fontsize=20, fontweight="bold", y=1.03)
 
@@ -127,11 +127,13 @@ plt.close()
 
 ###############################################################################
 # Create a figure with the desired size
-palette_male = sns.color_palette("Paired")
-palette_female = sns.color_palette("PiYG")
-custom_color = {'Female': palette_female[0], 'Male': palette_male[1]}
+# palette_male = sns.color_palette("Paired")
+# palette_female = sns.color_palette("PiYG")
+# custom_color = {'Female': palette_female[0], 'Male': palette_male[1]}
 
-fig = plt.figure(figsize=(18, 16))
+custom_color = {'Female': "#f45f74", 'Male': "#00b0be"}
+
+fig = plt.figure(figsize=(15, 10))
 
 sns.set_style("whitegrid")
 # Plot the violin plot
@@ -140,11 +142,12 @@ sns.violinplot(data=df, x="hgs_target", y="test_pearson_corr", hue="gender", pal
 # Set xlabel, ylabel, and title
 plt.xlabel("")
 plt.ylabel("r value", fontsize=50, fontweight="bold")
-plt.xticks(fontsize=30, weight='bold')
+plt.xticks(fontsize=20, weight='bold')
 
 ymin, ymax = plt.ylim()
 y_step_value = 0.02
-plt.yticks(np.arange(round(ymin/0.01)*.01, round(ymax/0.01)*.01+.03, y_step_value), fontsize=30, weight='bold', y=1.01)
+# plt.yticks(np.arange(round(ymin/0.01)*.01-0, round(ymax/0.01)*.01+.03, y_step_value), fontsize=20, weight='bold', y=1.01)
+plt.yticks(np.arange(0.26, round(ymax/0.01)*.01+.03, y_step_value), fontsize=20, weight='bold', y=1.01)
 
 plt.title("Predicting HGS from anthropometric features", fontsize=20, fontweight="bold", y=1.03)
 
@@ -159,3 +162,4 @@ plt.close()
 
 print("===== Done! =====")
 embed(globals(), locals())
+

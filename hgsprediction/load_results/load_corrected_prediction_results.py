@@ -39,9 +39,6 @@ def load_corrected_prediction_results(
             f"{n_repeats}_repeats_{n_folds}_folds",
             "hgs_corrected_prediction_results",
         )
-        
-    if(not os.path.isdir(folder_path)):
-        os.makedirs(folder_path)
 
     # Define the csv file path to save
     file_path = os.path.join(
