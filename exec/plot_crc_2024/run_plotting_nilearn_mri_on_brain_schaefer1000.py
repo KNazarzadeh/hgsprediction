@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 from nilearn import image, plotting, datasets
 import nibabel as nib
 
-from hgsprediction.load_results.load_brain_correlation_results import load_brain_hgs_correlation_results_for_plot
+from hgsprediction.load_results.load_brain_correlation_results import load_brain_hgs_correlation_results_for_plot, load_brain_hgs_correlation_results
 #--------------------------------------------------------------------------#
 from ptpython.repl import embed
 # print("===== Done! =====")
@@ -34,14 +34,20 @@ stats_correlation_type = sys.argv[3]
 corr_target = sys.argv[4]
 # print("===== Done! =====")
 # embed(globals(), locals())
-    
-df_female_corr,df_male_corr = load_brain_hgs_correlation_results_for_plot(
+
+df_female_corr,df_male_corr = load_brain_hgs_correlation_results(
 brain_data_type,
 schaefer,
 corr_target, 
 )
-print("===== Done! =====")
-embed(globals(), locals())
+
+df_female_corr_column, df_male_corr_column = load_brain_hgs_correlation_results_for_plot(
+brain_data_type,
+schaefer,
+corr_target, 
+)
+# print("===== Done! =====")
+# embed(globals(), locals())
 # Schaefer
 # Fetch the Schaefer atlas
 # Specify the directory where you want to download the atlas
@@ -60,9 +66,9 @@ cer_img = nib.load(nii_suit_file_path)
 
 for gender in ["female", "male"]:
     if gender == "female":
-        df_tmp = df_female_corr.copy()
+        df_tmp = df_female_corr_column.copy()
     elif gender == "male":
-        df_tmp = df_male_corr.copy()
+        df_tmp = df_male_corr_column.copy()
 
     for cnfd_idx, cnfd in enumerate(list(df_tmp.columns)[:2]):
         print(cnfd_idx, cnfd)
@@ -103,7 +109,7 @@ for gender in ["female", "male"]:
 
         # figure saving names
         folder_path = f"/data/project/stroke_ukb/knazarzadeh/project_hgsprediction/brain_imaging_data/brain_plots/schaefer{schaefer}/{gender}/{corr_target}"
-            
+        
         cort_corr_fig_fname =  os.path.join(folder_path, f"schaefer{schaefer}_correlation-GMV-{cnfd}_2.pdf")
         sub_corr_fig_fname =  os.path.join(folder_path, f"tian_correlation-GMV-{cnfd}_2.pdf")
         cer_corr_fig_fname =  os.path.join(folder_path, f"suit_correlation-GMV{cnfd}_2.pdf")
