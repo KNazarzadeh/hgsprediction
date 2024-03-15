@@ -93,7 +93,14 @@ def load_brain_hgs_correlation_results(
     
     df_male = pd.read_csv(file_path, sep=',', index_col=0)
     
-    return df_female, df_male
+    # Define the csv file path to save
+    file_path = os.path.join(
+        folder_path,
+        "both_gender_hgs_correlation_results.csv")
+    
+    df_corr = pd.read_csv(file_path, sep=',', index_col=0)
+    
+    return df_female, df_male, df_corr
 
 
 ###############################################################################
@@ -136,5 +143,12 @@ def load_brain_hgs_correlation_results_for_plot(
     
     df_male = pd.read_csv(file_path, sep=',', index_col=0)
     
-    return df_female, df_male
+    # Define the csv file path to save
+    file_path = os.path.join(
+        folder_path,
+        "both_gender_hgs_correlation_results_for_plots.csv")
+    
+    df_corr = pd.read_csv(file_path, sep=',', index_col=0)
+    
+    return df_female, df_male, df_corr
     

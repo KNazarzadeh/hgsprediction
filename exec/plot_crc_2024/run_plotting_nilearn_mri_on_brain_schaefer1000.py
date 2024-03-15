@@ -35,13 +35,13 @@ corr_target = sys.argv[4]
 # print("===== Done! =====")
 # embed(globals(), locals())
 
-df_female_corr,df_male_corr = load_brain_hgs_correlation_results(
+df_female_corr,df_male_corr, df_corr = load_brain_hgs_correlation_results(
 brain_data_type,
 schaefer,
 corr_target, 
 )
 
-df_female_corr_column, df_male_corr_column = load_brain_hgs_correlation_results_for_plot(
+df_female_corr_column, df_male_corr_column, df_corr_column = load_brain_hgs_correlation_results_for_plot(
 brain_data_type,
 schaefer,
 corr_target, 
@@ -64,12 +64,14 @@ nii_suit_file_path = '/data/project/stroke_ukb/knazarzadeh/project_hgsprediction
 cer_img = nib.load(nii_suit_file_path)
 
 
-for gender in ["female", "male"]:
+for gender in ["female", "male", "both_gender"]:
     if gender == "female":
         df_tmp = df_female_corr_column.copy()
     elif gender == "male":
         df_tmp = df_male_corr_column.copy()
-
+    elif gender == "both_gender":
+        df_tmp = df_corr_column.copy()
+        
     for cnfd_idx, cnfd in enumerate(list(df_tmp.columns)[:2]):
         print(cnfd_idx, cnfd)
         # Get correlation data per atlas

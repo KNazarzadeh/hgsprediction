@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 from nilearn import image, plotting, datasets
 import nibabel as nib
 
-from hgsprediction.load_results.load_brain_correlation_results import load_brain_hgs_correlation_results_for_plot
+from hgsprediction.load_results.load_brain_correlation_results import load_brain_hgs_correlation_results_for_plot, load_brain_hgs_correlation_results
 #--------------------------------------------------------------------------#
 from ptpython.repl import embed
 # print("===== Done! =====")
@@ -35,11 +35,18 @@ corr_target = sys.argv[4]
 # print("===== Done! =====")
 # embed(globals(), locals())
     
-df_female_corr,df_male_corr = load_brain_hgs_correlation_results_for_plot(
+df_female_corr,df_male_corr, df_corr = load_brain_hgs_correlation_results(
 brain_data_type,
 schaefer,
 corr_target, 
 )
+
+df_female_corr_column, df_male_corr_column, df_corr_column = load_brain_hgs_correlation_results_for_plot(
+brain_data_type,
+schaefer,
+corr_target, 
+)
+
 print("===== Done! =====")
 embed(globals(), locals())
 # Schaefer
@@ -59,12 +66,14 @@ cer_img = nib.load(nii_suit_file_path)
 # Schaefer
 # Fetch the Schaefer atlas
 # Specify the directory where you want to download the atlas
-for gender in ["female", "male"]:
+for gender in ["female", "male", "both_gender"]:
     if gender == "female":
-        df_tmp = df_female_corr.copy()
+        df_tmp = df_female_corr_column.copy()
     elif gender == "male":
-        df_tmp = df_male_corr.copy()
-    
+        df_tmp = df_male_corr_column.copy()
+    elif gender == "both_gender":
+        df_tmp = df_corr_column.copy()
+        
     for cnfd_idx, cnfd in enumerate(list(df_tmp.columns)[:2]):
         print(cnfd_idx, cnfd)
         # Get correlation data per atlas
