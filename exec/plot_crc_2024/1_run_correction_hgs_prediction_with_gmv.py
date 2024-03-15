@@ -174,10 +174,13 @@ x_axis = brain_df.columns
 # Correlation with True HGS
 true_corr_female, true_corr_significant_female, true_n_regions_survived_female = calculate_brain_hgs(merged_df_female, f"{target}", x_axis, stats_correlation_type)
 true_corr_male, true_corr_significant_male, true_n_regions_survived_male = calculate_brain_hgs(merged_df_male, f"{target}", x_axis, stats_correlation_type)
+true_corr, true_corr_significant, true_n_regions_survived = calculate_brain_hgs(merged_df, f"{target}", x_axis, stats_correlation_type)
+
 corr_target = "true_hgs"
 save_brain_hgs_correlation_results(
     true_corr_female,
     true_corr_male,
+    true_corr,
     brain_data_type,
     schaefer,
     corr_target,
@@ -185,10 +188,13 @@ save_brain_hgs_correlation_results(
 # Correlation with predicted HGS
 predicted_corr_female, predicted_corr_significant_female, predicted_n_regions_survived_female = calculate_brain_hgs(merged_df_female, f"{target}_predicted", x_axis, stats_correlation_type)
 predicted_corr_male, predicted_corr_significant_male, predicted_n_regions_survived_male = calculate_brain_hgs(merged_df_male, f"{target}_predicted", x_axis, stats_correlation_type)
+predicted_corr, predicted_corr_significant, predicted_n_regions_survived = calculate_brain_hgs(merged_df, f"{target}_predicted", x_axis, stats_correlation_type)
+
 corr_target = "predicted_hgs"
 save_brain_hgs_correlation_results(
     predicted_corr_female,
     predicted_corr_male,
+    predicted_corr,
     brain_data_type,
     schaefer,
     corr_target,
@@ -196,10 +202,13 @@ save_brain_hgs_correlation_results(
 # Correlation with corrected predicted HGS
 corrected_predicted_corr_female, corrected_predicted_corr_significant_female, corrected_predicted_n_regions_survived_female = calculate_brain_hgs(merged_df_female, f"{target}_corrected_predicted", x_axis, stats_correlation_type)
 corrected_predicted_corr_male, corrected_predicted_corr_significant_male, corrected_predicted_n_regions_survived_male = calculate_brain_hgs(merged_df_male, f"{target}_corrected_predicted", x_axis, stats_correlation_type)
+corrected_predicted_corr, corrected_predicted_corr_significant, corrected_predicted_n_regions_survived = calculate_brain_hgs(merged_df, f"{target}_corrected_predicted", x_axis, stats_correlation_type)
+
 corr_target = "corrected_predicted_hgs"
 save_brain_hgs_correlation_results(
     corrected_predicted_corr_female,
     corrected_predicted_corr_male,
+    corrected_predicted_corr,
     brain_data_type,
     schaefer,
     corr_target,
@@ -207,10 +216,13 @@ save_brain_hgs_correlation_results(
 # Correlation with Delta HGS
 delta_corr_female, delta_corr_significant_female,delta_n_regions_survived_female = calculate_brain_hgs(merged_df_female, f"{target}_delta(true-predicted)", x_axis, stats_correlation_type)
 delta_corr_male, delta_corr_significant_male, delta_n_regions_survived_male = calculate_brain_hgs(merged_df_male, f"{target}_delta(true-predicted)", x_axis, stats_correlation_type)
+delta_corr, delta_corr_significant, delta_n_regions_survived = calculate_brain_hgs(merged_df, f"{target}_delta(true-predicted)", x_axis, stats_correlation_type)
+
 corr_target = "delta_hgs"
 save_brain_hgs_correlation_results(
     delta_corr_female,
     delta_corr_male,
+    delta_corr,
     brain_data_type,
     schaefer,
     corr_target,
@@ -218,10 +230,13 @@ save_brain_hgs_correlation_results(
 # Correlation with corrected Delta HGS
 corrected_delta_corr_female, corrected_delta_corr_significant_female, corrected_delta_n_regions_survived_female = calculate_brain_hgs(merged_df_female, f"{target}_corrected_delta(true-predicted)", x_axis, stats_correlation_type)
 corrected_delta_corr_male, corrected_delta_corr_significant_male, corrected_delta_n_regions_survived_male = calculate_brain_hgs(merged_df_male, f"{target}_corrected_delta(true-predicted)", x_axis, stats_correlation_type)
+corrected_delta_corr, corrected_delta_corr_significant, corrected_delta_n_regions_survived = calculate_brain_hgs(merged_df, f"{target}_corrected_delta(true-predicted)", x_axis, stats_correlation_type)
+
 corr_target = "corrected_delta_hgs"
 save_brain_hgs_correlation_results(
     corrected_delta_corr_female,
     corrected_delta_corr_male,
+    corrected_delta_corr,
     brain_data_type,
     schaefer,
     corr_target,
@@ -253,99 +268,111 @@ def plot_bar_with_scatter(data, x, y, corr_target, gender, n_regions_survived, c
 # Plotting True HGS vs GMV
 sorted_p_values_true_female = true_corr_significant_female.sort_values(by='correlations', ascending=False)
 sorted_p_values_true_male = true_corr_significant_male.sort_values(by='correlations', ascending=False)
+sorted_p_values_true = true_corr_significant.sort_values(by='correlations', ascending=False)
+
 # print("===== Done! =====")
 # embed(globals(), locals())
 # Females Correlations GMV vs True HGS
 plot_bar_with_scatter(sorted_p_values_true_female, 'regions', 'correlations', "true", 'female', true_n_regions_survived_female, color="#f45f74")
 # Males Correlations GMV vs True HGS
 plot_bar_with_scatter(sorted_p_values_true_male, 'regions', 'correlations', "true", 'male', true_n_regions_survived_male, color="#00b0be")
+plot_bar_with_scatter(sorted_p_values_true, 'regions', 'correlations', "true", 'both_gender', true_n_regions_survived, color="orange")
+
 ##############################################################################
 ##############################################################################
 # Plotting Predicted HGS vs GMV
 sorted_p_values_corrected_predicted_female = corrected_predicted_corr_significant_female.sort_values(by='correlations', ascending=False)
 sorted_p_values_corrected_predicted_male = corrected_predicted_corr_significant_male.sort_values(by='correlations', ascending=False)
+sorted_p_values_corrected_predicted = corrected_predicted_corr_significant.sort_values(by='correlations', ascending=False)
 
 # Females Correlations GMV vs True HGS
 plot_bar_with_scatter(sorted_p_values_corrected_predicted_female, 'regions', 'correlations', "corrected_predicted", 'female', corrected_predicted_n_regions_survived_female, color="#f45f74")
 # Males Correlations GMV vs True HGS
 plot_bar_with_scatter(sorted_p_values_corrected_predicted_male, 'regions', 'correlations', "corrected_predicted", 'male', corrected_predicted_n_regions_survived_male, color="#00b0be")
+plot_bar_with_scatter(sorted_p_values_corrected_predicted, 'regions', 'correlations', "corrected_predicted", 'both_gender', corrected_predicted_n_regions_survived, color="orange")
 
 ##############################################################################
 ##############################################################################
 sorted_p_values_predicted_female = predicted_corr_significant_female.sort_values(by='correlations', ascending=False)
 sorted_p_values_predicted_male = predicted_corr_significant_male.sort_values(by='correlations', ascending=False)
+sorted_p_values_predicted = predicted_corr_significant.sort_values(by='correlations', ascending=False)
 
 # Females Correlations GMV vs True HGS
 plot_bar_with_scatter(sorted_p_values_predicted_female, 'regions', 'correlations', "predicted", 'female', predicted_n_regions_survived_female, color="#f45f74")
 # Males Correlations GMV vs True HGS
 plot_bar_with_scatter(sorted_p_values_predicted_male, 'regions', 'correlations', "predicted", 'male', predicted_n_regions_survived_male, color="#00b0be")
 
+plot_bar_with_scatter(sorted_p_values_predicted, 'regions', 'correlations', "predicted", 'both_gender', predicted_n_regions_survived, color="orange")
 
 ##############################################################################
 ##############################################################################
 # Plotting Delta HGS vs GMV
 sorted_p_values_corrected_delta_female = corrected_delta_corr_significant_female.sort_values(by='correlations', ascending=False)
 sorted_p_values_corrected_delta_male = corrected_delta_corr_significant_male.sort_values(by='correlations', ascending=False)
+sorted_p_values_corrected_delta = corrected_delta_corr_significant.sort_values(by='correlations', ascending=False)
 
 # Females Correlations GMV vs True HGS
 plot_bar_with_scatter(sorted_p_values_corrected_delta_female, 'regions', 'correlations', "corrected_delta", 'female', corrected_delta_n_regions_survived_female, color="#f45f74")
 # Males Correlations GMV vs True HGS
 plot_bar_with_scatter(sorted_p_values_corrected_delta_male, 'regions', 'correlations', "corrected_delta", 'male', corrected_delta_n_regions_survived_male, color="#00b0be")
+plot_bar_with_scatter(sorted_p_values_corrected_delta, 'regions', 'correlations', "corrected_delta", 'both_gender', corrected_delta_n_regions_survived, color="orange")
 
 ##############################################################################
 ##############################################################################
 sorted_p_values_delta_female = delta_corr_significant_female.sort_values(by='correlations', ascending=False)
 sorted_p_values_delta_male = delta_corr_significant_male.sort_values(by='correlations', ascending=False)
+sorted_p_values_delta = delta_corr_significant.sort_values(by='correlations', ascending=False)
 
 # Females Correlations GMV vs True HGS
 plot_bar_with_scatter(sorted_p_values_delta_female, 'regions', 'correlations', "delta", 'female', delta_n_regions_survived_female, color="#f45f74")
 # Males Correlations GMV vs True HGS
 plot_bar_with_scatter(sorted_p_values_delta_male, 'regions', 'correlations', "delta", 'male', delta_n_regions_survived_male, color="#00b0be")
+plot_bar_with_scatter(sorted_p_values_delta, 'regions', 'correlations', "delta", 'both_gender', delta_n_regions_survived, color="orange")
 
 ##############################################################################
 ##############################################################################
 # Assuming predicted_corr_significant_female and true_corr_significant_female are pandas Series objects
-predicted_corr_series = predicted_corr_significant_female["p_values"]
-true_corr_series = true_corr_significant_female["p_values"]
+# predicted_corr_series = predicted_corr_significant_female["p_values"]
+# true_corr_series = true_corr_significant_female["p_values"]
 
-# Iterate over each element in the Series and compare their absolute values
-predicted_corr_stronger = 0
-true_corr_stronger = 0
-for pred_corr, true_corr in zip(predicted_corr_series, true_corr_series):
-    if abs(pred_corr) < abs(true_corr):
-        predicted_corr_stronger += 1
-    elif abs(pred_corr) > abs(true_corr):
-        true_corr_stronger += 1
+# # Iterate over each element in the Series and compare their absolute values
+# predicted_corr_stronger = 0
+# true_corr_stronger = 0
+# for pred_corr, true_corr in zip(predicted_corr_series, true_corr_series):
+#     if abs(pred_corr) < abs(true_corr):
+#         predicted_corr_stronger += 1
+#     elif abs(pred_corr) > abs(true_corr):
+#         true_corr_stronger += 1
 
-# Check which one is stronger based on the count of comparisons
-if predicted_corr_stronger > true_corr_stronger:
-    print("predicted_corr_significant_female is stronger")
-elif predicted_corr_stronger < true_corr_stronger:
-    print("true_corr_significant_female is stronger")
-else:
-    print("Both correlations have equal strength")
+# # Check which one is stronger based on the count of comparisons
+# if predicted_corr_stronger > true_corr_stronger:
+#     print("predicted_corr_significant_female is stronger")
+# elif predicted_corr_stronger < true_corr_stronger:
+#     print("true_corr_significant_female is stronger")
+# else:
+#     print("Both correlations have equal strength")
     
     
-predicted_corr_series = predicted_corr_significant_male["p_values"]
-true_corr_series = true_corr_significant_male["p_values"]
+# predicted_corr_series = predicted_corr_significant_male["p_values"]
+# true_corr_series = true_corr_significant_male["p_values"]
 
-##############################################################################
-# Iterate over each element in the Series and compare their absolute values
-predicted_corr_stronger = 0
-true_corr_stronger = 0
-for pred_corr, true_corr in zip(predicted_corr_series, true_corr_series):
-    if abs(pred_corr) < abs(true_corr):
-        predicted_corr_stronger += 1
-    elif abs(pred_corr) > abs(true_corr):
-        true_corr_stronger += 1
+# ##############################################################################
+# # Iterate over each element in the Series and compare their absolute values
+# predicted_corr_stronger = 0
+# true_corr_stronger = 0
+# for pred_corr, true_corr in zip(predicted_corr_series, true_corr_series):
+#     if abs(pred_corr) < abs(true_corr):
+#         predicted_corr_stronger += 1
+#     elif abs(pred_corr) > abs(true_corr):
+#         true_corr_stronger += 1
 
-# Check which one is stronger based on the count of comparisons
-if predicted_corr_stronger > true_corr_stronger:
-    print("predicted_corr_significant_male is stronger")
-elif predicted_corr_stronger < true_corr_stronger:
-    print("true_corr_significant_male is stronger")
-else:
-    print("Both correlations have equal strength")
+# # Check which one is stronger based on the count of comparisons
+# if predicted_corr_stronger > true_corr_stronger:
+#     print("predicted_corr_significant_male is stronger")
+# elif predicted_corr_stronger < true_corr_stronger:
+#     print("true_corr_significant_male is stronger")
+# else:
+#     print("Both correlations have equal strength")
 
 ##############################################################################
 ##############################################################################
@@ -362,9 +389,15 @@ df_male_corr = true_corr_male.drop(columns=["regions", "p_values", "pcorrected",
 column_numbers = range(len(df_male_corr.columns))
 df_male_corr.columns = column_numbers
 
+df_corr = true_corr.drop(columns=["regions", "p_values", "pcorrected", "significant"])
+column_numbers = range(len(df_corr.columns))
+df_corr.columns = column_numbers
+
+
 save_brain_hgs_correlation_results_for_plot(
 df_female_corr,
 df_male_corr,
+df_corr,
 brain_data_type,
 schaefer,
 "true_hgs", 
@@ -378,9 +411,14 @@ df_male_corr = corrected_predicted_corr_male.drop(columns=["regions", "p_values"
 column_numbers = range(len(df_male_corr.columns))
 df_male_corr.columns = column_numbers
 
+df_corr = corrected_predicted_corr.drop(columns=["regions", "p_values", "pcorrected", "significant"])
+column_numbers = range(len(df_corr.columns))
+df_corr.columns = column_numbers
+
 save_brain_hgs_correlation_results_for_plot(
 df_female_corr,
 df_male_corr,
+df_corr,
 brain_data_type,
 schaefer,
 "corrected_predicted_hgs", 
@@ -394,9 +432,15 @@ df_male_corr = predicted_corr_male.drop(columns=["regions", "p_values", "pcorrec
 column_numbers = range(len(df_male_corr.columns))
 df_male_corr.columns = column_numbers
 
+
+df_corr = predicted_corr.drop(columns=["regions", "p_values", "pcorrected", "significant"])
+column_numbers = range(len(df_corr.columns))
+df_corr.columns = column_numbers
+
 save_brain_hgs_correlation_results_for_plot(
 df_female_corr,
 df_male_corr,
+df_corr,
 brain_data_type,
 schaefer,
 "predicted_hgs", 
@@ -410,9 +454,15 @@ df_male_corr = corrected_delta_corr_male.drop(columns=["regions", "p_values", "p
 column_numbers = range(len(df_male_corr.columns))
 df_male_corr.columns = column_numbers
 
+
+df_corr = corrected_delta_corr.drop(columns=["regions", "p_values", "pcorrected", "significant"])
+column_numbers = range(len(df_corr.columns))
+df_corr.columns = column_numbers
+
 save_brain_hgs_correlation_results_for_plot(
 df_female_corr,
 df_male_corr,
+df_corr,
 brain_data_type,
 schaefer,
 "corrected_delta_hgs", 
@@ -426,9 +476,15 @@ df_male_corr = delta_corr_male.drop(columns=["regions", "p_values", "pcorrected"
 column_numbers = range(len(df_male_corr.columns))
 df_male_corr.columns = column_numbers
 
+
+df_corr = delta_corr.drop(columns=["regions", "p_values", "pcorrected", "significant"])
+column_numbers = range(len(df_corr.columns))
+df_corr.columns = column_numbers
+
 save_brain_hgs_correlation_results_for_plot(
 df_female_corr,
 df_male_corr,
+df_corr,
 brain_data_type,
 schaefer,
 "delta_hgs", 

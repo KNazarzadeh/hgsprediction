@@ -58,6 +58,7 @@ def save_brain_correlation_overlap_data_with_mri(
 def save_brain_hgs_correlation_results(
     df_female,
     df_male,
+    df_both,
     brain_data_type,
     schaefer,
     corr_target,
@@ -97,10 +98,18 @@ def save_brain_hgs_correlation_results(
     
     df_male.to_csv(file_path, sep=',', index=True)
 
+    # Define the csv file path to save
+    file_path = os.path.join(
+        folder_path,
+        "both_gender_hgs_correlation_results.csv")
+    
+    df_both.to_csv(file_path, sep=',', index=True)
+    
 ###############################################################################
 def save_brain_hgs_correlation_results_for_plot(
     df_female,
     df_male,
+    df_both,
     brain_data_type,
     schaefer,
     corr_target, 
@@ -139,3 +148,9 @@ def save_brain_hgs_correlation_results_for_plot(
     
     df_male.to_csv(file_path, sep=',', index=True)
     
+    # Define the csv file path to save
+    file_path = os.path.join(
+        folder_path,
+        "both_gender_hgs_correlation_results_for_plots.csv")
+    
+    df_both.to_csv(file_path, sep=',', index=True)
