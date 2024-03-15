@@ -107,7 +107,7 @@ from .load_results.load_multi_samples_trained_models_results import load_scores_
 from .save_results.brain_save_correlates_results import *
 
 
-from .load_results.load_brain_correlates_results import *
+from .load_results.load_brain_correlates_results_1 import *
 
 from .load_results.load_trained_scores_results import *
 
@@ -141,3 +141,7 @@ from .save_results.save_disorder_anova_results import save_disorder_anova_result
 from .load_results.load_disorder_anova_results import load_disorder_anova_results
 
 from .load_results.load_trained_scores_results import load_test_scores_trained, load_scores_trained
+
+from .save_results.save_brain_correlation_results import save_brain_correlation_overlap_data_with_mri, save_brain_hgs_correlation_results, save_brain_hgs_correlation_results_for_plot
+
+from .load_results.load_brain_correlation_results import load_brain_correlation_overlap_data_with_mri, load_brain_hgs_correlation_results, load_brain_hgs_correlation_results_for_plot

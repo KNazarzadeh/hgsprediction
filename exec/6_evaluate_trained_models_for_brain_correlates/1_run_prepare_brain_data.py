@@ -3,16 +3,16 @@ import pandas as pd
 import numpy as np
 import os
 import sys
-import datatable
+# import datatable
 
 from ptpython.repl import embed
-# print("===== Done! =====")
-# embed(globals(), locals())
+
 
 filename = sys.argv[0]
 brain_data_type = sys.argv[1]
 schaefer = sys.argv[2]
-
+print("===== Done! =====")
+embed(globals(), locals())
 ###############################################################################
 jay_path = os.path.join(
     "/data",
@@ -25,10 +25,26 @@ jay_path = os.path.join(
 )
 
 schaefer_file = os.path.join(jay_path, f"{brain_data_type.upper()}_Schaefer{schaefer}x7_Mean.jay")
+# Read the data from the .jay file
+def read_jay_file(schaefer_file):
+    data = []
+    with open(schaefer_file, 'r') as file:
+        lines = file.readlines()
+        for line in lines:
+            # Assuming each line contains comma-separated values
+            values = line.strip().split(',')
+            data.append(values)
+    return data
+
+# Example usage
+file_path = 'example.jay'
+jay_data = read_jay_file(file_path)
+print(jay_data)
 
 dt_schaefer = datatable.fread(schaefer_file)
 df_schaefer = dt_schaefer.to_pandas()
 df_schaefer.set_index('SubjectID', inplace=True)
+###############################################################################
 if schaefer == '100':
     tian_file = os.path.join(jay_path, f"4_gmd_tianS1_all_subjects.jay")
 elif schaefer == '1000':
@@ -36,21 +52,23 @@ elif schaefer == '1000':
 dt_tian = datatable.fread(tian_file)
 df_tian = dt_tian.to_pandas()
 df_tian.set_index('SubjectID', inplace=True)
-
+###############################################################################
 if brain_data_type == "gmv":
     suit_file = os.path.join(jay_path, f"{brain_data_type.upper()}_SUIT_Mean.jay")
     dt_suit = datatable.fread(suit_file)
     df_suit = dt_suit.to_pandas()
     df_suit.set_index('SubjectID', inplace=True)
-
+###############################################################################
 merged_df = pd.merge(df_schaefer, df_tian, left_index=True, right_index=True, how='inner')
 merged_df = pd.merge(merged_df, df_suit, left_index=True, right_index=True, how='inner')
-
+###############################################################################
 merged_df = merged_df.dropna()
 merged_df.index = merged_df.index.str.replace("sub-", "")
 merged_df.index = merged_df.index.map(int)
-# print("===== Done! =====")
-# embed(globals(), locals())
+print("===== Done! =====")
+embed(globals(), locals())
+
+###############################################################################
 folder_path = os.path.join(
             "/data",
             "project",

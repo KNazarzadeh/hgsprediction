@@ -13,7 +13,7 @@ from scipy.stats import linregress
 from statsmodels.stats.multitest import multipletests
 from sklearn.linear_model import LinearRegression
 
-from hgsprediction.load_results.load_brain_correlates_results import load_brain_overlap_data_results, load_brain_hgs_correlation_results
+from hgsprediction.load_results.load_brain_correlates_results_test import load_brain_overlap_data_results, load_brain_hgs_correlation_results
 from nilearn import datasets
 import nibabel as nib
 

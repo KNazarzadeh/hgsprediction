@@ -10,7 +10,7 @@ from .parkinson.load_hgs_predicted_results import load_hgs_predicted_results
 
 from .load_multi_samples_trained_models_results import *
 
-from .load_brain_correlates_results import *
+from .load_brain_correlates_results_1 import *
 
 from .load_trained_scores_results import *
 
@@ -30,3 +30,6 @@ from .load_disorder_anova_results import load_disorder_anova_results
 
 
 from .load_trained_scores_results import load_scores_trained, load_test_scores_trained
+
+from .load_brain_correlates_results_1 import load_brain_hgs_correlation_results, load_brain_overlap_data_results
+from .load_brain_correlation_results import load_brain_correlation_overlap_data_with_mri, load_brain_hgs_correlation_results, load_brain_hgs_correlation_results_for_plot
