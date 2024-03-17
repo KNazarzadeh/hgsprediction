@@ -24,7 +24,7 @@ def calculate_brain_hgs(df, y_axis, x_axis, stats_correlation_type):
         correlation_values.loc[i, "p_values"] = p_value
     
     
-    # Perform FDR correction on p-values
+    # Perform bonferroni correction on p-values
     reject, p_corrected, _, _ = multipletests(correlation_values.loc[:, 'p_values'], method='bonferroni')
     
     # Add corrected p-values and significance indicator columns to dataframes

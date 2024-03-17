@@ -41,14 +41,23 @@ schaefer,
 corr_target, 
 )
 
-df_female_corr_column, df_male_corr_column, df_corr_column = load_brain_hgs_correlation_results_for_plot(
-brain_data_type,
-schaefer,
-corr_target, 
-)
-# print("===== Done! =====")
-# embed(globals(), locals())
-# Schaefer
+# df_female_corr_column, df_male_corr_column, df_corr_column = load_brain_hgs_correlation_results_for_plot(
+# brain_data_type,
+# schaefer,
+# corr_target, 
+# )
+
+df_female_survived = df_female_corr[df_female_corr["significant"]==True]
+df_male_survived = df_male_corr[df_male_corr["significant"]==True]
+
+female_corr_threashold = df_female_survived[abs(df_female_survived["correlations"])>.1]
+male_corr_threashold = df_male_survived[abs(df_male_survived["correlations"])>.1]
+
+matching_values = male_corr_threashold[male_corr_threashold['regions'].isin(female_corr_threashold['regions'])]['regions'].unique()
+
+print("===== Done! =====")
+embed(globals(), locals())
+# VERA Code
 # Fetch the Schaefer atlas
 # Specify the directory where you want to download the atlas
 download_path = '/data/project/stroke_ukb/knazarzadeh/project_hgsprediction/brain_imaging_data/'

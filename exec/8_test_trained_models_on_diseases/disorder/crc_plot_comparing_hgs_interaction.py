@@ -124,8 +124,8 @@ def add_median_labels(ax, fmt='.3f'):
         xticks_positios_array.append(x)
     return xticks_positios_array
 
+
 ###############################################################################
-xtick_labels = ['Pre-condition', 'Post-condition']
 
 palette_control = sns.color_palette("Paired")
 palette_disorder = sns.color_palette("PiYG")
@@ -135,11 +135,11 @@ custome_palette = [palette_control[1], palette_disorder[0]]
 sns.set_style("whitegrid")
 # Create the boxplot
 fig, ax = plt.subplots(figsize=(10, 10))
-sns.boxplot(data=df, x='episode', y=f"{anova_target}", hue='treatment', palette=custome_palette, linewidth=3)
+sns.boxplot(data=df_interaction, x='episode', y=f"interaction_{anova_target}", hue='treatment', palette=custome_palette, linewidth=3)
 ax.legend().set_visible(False)
-ax.set_xlabel(" ", fontsize=30, fontweight="bold")
-# Setting the xtick labels
-ax.set_xticklabels(xtick_labels, size=25, weight='bold')
+ax.set_xlabel("Interaction", fontsize=25, fontweight="bold")
+
+ax.set_xticklabels("")
 if anova_target == "hgs":
     ax.set_ylabel("Raw HGS", fontsize=30, fontweight="bold")
 elif anova_target == "hgs_corrected_predicted":
@@ -147,30 +147,23 @@ elif anova_target == "hgs_corrected_predicted":
 
 xticks_positios_array = add_median_labels(ax)
 
-for x_box_pos in np.arange(0,4,2):
-    if x_box_pos == 0:
-        idx = "pre-episode"
-    if x_box_pos == 2:
-        idx = "post-episode"
-    x1 = xticks_positios_array[x_box_pos]
-    x2 = xticks_positios_array[x_box_pos+1]
-    y, h, col = df_yaxis_max.loc[idx, f"{anova_target}_max_value"]-1.6, 2, 'k'
-    ax.plot([x1, x1, x2, x2], [y, y+h, y+h, y], lw=2, c=col)
-    ax.text((x1+x2)*.5, y+h, f"p={df_ranksum.loc[idx, f'{anova_target}_p_value']:.3f}", ha='center', va='bottom', fontsize=18, weight='bold',  color=col)
+x_box_pos = 0
+x1 = xticks_positios_array[x_box_pos]
+x2 = xticks_positios_array[x_box_pos+1]
+y, h, col = df_yaxis_max.loc["interaction", f"{anova_target}_max_value"]+1, 2, 'k'
+ax.plot([x1, x1, x2, x2], [y, y+h, y+h, y], lw=2, c=col)
+ax.text((x1+x2)*.5, y+h, f"p={p_value_interaction:.3f}", ha='center', va='bottom', fontsize=18, weight='bold',  color=col)
 
-ax.set_yticks(range(0, 141, 20))
+ax.set_ylim(ymin=-80, ymax=100)
+ax.set_yticks(range(-80, 101, 20))
 ax.set_yticklabels(ax.get_yticks(), size=20, weight='bold')
-plt.ylim(0, 140)
-
 
 # Adjust layout
 plt.tight_layout()
 
 # Show the plot
 plt.show()
-plt.savefig(f"CRC_{population}_{anova_target}.png")
+plt.savefig(f"CRC_{population}_{anova_target}_interaction.png")
 plt.close()
-
-
 print("===== Done! End =====")
 embed(globals(), locals())
