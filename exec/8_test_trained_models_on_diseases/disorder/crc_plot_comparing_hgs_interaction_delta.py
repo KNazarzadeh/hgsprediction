@@ -49,8 +49,6 @@ df, df_anova_result, df_post_hoc_result_without_gender, df_post_hoc_result_with_
     n_samples,
     anova_target,
 )
-# print("===== Done! =====")
-# embed(globals(), locals())
 
 df.loc[df["disorder_episode"].str.contains("pre"), "episode"] = "Pre-episode"
 df.loc[df["disorder_episode"].str.contains("post"), "episode"] = "Post-episode"
@@ -81,8 +79,12 @@ df_interaction_disorder["episode"] = "Interaction"
 
 # Concatenating the two DataFrames
 df_interaction = pd.concat([df_interaction_control, df_interaction_disorder], axis=0)
-print("===== Done! End =====")
-embed(globals(), locals())
+
+print("df_interaction_control MIN=", df_pre_control["hgs_corrected_delta"].min())
+print("df_interaction_control MAX=", df_pre_control["hgs_corrected_delta"].max())
+print("df_interaction_disorder MIN=", df_post_control["hgs_corrected_delta"].min())
+print("df_interaction_disorder MAX=", df_post_control["hgs_corrected_delta"].max())
+
 ###############################################################################
 df_ranksum = pd.DataFrame(index=["pre-episode", "post-episode", "interaction"])
 df_yaxis_max = pd.DataFrame(index=["pre-episode", "post-episode", "interaction"])
@@ -105,8 +107,7 @@ df_yaxis_max.loc["pre-episode", f"{anova_target}_max_value"] = max_value_pre
 df_yaxis_max.loc["post-episode", f"{anova_target}_max_value"] = max_value_post
 df_yaxis_max.loc["interaction", f"{anova_target}_max_value"] = max_value_interaction
 
-print("===== Done! End =====")
-embed(globals(), locals())
+
 ###############################################################################
 def add_median_labels(ax, fmt='.3f'):
     xticks_positios_array = []
@@ -145,7 +146,7 @@ ax.set_xlabel("Interaction", fontsize=25, fontweight="bold")
 ax.set_xticklabels("")
 if anova_target == "hgs":
     ax.set_ylabel("Raw HGS", fontsize=30, fontweight="bold")
-elif anova_target == "hgs_corrected_predicted":
+elif anova_target == "hgs_corrected_delta":
     ax.set_ylabel("Adjusted HGS", fontsize=30, fontweight="bold")
 
 xticks_positios_array = add_median_labels(ax)
@@ -157,8 +158,8 @@ y, h, col = df_yaxis_max.loc["interaction", f"{anova_target}_max_value"]+1, 2, '
 ax.plot([x1, x1, x2, x2], [y, y+h, y+h, y], lw=2, c=col)
 ax.text((x1+x2)*.5, y+h, f"p={p_value_interaction:.3f}", ha='center', va='bottom', fontsize=18, weight='bold',  color=col)
 
-ax.set_ylim(ymin=-80, ymax=100)
-ax.set_yticks(range(-80, 101, 20))
+ax.set_ylim(ymin=-20, ymax=40)
+ax.set_yticks(range(-20, 41, 10))
 ax.set_yticklabels(ax.get_yticks(), size=20, weight='bold')
 
 # Adjust layout

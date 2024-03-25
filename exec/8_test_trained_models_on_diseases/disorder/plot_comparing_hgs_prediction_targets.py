@@ -109,7 +109,8 @@ def add_median_labels(ax, fmt='.3f'):
         ])
         xticks_positios_array.append(x)
     return xticks_positios_array
-
+# print("===== Done! =====")
+# embed(globals(), locals())
 ###############################################################################
 xtick_labels = ['Left HGS', 'Right HGS', 'Combined HGS']
 
