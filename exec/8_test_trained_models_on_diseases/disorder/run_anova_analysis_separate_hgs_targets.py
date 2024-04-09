@@ -89,6 +89,7 @@ df_control_tmp.loc[:, "disorder_episode"] = df_control_tmp.loc[:, "disorder_epis
 
 df_control_tmp.rename(columns=lambda x: x.replace("delta(true-predicted)", "delta") if "delta(true-predicted)" in x else x, inplace=True)
 df_control_tmp = df_control_tmp.drop(columns="age_range-2.0")
+
 ##############################################################################
 for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
     if visit_session == "1":
@@ -134,8 +135,11 @@ df_control.columns = df_control.columns.str.replace(f"-{session}.0", "", regex=T
 df = pd.concat([df_control, df_disorder], axis=0)
 df["gender"].replace(0, "female", inplace=True)
 df["gender"].replace(1, "male", inplace=True)
+print("===== Done! End =====")
+embed(globals(), locals())
 
-for anova_target in ["hgs", "hgs_predicted", "hgs_corrected_predicted", "hgs_delta", "hgs_corrected_delta"]:
+# for anova_target in ["hgs", "hgs_predicted", "hgs_corrected_predicted", "hgs_delta", "hgs_corrected_delta"]:
+for anova_target in ["hgs_corrected_delta"]:
     print(anova_target)
     formula = (
         f'{anova_target} ~ '
