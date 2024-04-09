@@ -45,7 +45,7 @@ def save_disorder_anova_results(
             f"{n_repeats}_repeats_{n_folds}_folds",
             "matched_control_samples_results",
             f"1_to_{n_samples}_samples",
-            "ANOVA_results",
+            "ANOVA_results_new",
             f"{anova_target}",
         )
         

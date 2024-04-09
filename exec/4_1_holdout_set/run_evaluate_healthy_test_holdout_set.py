@@ -67,7 +67,7 @@ df = healthy_load_data.load_preprocessed_nonmri_test_data(population, mri_status
 
 features, extend_features = define_features(feature_type)
 
-data_extracted = healthy_extract_data.extract_data(df, features, extend_features, target, mri_status, session)
+data_extracted = healthy_extract_data.extract_data(df, features, extend_features, feature_type, target, mri_status, session)
 
 X = features
 y = target

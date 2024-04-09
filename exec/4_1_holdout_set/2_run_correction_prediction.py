@@ -55,21 +55,29 @@ slope, intercept = prediction_corrector_model(
 print(slope)
 print(intercept)
 ###############################################################################
+# Assuming that you have already trained and instantiated the model as `model`
+folder_path = os.path.join(
+        "/data",
+        "project",
+        "stroke_ukb",
+        "knazarzadeh",
+        "project_hgsprediction",  
+        "results_hgsprediction",
+        f"{population}",
+        "nonmri_test_holdout_set",
+        f"{feature_type}",
+        f"{target}",
+        f"{model_name}",
+        "hgs_predicted_results",
+    )
 
-df = load_hgs_predicted_results(
-    population,
-    mri_status,
-    model_name,
-    feature_type,
-    target,
-    gender,
-    session,
-    confound_status,
-    n_repeats,
-    n_folds,
-)
-print("===== Done! =====")
-embed(globals(), locals())
+# Define the csv file path to save
+file_path = os.path.join(
+    folder_path,
+    f"{gender}_hgs_predicted_results.csv")
+
+df = pd.read_csv(file_path, sep=',', index_col=0)
+
 ###############################################################################
 
 #Beheshti Method:
@@ -77,21 +85,32 @@ df.loc[:, f"{target}_corrected_predicted"] = (df.loc[:, f"{target}_predicted"] +
 # Calculate Corrected Delta
 df.loc[:, f"{target}_corrected_delta(true-predicted)"] =  df.loc[:, f"{target}"] - df.loc[:, f"{target}_corrected_predicted"]
 
-save_corrected_prediction_results(
-    df,
-    population,
-    mri_status,
-    model_name,
-    feature_type,
-    target,
-    gender,
-    session,
-    confound_status,
-    n_repeats,
-    n_folds,
-)
-# print("===== Done! =====")
-# embed(globals(), locals())
+folder_path = os.path.join(
+        "/data",
+        "project",
+        "stroke_ukb",
+        "knazarzadeh",
+        "project_hgsprediction",  
+        "results_hgsprediction",
+        f"{population}",
+        "nonmri_test_holdout_set",
+        f"{feature_type}",
+        f"{target}",
+        f"{model_name}",
+        "hgs_corrected_prediction_results",
+    )
+
+if(not os.path.isdir(folder_path)):
+    os.makedirs(folder_path)
+
+# Define the csv file path to save
+file_path = os.path.join(
+    folder_path,
+    f"{gender}_hgs_predicted_results.csv")
+
+df.to_csv(file_path, sep=',', index=True)
+
+embed(globals(), locals())
 
 ###############################################################################
 df_correlations = pd.DataFrame()

@@ -85,8 +85,7 @@ if df_control_pre.index.equals(df_control_post.index):
 else:
     print("The indices are not in the same order.")
 
-print("===== Done! =====")
-embed(globals(), locals())
+
 ###############################################################################
 features, extend_features = define_features(feature_type)
 
@@ -116,9 +115,9 @@ df_disorder = load_disorder_corrected_prediction_results(
 df_disorder.loc[:, "disorder"] = 1
 
 ###############################################################################
-df_control_matched = pd.DataFrame()
+df_control_pre_matched = pd.DataFrame()
 
-for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
+for disorder_subgroup in [f"pre-{population}"]:
 
     if visit_session == "1":
         prefix = f"1st_{disorder_subgroup}_"
@@ -142,9 +141,8 @@ for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
         new_col_name = col.replace(prefix, "")
         df_extracted.rename(columns={col: new_col_name}, inplace=True)
 
-    df = pd.concat([df_control.loc[:, extract_columns], df_extracted.loc[:, extract_columns]], axis=0)
-    print("===== Done! =====")
-    embed(globals(), locals())
+    df = pd.concat([df_control_pre.loc[:, extract_columns], df_extracted.loc[:, extract_columns]], axis=0)
+
     # Initialize logistic regression model
     propensity_model = LogisticRegression()
 
@@ -155,46 +153,79 @@ for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
     # the propensity score is the probability of being 1 (i.e., in the disorder group)
     df.loc[:, "propensity_scores"] = propensity_scores[:, 1]
     
-    df_control_tmp = df[df['disorder'] == 0]
+    df_control_pre_tmp = df[df['disorder'] == 0]
     df_disorder_tmp = df[df['disorder'] == 1]
     
     df_disorder.loc[:, f"{prefix}propensity_scores"] = df_disorder_tmp.loc[:, "propensity_scores"]
     
     # caliper = np.std(df.loc[:, "propensity_scores"]) * 0.25
 
-    # Fit nearest neighbors model on control group using propensity scores
-    nbrs = NearestNeighbors(n_neighbors=int(n_samples), algorithm='auto').fit(df_control_tmp['propensity_scores'].values.reshape(-1, 1))
+    # Fit nearest neighbors model on control_pre group using propensity scores
+    nbrs = NearestNeighbors(n_neighbors=int(n_samples), algorithm='auto').fit(df_control_pre_tmp['propensity_scores'].values.reshape(-1, 1))
 
     # Dictionary to store matched samples for each subject
     matched_samples = {}
     df_matched_tmp = pd.DataFrame()
-    
+    print("===== Done! =====")
+    embed(globals(), locals())
     # Iterate over each row in treatment dataframe
     for subject_id, row in df_disorder_tmp.iterrows():
         propensity_score = row['propensity_scores']
         # Find 10 nearest neighbors for each treatment subject based on propensity scores
         distances, indices = nbrs.kneighbors([[propensity_score]])
-        # Extract matched control subjects
-        matches = df_control_tmp.iloc[indices[0]].index.tolist()
+        # Extract matched control_pre subjects
+        matches = df_control_pre_tmp.iloc[indices[0]].index.tolist()
         matched_samples[subject_id] = matches
 
-        df_matched_tmp = pd.concat([df_matched_tmp, df_control[df_control.index.isin(matches)]], axis=0)
-        df_matched_tmp.loc[matches, "propensity_scores"] = df_control_tmp[df_control_tmp.index.isin(matches)].loc[:, "propensity_scores"]
-      
+        df_matched_tmp = pd.concat([df_matched_tmp, df_control_pre[df_control_pre.index.isin(matches)]], axis=0)
+        df_matched_tmp.loc[matches, "propensity_scores"] = df_control_pre_tmp[df_control_pre_tmp.index.isin(matches)].loc[:, "propensity_scores"]
+        
+        # Remove the matched subject from control_pre_tmp DataFrame to ensure it's not chosen again
+        df_control_pre_tmp.drop(df_matched_tmp.index, inplace=True)
+        print(len(df_control_pre_tmp))
+    print("===== Done! =====")
+    embed(globals(), locals())
     df_matched_tmp.loc[:, "disorder_episode"] = disorder_subgroup
     
-    df_control_matched = pd.concat([df_control_matched, df_matched_tmp], axis=0)
+    df_control_pre_matched = pd.concat([df_control_pre_matched, df_matched_tmp], axis=0)
         
     # Print matched samples for each subject
     for subject_id, matches in matched_samples.items():
         print(f"SubjectID: {subject_id}, Matches: {matches}")
+print("===== Done! =====")
+embed(globals(), locals())
+# Add prefix to column names
+df_control_pre_matched.columns = [prefix + col if col != 'gender' else col for col in df_control_pre_matched.columns]
+
+disorder_subgroup = f"post-{population}"
+prefix = f"1st_{disorder_subgroup}_"
+df_control_post_matched = pd.DataFrame()
+df_control_post_matched = df_control_post[df_control_post.index.isin(df_control_pre_matched.index)]
+df_control_post_matched["disorder_episode"] = f"post-{population}"
+
+# Reindex the dataframes to have the same order of indices
+df_control_post_matched = df_control_post_matched.reindex(index=df_control_pre_matched.index)
+
+# Check if the indices are in the same order
+if df_control_pre_matched.index.equals(df_control_post_matched.index):
+    print("The indices are in the same order.")
+else:
+    print("The indices are not in the same order.")
+
+# Assuming prefix is the prefix you want to add and gender_column is the name of the gender column
+# Add the prefix to the column names excluding the gender column(s)
+df_control_post_matched.columns = [prefix + col if col != 'gender' else col for col in df_control_post_matched.columns]
+
+
+df_control_matched = pd.concat([df_control_pre_matched, df_control_post_matched], axis=1)
+
+# Check if the indices are in the same order
+if df_control_matched.index.equals(df_control_pre_matched.index):
+    print("The indices are in the same order.")
+else:
+    print("The indices are not in the same order.")
 
 ##############################################################################
-if session == "2":
-    condistion = "pre_condition"
-elif session == "3":
-    condistion = "post_condition"
-
 save_disorder_matched_samples_results(
     df_control_matched,
     df_disorder,
@@ -211,6 +242,8 @@ save_disorder_matched_samples_results(
     n_samples,
 )
 
+print("===== Done! =====")
+embed(globals(), locals())
 ###############################################################################
 df_correlations = pd.DataFrame(index=[f"pre-{population}", f"post-{population}"])
 df_p_values = pd.DataFrame(index=[f"pre-{population}", f"post-{population}"])

@@ -20,8 +20,6 @@ if mri_status == "nonmri":
         df = healthy_load_data.load_original_binned_train_data(population, mri_status)
     elif data_set == "test":
         df = healthy_load_data.load_original_nonmri_test_data(population, mri_status)
-        print("===== Done! =====")
-        embed(globals(), locals())
         
 elif mri_status == "mri":
     df = healthy_load_data.load_original_data(population, mri_status)
