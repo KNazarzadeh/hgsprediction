@@ -30,7 +30,8 @@ visit_session = sys.argv[10]
 n_samples = sys.argv[11]
 target = sys.argv[12]
 ##############################################################################
-sample_session = 0
+sample_session = 1
+
 main_extracted_columns = ["gender", "handedness", "hgs_dominant", "hgs_dominant_side", "hgs_nondominant", "hgs_nondominant_side", "age", "bmi", "height", "waist_to_hip_ratio", "treatment", "disorder_episode", "hgs_target", "hgs", "hgs_predicted", "hgs_delta", "hgs_corrected_predicted", "hgs_corrected_delta"]
 
 df_disorder = pd.DataFrame()
@@ -95,8 +96,6 @@ df_control_tmp.loc[:, f"{prefix_post}_disorder_episode"] = df_control_tmp.loc[:,
 
 
 df_control_tmp.rename(columns=lambda x: x.replace("delta(true-predicted)", "delta") if "delta(true-predicted)" in x else x, inplace=True)
-
-df_control_tmp.columns = df_control_tmp.columns.str.replace(r'-[23]\.0$', '', regex=True)
 
 df_control_tmp = df_control_tmp.drop(columns=[f"1st_pre-{population}_age_range", f"1st_post-{population}_age_range"])
 

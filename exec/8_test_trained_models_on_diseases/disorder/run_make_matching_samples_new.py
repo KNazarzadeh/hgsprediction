@@ -161,18 +161,18 @@ for disorder_subgroup in [f"pre-{population}"]:
     # caliper = np.std(df.loc[:, "propensity_scores"]) * 0.25
 
     # Fit nearest neighbors model on control_pre group using propensity scores
-    nbrs = NearestNeighbors(n_neighbors=int(n_samples), algorithm='auto').fit(df_control_pre_tmp['propensity_scores'].values.reshape(-1, 1))
+    nn_model = NearestNeighbors(n_neighbors=int(n_samples), algorithm='auto')
+    nn_model.fit(df_control_pre_tmp['propensity_scores'].values.reshape(-1, 1))
 
     # Dictionary to store matched samples for each subject
     matched_samples = {}
     df_matched_tmp = pd.DataFrame()
-    print("===== Done! =====")
-    embed(globals(), locals())
+
     # Iterate over each row in treatment dataframe
     for subject_id, row in df_disorder_tmp.iterrows():
         propensity_score = row['propensity_scores']
         # Find 10 nearest neighbors for each treatment subject based on propensity scores
-        distances, indices = nbrs.kneighbors([[propensity_score]])
+        distances, indices = nn_model.kneighbors([[propensity_score]])
         # Extract matched control_pre subjects
         matches = df_control_pre_tmp.iloc[indices[0]].index.tolist()
         matched_samples[subject_id] = matches
@@ -181,10 +181,9 @@ for disorder_subgroup in [f"pre-{population}"]:
         df_matched_tmp.loc[matches, "propensity_scores"] = df_control_pre_tmp[df_control_pre_tmp.index.isin(matches)].loc[:, "propensity_scores"]
         
         # Remove the matched subject from control_pre_tmp DataFrame to ensure it's not chosen again
-        df_control_pre_tmp.drop(df_matched_tmp.index, inplace=True)
-        print(len(df_control_pre_tmp))
-    print("===== Done! =====")
-    embed(globals(), locals())
+        # df_control_pre_tmp.drop(df_matched_tmp.index, inplace=True)
+        # print(len(df_control_pre_tmp))
+
     df_matched_tmp.loc[:, "disorder_episode"] = disorder_subgroup
     
     df_control_pre_matched = pd.concat([df_control_pre_matched, df_matched_tmp], axis=0)
@@ -192,8 +191,7 @@ for disorder_subgroup in [f"pre-{population}"]:
     # Print matched samples for each subject
     for subject_id, matches in matched_samples.items():
         print(f"SubjectID: {subject_id}, Matches: {matches}")
-print("===== Done! =====")
-embed(globals(), locals())
+
 # Add prefix to column names
 df_control_pre_matched.columns = [prefix + col if col != 'gender' else col for col in df_control_pre_matched.columns]
 
@@ -226,6 +224,7 @@ else:
     print("The indices are not in the same order.")
 
 ##############################################################################
+sample_session = 0
 save_disorder_matched_samples_results(
     df_control_matched,
     df_disorder,
@@ -240,6 +239,8 @@ save_disorder_matched_samples_results(
     n_repeats,
     n_folds,
     n_samples,
+    sample_session,
+    
 )
 
 print("===== Done! =====")

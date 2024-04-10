@@ -28,7 +28,8 @@ disorder_cohort = sys.argv[9]
 visit_session = sys.argv[10]
 n_samples = sys.argv[11]
 target = sys.argv[12]
-anova_target = sys.argv[13]
+sample_session = sys.argv[13]
+anova_target = sys.argv[14]
 ##############################################################################
 disorder_cohort = f"{disorder_cohort}-{population}"
 if visit_session == "1":
@@ -46,6 +47,7 @@ df, df_anova_result, df_post_hoc_result_without_gender, df_post_hoc_result_with_
     n_folds,
     n_samples,
     anova_target,
+    sample_session,
 )
 print("ANOVA result")
 print(df_anova_result)

@@ -152,6 +152,8 @@ def calculate_age(df, session):
     # -----------------------------------------------------------
     if session == "0":
         df.loc[:, f"age-{session}.0"] = df.loc[:, "Age1stVisit"]
+    elif session == "1":
+        df.loc[:, f"age-{session}.0"] = df.loc[:, "AgeRepVisit"]
     elif session == "2":
         df.loc[:, f"age-{session}.0"] = df.loc[:, "AgeAtScan"]
     elif session == "3":
@@ -771,8 +773,13 @@ def calculate_cognitive_functioning(df, session):
     # A value of -1 is recorded if the participant chose to abandon 
     # the test before completing the first round. So, Replace (-1) with NaN
     # ------------------------------------
-    numeric_memory_Max_digits =  f"numeric_memory_Max_digits-{session}.0"
-    df.loc[:, numeric_memory_Max_digits] =  df.loc[:,f"4282-{session}.0"].replace(-1, np.NaN)
+    if session == "1":
+        session = "0"
+        numeric_memory_Max_digits =  f"numeric_memory_Max_digits-{session}.0"
+        df.loc[:, numeric_memory_Max_digits] =  df.loc[:,f"4282-{session}.0"].replace(-1, np.NaN)
+    else:
+        numeric_memory_Max_digits =  f"numeric_memory_Max_digits-{session}.0"
+        df.loc[:, numeric_memory_Max_digits] =  df.loc[:,f"4282-{session}.0"].replace(-1, np.NaN)
     #######################################################
     # cognitive (5,6)
     # -------  Trail making task -------
@@ -797,7 +804,8 @@ def calculate_cognitive_functioning(df, session):
     trail_making_duration_numeric = f"trail_making_duration_numeric-{session}.0"
     # cognitive (6)
     trail_making_duration_alphanumeric = f"trail_making_duration_alphanumeric-{session}.0"
-    if session == "0":
+    if session in ["0", "1"]:
+        session = "0"
         df.loc[:,trail_making_duration_numeric] = df.loc[:,f"20156-{session}.0"].replace(0, np.NaN)
         df.loc[:,trail_making_duration_alphanumeric] = df.loc[:,f"20157-{session}.0"].replace(0, np.NaN)
     elif session in ["2", "3"]:
@@ -828,7 +836,8 @@ def calculate_cognitive_functioning(df, session):
     symbol_digit_matches_attempted = f"symbol_digit_matches_attempted-{session}.0"
     # cognitive (8)
     symbol_digit_matches_corrected = f"symbol_digit_matches_corrected-{session}.0"
-    if session == "0":
+    if session in ["0", "1"]:
+        session = "0"        
         df.loc[:, symbol_digit_matches_attempted] =  df.loc[:, f"20195-{session}.0"]
         df.loc[:, symbol_digit_matches_corrected] =  df.loc[:, f"20159-{session}.0"]
     elif session in ["2", "3"]:

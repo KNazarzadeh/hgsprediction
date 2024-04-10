@@ -200,7 +200,53 @@ class HealthyDataPreprocessor:
             df.loc[condition_left.index, hgs_dominant_side] = "left"
             df.loc[condition_left.index, hgs_nondominant] = df.loc[condition_left.index, "47-0.0"]
             df.loc[condition_left.index, hgs_nondominant_side] = "right"
+        elif session == "1":
+            idx = df[df.loc[:, "handness"] == 1.0].index
+            df.loc[idx, handedness] = 1.0
+            df.loc[idx, hgs_dominant] = df.loc[idx, "47-1.0"]
+            df.loc[idx, hgs_dominant_side] = "right"
+            df.loc[idx, hgs_nondominant] = df.loc[idx, "46-1.0"]
+            df.loc[idx, hgs_nondominant_side] = "left"
+            
+            idx = df[df.loc[:, "handness"] == 2.0].index
+            df.loc[idx, handedness] = 2.0
+            df.loc[idx, hgs_dominant] = df.loc[idx, "46-1.0"]
+            df.loc[idx, hgs_dominant_side] = "left"             
+            df.loc[idx, hgs_nondominant] = df.loc[idx, "47-1.0"]
+            df.loc[idx, hgs_nondominant_side] = "right"
+            # ------------------------------------
+            # If handedness is equal to:
+            # 3 (Use both right and left hands equally) OR
+            # -3 (handiness is not available/Prefer not to answer) OR
+            # NaN value
+            # Dominant will be the Highest Handgrip score from both hands.
+            # Find handedness equal to 3, -3 or NaN:
+            # Add and new column "hgs_dominant"
+            # And assign Highest HGS value among Right and Left HGS:
+            # Add and new column "hgs_dominant"
+            # And assign lowest HGS value among Right and Left HGS:
+            idx = df[df.loc[:, "handness"].isin([3.0, -3.0, np.NaN])].index
+            df.loc[idx, handedness] = 3.0
+            df_tmp = df.loc[idx, :]
+            idx_tmp = df_tmp[df_tmp.loc[:, "47-1.0"] == df_tmp.loc[:, "46-1.0"]].index
+            df.loc[idx_tmp, hgs_dominant] = df.loc[idx, "47-1.0"]
+            df.loc[idx_tmp, hgs_dominant_side] = "balanced_hgs"              
+            df.loc[idx_tmp, hgs_nondominant] = df.loc[idx, "46-1.0"]
+            df.loc[idx_tmp, hgs_nondominant_side] = "balanced_hgs"
 
+            idx_tmp = df_tmp[df_tmp.loc[:, "47-1.0"] != df_tmp.loc[:, "46-1.0"]].index
+            result_column = df.loc[idx_tmp, ["46-1.0", "47-1.0"]].idxmax(axis=1)
+            condition_right = result_column[result_column =='47-1.0']
+            df.loc[condition_right.index, hgs_dominant] = df.loc[condition_right.index, "47-1.0"]
+            df.loc[condition_right.index, hgs_dominant_side] = "right"
+            df.loc[condition_right.index, hgs_nondominant] = df.loc[condition_right.index, "46-1.0"]
+            df.loc[condition_right.index, hgs_nondominant_side] = "left"
+            condition_left = result_column[result_column =='46-1.0']
+            df.loc[condition_left.index, hgs_dominant] = df.loc[condition_left.index, "46-1.0"]
+            df.loc[condition_left.index, hgs_dominant_side] = "left"
+            df.loc[condition_left.index, hgs_nondominant] = df.loc[condition_left.index, "47-1.0"]
+            df.loc[condition_left.index, hgs_nondominant_side] = "right"
+            
         elif session == "2":
             idx = df[df.loc[:, "handness"] == 1.0].index
             df.loc[idx, handedness] = 1.0

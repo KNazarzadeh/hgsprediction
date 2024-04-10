@@ -27,8 +27,8 @@ df = healthy_compute_features.compute_features(df, mri_status, session)
 
 df_female = df[df["31-0.0"]==0.0]
 df_male = df[df["31-0.0"]==1.0]
-# print("===== Done! =====")
-# embed(globals(), locals())
+print("===== Done! =====")
+embed(globals(), locals())
 
 if data_set == "test":
     folder_path = os.path.join(

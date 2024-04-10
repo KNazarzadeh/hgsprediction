@@ -68,15 +68,15 @@ df = load_hgs_predicted_results(
     n_repeats,
     n_folds,
 )
-print("===== Done! =====")
-embed(globals(), locals())
+
 ###############################################################################
 
 #Beheshti Method:
 df.loc[:, f"{target}_corrected_predicted"] = (df.loc[:, f"{target}_predicted"] + ((slope * df.loc[:, f"{target}"]) + intercept))
 # Calculate Corrected Delta
 df.loc[:, f"{target}_corrected_delta(true-predicted)"] =  df.loc[:, f"{target}"] - df.loc[:, f"{target}_corrected_predicted"]
-
+print("===== Done! =====")
+embed(globals(), locals())
 save_corrected_prediction_results(
     df,
     population,
@@ -90,8 +90,8 @@ save_corrected_prediction_results(
     n_repeats,
     n_folds,
 )
-# print("===== Done! =====")
-# embed(globals(), locals())
+print("===== Done! =====")
+embed(globals(), locals())
 
 ###############################################################################
 df_correlations = pd.DataFrame()

@@ -80,8 +80,8 @@ print(df_male)
 
 df_both_gender = pd.concat([df_female, df_male], axis=0)
 print(df_both_gender)
-# print("===== Done! =====")
-# embed(globals(), locals())
+print("===== Done! =====")
+embed(globals(), locals())
 save_hgs_predicted_results(
     df_both_gender,
     population,

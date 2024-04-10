@@ -22,32 +22,55 @@ def save_disorder_anova_results(
     n_folds,
     n_samples,
     anova_target,
+    sample_session,
 ):
     if confound_status == "0":
         confound = "without_confound_removal"
     else:
         confound = "with_confound_removal"
     # Assuming that you have already trained and instantiated the model as `model`
-    folder_path = os.path.join(
-            "/data",
-            "project",
-            "stroke_ukb",
-            "knazarzadeh",
-            "project_hgsprediction",  
-            "results_hgsprediction",
-            f"{population}",
-            f"{mri_status}",
-            f"{session_column}",
-            f"{feature_type}",
-            f"{target}",
-            f"{confound}",
-            f"{model_name}",
-            f"{n_repeats}_repeats_{n_folds}_folds",
-            "matched_control_samples_results",
-            f"1_to_{n_samples}_samples",
-            "ANOVA_results_new",
-            f"{anova_target}",
-        )
+    if sample_session == 0:
+        folder_path = os.path.join(
+                "/data",
+                "project",
+                "stroke_ukb",
+                "knazarzadeh",
+                "project_hgsprediction",  
+                "results_hgsprediction",
+                f"{population}",
+                f"{mri_status}",
+                f"{session_column}",
+                f"{feature_type}",
+                f"{target}",
+                f"{confound}",
+                f"{model_name}",
+                f"{n_repeats}_repeats_{n_folds}_folds",
+                "matched_control_samples_results",
+                f"1_to_{n_samples}_samples",
+                "ANOVA_results_new",
+                f"{anova_target}",
+            )
+    else:
+        folder_path = os.path.join(
+                "/data",
+                "project",
+                "stroke_ukb",
+                "knazarzadeh",
+                "project_hgsprediction",  
+                "results_hgsprediction",
+                f"{population}",
+                f"{mri_status}",
+                f"{session_column}",
+                f"{feature_type}",
+                f"{target}",
+                f"{confound}",
+                f"{model_name}",
+                f"{n_repeats}_repeats_{n_folds}_folds",
+                "matched_control_samples_results",
+                f"1_to_{n_samples}_samples",
+                "ANOVA_results_new_sample_session",
+                f"{anova_target}",
+            )
         
     if(not os.path.isdir(folder_path)):
         os.makedirs(folder_path)

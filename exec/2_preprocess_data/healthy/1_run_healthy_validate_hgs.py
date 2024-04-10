@@ -25,8 +25,8 @@ elif mri_status == "mri":
     df = healthy_load_data.load_original_data(population, mri_status)
 
 data_processor = HealthyDataPreprocessor(df, mri_status, session)
-# print("===== Done! =====")
-# embed(globals(), locals())
+print("===== Done! =====")
+embed(globals(), locals())
 # CHECK HGS AVAILABILITY
 df = data_processor.check_hgs_availability(df)
 # DATA VALIDATION
