@@ -14,6 +14,9 @@ from hgsprediction.save_results.save_disorder_matched_samples_correlation_result
 
 from scipy.stats import pearsonr
 from sklearn.metrics import r2_score
+from psmpy import PsmPy
+from psmpy.functions import cohenD
+from psmpy.plotting import *
 import seaborn as sns
 import matplotlib.pyplot as plt
 from ptpython.repl import embed
@@ -169,8 +172,8 @@ pre_ses_min = int(df_disorder[f"{pre_prefix}session"].min())
 pre_ses_max = int(df_disorder[f"{pre_prefix}session"].max())
 post_ses_min = int(df_disorder[f"{post_prefix}session"].min())
 post_ses_max = int(df_disorder[f"{post_prefix}session"].max())
-print("===== Done! End =====")
-embed(globals(), locals())
+# print("===== Done! End =====")
+# embed(globals(), locals())
 for pre_ses in range(pre_ses_min, pre_ses_max+1):
     print("pre_ses=", pre_ses)
     # Iterate over the range of session values
@@ -225,76 +228,30 @@ for pre_ses in range(pre_ses_min, pre_ses_max+1):
                 df_disorder_pre.rename(columns={col: new_col_name}, inplace=True)
     
             df = pd.concat([df_control_pre.loc[:, extract_columns], df_disorder_pre.loc[:, extract_columns]], axis=0)
-
-            # Initialize logistic regression model
-            propensity_model = LogisticRegression()
-
-            propensity_model.fit(df.loc[:, X], df.loc[:, y])
-            # Prediction
-            # probabilities for classes
-            propensity_scores = propensity_model.predict_proba(df.loc[:, X])
-            
-            # the propensity score is the probability of being 1 (i.e., in the disorder group)
-            df.loc[:, "propensity_scores"] = propensity_scores[:, 1]
-            
-            # calculate the logit of the propensity score for matching if needed
-            def logit(p):
-                logit_value = math.log(p / (1-p))
-                return logit_value
-
-            df['ps_logit'] = df.propensity_scores.apply(lambda x: logit(x))
-            
-            # print("===== Done! End =====")
-            # embed(globals(), locals()) 
-            df_control_pre_tmp = df[df['disorder'] == 0]
-            df_disorder_tmp = df[df['disorder'] == 1]
-
-            df_disorder.loc[df_disorder_extract.index, f"{pre_prefix}propensity_scores"] = df_disorder_tmp.loc[:, "propensity_scores"]
-            # df_disorder.loc[df_disorder_extract.index, f"{pre_prefix}ps_logit"] = df_disorder_tmp.loc[:, "ps_logit"]
-
-            # Fit nearest neighbors model on control_pre group using propensity scores
-            caliper = np.std(df_control_pre_tmp.propensity_scores) * 0.05
-
-            nn_model = NearestNeighbors(n_neighbors=int(n_samples),radius=caliper)
-            nn_model.fit(df_control_pre_tmp['propensity_scores'].values.reshape(-1, 1))
-            # nn_model.fit(df_control_pre_tmp['ps_logit'].values.reshape(-1, 1))
-            
-            ###############################################################################
+            df.index.name = "SubjectID"
+            df.loc[:, "SubjectID"] = df.index
+###############################################################################
+            psm = PsmPy(df, treatment='disorder', indx='SubjectID', exclude = [])
+            psm.logistic_ps(balance = False)
+            psm.knn_matched_12n(matcher='propensity_logit', how_many=10)
+###############################################################################
+            df_control_pre_tmp = psm.controldf
+            df_disorder_tmp = psm.treatmentdf
             # Dictionary to store matched samples for each subject
-            matched_samples = {}
-            df_matched = pd.DataFrame()
+            df_matched_tmp = pd.DataFrame()
             df_control_pre_matched = pd.DataFrame()
             df_control_post_matched = pd.DataFrame()
-            # Iterate over each row in treatment dataframe
-            for subject_id, row in df_disorder_tmp.iterrows():
-                df_matched_tmp = pd.DataFrame()
-                propensity_score = row['propensity_scores']
-                # ps_logit = row['ps_logit']
-                # Find 10 nearest neighbors for each treatment subject based on propensity scores
-                distances, indices = nn_model.kneighbors([[propensity_score]])
-                # distances, indices = nn_model.kneighbors([[ps_logit]])
-                
-                # Extract matched control_pre subjects
-                matches = df_control_pre_tmp.iloc[indices[0]].index.tolist()
-                matched_samples[subject_id] = matches
-                print(matches)
+            
+            for i in range(len(df_disorder_tmp)):
+                matches = psm.matched_ids.iloc[i,:].to_list()
                 df_matched_tmp = pd.concat([df_matched_tmp, df_control_pre[df_control_pre.index.isin(matches)]], axis=0)
-                df_matched_tmp = df_matched_tmp.reindex(matches)
-                df_matched_tmp.loc[matches, "propensity_scores"] = df_control_pre_tmp[df_control_pre_tmp.index.isin(matches)].loc[:, "propensity_scores"]
-                # df_matched_tmp.loc[matches, "ps_logit"] = df_control_pre_tmp[df_control_pre_tmp.index.isin(matches)].loc[:, "ps_logit"]
+            
+            df_control_pre_matched = pd.concat([df_control_pre_matched, df_matched_tmp], axis=0)
 
-                df_matched = pd.concat([df_matched, df_matched_tmp], axis=0)
-                # print(df_matched)
-
-            df_matched.loc[:, "disorder_episode"] = disorder_pre_subgroup
-
-            df_control_pre_matched = pd.concat([df_control_pre_matched, df_matched], axis=0)
-
-            # Print matched samples for each subject
-            for subject_id, matches in matched_samples.items():
-                print(f"SubjectID: {subject_id}, Matches: {matches}")
+            ###############################################################################
+            print(psm.matched_ids)
             # print("===== Done! End =====")
-            # embed(globals(), locals())   
+            # embed(globals(), locals())
             ###############################################################################
             df_control_post_matched = df_control_post[df_control_post.index.isin(df_control_pre_matched.index)]
             df_control_post_matched["disorder_episode"] = f"post-{population}"
@@ -384,27 +341,18 @@ df_check_matching_post.loc['WHR_mean'] = [WHR_mean_disorder, WHR_mean_control, W
 
 print(df_check_matching_pre)
 print(df_check_matching_post)
+print("===== Done! End =====")
+embed(globals(), locals())
 ##############################################################################
 # Visualise new distribution
 fig, ax = plt.subplots(1,2)
-sns.kdeplot(data=df_control_matched, x=f"1st_pre-{population}_propensity_scores", fill=True, color="green", ax=ax[1])
+sns.kdeplot(data=df_control_matched, x=df, fill=True, color="green", ax=ax[1])
 sns.kdeplot(data=df_disorder, x=f"1st_pre-{population}_propensity_scores", fill=True, color="pink", ax=ax[1])
 sns.kdeplot(data=df_control_matched, x=f"1st_pre-{population}_propensity_scores", fill=True, color="green", ax=ax[1])
 sns.kdeplot(data=df_disorder, x=f"1st_pre-{population}_propensity_scores", fill=True, color="pink", ax=ax[1])
 plt.show()
-plt.savefig("x_match.png")
+plt.savefig("x_match_psm.png")
 plt.close()
-
-# fig, ax = plt.subplots(1,2)
-# sns.kdeplot(data=df_control_matched, x=f"1st_pre-{population}_ps_logit", fill=True, color="green", ax=ax[1])
-# sns.kdeplot(data=df_disorder, x=f"1st_pre-{population}_ps_logit", fill=True, color="pink", ax=ax[1])
-# sns.kdeplot(data=df_control_matched, x=f"1st_pre-{population}_ps_logit", fill=True, color="green", ax=ax[1])
-# sns.kdeplot(data=df_disorder, x=f"1st_pre-{population}_ps_logit", fill=True, color="pink", ax=ax[1])
-# plt.show()
-# plt.savefig("x_match_ps_logit.png")
-# plt.close()
-
-
 print("===== Done! End =====")
 embed(globals(), locals())
 sample_session = 1

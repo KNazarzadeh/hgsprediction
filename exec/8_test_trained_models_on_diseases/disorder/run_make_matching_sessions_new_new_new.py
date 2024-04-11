@@ -87,6 +87,7 @@ df_control_sessin_0 = load_zscore_results(
     n_folds,
 )
 df_control_sessin_0.loc[:, "disorder"] = 0
+df_control_sessin_0.loc[:, "session"] = 0.0
 ##############################################################################
 session = 1
 # Load z-score results for healthy individuals with MRI data
@@ -104,6 +105,7 @@ df_control_sessin_1 = load_zscore_results(
     n_folds,
 )
 df_control_sessin_1.loc[:, "disorder"] = 0
+df_control_sessin_1.loc[:, "session"] = 1.0
 ##############################################################################
 session = 2
 # Load z-score results for healthy individuals with MRI data
@@ -121,6 +123,7 @@ df_control_sessin_2 = load_zscore_results(
     n_folds,
 )
 df_control_sessin_2.loc[:, "disorder"] = 0
+df_control_sessin_2.loc[:, "session"] = 2.0
 ##############################################################################
 session = 3
 # Load z-score results for healthy individuals with MRI data
@@ -138,7 +141,12 @@ df_control_sessin_3 = load_zscore_results(
     n_folds,
 )
 df_control_sessin_3.loc[:, "disorder"] = 0
+df_control_sessin_3.loc[:, "session"] = 3.0
 
+# Assuming df1, df2, df3, and df4 are your DataFrames
+match_columns = list(set(df_control_sessin_0.columns) & set(df_control_sessin_1.columns) & set(df_control_sessin_2.columns) & set(df_control_sessin_3.columns))
+# Assuming df1, df2, df3, and df4 are your DataFrames
+df_control =  pd.concat([df_control_sessin_0[match_columns], df_control_sessin_1[match_columns], df_control_sessin_2[match_columns], df_control_sessin_3[match_columns]], axis=0)
 ###############################################################################
 disorder_pre_subgroup = f"pre-{population}"
 if visit_session == "1":
@@ -169,20 +177,14 @@ pre_ses_min = int(df_disorder[f"{pre_prefix}session"].min())
 pre_ses_max = int(df_disorder[f"{pre_prefix}session"].max())
 post_ses_min = int(df_disorder[f"{post_prefix}session"].min())
 post_ses_max = int(df_disorder[f"{post_prefix}session"].max())
-print("===== Done! End =====")
-embed(globals(), locals())
+
 for pre_ses in range(pre_ses_min, pre_ses_max+1):
     print("pre_ses=", pre_ses)
     # Iterate over the range of session values
     df_disorder_pre_sessions = df_disorder[df_disorder[f"{pre_prefix}session"]==pre_ses]
     # Assuming df is your DataFrame
     if not df_disorder_pre_sessions.empty:
-        if pre_ses == 0.0:
-            df_control_pre = df_control_sessin_0.copy()
-        if pre_ses == 1.0:
-            df_control_pre = df_control_sessin_1.copy()
-        if pre_ses == 2.0:
-            df_control_pre = df_control_sessin_2.copy()
+        df_control_pre = df_control[df_control["session"]==pre_ses].copy()
         
         df_control_matched_tmp = pd.DataFrame()
         for post_ses in range(pre_ses+1, post_ses_max+1):
@@ -191,15 +193,10 @@ for pre_ses in range(pre_ses_min, pre_ses_max+1):
             df_disorder_post_sessions = df_disorder[df_disorder[f"{post_prefix}session"]==post_ses]
             # Assuming df is your DataFrame
             if not df_disorder_post_sessions.empty:
-                if post_ses == 1.0:
-                    df_control_post = df_control_sessin_1.copy()
-                if post_ses == 2.0:
-                    df_control_post = df_control_sessin_2.copy()
-                if post_ses == 3.0:
-                    if pre_ses == 2:
-                        df_control_post = df_control_sessin_3.copy()
-                    else:
-                        break  # or whatever statement you use to exit the loop
+                df_control_post = df_control[df_control["session"]==post_ses].copy()
+            else:
+                break  # or whatever statement you use to exit the loop
+            
             intersection_index = df_control_pre.index.intersection(df_control_post.index)
             df_control_pre = df_control_pre[df_control_pre.index.isin(intersection_index)]
             df_control_post = df_control_post[df_control_post.index.isin(intersection_index)]
@@ -236,7 +233,7 @@ for pre_ses in range(pre_ses_min, pre_ses_max+1):
             
             # the propensity score is the probability of being 1 (i.e., in the disorder group)
             df.loc[:, "propensity_scores"] = propensity_scores[:, 1]
-            
+
             # calculate the logit of the propensity score for matching if needed
             def logit(p):
                 logit_value = math.log(p / (1-p))
@@ -244,14 +241,16 @@ for pre_ses in range(pre_ses_min, pre_ses_max+1):
 
             df['ps_logit'] = df.propensity_scores.apply(lambda x: logit(x))
             
-            # print("===== Done! End =====")
-            # embed(globals(), locals()) 
+            
             df_control_pre_tmp = df[df['disorder'] == 0]
             df_disorder_tmp = df[df['disorder'] == 1]
 
             df_disorder.loc[df_disorder_extract.index, f"{pre_prefix}propensity_scores"] = df_disorder_tmp.loc[:, "propensity_scores"]
             # df_disorder.loc[df_disorder_extract.index, f"{pre_prefix}ps_logit"] = df_disorder_tmp.loc[:, "ps_logit"]
-
+            
+            df_control.loc[df_control_pre_tmp.index, "propensity_scores"] = df_control_pre_tmp.loc[df_control_pre_tmp.index, "propensity_scores"]
+            # print("===== Done! End =====")
+            # embed(globals(), locals()) 
             # Fit nearest neighbors model on control_pre group using propensity scores
             caliper = np.std(df_control_pre_tmp.propensity_scores) * 0.05
 
@@ -323,12 +322,13 @@ for pre_ses in range(pre_ses_min, pre_ses_max+1):
                 print("The indices are not in the same order.")
     
             # Remove the specified suffixes from the column names in df1
-            df_control_matched_pre_post.columns = df_control_matched_pre_post.columns.str.replace(r'-[0-3]\.0$', '', regex=True)
-
+            # df_control_matched_pre_post.columns = df_control_matched_pre_post.columns.str.replace(r'-[0-3]\.0$', '', regex=True)
+            print("===== Done! End =====")
+            embed(globals(), locals())
             df_control_matched_tmp = pd.concat([df_control_matched_tmp, df_control_matched_pre_post], axis=0)
             print(df_control_matched_tmp)
-            # print("===== Done! End =====")
-            # embed(globals(), locals())
+        print("===== Done! End =====")
+        embed(globals(), locals())
     df_control_matched = pd.concat([df_control_matched, df_control_matched_tmp], axis=0)
     print(df_control_matched)
 
@@ -392,7 +392,7 @@ sns.kdeplot(data=df_disorder, x=f"1st_pre-{population}_propensity_scores", fill=
 sns.kdeplot(data=df_control_matched, x=f"1st_pre-{population}_propensity_scores", fill=True, color="green", ax=ax[1])
 sns.kdeplot(data=df_disorder, x=f"1st_pre-{population}_propensity_scores", fill=True, color="pink", ax=ax[1])
 plt.show()
-plt.savefig("x_match.png")
+plt.savefig("x_match_new.png")
 plt.close()
 
 # fig, ax = plt.subplots(1,2)

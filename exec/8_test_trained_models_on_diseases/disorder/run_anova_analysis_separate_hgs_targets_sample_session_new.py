@@ -177,8 +177,9 @@ for anova_target in ["hgs", "hgs_predicted", "hgs_corrected_predicted", "hgs_del
     formula = (
         f'{anova_target} ~ '
         'C(gender) + C(treatment) + C(disorder_episode) +'
-        'C(gender):C(treatment) + C(gender):C(disorder_episode) +'
-        'C(treatment):C(disorder_episode) '
+        'C(gender)*C(treatment) + C(gender)*C(disorder_episode) +'
+        'C(treatment)*C(disorder_episode) +'
+        'C(gender)*C(treatment)*C(disorder_episode)'
     )
 
     model = ols(formula, data=df).fit()
