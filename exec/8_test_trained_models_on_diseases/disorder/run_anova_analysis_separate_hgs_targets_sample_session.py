@@ -21,17 +21,14 @@ population = sys.argv[1]
 mri_status = sys.argv[2]
 feature_type = sys.argv[3]
 model_name = sys.argv[4]
-session = sys.argv[5]
-confound_status = sys.argv[6]
-n_repeats = sys.argv[7]
-n_folds = sys.argv[8]
-disorder_cohort = sys.argv[9]
-visit_session = sys.argv[10]
-n_samples = sys.argv[11]
-target = sys.argv[12]
+confound_status = sys.argv[5]
+n_repeats = sys.argv[6]
+n_folds = sys.argv[7]
+disorder_cohort = sys.argv[8]
+visit_session = sys.argv[9]
+n_samples = sys.argv[10]
+target = sys.argv[11]
 ##############################################################################
-sample_session = 1
-
 main_extracted_columns = ["gender", "handedness", "hgs_dominant", "hgs_dominant_side", "hgs_nondominant", "hgs_nondominant_side", "age", "bmi", "height", "waist_to_hip_ratio", "treatment", "disorder_episode", "hgs_target", "hgs", "hgs_predicted", "hgs_delta", "hgs_corrected_predicted", "hgs_corrected_delta"]
 
 df_disorder = pd.DataFrame()
@@ -53,7 +50,6 @@ df_disorder_matched_female, df_mathced_controls_female = load_disorder_matched_s
     n_repeats,
     n_folds,
     n_samples,
-    sample_session,
 )
 
 df_disorder_matched_male, df_mathced_controls_male = load_disorder_matched_samples_results(
@@ -68,7 +64,6 @@ df_disorder_matched_male, df_mathced_controls_male = load_disorder_matched_sampl
     n_repeats,
     n_folds,
     n_samples,
-    sample_session,
 )
 
 df_disorder_matched_female.loc[:, "treatment"] = f"{population}"
@@ -170,7 +165,8 @@ df_control = pd.concat([df_control, df_control_tmp2], axis=0)
 df = pd.concat([df_control, df_disorder], axis=0)
 df["gender"].replace(0, "female", inplace=True)
 df["gender"].replace(1, "male", inplace=True)
-
+print("===== Done! =====")
+embed(globals(), locals())
 for anova_target in ["hgs", "hgs_predicted", "hgs_corrected_predicted", "hgs_delta", "hgs_corrected_delta"]:
 # for anova_target in ["hgs_corrected_delta"]:
     print(anova_target)
@@ -202,8 +198,8 @@ for anova_target in ["hgs", "hgs_predicted", "hgs_corrected_predicted", "hgs_del
     print(target)
     print(formula)
     print(population)
-    # print("===== Done! =====")
-    # embed(globals(), locals())
+    print("===== Done! =====")
+    embed(globals(), locals())
     save_disorder_anova_results(
             df,
             df_anova_result,
@@ -220,7 +216,6 @@ for anova_target in ["hgs", "hgs_predicted", "hgs_corrected_predicted", "hgs_del
             n_folds,
             n_samples,
             anova_target,
-            sample_session,
         )
 
 print("===== Done! End =====")

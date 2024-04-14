@@ -17,54 +17,32 @@ def load_disorder_matched_samples_results(
     n_repeats,
     n_folds,
     n_samples,
-    sample_session,
 ):
     if confound_status == "0":
         confound = "without_confound_removal"
     else:
         confound = "with_confound_removal"
     # Assuming that you have already trained and instantiated the model as `model`
-    if sample_session == 0:
-        folder_path = os.path.join(
-                "/data",
-                "project",
-                "stroke_ukb",
-                "knazarzadeh",
-                "project_hgsprediction",  
-                "results_hgsprediction",
-                f"{population}",
-                f"{mri_status}",
-                f"{session_column}",
-                f"{feature_type}",
-                f"{target}",
-                f"{confound}",
-                f"{model_name}",
-                f"{n_repeats}_repeats_{n_folds}_folds",
-                "matched_control_samples_results",
-                f"1_to_{n_samples}_samples",
-                "matched_control_samples_data",
-            )
-    else:
-        folder_path = os.path.join(
-                "/data",
-                "project",
-                "stroke_ukb",
-                "knazarzadeh",
-                "project_hgsprediction",  
-                "results_hgsprediction",
-                f"{population}",
-                f"{mri_status}",
-                f"{session_column}",
-                f"{feature_type}",
-                f"{target}",
-                f"{confound}",
-                f"{model_name}",
-                f"{n_repeats}_repeats_{n_folds}_folds",
-                "matched_control_samples_results",
-                f"1_to_{n_samples}_samples",
-                "matched_control_samples_sessions_data",
-            )
-        
+    folder_path = os.path.join(
+            "/data",
+            "project",
+            "stroke_ukb",
+            "knazarzadeh",
+            "project_hgsprediction",  
+            "results_hgsprediction",
+            f"{population}",
+            f"{mri_status}",
+            f"{session_column}",
+            f"{feature_type}",
+            f"{target}",
+            f"{confound}",
+            f"{model_name}",
+            f"{n_repeats}_repeats_{n_folds}_folds",
+            "matched_control_samples_results",
+            f"1_to_{n_samples}_samples",
+            "matched_control_samples_data",
+        )
+
     if(not os.path.isdir(folder_path)):
         os.makedirs(folder_path)
 
