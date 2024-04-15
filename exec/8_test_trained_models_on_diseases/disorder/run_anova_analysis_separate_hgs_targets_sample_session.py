@@ -163,6 +163,7 @@ df_control = pd.concat([df_control, df_control_tmp2], axis=0)
 
 # Perform the ANOVA
 df = pd.concat([df_control, df_disorder], axis=0)
+df.index.name = "SubjectID"
 df["gender"].replace(0, "female", inplace=True)
 df["gender"].replace(1, "male", inplace=True)
 print("===== Done! =====")
