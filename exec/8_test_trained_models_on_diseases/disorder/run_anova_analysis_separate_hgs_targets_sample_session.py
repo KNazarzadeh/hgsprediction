@@ -10,6 +10,10 @@ import statsmodels.stats.multicomp as mc
 
 from hgsprediction.load_results.load_disorder_matched_samples_results import load_disorder_matched_samples_results
 from hgsprediction.save_results.save_disorder_anova_results import save_disorder_anova_results
+from scipy import stats
+
+import matplotlib.pyplot as plt
+import seaborn as sns
 from ptpython.repl import embed
 # print("===== Done! =====")
 # embed(globals(), locals())
@@ -166,17 +170,67 @@ df = pd.concat([df_control, df_disorder], axis=0)
 df.index.name = "SubjectID"
 df["gender"].replace(0, "female", inplace=True)
 df["gender"].replace(1, "male", inplace=True)
+
+
+##############################################################################
+for anova_target in ["hgs", "hgs_predicted", "hgs_corrected_predicted", "hgs_delta", "hgs_corrected_delta"]:
+    data = df[["gender", "treatment", "disorder_episode", anova_target]]
+    data_female = data[data["gender"]=="female"]
+    data_male = data[data["gender"]=="male"]
+
+    fig, ax = plt.subplots(1,2, figsize=(18,6))
+    sns.kdeplot(data=data_female, x=anova_target, hue="disorder_episode", ax=ax[0], legend=False)
+    sns.kdeplot(data=data_male, x=anova_target, hue="disorder_episode", ax=ax[1])
+    sns.move_legend(ax[1], "upper left", bbox_to_anchor=(1, 1))
+
+    
+    # Add subtitles
+    ax[0].set_title("Female")
+    ax[1].set_title("Male")
+    
+    plt.show()
+    plt.savefig(f"kde_{population}_{anova_target}.png")
+    plt.close()
+
 print("===== Done! =====")
 embed(globals(), locals())
 for anova_target in ["hgs", "hgs_predicted", "hgs_corrected_predicted", "hgs_delta", "hgs_corrected_delta"]:
+    data = df[["gender", "treatment", "disorder_episode", anova_target]]
+    data_female = data[data["gender"]=="female"]
+    for item in  data_female['disorder_episode'].unique():
+        tmp = data_female[data_female['disorder_episode']==item]
+        statistic_value, p_value = stats.shapiro(tmp[anova_target])
+        if p_value > 0.05:
+            print("Data is normally distributed (fail to reject H0)")
+        else:
+            print("Data is not normally distributed (reject H0)")
+            print(item, anova_target)
+
+for anova_target in ["hgs", "hgs_predicted", "hgs_corrected_predicted", "hgs_delta", "hgs_corrected_delta"]:
+    data = df[["gender", "treatment", "disorder_episode", anova_target]]
+    data_male = data[data["gender"]=="female"]
+    for item in  data_male['disorder_episode'].unique():
+        tmp = data_male[data_male['disorder_episode']==item]
+        statistic_value, p_value = stats.shapiro(tmp[anova_target])
+        if p_value > 0.05:
+            print("Data is normally distributed (fail to reject H0)")
+        else:
+            print("Data is not normally distributed (reject H0)")
+            print(item, anova_target)
+##############################################################################
+# Replace values based on conditions
+df.loc[df['disorder_episode'].str.contains('pre'), 'disorder_episode'] = 'pre'
+df.loc[df['disorder_episode'].str.contains('post'), 'disorder_episode'] = 'post'
+for anova_target in ["hgs", "hgs_predicted", "hgs_corrected_predicted", "hgs_delta", "hgs_corrected_delta"]:
+    data = df[["gender", "treatment", "disorder_episode", anova_target]]
 # for anova_target in ["hgs_corrected_delta"]:
     print(anova_target)
     formula = (
         f'{anova_target} ~ '
         'C(gender) + C(treatment) + C(disorder_episode) +'
-        'C(gender)*C(treatment) + C(gender)*C(disorder_episode) +'
-        'C(treatment)*C(disorder_episode) +'
-        'C(gender)*C(treatment)*C(disorder_episode)'
+        'C(gender):C(treatment) + C(gender):C(disorder_episode) +'
+        'C(treatment):C(disorder_episode) +'
+        'C(gender):C(treatment):C(disorder_episode)'
     )
 
     model = ols(formula, data=df).fit()
