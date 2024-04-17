@@ -239,7 +239,7 @@ for anova_target in ["hgs", "hgs_predicted", "hgs_corrected_predicted", "hgs_del
     print(df_anova_result)
 
     # Perform post-hoc tests on significant interactions (Tukey's HSD)
-    interaction_groups =  df.disorder_episode.astype(str)    
+    interaction_groups =  df.treatment.astype(str) + " | " + df.disorder_episode.astype(str)    
     comp = mc.MultiComparison(df[f"{anova_target}"], interaction_groups)
     df_post_hoc_result_without_gender = comp.tukeyhsd()
     print(df_post_hoc_result_without_gender.summary())
