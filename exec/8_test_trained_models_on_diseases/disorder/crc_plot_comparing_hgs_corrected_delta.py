@@ -168,9 +168,9 @@ for x_box_pos in np.arange(0,4,2):
     ax.plot([x1, x1, x2, x2], [y, y+h, y+h, y], lw=2, c=col)
     ax.text((x1+x2)*.5, y+h, f"p={df_ranksum.loc[idx, f'{anova_target}_p_value']:.3f}", ha='center', va='bottom', fontsize=18, weight='bold',  color=col)
 
-ax.set_yticks(range(-24, 29, 4))
-ax.set_yticklabels(ax.get_yticks(), size=20, weight='bold')
-plt.ylim(-24, 28)
+# ax.set_yticks(range(-24, 29, 4))
+# ax.set_yticklabels(ax.get_yticks(), size=20, weight='bold')
+# plt.ylim(-24, 28)
 
 
 # Adjust layout

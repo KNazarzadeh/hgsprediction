@@ -64,7 +64,7 @@ def save_disorder_anova_results(
         folder_path,
         "anova_table.csv")
     
-    df_anova_result.to_csv(file_path, sep=',', index=True)
+    df_anova_result.to_csv(file_path, sep=',', index=False)
     
     # Define the csv file path to save
     file_path = os.path.join(

@@ -81,8 +81,8 @@ df_interaction_disorder["episode"] = "Interaction"
 
 # Concatenating the two DataFrames
 df_interaction = pd.concat([df_interaction_control, df_interaction_disorder], axis=0)
-print("===== Done! End =====")
-embed(globals(), locals())
+# print("===== Done! End =====")
+# embed(globals(), locals())
 ###############################################################################
 df_ranksum = pd.DataFrame(index=["pre-episode", "post-episode", "interaction"])
 df_yaxis_max = pd.DataFrame(index=["pre-episode", "post-episode", "interaction"])
@@ -105,8 +105,8 @@ df_yaxis_max.loc["pre-episode", f"{anova_target}_max_value"] = max_value_pre
 df_yaxis_max.loc["post-episode", f"{anova_target}_max_value"] = max_value_post
 df_yaxis_max.loc["interaction", f"{anova_target}_max_value"] = max_value_interaction
 
-print("===== Done! End =====")
-embed(globals(), locals())
+# print("===== Done! End =====")
+# embed(globals(), locals())
 ###############################################################################
 def add_median_labels(ax, fmt='.3f'):
     xticks_positios_array = []
@@ -157,9 +157,9 @@ y, h, col = df_yaxis_max.loc["interaction", f"{anova_target}_max_value"]+1, 2, '
 ax.plot([x1, x1, x2, x2], [y, y+h, y+h, y], lw=2, c=col)
 ax.text((x1+x2)*.5, y+h, f"p={p_value_interaction:.3f}", ha='center', va='bottom', fontsize=18, weight='bold',  color=col)
 
-ax.set_ylim(ymin=-80, ymax=100)
-ax.set_yticks(range(-80, 101, 20))
-ax.set_yticklabels(ax.get_yticks(), size=20, weight='bold')
+# ax.set_ylim(ymin=-80, ymax=100)
+# ax.set_yticks(range(-80, 101, 20))
+# ax.set_yticklabels(ax.get_yticks(), size=20, weight='bold')
 
 # Adjust layout
 plt.tight_layout()

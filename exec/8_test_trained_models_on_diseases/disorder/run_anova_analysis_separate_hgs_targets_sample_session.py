@@ -7,10 +7,14 @@ import scipy.stats as stats
 import statsmodels.api as sm
 from statsmodels.formula.api import ols
 import statsmodels.stats.multicomp as mc
-
+from statsmodels.graphics.gofplots import qqplot
+from itertools import product
 from hgsprediction.load_results.load_disorder_matched_samples_results import load_disorder_matched_samples_results
 from hgsprediction.save_results.save_disorder_anova_results import save_disorder_anova_results
 from scipy import stats
+from scipy.stats import zscore
+import statsmodels.formula.api as smf
+import researchpy as rp
 
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -164,97 +168,164 @@ df_disorder = pd.concat([df_disorder, df_disorder_tmp2], axis=0)
 df_control = pd.concat([df_control, df_control_tmp2], axis=0)
 
 ##############################################################################
-
 # Perform the ANOVA
 df = pd.concat([df_control, df_disorder], axis=0)
 df.index.name = "SubjectID"
 df["gender"].replace(0, "female", inplace=True)
 df["gender"].replace(1, "male", inplace=True)
 
-
 ##############################################################################
-for anova_target in ["hgs", "hgs_predicted", "hgs_corrected_predicted", "hgs_delta", "hgs_corrected_delta"]:
+for anova_target in ["hgs", "hgs_predicted", "hgs_delta", "hgs_corrected_predicted", "hgs_corrected_delta"]:
     data = df[["gender", "treatment", "disorder_episode", anova_target]]
-    data_female = data[data["gender"]=="female"]
-    data_male = data[data["gender"]=="male"]
+    # Replace values based on conditions
+    data.loc[data['disorder_episode'].str.contains('pre'), 'disorder_episode'] = 'pre'
+    data.loc[data['disorder_episode'].str.contains('post'), 'disorder_episode'] = 'post'
+    ############################## ASSUMPTION CHECK ##############################
+    # Linear mixed effect models have the same assumptions as the traditional standard linear regression model. 
+
+    ############################## NORMALITY CHECK ##############################
+    # Q-Q plot:
+    # Create a list of unique values for 'time' and 'stress'
+    treatment_values = data['treatment'].unique()
+    disorder_episode_values = data['disorder_episode'].unique()
+
+    # Create a figure with subplots for each combination of 'time' and 'stress'
+    fig, axes = plt.subplots(len(disorder_episode_values), len(treatment_values), figsize=(15, 10))
+
+    # Iterate over each combination of 'time' and 'stress'
+    for i, j in product(range(len(disorder_episode_values)), range(len(treatment_values))):
+        # Subset the DataFrame for the current combination
+        subset = data[(data['disorder_episode'] == disorder_episode_values[i]) & (data['treatment'] == treatment_values[j])]
+        
+        # Create a QQ plot for the 'score' column
+        qqplot(subset[anova_target], line='s', ax=axes[i, j])
+        
+        # Set title for each subplot
+        axes[i, j].set_title(f"disorder_episode: {disorder_episode_values[i]}, treatment: {treatment_values[j]}")
+        
+    # Adjust layout
+    plt.tight_layout()
+    plt.show()
+    plt.savefig(f"QQplot_{population}_{anova_target}.png")
+    ############################## NORMALITY CHECK ##############################
+    ## KDE PLot gender separated
+    data_tmp = df[["gender", "treatment", "disorder_episode", anova_target]]
+    data_female = data_tmp[data_tmp["gender"]=="female"]
+    data_male = data_tmp[data_tmp["gender"]=="male"]
 
     fig, ax = plt.subplots(1,2, figsize=(18,6))
     sns.kdeplot(data=data_female, x=anova_target, hue="disorder_episode", ax=ax[0], legend=False)
     sns.kdeplot(data=data_male, x=anova_target, hue="disorder_episode", ax=ax[1])
     sns.move_legend(ax[1], "upper left", bbox_to_anchor=(1, 1))
 
-    
     # Add subtitles
     ax[0].set_title("Female")
     ax[1].set_title("Male")
-    
+
+    plt.show()
+    plt.savefig(f"kde_gender_{population}_{anova_target}.png")
+    plt.close()
+
+    ## KDE PLot gender separated
+    data_tmp = df[["gender", "treatment", "disorder_episode", anova_target]]
+    fig, ax = plt.subplots(1,1, figsize=(18,6))
+    sns.kdeplot(data=data_tmp, x=anova_target, hue="disorder_episode")
+    sns.move_legend(ax, "upper left", bbox_to_anchor=(1, 1))
+
+    # Add subtitles
+    ax.set_title("Both gender together")
+
     plt.show()
     plt.savefig(f"kde_{population}_{anova_target}.png")
     plt.close()
-
-print("===== Done! =====")
-embed(globals(), locals())
-for anova_target in ["hgs", "hgs_predicted", "hgs_corrected_predicted", "hgs_delta", "hgs_corrected_delta"]:
-    data = df[["gender", "treatment", "disorder_episode", anova_target]]
-    data_female = data[data["gender"]=="female"]
-    for item in  data_female['disorder_episode'].unique():
-        tmp = data_female[data_female['disorder_episode']==item]
-        statistic_value, p_value = stats.shapiro(tmp[anova_target])
-        if p_value > 0.05:
-            print("Data is normally distributed (fail to reject H0)")
+    ############################## NORMALITY CHECK ##############################
+    # Shapiro-Wilk test:
+    # The normality assumption can be checked by computing Shapiro-Wilk test:
+    def shapiro_test(x):
+        a = 0.05
+        test = stats.shapiro(x)
+        if test.pvalue <= 0.05:
+            return f'The distribution departed from normality significantly, W= {round(test.statistic,2)}, P value= {round(test.pvalue,2)}'
         else:
-            print("Data is not normally distributed (reject H0)")
-            print(item, anova_target)
+            return f"Shapiro Wilk Test result didn't show non-normality, W= {round(test.statistic,2)}, P value= {round(test.pvalue,2)}. There is no evidence to reject the null hypothesis of normality."
+    treatment_values = data['treatment'].unique()
+    disorder_episode_values = data['disorder_episode'].unique()
+    for i, treat in enumerate(treatment_values):
+        for j, epi in enumerate(disorder_episode_values):
+            data_shapiro = data[(data["treatment"]==treat) & (data["disorder_episode"]==epi)][anova_target]
+            print(f"For the treatment and episode: {treat} and {epi}:", shapiro_test(data_shapiro))
+            print('\n')
 
-for anova_target in ["hgs", "hgs_predicted", "hgs_corrected_predicted", "hgs_delta", "hgs_corrected_delta"]:
-    data = df[["gender", "treatment", "disorder_episode", anova_target]]
-    data_male = data[data["gender"]=="female"]
-    for item in  data_male['disorder_episode'].unique():
-        tmp = data_male[data_male['disorder_episode']==item]
-        statistic_value, p_value = stats.shapiro(tmp[anova_target])
-        if p_value > 0.05:
-            print("Data is normally distributed (fail to reject H0)")
-        else:
-            print("Data is not normally distributed (reject H0)")
-            print(item, anova_target)
+    ############################## Homogneity of Variance CHECK ##############################
+    # Perform Levene test for all samples together
+    # Define a function to perform Levene's test for each group
+    # def levene_test(group):
+    #     return stats.levene(group[group['gender'] == 'male'][anova_target],
+    #                   group[group['gender'] == 'female'][anova_target],
+    #                   group[group['treatment'] == 'control'][anova_target],
+    #                   group[group['treatment'] == population][anova_target])
+    # # Group by 'time' and apply the Levene's test function
+    # levene_results = data.groupby('disorder_episode').apply(levene_test)
+
+    def levene_test(group):
+        return stats.levene(
+                    group[group['treatment'] == 'control'][anova_target],
+                    group[group['treatment'] == population][anova_target])
+    # Group by 'time' and apply the Levene's test function
+    levene_results = data.groupby('disorder_episode').apply(levene_test)
+    # Print the results
+    print(levene_results)
+    # If From the levene_results homogeneity test we can see p<0.05,
+    # which means the variance level of the three groups are significantly different from each other, therefore we conclude, we can’t use ANOVA.
+    # reject the null hypothesis that each group has the same variance. 
+
+    print(rp.summary_cont(data.groupby(["treatment", "disorder_episode","gender"])[anova_target]))
 ##############################################################################
-# Replace values based on conditions
-df.loc[df['disorder_episode'].str.contains('pre'), 'disorder_episode'] = 'pre'
-df.loc[df['disorder_episode'].str.contains('post'), 'disorder_episode'] = 'post'
-for anova_target in ["hgs", "hgs_predicted", "hgs_corrected_predicted", "hgs_delta", "hgs_corrected_delta"]:
-    data = df[["gender", "treatment", "disorder_episode", anova_target]]
-# for anova_target in ["hgs_corrected_delta"]:
-    print(anova_target)
-    formula = (
-        f'{anova_target} ~ '
-        'C(gender) + C(treatment) + C(disorder_episode) +'
-        'C(gender):C(treatment) + C(gender):C(disorder_episode) +'
-        'C(treatment):C(disorder_episode) +'
-        'C(gender):C(treatment):C(disorder_episode)'
-    )
+# # for anova_target in ["hgs_corrected_delta"]:
+# formula = (
+#     f'{anova_target} ~ '
+#     'C(gender) + C(treatment) + C(disorder_episode) +'
+#     'C(gender):C(treatment) + C(gender):C(disorder_episode) +'
+#     'C(treatment):C(disorder_episode) +'
+#     'C(gender):C(treatment):C(disorder_episode)'
+# )
 
-    model = ols(formula, data=df).fit()
-    df_anova_result = sm.stats.anova_lm(model)
+    # conduct 3-way ANOVA using mixedlm
+    mixedlm_model_fit = smf.mixedlm(f"{anova_target} ~ treatment * gender * disorder_episode", data, groups=data.index).fit()
+    # get fixed effects
+    print(mixedlm_model_fit.summary())
+    # get random effects
+    mixedlm_model_fit.random_effects
 
-    print(df_anova_result)
+    df_anova_result = pd.DataFrame(mixedlm_model_fit.summary().tables[1])
 
+    # ##############################################################################
+    # # 3-way analysis possible in ols, but random effects not accounted for!
+    # my_model_fit = smf.ols(f"{anova_target} ~ treatment * gender * disorder_episode", data=data, groups=data.index).fit()
+    # df_anova_result = sm.stats.anova_lm(my_model_fit, typ=2)
+    # print(df_anova_result)
+
+    # # model = ols(formula, data=df).fit()
+    # # df_anova_result = sm.stats.anova_lm(model)
+    # # print(df_anova_result)
+
+    ##############################################################################
     # Perform post-hoc tests on significant interactions (Tukey's HSD)
     interaction_groups =  df.treatment.astype(str) + " | " + df.disorder_episode.astype(str)    
     comp = mc.MultiComparison(df[f"{anova_target}"], interaction_groups)
     df_post_hoc_result_without_gender = comp.tukeyhsd()
     print(df_post_hoc_result_without_gender.summary())
 
-    interaction_groups =  df.gender.astype(str) + " | " + df.disorder_episode.astype(str)
+    interaction_groups =  df.treatment.astype(str) + " | " + df.gender.astype(str) + " | " + df.disorder_episode.astype(str)
     comp = mc.MultiComparison(df[f"{anova_target}"], interaction_groups)
     df_post_hoc_result_with_gender = comp.tukeyhsd()
     print(df_post_hoc_result_with_gender.summary())
 
     print(anova_target)
     print(target)
-    print(formula)
     print(population)
-    print("===== Done! =====")
-    embed(globals(), locals())
+    # print("===== Done! =====")
+    # embed(globals(), locals())
     save_disorder_anova_results(
             df,
             df_anova_result,
