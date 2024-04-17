@@ -47,7 +47,6 @@ df, df_anova_result, df_post_hoc_result_without_gender, df_post_hoc_result_with_
     n_folds,
     n_samples,
     anova_target,
-    sample_session,
 )
 print("ANOVA result")
 print(df_anova_result)
