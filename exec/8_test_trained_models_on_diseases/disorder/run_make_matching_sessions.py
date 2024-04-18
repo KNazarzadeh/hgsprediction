@@ -149,7 +149,7 @@ for pre_ses in range(pre_ses_min, pre_ses_max+1):
             intersection_index = df_control_pre.index.intersection(df_control_post.index)
             df_control_pre = df_control_pre[df_control_pre.index.isin(intersection_index)]
             df_control_post = df_control_post[df_control_post.index.isin(intersection_index)]
-            
+            print(len(df_control_pre))
             # Reindex the dataframes to have the same order of indices
             df_control_pre = df_control_pre.reindex(index=intersection_index)
             df_control_post = df_control_post.reindex(index=intersection_index)
@@ -276,19 +276,31 @@ for pre_ses in range(pre_ses_min, pre_ses_max+1):
             df_control_matched_pre_post.columns = df_control_matched_pre_post.columns.str.replace(r'-[0-3]\.0$', '', regex=True)
 
             df_control_matched_tmp = pd.concat([df_control_matched_tmp, df_control_matched_pre_post], axis=0)
-            # print(df_control_matched_tmp)
+            
+            df_control_pre.drop(index=df_control_matched_tmp.index, inplace=True, errors='ignore')
+            print(len(df_control_pre))
+            print(pre_ses)
+            print(len(df_control_post))
+            print(post_ses)
+            def remove_indices_from_dataframes(dataframes_list, indices_list):
+                for i in range(len(dataframes_list)):
+                    df = dataframes_list[i]
+                    # print(len(df))                    
+                    df.drop(indices_list, axis=0, inplace=True, errors='ignore')
+                    # print(len(df))
+                
+            remove_indices_from_dataframes(control_dataframes, df_control_matched_tmp.index.to_list())        
             # print("===== Done! End =====")
-            # embed(globals(), locals())
+            # embed(globals(), locals())  
     df_control_matched = pd.concat([df_control_matched, df_control_matched_tmp], axis=0)
-    # print(df_control_matched)
-
+    
 not_same_values = df_control_matched[df_control_matched[f'1st_pre-{population}_patient_id'] != df_control_matched[f'1st_post-{population}_patient_id']]
 if not_same_values.empty:
     print("pre and post controls are for the same paitent id")
-print(df_control_matched)
-print(df_disorder)
-# print("===== Done! End =====")
-# embed(globals(), locals())
+# print(df_control_matched)
+# print(df_disorder)
+print("===== Done! End =====")
+embed(globals(), locals())
 ##############################################################################
 df_check_matching_pre = pd.DataFrame(columns=["patinets_pre_episode", "controls_pre_episode", "differece_pre_episode"])
 # Adding a new index'
