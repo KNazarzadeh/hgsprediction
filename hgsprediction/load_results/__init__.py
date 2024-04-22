@@ -33,3 +33,5 @@ from .load_trained_scores_results import load_scores_trained, load_test_scores_t
 
 from .load_brain_correlates_results_1 import load_brain_hgs_correlation_results, load_brain_overlap_data_results
 from .load_brain_correlation_results import load_brain_correlation_overlap_data_with_mri, load_brain_hgs_correlation_results, load_brain_hgs_correlation_results_for_plot
+
+from .load_prepared_data_for_anova import load_prepare_data_for_anova

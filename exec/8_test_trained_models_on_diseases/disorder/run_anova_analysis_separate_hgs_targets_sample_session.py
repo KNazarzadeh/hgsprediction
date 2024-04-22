@@ -173,7 +173,8 @@ df = pd.concat([df_control, df_disorder], axis=0)
 df.index.name = "SubjectID"
 df["gender"].replace(0, "female", inplace=True)
 df["gender"].replace(1, "male", inplace=True)
-
+print("===== Done! End =====")
+embed(globals(), locals())
 ##############################################################################
 for anova_target in ["hgs", "hgs_predicted", "hgs_delta", "hgs_corrected_predicted", "hgs_corrected_delta"]:
     data = df[["gender", "treatment", "disorder_episode", anova_target]]
