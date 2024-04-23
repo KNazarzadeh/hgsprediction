@@ -465,7 +465,12 @@ class DisorderMainDataPreprocessor:
             # Exclude all subjects who had Dominant HGS < 4:
             # The condition is applied to "hgs_dominant" columns
             # And then reset_index the new dataframe:
-            df = df[(~df.loc[:, hgs_dominant].isna()) & (~df.loc[:, hgs_nondominant].isna())]
+            if "pre" in session_column:
+                df = df[(df.loc[:, hgs_dominant] >= 4) & (~df.loc[:, hgs_dominant].isna())]
+                df = df[(df.loc[:, hgs_nondominant] >= 4) & (~df.loc[:, hgs_nondominant].isna())]
+                df = df[(df.loc[:, hgs_dominant] >= df.loc[:, hgs_nondominant])]
+            else:
+                df = df[(~df.loc[:, hgs_dominant].isna()) & (~df.loc[:, hgs_nondominant].isna())]
 
         elif df.loc[:, session_column].isna().sum() == len(df):
             # Drop all rows from the DataFrame

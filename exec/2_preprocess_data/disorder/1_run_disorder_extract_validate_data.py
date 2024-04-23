@@ -15,8 +15,8 @@ population = sys.argv[1]
 mri_status = sys.argv[2]
 
 df_original = disorder_load_data.load_original_data(population, mri_status)
-print("===== Done! =====")
-embed(globals(), locals())
+# print("===== Done! =====")
+# embed(globals(), locals())
 ###############################################################################
 
 data_processor = disorder_data_preprocessor.DisorderMainDataPreprocessor(df_original, population)    
@@ -121,10 +121,9 @@ for visit_session in range(1, 2):
         disorder_cohort = f"post-{population}"
         session_column = f"1st_{disorder_cohort}_session"
         df_extracted_post = data_processor.extract_data(df_preprocessed, session_column)
+        df_validated_post = data_processor.validate_handgrips(df_extracted_post, session_column)   
         # print("===== Done! =====")
         # embed(globals(), locals())
-        df_validated_post = data_processor.validate_handgrips(df_extracted_post, session_column)   
-    
     # Assuming you have DataFrames called 'df_pre' and 'df_post'
     # Concatenate the DataFrames, but keep only one of the columns with the same name
     merged_df_extracted = pd.concat([df_extracted_pre, df_extracted_post], axis=1, join="inner")
@@ -132,21 +131,24 @@ for visit_session in range(1, 2):
     # Select which columns to keep (for example, keep columns from df_pre)
     df_longitudinal_extracted = merged_df_extracted.loc[:, ~merged_df_extracted.columns.duplicated()]
     df_longitudinal_validated = merged_df_validated.loc[:, ~merged_df_validated.columns.duplicated()]
+# print("===== Done! =====")
+# embed(globals(), locals())    
     disorder_cohort = f"longitudinal-{population}"
     session_column = f"1st_{disorder_cohort}_session"
     disorder_save_data.save_primary_extracted_data(df_longitudinal_extracted, population, mri_status, session_column, disorder_cohort=f"longitudinal-{population}")
     disorder_save_data.save_validated_hgs_data(df_longitudinal_validated, population, mri_status, session_column, disorder_cohort=f"longitudinal-{population}")
 
 
-print("dominant<4", len(df_longitudinal_extracted[df_longitudinal_extracted[f"1st_pre-{population}_hgs_dominant"]<4]))
-print("dominant==0", len(df_longitudinal_extracted[df_longitudinal_extracted[f"1st_pre-{population}_hgs_dominant"]==0]))
-print("dominant<4", len(df_longitudinal[df_longitudinal[f"1st_pre-{population}_hgs_dominant"]<4]))
-print("dominant<nondominant", len(df_longitudinal_extracted[df_longitudinal_extracted[f"1st_pre-{population}_hgs_dominant"]<df_longitudinal_extracted[f"1st_pre-{population}_hgs_nondominant"]]))
-print("dominant<nondominant", len(df_longitudinal[df_longitudinal[f"1st_pre-{population}_hgs_dominant"]<df_longitudinal[f"1st_pre-{population}_hgs_nondominant"]]))
+print("pre-dominant<4", len(df_longitudinal_extracted[df_longitudinal_extracted[f"1st_pre-{population}_hgs_dominant"]<4]))
+print("pre-dominant==0", len(df_longitudinal_extracted[df_longitudinal_extracted[f"1st_pre-{population}_hgs_dominant"]==0]))
+print("pre-dominant<4", len(df_longitudinal[df_longitudinal[f"1st_pre-{population}_hgs_dominant"]<4]))
+print("pre-dominant<pre-nondominant", len(df_longitudinal_extracted[df_longitudinal_extracted[f"1st_pre-{population}_hgs_dominant"]<df_longitudinal_extracted[f"1st_pre-{population}_hgs_nondominant"]]))
+print("pre-dominant<pre-nondominant", len(df_longitudinal[df_longitudinal[f"1st_pre-{population}_hgs_dominant"]<df_longitudinal[f"1st_pre-{population}_hgs_nondominant"]]))
+print("pre-dominant<pre-nondominant validated", len(df_longitudinal_validated[df_longitudinal_validated[f"1st_pre-{population}_hgs_dominant"]<df_longitudinal_validated[f"1st_pre-{population}_hgs_nondominant"]]))
 print("dominant.isna", len(df_longitudinal_extracted[df_longitudinal_extracted[f"1st_pre-{population}_hgs_dominant"].isna()]))
 print("nondominant.isna", len(df_longitudinal_extracted[df_longitudinal_extracted[f"1st_pre-{population}_hgs_nondominant"].isna()]))
 print("len validate",len(df_longitudinal_validated))
-print("len validate",len(df_longitudinal_extracted))
+print("len extracted",len(df_longitudinal_extracted))
 
 ###############################################################################
 print("===== Done! =====")

@@ -173,14 +173,16 @@ df = pd.concat([df_control, df_disorder], axis=0)
 df.index.name = "SubjectID"
 df["gender"].replace(0, "female", inplace=True)
 df["gender"].replace(1, "male", inplace=True)
-print("===== Done! End =====")
-embed(globals(), locals())
+# print("===== Done! End =====")
+# embed(globals(), locals())
 ##############################################################################
 for anova_target in ["hgs", "hgs_predicted", "hgs_delta", "hgs_corrected_predicted", "hgs_corrected_delta"]:
     data = df[["gender", "treatment", "disorder_episode", anova_target]]
     # Replace values based on conditions
     data.loc[data['disorder_episode'].str.contains('pre'), 'disorder_episode'] = 'pre'
     data.loc[data['disorder_episode'].str.contains('post'), 'disorder_episode'] = 'post'
+    print("===== Done! End =====")
+    embed(globals(), locals())
     ############################## ASSUMPTION CHECK ##############################
     # Linear mixed effect models have the same assumptions as the traditional standard linear regression model. 
 
@@ -281,6 +283,8 @@ for anova_target in ["hgs", "hgs_predicted", "hgs_delta", "hgs_corrected_predict
     # reject the null hypothesis that each group has the same variance. 
 
     print(rp.summary_cont(data.groupby(["treatment", "disorder_episode","gender"])[anova_target]))
+    # print("===== Done! End =====")
+    # embed(globals(), locals())
 ##############################################################################
 # # for anova_target in ["hgs_corrected_delta"]:
 # formula = (
@@ -325,8 +329,8 @@ for anova_target in ["hgs", "hgs_predicted", "hgs_delta", "hgs_corrected_predict
     print(anova_target)
     print(target)
     print(population)
-    # print("===== Done! =====")
-    # embed(globals(), locals())
+    print("===== Done! =====")
+    embed(globals(), locals())
     save_disorder_anova_results(
             df,
             df_anova_result,
