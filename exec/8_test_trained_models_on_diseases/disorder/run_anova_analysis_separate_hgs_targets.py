@@ -27,6 +27,7 @@ disorder_cohort = sys.argv[8]
 visit_session = sys.argv[9]
 n_samples = sys.argv[10]
 target = sys.argv[11]
+anova_target = sys.argv[12]
 ##############################################################################
 disorder_cohort = f"{disorder_cohort}-{population}"
 if visit_session == "1":
@@ -51,58 +52,43 @@ df["gender"].replace(1, "male", inplace=True)
 df_female = df[df["gender"]=="female"]
 df_male = df[df["gender"]=="male"]
 
+
+##############################################################################
+data = df[["gender", "treatment", "disorder_episode", anova_target]]
+data.loc[data['disorder_episode'].str.contains('pre'), 'disorder_episode'] = 'pre'
+data.loc[data['disorder_episode'].str.contains('post'), 'disorder_episode'] = 'post'
+
+df_pre = data[data["disorder_episode"]=="pre"]
+df_post = data[data["disorder_episode"]=="post"]
+
+df_pre["pre_hgs"] = df_pre[anova_target]
+df_post["post_hgs"] = df_post[anova_target]
+
+df_merge = df_pre.merge(df_post['post_hgs'], left_index=True, right_index=True, how='left')
+
+df_merge = df_merge.drop(columns="disorder_episode")
 print("===== Done! End =====")
 embed(globals(), locals())
+##############################################################################
 
-# for anova_target in ["hgs", "hgs_predicted", "hgs_corrected_predicted", "hgs_delta", "hgs_corrected_delta"]:
-for anova_target in ["hgs_corrected_delta"]:
-    print(anova_target)
-    formula = (
-        f'{anova_target} ~ '
-        'C(gender) + C(treatment) + C(disorder_episode) +'
-        'C(gender):C(treatment) + C(gender):C(disorder_episode) +'
-        'C(treatment):C(disorder_episode) '
-    )
+from scipy.stats import wilcoxon, mannwhitneyu
 
-    model = ols(formula, data=df).fit()
-    df_anova_result = sm.stats.anova_lm(model)
+# Wilcoxon Signed-Rank Test within each group
+patients = df_merge[df_merge['treatment'] == 'stroke']
+controls = df_merge[df_merge['treatment'] == 'control']
 
-    print(df_anova_result)
+stat, p = wilcoxon(patients['pre_hgs'], patients['post_hgs'])
+print("Patients - Wilcoxon Test: stat =", stat, "p-value =", p)
 
-    # Perform post-hoc tests on significant interactions (Tukey's HSD)
-    interaction_groups =  df.disorder_episode.astype(str)    
-    comp = mc.MultiComparison(df[f"{anova_target}"], interaction_groups)
-    df_post_hoc_result_without_gender = comp.tukeyhsd()
-    print(df_post_hoc_result_without_gender.summary())
+stat, p = wilcoxon(controls['pre_hgs'], controls['post_hgs'])
+print("Controls - Wilcoxon Test: stat =", stat, "p-value =", p)
 
-    interaction_groups =  df.gender.astype(str) + " | " + df.disorder_episode.astype(str)
-    comp = mc.MultiComparison(df[f"{anova_target}"], interaction_groups)
-    df_post_hoc_result_with_gender = comp.tukeyhsd()
-    print(df_post_hoc_result_with_gender.summary())
+# Mann-Whitney U Test between groups at each time point
+stat, p = mannwhitneyu(patients['pre_hgs'], controls['pre_hgs'])
+print("Between Groups Before Diagnosis - Mann-Whitney U: stat =", stat, "p-value =", p)
 
-    print(anova_target)
-    print(target)
-    print(formula)
-    print(population)
-
-    save_disorder_anova_results(
-            df,
-            df_anova_result,
-            df_post_hoc_result_without_gender,
-            df_post_hoc_result_with_gender,
-            population,
-            mri_status,
-            session_column,
-            model_name,
-            feature_type,
-            target,
-            confound_status,
-            n_repeats,
-            n_folds,
-            n_samples,
-            anova_target,
-        )
+stat, p = mannwhitneyu(patients['post_hgs'], controls['post_hgs'])
+print("Between Groups After Diagnosis - Mann-Whitney U: stat =", stat, "p-value =", p)
 
 print("===== Done! End =====")
 embed(globals(), locals())
-
