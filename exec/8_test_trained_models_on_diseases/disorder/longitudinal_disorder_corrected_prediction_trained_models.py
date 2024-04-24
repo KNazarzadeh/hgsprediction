@@ -63,8 +63,7 @@ df = load_disorder_hgs_predicted_results(
     n_repeats,
     n_folds,
 )
-print("===== Done! End =====")
-embed(globals(), locals())
+
 ###############################################################################
 for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
     if visit_session == "1":
@@ -75,13 +74,9 @@ for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
         prefix = f"3rd_{disorder_subgroup}"
     elif visit_session == "4":
         prefix = f"4th_{disorder_subgroup}"
-    
-    # df.loc[:, f"{prefix}_{target}_corrected_predicted"] = (df.loc[:, f"{prefix}_{target}_predicted"] - intercept) / slope
-    # df.loc[:, f"{prefix}_{target}_corrected_predicted"] = (df.loc[:, f"{prefix}_{target}_predicted"] + (df.loc[:, f"{prefix}_{target}"]-((slope * df.loc[:, f"{prefix}_{target}"]) + intercept)))
-    
+        
     # Beheshti Method:
     df.loc[:, f"{prefix}_{target}_corrected_predicted"] = (df.loc[:, f"{prefix}_{target}_predicted"] + ((slope * df.loc[:, f"{prefix}_{target}"]) + intercept))
-    
     df.loc[:, f"{prefix}_{target}_corrected_delta(true-predicted)"] =  df.loc[:, f"{prefix}_{target}"] - df.loc[:, f"{prefix}_{target}_corrected_predicted"]
 
 ###############################################################################
@@ -98,7 +93,9 @@ save_disorder_corrected_prediction_results(
     n_repeats,
     n_folds,
 )
-
+print(df)
+print("===== Done! End =====")
+embed(globals(), locals())
 ###############################################################################
 df_correlations = pd.DataFrame()
 df_p_values = pd.DataFrame()

@@ -72,7 +72,6 @@ if mri_status == "mri+nonmri":
     df_longitudinal_mri = disorder_load_data.load_preprocessed_data(population, "mri", session_column, disorder_cohort)
     df_longitudinal_nonmri = disorder_load_data.load_preprocessed_data(population, "nonmri", session_column, disorder_cohort)
     df_longitudinal = pd.concat([df_longitudinal_mri, df_longitudinal_nonmri]).dropna(axis=1, how='all')
-
 else:
     df_longitudinal = disorder_load_data.load_preprocessed_data(population, mri_status, session_column, disorder_cohort)
 
@@ -90,7 +89,7 @@ for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
     
     df_female = predict_hgs(df_female, X, y, female_best_model_trained, target)
     df_male = predict_hgs(df_male, X, y, male_best_model_trained, target)
-
+    
     df_tmp = pd.concat([df_female, df_male], axis=0)
         
     if visit_session == "1":

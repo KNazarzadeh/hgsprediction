@@ -58,8 +58,9 @@ df_outliers = df_z_scores[outliers.any(axis=1)]
 
 df = df[df.index.isin(df_no_outliers.index)]
 
-print("===== Done! End =====")
-embed(globals(), locals())
+print(df)
+# print("===== Done! End =====")
+# embed(globals(), locals())
 save_zscore_results(
     df,
     population,

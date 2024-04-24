@@ -54,7 +54,7 @@ for disorder_cohort in [f"pre-{population}", f"post-{population}"]:
                 if session_column not in df_preprocessed.columns:
                     break
             df_extracted = data_processor.extract_data(df_preprocessed, session_column)
-            df_validated = data_processor.validate_handgrips(df_extracted, session_column)
+            df_validated = data_processor.validate_handgrips(df_extracted, population, session_column)
             disorder_save_data.save_primary_extracted_data(df_extracted, population, mri_status, session_column, disorder_cohort)
             disorder_save_data.save_validated_hgs_data(df_validated, population, mri_status, session_column, disorder_cohort)
             
@@ -64,10 +64,10 @@ for disorder_cohort in [f"pre-{population}", f"post-{population}"]:
             elif visit_session == 2:
                 session_column = f"2nd_{disorder_cohort}_session"
             df_extracted = data_processor.extract_data(df_preprocessed, session_column)
-            df_validated = data_processor.validate_handgrips(df_extracted, session_column)
+            df_validated = data_processor.validate_handgrips(df_extracted, population, session_column)
             disorder_save_data.save_primary_extracted_data(df_extracted, population, mri_status, session_column, disorder_cohort)
             disorder_save_data.save_validated_hgs_data(df_validated, population, mri_status, session_column, disorder_cohort)
-###############################################################################
+# ###############################################################################
 disorder_cohort = f"post-{population}"
 df_post = data_processor.extract_post_disorder_df(df_preprocessed, mri_status)
 disorder_save_data.save_subgroups_only_preprocessed_data(df_post, population, mri_status, disorder_cohort=f"post-{population}")
@@ -85,10 +85,10 @@ for visit_session in visit_range:
         if session_column not in df_preprocessed.columns:
             break
     df_extracted = data_processor.extract_data(df_post, session_column)
-    df_validated = data_processor.validate_handgrips(df_extracted, session_column)
+    df_validated = data_processor.validate_handgrips(df_extracted, population, session_column)
     disorder_save_data.save_subgroups_only_extracted_data(df_extracted, population, mri_status, session_column, disorder_cohort=f"post-{population}")
     disorder_save_data.save_subgroups_only_validated_hgs_data(df_validated, population, mri_status, session_column, disorder_cohort=f"post-{population}")
-###############################################################################
+# ###############################################################################
 disorder_cohort = f"pre-{population}"
 df_pre = data_processor.extract_pre_disorder_df(df_preprocessed, mri_status)
 disorder_save_data.save_subgroups_only_preprocessed_data(df_pre, population, mri_status, disorder_cohort=f"pre-{population}")
@@ -104,7 +104,7 @@ for visit_session in visit_range:
     elif visit_session == 3:
         session_column = f"3rd_{disorder_cohort}_session"
     df_extracted = data_processor.extract_data(df_pre, session_column)
-    df_validated = data_processor.validate_handgrips(df_extracted, session_column)
+    df_validated = data_processor.validate_handgrips(df_extracted, population, session_column)
     disorder_save_data.save_subgroups_only_extracted_data(df_extracted, population, mri_status, session_column, disorder_cohort=f"pre-{population}")
     disorder_save_data.save_subgroups_only_validated_hgs_data(df_validated, population, mri_status, session_column, disorder_cohort=f"pre-{population}")
 
@@ -117,11 +117,13 @@ for visit_session in range(1, 2):
         disorder_cohort = f"pre-{population}"
         session_column = f"1st_{disorder_cohort}_session"
         df_extracted_pre = data_processor.extract_data(df_preprocessed, session_column)
-        df_validated_pre = data_processor.validate_handgrips(df_extracted_pre, session_column)
+        df_validated_pre = data_processor.validate_handgrips(df_extracted_pre, population, session_column)
+        # print("===== Done! =====")
+        # embed(globals(), locals())
         disorder_cohort = f"post-{population}"
         session_column = f"1st_{disorder_cohort}_session"
         df_extracted_post = data_processor.extract_data(df_preprocessed, session_column)
-        df_validated_post = data_processor.validate_handgrips(df_extracted_post, session_column)   
+        df_validated_post = data_processor.validate_handgrips(df_extracted_post, population, session_column)   
         # print("===== Done! =====")
         # embed(globals(), locals())
     # Assuming you have DataFrames called 'df_pre' and 'df_post'

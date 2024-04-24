@@ -440,7 +440,7 @@ class DisorderMainDataPreprocessor:
 # The main goal of data validation is to verify that the data is 
 # accurate, reliable, and suitable for the intended analysis.
 ###############################################################################
-    def validate_handgrips(self, df, session_column):
+    def validate_handgrips(self, df, disorder, session_column):
         """Exclude all subjects who had Dominant HGS < 4 and != NaN:
 
         Parameters
@@ -453,6 +453,7 @@ class DisorderMainDataPreprocessor:
         df : dataframe
         """                
         assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
+        disorder = self.disorder
         substring_to_remove = "session"
         # -----------------------------------------------------------
         if df[session_column].isna().sum() < len(df):
@@ -465,11 +466,13 @@ class DisorderMainDataPreprocessor:
             # Exclude all subjects who had Dominant HGS < 4:
             # The condition is applied to "hgs_dominant" columns
             # And then reset_index the new dataframe:
-            if "pre" in session_column:
+            if f"pre-{disorder}" in session_column:
                 df = df[(df.loc[:, hgs_dominant] >= 4) & (~df.loc[:, hgs_dominant].isna())]
                 df = df[(df.loc[:, hgs_nondominant] >= 4) & (~df.loc[:, hgs_nondominant].isna())]
                 df = df[(df.loc[:, hgs_dominant] >= df.loc[:, hgs_nondominant])]
             else:
+                # print("===== Done! =====")
+                # embed(globals(), locals())
                 df = df[(~df.loc[:, hgs_dominant].isna()) & (~df.loc[:, hgs_nondominant].isna())]
 
         elif df.loc[:, session_column].isna().sum() == len(df):
