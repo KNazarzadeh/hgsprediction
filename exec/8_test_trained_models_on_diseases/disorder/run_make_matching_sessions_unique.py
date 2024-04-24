@@ -278,8 +278,8 @@ if not_same_values.empty:
     print("pre and post controls are for the same paitent id")
 print(df_control_matched)
 print(df_disorder)
-# print("===== Done! End =====")
-# embed(globals(), locals())
+print("===== Done! End =====")
+embed(globals(), locals())
 ##############################################################################
 df_check_matching_pre = pd.DataFrame(columns=["patinets_pre_episode", "controls_pre_episode", "differece_pre_episode"])
 # Adding a new index'
@@ -371,7 +371,7 @@ plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
 plt.tight_layout()
 
 plt.show()
-plt.savefig(f"matched_sample_distribution_{population}_{gender}.png")
+plt.savefig(f"matched_sample_distribution_{population}_{gender}_{target}.png")
 plt.close()
 
 # print("===== Done! End =====")
