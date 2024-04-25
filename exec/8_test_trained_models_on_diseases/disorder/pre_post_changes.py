@@ -28,7 +28,7 @@ n_samples = sys.argv[11]
 target = sys.argv[12]
 boxplot_target = sys.argv[13]
 ##############################################################################
-folder_path = os.path.join("plot_paired", f"{population}")
+folder_path = os.path.join("plot_paired", f"{population}", f"{target}", f"{n_samples}_matched")
 if(not os.path.isdir(folder_path)):
         os.makedirs(folder_path)
 

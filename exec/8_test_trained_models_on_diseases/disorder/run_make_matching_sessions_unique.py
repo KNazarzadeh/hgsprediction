@@ -278,8 +278,8 @@ if not_same_values.empty:
     print("pre and post controls are for the same paitent id")
 print(df_control_matched)
 print(df_disorder)
-print("===== Done! End =====")
-embed(globals(), locals())
+# print("===== Done! End =====")
+# embed(globals(), locals())
 ##############################################################################
 df_check_matching_pre = pd.DataFrame(columns=["patinets_pre_episode", "controls_pre_episode", "differece_pre_episode"])
 # Adding a new index'
@@ -331,6 +331,10 @@ df_check_matching_post.loc['WHR_mean'] = [WHR_mean_disorder, WHR_mean_control, W
 print(df_check_matching_pre)
 print(df_check_matching_post)
 ##############################################################################
+folder_path = os.path.join("plot_distribution_kde", f"{population}", f"{target}", f"{n_samples}_matched")
+if(not os.path.isdir(folder_path)):
+        os.makedirs(folder_path)
+        
 len_control_before_match = len(df_control_before_matched)
 before_match = pd.DataFrame()
 for l in range(len_control_before_match):
@@ -371,7 +375,9 @@ plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
 plt.tight_layout()
 
 plt.show()
-plt.savefig(f"matched_sample_distribution_{population}_{gender}_{target}.png")
+file_path = os.path.join(folder_path, f"matched_sample_distribution_{population}_{gender}.png")
+plt.savefig(file_path)
+plt.savefig(file_path)
 plt.close()
 
 # print("===== Done! End =====")
