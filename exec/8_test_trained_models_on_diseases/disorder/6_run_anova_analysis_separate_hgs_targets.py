@@ -4,11 +4,10 @@ import os
 import numpy as np
 import pandas as pd
 import scipy.stats as stats
-import statsmodels.api as sm
-from statsmodels.formula.api import ols
-import statsmodels.stats.multicomp as mc
+import seaborn as sns
+import matplotlib.pyplot as plt
+from statsmodels.regression.mixed_linear_model import MixedLM
 
-from hgsprediction.load_results.load_disorder_matched_samples_results import load_disorder_matched_samples_results
 from hgsprediction.load_results.load_prepared_data_for_anova import load_prepare_data_for_anova
 from scipy.stats import levene
 
@@ -101,10 +100,29 @@ stat8, p_value8 = levene(female_pre_patients, female_post_patients)
 print("Levene's test for female patients between pre and post condition:", p_value8)
 
 
+###############################################################################
+print("\n######100 samples from controls for each gender and each condition######")
+df_control_test = df[df['treatment']=='control']
+female_pre_controls_test = df_control_test[(df_control_test['gender']=='female') & (df_control_test["disorder_episode"]=="pre-control")].sample(n=100, random_state=47)
+male_pre_controls_test = df_control_test[(df_control_test['gender']=='male') & (df_control_test["disorder_episode"]=="pre-control")].sample(n=100, random_state=47)
+female_post_controls_test = df_control_test[(df_control_test['gender']=='female') & (df_control_test["disorder_episode"]=="post-control")].sample(n=100, random_state=47)
+male_post_controls_test = df_control_test[(df_control_test['gender']=='male') & (df_control_test["disorder_episode"]=="post-control")].sample(n=100, random_state=47)
+
+
+# Between male controls and female controls (pre-condition)
+stat1, p_value1 = levene(male_pre_controls_test[anova_target], female_pre_controls_test[anova_target])
+print("Levene's test between male and female controls (pre-condition):", p_value1)
+
+# Between male controls and female controls (post-condition)
+stat2, p_value2 = levene(male_post_controls_test[anova_target], female_post_controls_test[anova_target])
+print("Levene's test between male and female controls (post-condition):", p_value2)
+
+
+
+
+
 print("===== Done! End =====")
 embed(globals(), locals())
-
-###############################################################################
 
 
 
