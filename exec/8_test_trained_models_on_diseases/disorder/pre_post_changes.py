@@ -28,10 +28,16 @@ n_samples = sys.argv[11]
 target = sys.argv[12]
 boxplot_target = sys.argv[13]
 ##############################################################################
+folder_path = os.path.join("plot_paired", f"{population}")
+if(not os.path.isdir(folder_path)):
+        os.makedirs(folder_path)
+
+##############################################################################
 disorder_cohort = f"{disorder_cohort}-{population}"
 if visit_session == "1":
     session_column = f"1st_{disorder_cohort}_session"
-    
+
+##############################################################################
 df_disorder_matched_female, df_mathced_controls_female = load_disorder_matched_samples_results(
     population,
     mri_status,
@@ -63,11 +69,11 @@ df_disorder_matched_male, df_mathced_controls_male = load_disorder_matched_sampl
     n_folds,
     n_samples,
 )
-
+##############################################################################
 # Replace 0 with "Male" in the 'Gender' column
 df_disorder_matched_male['gender'] = df_disorder_matched_male['gender'].replace(0, 'Male')
 df_mathced_controls_male['gender'] = df_mathced_controls_male['gender'].replace(0, 'Male')
-
+##############################################################################
 if boxplot_target == "hgs":
     y_label = "Raw HGS"
     # Example data for pre-hgs and post-hgs for female and male
@@ -105,7 +111,8 @@ elif boxplot_target in ["delta", "corrected_delta"]:
     control_pre_male = df_mathced_controls_male[[f'1st_pre-{population}_{target}_{boxplot_target}(true-predicted)', 'gender']]
     control_post_female = df_mathced_controls_female[[f'1st_post-{population}_{target}_{boxplot_target}(true-predicted)', 'gender']]
     control_post_male = df_mathced_controls_male[[f'1st_post-{population}_{target}_{boxplot_target}(true-predicted)', 'gender']]
-
+# print("===== Done! End =====")
+# embed(globals(), locals())
 # Combine data into a DataFrame
 data_disorder_pre = pd.concat([disorder_pre_female, disorder_pre_male])
 data_disorder_post = pd.concat([disorder_post_female, disorder_post_male])
@@ -158,7 +165,7 @@ elif boxplot_target == "corrected_predicted":
 elif boxplot_target == "delta":
     y_label = "Delta HGS"
 elif boxplot_target == "corrected_delta":
-    y_label = "Adjusted delta HGS"
+    y_label = "Delta adjusted HGS"
 ###############################################################################
 custom_palette = {'Pre-condition':'lightgrey', 'Post-condition':'grey'}
 # Set the style of seaborn
@@ -223,7 +230,8 @@ for axis in ax:
     axis.set_ylabel(f'{y_label}', fontsize=16, fontweight='bold')
 
 plt.show()
-plt.savefig(f"box_plot_pair_plot_{population}_{boxplot_target}.png")
+file_path = os.path.join(folder_path, f"box_plot_pair_plot_{population}_{boxplot_target}.png")
+plt.savefig(file_path)
 plt.close()
 print("===== Done! End =====")
 embed(globals(), locals())

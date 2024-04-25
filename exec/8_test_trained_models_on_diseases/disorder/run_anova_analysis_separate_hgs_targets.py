@@ -10,6 +10,8 @@ import statsmodels.stats.multicomp as mc
 
 from hgsprediction.load_results.load_disorder_matched_samples_results import load_disorder_matched_samples_results
 from hgsprediction.load_results.load_prepared_data_for_anova import load_prepare_data_for_anova
+from scipy.stats import levene
+
 from ptpython.repl import embed
 # print("===== Done! =====")
 # embed(globals(), locals())
@@ -52,43 +54,76 @@ df["gender"].replace(1, "male", inplace=True)
 df_female = df[df["gender"]=="female"]
 df_male = df[df["gender"]=="male"]
 
-
 ##############################################################################
-data = df[["gender", "treatment", "disorder_episode", anova_target]]
-data.loc[data['disorder_episode'].str.contains('pre'), 'disorder_episode'] = 'pre'
-data.loc[data['disorder_episode'].str.contains('post'), 'disorder_episode'] = 'post'
 
-df_pre = data[data["disorder_episode"]=="pre"]
-df_post = data[data["disorder_episode"]=="post"]
+male_pre_controls = df[(df["gender"]=="male") & (df["disorder_episode"]=="pre-control")][anova_target]
+female_pre_controls = df[(df["gender"]=="female") & (df["disorder_episode"]=="pre-control")][anova_target]
+male_post_controls = df[(df["gender"]=="male") & (df["disorder_episode"]=="post-control")][anova_target]
+female_post_controls = df[(df["gender"]=="female") & (df["disorder_episode"]=="post-control")][anova_target]
 
-df_pre["pre_hgs"] = df_pre[anova_target]
-df_post["post_hgs"] = df_post[anova_target]
+male_pre_patients = df[(df["gender"]=="male") & (df["disorder_episode"]==f"pre-{population}")][anova_target]
+female_pre_patients = df[(df["gender"]=="female") & (df["disorder_episode"]==f"pre-{population}")][anova_target]
+male_post_patients = df[(df["gender"]=="male") & (df["disorder_episode"]==f"post-{population}")][anova_target]
+female_post_patients = df[(df["gender"]=="female") & (df["disorder_episode"]==f"post-{population}")][anova_target]
+# print("===== Done! End =====")
+# embed(globals(), locals())
+##############################################################################
+# Between male controls and female controls (pre-condition)
+stat1, p_value1 = levene(male_pre_controls, female_pre_controls)
+print("Levene's test between male and female controls (pre-condition):", p_value1)
 
-df_merge = df_pre.merge(df_post['post_hgs'], left_index=True, right_index=True, how='left')
+# Between male controls and female controls (post-condition)
+stat2, p_value2 = levene(male_post_controls, female_post_controls)
+print("Levene's test between male and female controls (post-condition):", p_value2)
 
-df_merge = df_merge.drop(columns="disorder_episode")
+# Between male patients and female patients (pre-condition)
+stat3, p_value3 = levene(male_pre_patients, female_pre_patients)
+print("Levene's test between male and female patients (pre-condition):", p_value3)
+
+# Between male patients and female patients (post-condition)
+stat4, p_value4 = levene(male_post_patients, female_post_patients)
+print("Levene's test between male and female patients (post-condition):", p_value4)
+
+# Between pre-condition and post-condition for male controls
+stat5, p_value5 = levene(male_pre_controls, male_post_controls)
+print("Levene's test for male controls between pre and post condition:", p_value5)
+
+# Between pre-condition and post-condition for female controls
+stat6, p_value6 = levene(female_pre_controls, female_post_controls)
+print("Levene's test for female controls between pre and post condition:", p_value6)
+
+# Between pre-condition and post-condition for male patients
+stat7, p_value7 = levene(male_pre_patients, male_post_patients)
+print("Levene's test for male patients between pre and post condition:", p_value7)
+
+# Between pre-condition and post-condition for female patients
+stat8, p_value8 = levene(female_pre_patients, female_post_patients)
+print("Levene's test for female patients between pre and post condition:", p_value8)
+
+
 print("===== Done! End =====")
 embed(globals(), locals())
-##############################################################################
 
-from scipy.stats import wilcoxon, mannwhitneyu
+# ##############################################################################
 
-# Wilcoxon Signed-Rank Test within each group
-patients = df_merge[df_merge['treatment'] == 'stroke']
-controls = df_merge[df_merge['treatment'] == 'control']
+# from scipy.stats import wilcoxon, mannwhitneyu
 
-stat, p = wilcoxon(patients['pre_hgs'], patients['post_hgs'])
-print("Patients - Wilcoxon Test: stat =", stat, "p-value =", p)
+# # Wilcoxon Signed-Rank Test within each group
+# patients = df_merge[df_merge['treatment'] == 'stroke']
+# controls = df_merge[df_merge['treatment'] == 'control']
 
-stat, p = wilcoxon(controls['pre_hgs'], controls['post_hgs'])
-print("Controls - Wilcoxon Test: stat =", stat, "p-value =", p)
+# stat, p = wilcoxon(patients['pre_hgs'], patients['post_hgs'])
+# print("Patients - Wilcoxon Test: stat =", stat, "p-value =", p)
 
-# Mann-Whitney U Test between groups at each time point
-stat, p = mannwhitneyu(patients['pre_hgs'], controls['pre_hgs'])
-print("Between Groups Before Diagnosis - Mann-Whitney U: stat =", stat, "p-value =", p)
+# stat, p = wilcoxon(controls['pre_hgs'], controls['post_hgs'])
+# print("Controls - Wilcoxon Test: stat =", stat, "p-value =", p)
 
-stat, p = mannwhitneyu(patients['post_hgs'], controls['post_hgs'])
-print("Between Groups After Diagnosis - Mann-Whitney U: stat =", stat, "p-value =", p)
+# # Mann-Whitney U Test between groups at each time point
+# stat, p = mannwhitneyu(patients['pre_hgs'], controls['pre_hgs'])
+# print("Between Groups Before Diagnosis - Mann-Whitney U: stat =", stat, "p-value =", p)
+
+# stat, p = mannwhitneyu(patients['post_hgs'], controls['post_hgs'])
+# print("Between Groups After Diagnosis - Mann-Whitney U: stat =", stat, "p-value =", p)
 
 print("===== Done! End =====")
 embed(globals(), locals())
