@@ -107,7 +107,6 @@ print("Levene's test for male patients between pre and post condition:", p_value
 stat8, p_value8 = levene(female_pre_patients, female_post_patients)
 print("Levene's test for female patients between pre and post condition:", p_value8)
 
-
 ###############################################################################
 print("\n######100 samples from controls for each gender and each condition######")
 df_control_test = df[df['treatment']=='control']
