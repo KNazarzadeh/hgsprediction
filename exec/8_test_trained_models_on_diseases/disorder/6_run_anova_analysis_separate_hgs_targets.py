@@ -56,9 +56,17 @@ df_male = df[df["gender"]=="male"]
 ##############################################################################
 
 male_pre_controls = df[(df["gender"]=="male") & (df["disorder_episode"]=="pre-control")][anova_target]
+print(male_pre_controls.var())
+
 female_pre_controls = df[(df["gender"]=="female") & (df["disorder_episode"]=="pre-control")][anova_target]
+print(female_pre_controls.var())
+
 male_post_controls = df[(df["gender"]=="male") & (df["disorder_episode"]=="post-control")][anova_target]
+print(male_post_controls.var())
+
 female_post_controls = df[(df["gender"]=="female") & (df["disorder_episode"]=="post-control")][anova_target]
+print(female_post_controls.var())
+
 
 male_pre_patients = df[(df["gender"]=="male") & (df["disorder_episode"]==f"pre-{population}")][anova_target]
 female_pre_patients = df[(df["gender"]=="female") & (df["disorder_episode"]==f"pre-{population}")][anova_target]
