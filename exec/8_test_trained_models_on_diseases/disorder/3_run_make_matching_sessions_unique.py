@@ -72,19 +72,7 @@ df_disorder.loc[:, "disorder"] = 1
 # Load z-score results for healthy individuals with MRI data
 # And asssign to control dataframe
 def load_control_session(session):
-    # df_control_session = load_zscore_results(
-    #     "healthy",
-    #     "mri",
-    #     model_name,
-    #     feature_type,
-    #     target,
-    #     gender,
-    #     session,
-    #     confound_status,
-    #     n_repeats,
-    #     n_folds,
-    # )
-    df_control_session = load_corrected_prediction_results(
+    df_control_session = load_zscore_results(
         "healthy",
         "mri",
         model_name,
@@ -96,6 +84,7 @@ def load_control_session(session):
         n_repeats,
         n_folds,
     )
+    
     df_control_session.loc[:, "disorder"] = 0
     df_control_session.loc[:, "session"] = float(session)
     return df_control_session
@@ -105,8 +94,7 @@ control_dataframes = []
 for session_number in range(4):
     df_control_session = load_control_session(session_number)
     control_dataframes.append(df_control_session)
-print("===== Done! =====")
-embed(globals(), locals())
+
 ###############################################################################
 disorder_pre_subgroup = f"pre-{population}"
 if visit_session == "1":
@@ -185,6 +173,7 @@ for pre_ses in range(pre_ses_min, pre_ses_max+1):
                     ('scaler', StandardScaler()),
                     ('logistic_classifier', LogisticRegression())
                 ])
+                
                 # Initialize logistic regression model
                 propensity_model = pipe.fit(df.loc[:, X], df.loc[:, y])
 
@@ -292,8 +281,8 @@ if not_same_values.empty:
     print("pre and post controls are for the same paitent id")
 print(df_control_matched)
 print(df_disorder)
-print("===== Done! End =====")
-embed(globals(), locals())
+# print("===== Done! End =====")
+# embed(globals(), locals())
 ##############################################################################
 df_check_matching_pre = pd.DataFrame(columns=["patinets_pre_episode", "controls_pre_episode", "differece_pre_episode"])
 # Adding a new index'
