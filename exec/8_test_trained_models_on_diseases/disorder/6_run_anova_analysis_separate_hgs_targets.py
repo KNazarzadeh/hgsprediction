@@ -3,13 +3,15 @@ import sys
 import os
 import numpy as np
 import pandas as pd
-import scipy.stats as stats
 import seaborn as sns
 import matplotlib.pyplot as plt
-from statsmodels.regression.mixed_linear_model import MixedLM
+
+import statsmodels.formula.api as smf
+import statsmodels.api as sm
+from statsmodels.stats.anova import AnovaRM
 
 from hgsprediction.load_results.load_prepared_data_for_anova import load_prepare_data_for_anova
-from scipy.stats import levene
+from scipy.stats import levene, shapiro
 
 from ptpython.repl import embed
 # print("===== Done! =====")
@@ -56,16 +58,16 @@ df_male = df[df["gender"]=="male"]
 ##############################################################################
 
 male_pre_controls = df[(df["gender"]=="male") & (df["disorder_episode"]=="pre-control")][anova_target]
-print(male_pre_controls.var())
+# print(male_pre_controls.var())
 
 female_pre_controls = df[(df["gender"]=="female") & (df["disorder_episode"]=="pre-control")][anova_target]
-print(female_pre_controls.var())
+# print(female_pre_controls.var())
 
 male_post_controls = df[(df["gender"]=="male") & (df["disorder_episode"]=="post-control")][anova_target]
-print(male_post_controls.var())
+# print(male_post_controls.var())
 
 female_post_controls = df[(df["gender"]=="female") & (df["disorder_episode"]=="post-control")][anova_target]
-print(female_post_controls.var())
+# print(female_post_controls.var())
 
 
 male_pre_patients = df[(df["gender"]=="male") & (df["disorder_episode"]==f"pre-{population}")][anova_target]
@@ -108,10 +110,63 @@ stat8, p_value8 = levene(female_post_controls, female_post_patients)
 print("Levene's test between female controls and female patients post condition:", p_value8)
 
 ###############################################################################
+# Check Normality:
+
+# Perform Shapiro-Wilk tests and print results
+stat1, p_value1 = shapiro(male_pre_controls)
+print("Shapiro-Wilk test for male pre-HGS controls:", p_value1)
+
+stat2, p_value2 = shapiro(male_post_controls)
+print("Shapiro-Wilk test for male post-HGS controls:", p_value2)
+
+# I notice there seems to be a mistake with your repeated request, adjusting to check pre-HGS control against pre-HGS patient as well
+stat3, p_value3 = shapiro(female_pre_controls)
+print("Shapiro-Wilk test for female pre-HGS controls:", p_value3)
+
+stat4, p_value4 = shapiro(female_post_controls)
+print("Shapiro-Wilk test for female post-HGS controls:", p_value4)
+
+# Perform Shapiro-Wilk tests and print results
+stat1, p_value1 = shapiro(male_pre_patients)
+print("Shapiro-Wilk test for male pre-HGS patients:", p_value1)
+
+stat2, p_value2 = shapiro(male_post_patients)
+print("Shapiro-Wilk test for male post-HGS patients:", p_value2)
+
+# I notice there seems to be a mistake with your repeated request, adjusting to check pre-HGS control against pre-HGS patient as well
+stat3, p_value3 = shapiro(female_pre_patients)
+print("Shapiro-Wilk test for female pre-HGS patients:", p_value3)
+
+stat4, p_value4 = shapiro(female_post_patients)
+print("Shapiro-Wilk test for female post-HGS patients:", p_value4)
 
 
 
 ###############################################################################
+# Mixedlm for female and male separately:
+
+df.loc[df['disorder_episode'].str.contains('pre'), 'disorder_episode'] = 'pre'
+df.loc[df['disorder_episode'].str.contains('post'), 'disorder_episode'] = 'post'
+df_female = df[df["gender"]=="female"]
+df_male = df[df["gender"]=="male"]
+
+# conduct ANOVA using mixedlm for males
+df_male_tmp = df_male[["treatment", "disorder_episode", anova_target]]
+df_female_tmp = df_male[["treatment", "disorder_episode", anova_target]]
+my_model_fit_male = smf.mixedlm("hgs ~ treatment * disorder_episode", df_male_tmp, groups=df_male_tmp.index).fit()
+# get fixed effects
+print("Male Mixedlm:")
+print(my_model_fit_male.summary())
+
+# conduct ANOVA using mixedlm for females
+df_male = df_male[["treatment", "disorder_episode", "hgs"]]
+my_model_fit_female = smf.mixedlm("hgs ~ treatment * disorder_episode", df_female_tmp, groups=df_female_tmp.index).fit()
+# get fixed effects
+print("Female Mixedlm:")
+print(my_model_fit_female.summary())
+
+###############################################################################
+
 
 print("===== Done! End =====")
 embed(globals(), locals())
