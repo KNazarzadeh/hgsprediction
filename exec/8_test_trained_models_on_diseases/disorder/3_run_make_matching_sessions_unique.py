@@ -380,7 +380,6 @@ plt.tight_layout()
 plt.show()
 file_path = os.path.join(folder_path, f"matched_sample_distribution_{population}_{gender}.png")
 plt.savefig(file_path)
-plt.savefig(file_path)
 plt.close()
 
 # print("===== Done! End =====")

@@ -92,68 +92,26 @@ stat4, p_value4 = levene(male_post_patients, female_post_patients)
 print("Levene's test between male and female patients (post-condition):", p_value4)
 
 # Between pre-condition and post-condition for male controls
-stat5, p_value5 = levene(male_pre_controls, male_post_controls)
-print("Levene's test for male controls between pre and post condition:", p_value5)
+stat5, p_value5 = levene(male_pre_controls, male_pre_patients)
+print("Levene's test between male controls and male patients pre condition:", p_value5)
 
 # Between pre-condition and post-condition for female controls
-stat6, p_value6 = levene(female_pre_controls, female_post_controls)
-print("Levene's test for female controls between pre and post condition:", p_value6)
+stat6, p_value6 = levene(female_pre_controls, female_pre_patients)
+print("Levene's test between female controls and female patients pre condition:", p_value6)
 
 # Between pre-condition and post-condition for male patients
-stat7, p_value7 = levene(male_pre_patients, male_post_patients)
-print("Levene's test for male patients between pre and post condition:", p_value7)
+stat7, p_value7 = levene(male_post_controls, male_post_patients)
+print("Levene's test between male controls and male patients post condition:", p_value7)
 
 # Between pre-condition and post-condition for female patients
-stat8, p_value8 = levene(female_pre_patients, female_post_patients)
-print("Levene's test for female patients between pre and post condition:", p_value8)
+stat8, p_value8 = levene(female_post_controls, female_post_patients)
+print("Levene's test between female controls and female patients post condition:", p_value8)
 
 ###############################################################################
-print("\n######100 samples from controls for each gender and each condition######")
-df_control_test = df[df['treatment']=='control']
-female_pre_controls_test = df_control_test[(df_control_test['gender']=='female') & (df_control_test["disorder_episode"]=="pre-control")].sample(n=100, random_state=47)
-male_pre_controls_test = df_control_test[(df_control_test['gender']=='male') & (df_control_test["disorder_episode"]=="pre-control")].sample(n=100, random_state=47)
-female_post_controls_test = df_control_test[(df_control_test['gender']=='female') & (df_control_test["disorder_episode"]=="post-control")].sample(n=100, random_state=47)
-male_post_controls_test = df_control_test[(df_control_test['gender']=='male') & (df_control_test["disorder_episode"]=="post-control")].sample(n=100, random_state=47)
-
-
-# Between male controls and female controls (pre-condition)
-stat1, p_value1 = levene(male_pre_controls_test[anova_target], female_pre_controls_test[anova_target])
-print("Levene's test between male and female controls (pre-condition):", p_value1)
-
-# Between male controls and female controls (post-condition)
-stat2, p_value2 = levene(male_post_controls_test[anova_target], female_post_controls_test[anova_target])
-print("Levene's test between male and female controls (post-condition):", p_value2)
-
-
-
-
-
-print("===== Done! End =====")
-embed(globals(), locals())
-
 
 
 
 ###############################################################################
-
-# from scipy.stats import wilcoxon, mannwhitneyu
-
-# # Wilcoxon Signed-Rank Test within each group
-# patients = df_merge[df_merge['treatment'] == 'stroke']
-# controls = df_merge[df_merge['treatment'] == 'control']
-
-# stat, p = wilcoxon(patients['pre_hgs'], patients['post_hgs'])
-# print("Patients - Wilcoxon Test: stat =", stat, "p-value =", p)
-
-# stat, p = wilcoxon(controls['pre_hgs'], controls['post_hgs'])
-# print("Controls - Wilcoxon Test: stat =", stat, "p-value =", p)
-
-# # Mann-Whitney U Test between groups at each time point
-# stat, p = mannwhitneyu(patients['pre_hgs'], controls['pre_hgs'])
-# print("Between Groups Before Diagnosis - Mann-Whitney U: stat =", stat, "p-value =", p)
-
-# stat, p = mannwhitneyu(patients['post_hgs'], controls['post_hgs'])
-# print("Between Groups After Diagnosis - Mann-Whitney U: stat =", stat, "p-value =", p)
 
 print("===== Done! End =====")
 embed(globals(), locals())
