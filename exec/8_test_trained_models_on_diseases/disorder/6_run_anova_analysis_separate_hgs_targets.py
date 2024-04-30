@@ -59,23 +59,23 @@ df_male = df[df["gender"]=="male"]
 
 ##############################################################################
 
-male_pre_controls = df[(df["gender"]=="male") & (df["disorder_episode"]=="pre-control")][anova_target]
+male_pre_controls = df[(df["gender"]=="male") & (df["condition"]=="pre-control")][anova_target]
 # print(male_pre_controls.var())
 
-female_pre_controls = df[(df["gender"]=="female") & (df["disorder_episode"]=="pre-control")][anova_target]
+female_pre_controls = df[(df["gender"]=="female") & (df["condition"]=="pre-control")][anova_target]
 # print(female_pre_controls.var())
 
-male_post_controls = df[(df["gender"]=="male") & (df["disorder_episode"]=="post-control")][anova_target]
+male_post_controls = df[(df["gender"]=="male") & (df["condition"]=="post-control")][anova_target]
 # print(male_post_controls.var())
 
-female_post_controls = df[(df["gender"]=="female") & (df["disorder_episode"]=="post-control")][anova_target]
+female_post_controls = df[(df["gender"]=="female") & (df["condition"]=="post-control")][anova_target]
 # print(female_post_controls.var())
 
 
-male_pre_patients = df[(df["gender"]=="male") & (df["disorder_episode"]==f"pre-{population}")][anova_target]
-female_pre_patients = df[(df["gender"]=="female") & (df["disorder_episode"]==f"pre-{population}")][anova_target]
-male_post_patients = df[(df["gender"]=="male") & (df["disorder_episode"]==f"post-{population}")][anova_target]
-female_post_patients = df[(df["gender"]=="female") & (df["disorder_episode"]==f"post-{population}")][anova_target]
+male_pre_patients = df[(df["gender"]=="male") & (df["condition"]==f"pre-{population}")][anova_target]
+female_pre_patients = df[(df["gender"]=="female") & (df["condition"]==f"pre-{population}")][anova_target]
+male_post_patients = df[(df["gender"]=="male") & (df["condition"]==f"post-{population}")][anova_target]
+female_post_patients = df[(df["gender"]=="female") & (df["condition"]==f"post-{population}")][anova_target]
 # print("===== Done! End =====")
 # embed(globals(), locals())
 ##############################################################################
@@ -143,18 +143,18 @@ stat4, p_value4 = shapiro(female_post_patients)
 print("Shapiro-Wilk test for female post-HGS patients:", p_value4)
 ###############################################################################
 # Pingouin mixed_anova for female and male separately:
-data = df[["gender", "treatment", "disorder_episode", anova_target]]
+data = df[["gender", "treatment", "condition", anova_target]]
 # Replace values based on conditions
-data.loc[data['disorder_episode'].str.contains('pre-'), 'disorder_episode'] = 'pre'
-data.loc[data['disorder_episode'].str.contains('post-'), 'disorder_episode'] = 'post'
+data.loc[data['condition'].str.contains('pre-'), 'condition'] = 'pre'
+data.loc[data['condition'].str.contains('post-'), 'condition'] = 'post'
 data["Subject"] = data.index
 
 df_female_tmp = data[data["gender"]=="female"]
 df_male_tmp = data[data["gender"]=="male"]
 
 ###############################################################################
-aov_female = mixed_anova(dv=anova_target, between='treatment', within='disorder_episode', subject='Subject', data=df_female_tmp)
-aov_male = mixed_anova(dv=anova_target, between='treatment', within='disorder_episode', subject='Subject', data=df_male_tmp)
+aov_female = mixed_anova(dv=anova_target, between='treatment', within='condition', subject='Subject', data=df_female_tmp)
+aov_male = mixed_anova(dv=anova_target, between='treatment', within='condition', subject='Subject', data=df_male_tmp)
 
 print("Female Pinguin ANOVA Result:")
 print(aov_female)
@@ -207,7 +207,7 @@ save_anova_results(
 
 ###############################################################################
 # Linear Mixed Models mixedlm for female and male separately:
-mixedlm_formula = f"{anova_target} ~ treatment * disorder_episode"
+mixedlm_formula = f"{anova_target} ~ treatment * condition"
 mixedlm_model_fit_female = smf.mixedlm(formula=mixedlm_formula, data=df_female_tmp, groups="Subject").fit()
 mixedlm_model_fit_male = smf.mixedlm(formula=mixedlm_formula, data=df_male_tmp, groups="Subject").fit()
 
@@ -253,7 +253,7 @@ save_anova_results(
 )
 ###############################################################################
 # Linear Mixed Models mixedlm for female and male separately:
-mixedlm_formula = f"{anova_target} ~ treatment * gender * disorder_episode"
+mixedlm_formula = f"{anova_target} ~ treatment * gender * condition"
 mixedlm_model_fit = smf.mixedlm(formula=mixedlm_formula, data=data, groups="Subject").fit()
 
 # get fixed effects

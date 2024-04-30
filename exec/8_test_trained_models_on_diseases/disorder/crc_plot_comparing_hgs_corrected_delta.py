@@ -10,6 +10,7 @@ from scipy import stats
 
 
 from hgsprediction.load_results.load_disorder_anova_results import load_disorder_anova_results
+from hgsprediction.load_results.load_prepared_data_for_anova import load_prepare_data_for_anova
 
 from ptpython.repl import embed
 # print("===== Done! =====")
@@ -36,7 +37,8 @@ if visit_session == "1":
     session_column = f"1st_{disorder_cohort}_session"
     
 ##############################################################################
-df, df_anova_result, df_post_hoc_result_without_gender, df_post_hoc_result_with_gender =  load_disorder_anova_results(
+# Load data for ANOVA
+df = load_prepare_data_for_anova(
     population,
     mri_status,
     session_column,
@@ -47,23 +49,27 @@ df, df_anova_result, df_post_hoc_result_without_gender, df_post_hoc_result_with_
     n_repeats,
     n_folds,
     n_samples,
-    anova_target,
 )
-# print("===== Done! =====")
-# embed(globals(), locals())
 
-df.loc[df["disorder_episode"].str.contains("pre"), "episode"] = "Pre-episode"
-df.loc[df["disorder_episode"].str.contains("post"), "episode"] = "Post-episode"
+df["gender"].replace(0, "female", inplace=True)
+df["gender"].replace(1, "male", inplace=True)
 
+df_female = df[df["gender"]=="female"]
+df_male = df[df["gender"]=="male"]
+
+df = df[["gender", "treatment", "condition", anova_target]]
+
+df.loc[df["condition"].str.contains("pre-"), "condition"] = "Pre-condition"
+df.loc[df["condition"].str.contains("post-"), "condition"] = "Post-condition"
 
 df_disorder = df[df["treatment"] == f"{population}"]
 df_control = df[df["treatment"] == "control"]
 
-df_pre_disorder = df_disorder[df_disorder['disorder_episode']==f"pre-{population}"]
-df_post_disorder = df_disorder[df_disorder['disorder_episode']==f"post-{population}"]
+df_pre_disorder = df_disorder[df_disorder['condition']==f"pre-{population}"]
+df_post_disorder = df_disorder[df_disorder['condition']==f"post-{population}"]
 
-df_pre_control = df_control[df_control['disorder_episode']=="pre-control"]
-df_post_control= df_control[df_control['disorder_episode']=="post-control"]
+df_pre_control = df_control[df_control['condition']=="pre-control"]
+df_post_control= df_control[df_control['condition']=="post-control"]
 
 # Assuming df_post_control and df_pre_control are defined elsewhere
 df_interaction_control = pd.DataFrame()
@@ -90,8 +96,8 @@ print("df_pre_disorder MIN=", df_pre_disorder["hgs_corrected_delta"].min())
 print("df_pre_disorder MAX=", df_pre_disorder["hgs_corrected_delta"].max())
 print("df_post_disorder MIN=", df_post_disorder["hgs_corrected_delta"].min())
 print("df_post_disorder MAX=", df_post_disorder["hgs_corrected_delta"].max())
-# print("===== Done! =====")
-# embed(globals(), locals())
+print("===== Done! =====")
+embed(globals(), locals())
 ###############################################################################
 df_ranksum = pd.DataFrame(index=["pre-episode", "post-episode", "interaction"])
 df_yaxis_max = pd.DataFrame(index=["pre-episode", "post-episode", "interaction"])

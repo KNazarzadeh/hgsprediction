@@ -37,7 +37,7 @@ visit_session = sys.argv[9]
 n_samples = sys.argv[10]
 target = sys.argv[11]
 ##############################################################################
-main_extracted_columns = ["gender", "handedness", "hgs_dominant", "hgs_dominant_side", "hgs_nondominant", "hgs_nondominant_side", "age", "bmi", "height", "waist_to_hip_ratio", "treatment", "disorder_episode", "hgs_target", "hgs", "hgs_predicted", "hgs_delta", "hgs_corrected_predicted", "hgs_corrected_delta"]
+main_extracted_columns = ["gender", "handedness", "hgs_dominant", "hgs_dominant_side", "hgs_nondominant", "hgs_nondominant_side", "age", "bmi", "height", "waist_to_hip_ratio", "treatment", "condition", "hgs_target", "hgs", "hgs_predicted", "hgs_delta", "hgs_corrected_predicted", "hgs_corrected_delta"]
 
 df_disorder = pd.DataFrame()
 df_control = pd.DataFrame()
@@ -92,10 +92,10 @@ df_control_tmp.columns = [col.replace(f"{target}", "hgs") if f"{target}" in col 
 
 # Replace values in the column
 prefix_pre = f"1st_pre-{population}"
-df_control_tmp.loc[:, f"{prefix_pre}_disorder_episode"] = df_control_tmp.loc[:, f"{prefix_pre}_disorder_episode"].replace({f"pre-{population}": "pre-control"})
+df_control_tmp.loc[:, f"{prefix_pre}_condition"] = df_control_tmp.loc[:, f"{prefix_pre}_condition"].replace({f"pre-{population}": "pre-control"})
 
 prefix_post = f"1st_post-{population}"
-df_control_tmp.loc[:, f"{prefix_post}_disorder_episode"] = df_control_tmp.loc[:, f"{prefix_post}_disorder_episode"].replace({f"post-{population}": "post-control"})
+df_control_tmp.loc[:, f"{prefix_post}_condition"] = df_control_tmp.loc[:, f"{prefix_post}_condition"].replace({f"post-{population}": "post-control"})
 
 
 df_control_tmp.rename(columns=lambda x: x.replace("delta(true-predicted)", "delta") if "delta(true-predicted)" in x else x, inplace=True)
@@ -116,7 +116,7 @@ for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
     if disorder_subgroup == f"pre-{population}":
         df_control_extracted_pre = df_control_tmp[[col for col in df_control_tmp.columns if f"post-{population}" not in col]]        
         df_disorder_extracted_pre = df_disorder_tmp[[col for col in df_disorder_tmp.columns if f"post-{population}" not in col]]
-        df_disorder_extracted_pre.loc[:, "disorder_episode"] = disorder_subgroup
+        df_disorder_extracted_pre.loc[:, "condition"] = disorder_subgroup
         rename_columns = [col for col in df_disorder_extracted_pre.columns if prefix in col]
         # Remove the prefix from selected column names
         for col in rename_columns:
@@ -134,7 +134,7 @@ for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
     elif disorder_subgroup == f"post-{population}":
         df_control_extracted_post = df_control_tmp[[col for col in df_control_tmp.columns if f"pre-{population}" not in col]]
         df_disorder_extracted_post = df_disorder_tmp[[col for col in df_disorder_tmp.columns if f"pre-{population}" not in col]]
-        df_disorder_extracted_post.loc[:, "disorder_episode"] = disorder_subgroup
+        df_disorder_extracted_post.loc[:, "condition"] = disorder_subgroup
         rename_columns = [col for col in df_disorder_extracted_post.columns if prefix in col]
         # Remove the prefix from selected column names
         for col in rename_columns:
@@ -171,8 +171,8 @@ df_control = pd.concat([df_control, df_control_tmp2], axis=0)
 # Perform the ANOVA
 df = pd.concat([df_control, df_disorder], axis=0)
 df.index.name = "SubjectID"
-print("===== Done! End =====")
-embed(globals(), locals())
+# print("===== Done! End =====")
+# embed(globals(), locals())
 print(df)
 save_prepare_data_for_anova(
         df,
