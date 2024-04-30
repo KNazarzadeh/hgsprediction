@@ -149,3 +149,5 @@ from .load_results.load_brain_correlation_results import load_brain_correlation_
 from .save_results.save_prepared_data_for_anova import save_prepare_data_for_anova
 
 from .load_results.load_prepared_data_for_anova import load_prepare_data_for_anova
+
+from .save_results.save_anova_results import save_anova_results

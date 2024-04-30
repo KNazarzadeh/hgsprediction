@@ -11,7 +11,9 @@ import statsmodels.api as sm
 from statsmodels.stats.anova import AnovaRM
 
 from hgsprediction.load_results.load_prepared_data_for_anova import load_prepare_data_for_anova
+from hgsprediction.save_results.save_anova_results import save_anova_results
 from scipy.stats import levene, shapiro
+from pingouin import mixed_anova
 
 from ptpython.repl import embed
 # print("===== Done! =====")
@@ -139,34 +141,142 @@ print("Shapiro-Wilk test for female pre-HGS patients:", p_value3)
 
 stat4, p_value4 = shapiro(female_post_patients)
 print("Shapiro-Wilk test for female post-HGS patients:", p_value4)
+###############################################################################
+# Pingouin mixed_anova for female and male separately:
+data = df[["gender", "treatment", "disorder_episode", anova_target]]
+# Replace values based on conditions
+data.loc[data['disorder_episode'].str.contains('pre-'), 'disorder_episode'] = 'pre'
+data.loc[data['disorder_episode'].str.contains('post-'), 'disorder_episode'] = 'post'
+data["Subject"] = data.index
 
-
+df_female_tmp = data[data["gender"]=="female"]
+df_male_tmp = data[data["gender"]=="male"]
 
 ###############################################################################
-# Mixedlm for female and male separately:
+aov_female = mixed_anova(dv=anova_target, between='treatment', within='disorder_episode', subject='Subject', data=df_female_tmp)
+aov_male = mixed_anova(dv=anova_target, between='treatment', within='disorder_episode', subject='Subject', data=df_male_tmp)
 
-df.loc[df['disorder_episode'].str.contains('pre'), 'disorder_episode'] = 'pre'
-df.loc[df['disorder_episode'].str.contains('post'), 'disorder_episode'] = 'post'
-df_female = df[df["gender"]=="female"]
-df_male = df[df["gender"]=="male"]
+print("Female Pinguin ANOVA Result:")
+print(aov_female)
+save_anova_results(
+    data,
+    aov_female,
+    population,
+    mri_status,
+    session_column,
+    model_name,
+    feature_type,
+    target,
+    confound_status,
+    n_repeats,
+    n_folds,
+    n_samples,
+    anova_target,
+    "female",
+    "pingouin",
+)
+print("Male Pinguin ANOVA Result:")
+print(aov_male)
+save_anova_results(
+    data,
+    aov_male,
+    population,
+    mri_status,
+    session_column,
+    model_name,
+    feature_type,
+    target,
+    confound_status,
+    n_repeats,
+    n_folds,
+    n_samples,
+    anova_target,
+    "male",
+    "pingouin",
+)
+################################## Interpret ##################################
+# General Conclusions:
 
-# conduct ANOVA using mixedlm for males
-df_male_tmp = df_male[["treatment", "disorder_episode", anova_target]]
-df_female_tmp = df_male[["treatment", "disorder_episode", anova_target]]
-my_model_fit_male = smf.mixedlm("hgs ~ treatment * disorder_episode", df_male_tmp, groups=df_male_tmp.index).fit()
-# get fixed effects
-print("Male Mixedlm:")
-print(my_model_fit_male.summary())
+# Disorder Episode is a significant factor affecting outcomes differently in both genders, particularly more impactful in males.
+# Treatment itself does not significantly affect the outcome for either gender.
+# Interaction between treatment and disorder episode is not significant in either gender, 
+# indicating the effect of treatment is consistent across different levels of the disorder episode.
 
-# conduct ANOVA using mixedlm for females
-df_male = df_male[["treatment", "disorder_episode", "hgs"]]
-my_model_fit_female = smf.mixedlm("hgs ~ treatment * disorder_episode", df_female_tmp, groups=df_female_tmp.index).fit()
-# get fixed effects
-print("Female Mixedlm:")
-print(my_model_fit_female.summary())
+# This analysis indicates that interventions might need to be more focused on the disorder episode itself rather than the type of treatment, and 
+# this might require different strategies for male and female groups considering the stronger effect in males.
 
 ###############################################################################
+# Linear Mixed Models mixedlm for female and male separately:
+mixedlm_formula = f"{anova_target} ~ treatment * disorder_episode"
+mixedlm_model_fit_female = smf.mixedlm(formula=mixedlm_formula, data=df_female_tmp, groups="Subject").fit()
+mixedlm_model_fit_male = smf.mixedlm(formula=mixedlm_formula, data=df_male_tmp, groups="Subject").fit()
 
 
+# get fixed effects
+print("Female MixedLM ANOVA Result:")
+print(mixedlm_model_fit_female.summary())
+save_anova_results(
+    data,
+    mixedlm_model_fit_female,
+    population,
+    mri_status,
+    session_column,
+    model_name,
+    feature_type,
+    target,
+    confound_status,
+    n_repeats,
+    n_folds,
+    n_samples,
+    anova_target,
+    "female",
+    "mixedlm_gender_separated",
+)
+print("Male MixedLM ANOVA Result:")
+print(mixedlm_model_fit_male.summary())
+save_anova_results(
+    data,
+    mixedlm_model_fit_male,
+    population,
+    mri_status,
+    session_column,
+    model_name,
+    feature_type,
+    target,
+    confound_status,
+    n_repeats,
+    n_folds,
+    n_samples,
+    anova_target,
+    "male",
+    "mixedlm_gender_separated",
+)
+###############################################################################
+# Linear Mixed Models mixedlm for female and male separately:
+mixedlm_formula = f"{anova_target} ~ treatment * gender * disorder_episode"
+mixedlm_model_fit = smf.mixedlm(formula=mixedlm_formula, data=data, groups="Subject").fit()
+
+# get fixed effects
+print("MixedLM ANOVA Result:")
+print(mixedlm_model_fit.summary())
+
+save_anova_results(
+    data,
+    mixedlm_model_fit,
+    population,
+    mri_status,
+    session_column,
+    model_name,
+    feature_type,
+    target,
+    confound_status,
+    n_repeats,
+    n_folds,
+    n_samples,
+    anova_target,
+    "non",
+    "mixedlm_both_gender",
+)
+###############################################################################
 print("===== Done! End =====")
 embed(globals(), locals())
