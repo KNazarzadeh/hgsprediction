@@ -1,4 +1,5 @@
 import sys
+import os
 import numpy as np
 import pandas as pd
 import math
@@ -34,7 +35,11 @@ anova_target = sys.argv[13]
 disorder_cohort = f"{disorder_cohort}-{population}"
 if visit_session == "1":
     session_column = f"1st_{disorder_cohort}_session"
-    
+##############################################################################
+folder_path = os.path.join("plot_hgs_comparison_pre_post_conditions", f"{population}", f"{target}", f"{n_samples}_matched")
+if(not os.path.isdir(folder_path)):
+        os.makedirs(folder_path)
+
 ##############################################################################
 # Load data for ANOVA
 df = load_prepare_data_for_anova(
@@ -79,8 +84,8 @@ df_interaction_disorder["condition"] = "Interaction"
 
 # Concatenating the two DataFrames
 df_interaction = pd.concat([df_interaction_control, df_interaction_disorder], axis=0)
-print("===== Done! =====")
-embed(globals(), locals())
+# print("===== Done! =====")
+# embed(globals(), locals())
 ###############################################################################
 df_ranksum = pd.DataFrame(index=["pre-condition", "post-condition", "interaction"])
 df_yaxis_max = pd.DataFrame(index=["pre-condition", "post-condition", "interaction"])
@@ -167,7 +172,8 @@ plt.tight_layout()
 
 # Show the plot
 plt.show()
-plt.savefig(f"CRC_{population}_{anova_target}.png")
+file_path = os.path.join(folder_path, f"{population}_{anova_target}.png")
+plt.savefig(file_path)
 plt.close()
 
 
