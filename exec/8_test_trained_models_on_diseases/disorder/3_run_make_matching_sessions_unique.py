@@ -67,7 +67,8 @@ df_disorder = load_disorder_corrected_prediction_results(
 
 df_disorder.index.name = "subjectID"
 df_disorder.loc[:, "disorder"] = 1
-
+print("===== Done! =====")
+embed(globals(), locals())
 ###############################################################################
 # Load z-score results for healthy individuals with MRI data
 # And asssign to control dataframe
