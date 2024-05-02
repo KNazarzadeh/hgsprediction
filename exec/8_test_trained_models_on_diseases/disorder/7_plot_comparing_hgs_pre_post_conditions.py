@@ -104,8 +104,8 @@ max_value_interaction = max(df_interaction_control[f"interaction_{anova_target}"
 df_yaxis_max.loc["pre-condition", f"{anova_target}_max_value"] = max_value_pre
 df_yaxis_max.loc["post-condition", f"{anova_target}_max_value"] = max_value_post
 df_yaxis_max.loc["interaction", f"{anova_target}_max_value"] = max_value_interaction
-# print("===== Done! =====")
-# embed(globals(), locals())
+print("===== Done! =====")
+embed(globals(), locals())
 ###############################################################################
 def add_median_labels(ax, fmt='.3f'):
     xticks_positios_array = []
@@ -160,7 +160,7 @@ elif anova_target == "hgs_predicted":
 elif anova_target == "hgs_corrected_delta":
     ax.set_ylabel("Delta adjusted HGS", fontsize=30, fontweight="bold")
 elif anova_target == "hgs_delta":
-    ax.set_ylabel("Delta(true-predicted) HGS", fontsize=30, fontweight="bold")
+    ax.set_ylabel("Delta HGS", fontsize=30, fontweight="bold")
     
 xticks_positios_array = add_median_labels(ax)
 
