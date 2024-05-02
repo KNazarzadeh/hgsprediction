@@ -67,8 +67,8 @@ df_disorder = load_disorder_corrected_prediction_results(
 
 df_disorder.index.name = "subjectID"
 df_disorder.loc[:, "disorder"] = 1
-print("===== Done! =====")
-embed(globals(), locals())
+# print("===== Done! =====")
+# embed(globals(), locals())
 ###############################################################################
 # Load z-score results for healthy individuals with MRI data
 # And asssign to control dataframe
@@ -357,11 +357,13 @@ sns.kdeplot(data=df_disorder, x=f"1st_pre-{population}_propensity_scores", fill=
 sns.kdeplot(data=df_control_matched, x=f"1st_pre-{population}_propensity_scores", fill=True, color="grey", ax=ax[1], label='Control')
 sns.kdeplot(data=df_disorder, x=f"1st_pre-{population}_propensity_scores", fill=True, color=disorder_color, ax=ax[1], label=f'{population.capitalize()}\n{gender.capitalize()}(N={len(df_disorder)})')
 # Match x and y axis limits
-xlims = ax[0].get_xlim()
-ylims = ax[0].get_ylim()
+xlims_0 = ax[0].get_xlim()
+ylims_0 = ax[0].get_ylim()
+xlims_1 = ax[1].get_xlim()
+ylims_1 = ax[1].get_ylim()
 
-ax[1].set_xlim(xlims)
-ax[1].set_ylim(ylims)
+ax[1].set_xlim(xlims_0)
+ax[1].set_ylim(max(ylims_0, ylims_1))
 
 ax[0].set_title('Before matching', fontsize="14")
 ax[1].set_title('After matching', fontsize="14")
@@ -369,6 +371,9 @@ ax[0].set_xlabel("Propensity scores", fontsize="12")
 ax[1].set_xlabel("Propensity scores", fontsize="12")
 ax[0].set_ylabel("Density", fontsize="12")
 ax[1].set_ylabel("")
+
+ax[0].set_xticks(np.arange(min(xlims_0), max(xlims_0), (max(xlims_0)-min(xlims_0))/4))
+ax[1].set_xticks(np.arange(min(xlims_0), max(xlims_0), (max(xlims_0)-min(xlims_0))/4))
 
 # Add main title
 fig.suptitle(f"{population.capitalize()}-{gender.capitalize()}\nComparison of Propensity Scores Before and After Matching(Pre-condition)", fontsize=12, weight="bold")
@@ -383,8 +388,8 @@ file_path = os.path.join(folder_path, f"matched_sample_distribution_{population}
 plt.savefig(file_path)
 plt.close()
 
-# print("===== Done! End =====")
-# embed(globals(), locals())
+print("===== Done! End =====")
+embed(globals(), locals())
 save_disorder_matched_samples_results(
     df_control_matched,
     df_disorder,
