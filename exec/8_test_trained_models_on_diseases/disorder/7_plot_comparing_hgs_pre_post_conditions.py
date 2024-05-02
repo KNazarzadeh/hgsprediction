@@ -3,7 +3,7 @@ import os
 import numpy as np
 import pandas as pd
 import math
-from scipy.stats import ranksums
+from scipy.stats import mannwhitneyu
 import matplotlib.pyplot as plt
 import seaborn as sns
 import matplotlib.patheffects as path_effects
@@ -35,14 +35,10 @@ anova_target = sys.argv[13]
 disorder_cohort = f"{disorder_cohort}-{population}"
 if visit_session == "1":
     session_column = f"1st_{disorder_cohort}_session"
-##############################################################################
-folder_path = os.path.join("plot_hgs_comparison_pre_post_conditions", f"{population}", f"{target}", f"{n_samples}_matched")
-if(not os.path.isdir(folder_path)):
-        os.makedirs(folder_path)
 
 ##############################################################################
 # Load data for ANOVA
-df = load_prepare_data_for_anova(
+data = load_prepare_data_for_anova(
     population,
     mri_status,
     session_column,
@@ -57,7 +53,7 @@ df = load_prepare_data_for_anova(
 # print("===== Done! =====")
 # embed(globals(), locals())
 
-df = df[["gender", "treatment", "condition", anova_target]]
+df = data[["gender", "treatment", "condition", anova_target]]
 
 df_disorder = df[df["treatment"] == f"{population}"]
 df_control = df[df["treatment"] == "control"]
@@ -87,17 +83,18 @@ df_interaction = pd.concat([df_interaction_control, df_interaction_disorder], ax
 # print("===== Done! =====")
 # embed(globals(), locals())
 ###############################################################################
-df_ranksum = pd.DataFrame(index=["pre-condition", "post-condition", "interaction"])
+df_mannwhitneyu = pd.DataFrame(index=["pre-condition", "post-condition", "interaction"])
 df_yaxis_max = pd.DataFrame(index=["pre-condition", "post-condition", "interaction"])
 
-stat_pre, p_value_pre = ranksums(df_pre_control[f"{anova_target}"], df_pre_disorder[f"{anova_target}"])
-stat_post, p_value_post = ranksums(df_post_control[f"{anova_target}"], df_post_disorder[f"{anova_target}"])
+stat_pre, p_value_pre = mannwhitneyu(df_pre_control[f"{anova_target}"], df_pre_disorder[f"{anova_target}"], nan_policy='propagate')
+stat_post, p_value_post = mannwhitneyu(df_post_control[f"{anova_target}"], df_post_disorder[f"{anova_target}"], nan_policy='propagate')
 
-df_ranksum.loc["pre-condition", f"{anova_target}_p_value"] = p_value_pre
-df_ranksum.loc["post-condition", f"{anova_target}_p_value"] = p_value_post
+df_mannwhitneyu.loc["pre-condition", f"{anova_target}_p_value"] = p_value_pre
+df_mannwhitneyu.loc["post-condition", f"{anova_target}_p_value"] = p_value_post
 
-t_statistic, p_value_interaction = stats.ttest_ind(df_interaction_control[f"interaction_{anova_target}"], df_interaction_disorder[f"interaction_{anova_target}"])
+stat_interaction, p_value_interaction = stats.mannwhitneyu(df_interaction_control[f"interaction_{anova_target}"], df_interaction_disorder[f"interaction_{anova_target}"])
 
+df_mannwhitneyu.loc["interaction", f"{anova_target}_p_value"] = p_value_interaction
 
 max_value_pre = max(df_pre_control[f"{anova_target}"].max(), df_pre_disorder[f"{anova_target}"].max())
 max_value_post = max(df_post_control[f"{anova_target}"].max(), df_post_disorder[f"{anova_target}"].max())
@@ -107,7 +104,8 @@ max_value_interaction = max(df_interaction_control[f"interaction_{anova_target}"
 df_yaxis_max.loc["pre-condition", f"{anova_target}_max_value"] = max_value_pre
 df_yaxis_max.loc["post-condition", f"{anova_target}_max_value"] = max_value_post
 df_yaxis_max.loc["interaction", f"{anova_target}_max_value"] = max_value_interaction
-
+# print("===== Done! =====")
+# embed(globals(), locals())
 ###############################################################################
 def add_median_labels(ax, fmt='.3f'):
     xticks_positios_array = []
@@ -129,6 +127,14 @@ def add_median_labels(ax, fmt='.3f'):
     return xticks_positios_array
 
 ###############################################################################
+# Replace values based on conditions
+df.loc[data['condition'].str.contains('pre-'), 'condition'] = 'Pre-condition'
+df.loc[data['condition'].str.contains('post-'), 'condition'] = 'Post-condition'
+###############################################################################
+folder_path = os.path.join("plot_hgs_comparison_pre_post_conditions", f"{population}", f"{target}", f"{n_samples}_matched")
+if(not os.path.isdir(folder_path)):
+        os.makedirs(folder_path)
+###############################################################################        
 xtick_labels = ['Pre-condition', 'Post-condition']
 
 palette_control = sns.color_palette("Paired")
@@ -142,13 +148,20 @@ fig, ax = plt.subplots(figsize=(10, 10))
 sns.boxplot(data=df, x='condition', y=f"{anova_target}", hue='treatment', palette=custome_palette, linewidth=3)
 ax.legend().set_visible(False)
 ax.set_xlabel(" ", fontsize=30, fontweight="bold")
+
 # Setting the xtick labels
 ax.set_xticklabels(xtick_labels, size=25, weight='bold')
 if anova_target == "hgs":
     ax.set_ylabel("Raw HGS", fontsize=30, fontweight="bold")
 elif anova_target == "hgs_corrected_predicted":
     ax.set_ylabel("Adjusted HGS", fontsize=30, fontweight="bold")
-
+elif anova_target == "hgs_predicted":
+    ax.set_ylabel("Predicted HGS", fontsize=30, fontweight="bold")
+elif anova_target == "hgs_corrected_delta":
+    ax.set_ylabel("Delta adjusted HGS", fontsize=30, fontweight="bold")
+elif anova_target == "hgs_delta":
+    ax.set_ylabel("Delta(true-predicted) HGS", fontsize=30, fontweight="bold")
+    
 xticks_positios_array = add_median_labels(ax)
 
 for x_box_pos in np.arange(0,4,2):
@@ -158,14 +171,21 @@ for x_box_pos in np.arange(0,4,2):
         idx = "post-condition"
     x1 = xticks_positios_array[x_box_pos]
     x2 = xticks_positios_array[x_box_pos+1]
-    y, h, col = df_yaxis_max.loc[idx, f"{anova_target}_max_value"]-1.6, 2, 'k'
+    y, h, col = df_yaxis_max.loc[idx, f"{anova_target}_max_value"]+.5, 2, 'k'
     ax.plot([x1, x1, x2, x2], [y, y+h, y+h, y], lw=2, c=col)
-    ax.text((x1+x2)*.5, y+h, f"p={df_ranksum.loc[idx, f'{anova_target}_p_value']:.3f}", ha='center', va='bottom', fontsize=18, weight='bold',  color=col)
+    ax.text((x1+x2)*.5, y+h, f"p={df_mannwhitneyu.loc[idx, f'{anova_target}_p_value']:.3f}", ha='center', va='bottom', fontsize=18, weight='bold',  color=col)
 
-ax.set_yticks(range(0, 141, 20))
-ax.set_yticklabels(ax.get_yticks(), size=20, weight='bold')
-plt.ylim(0, 140)
-
+if anova_target in ["hgs", "hgs_predicted", "hgs_corrected_predicted"]:
+    ax.set_yticks(range(0, 140, 20))
+    ax.set_yticklabels(ax.get_yticks(), size=20, weight='bold')
+    plt.ylim(0, 140)
+elif anova_target in ["hgs_delta", "hgs_corrected_delta"]:
+    ymin = round(ax.get_ylim()[0])
+    ymax = round(ax.get_ylim()[1])
+    # ax.set_yticks(range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+20, 20))
+    ax.set_yticks(range(-60, 60, 20))
+    ax.set_yticklabels(ax.get_yticks(), size=20, weight='bold')
+    plt.ylim(-60, 60)
 
 # Adjust layout
 plt.tight_layout()
@@ -173,6 +193,66 @@ plt.tight_layout()
 # Show the plot
 plt.show()
 file_path = os.path.join(folder_path, f"{population}_{anova_target}.png")
+plt.savefig(file_path)
+plt.close()
+
+
+##############################################################################
+folder_path = os.path.join("plot_hgs_comparison_pre_post_conditions", f"{population}", f"{target}", f"{n_samples}_matched", "interaction")
+if(not os.path.isdir(folder_path)):
+        os.makedirs(folder_path)
+##############################################################################
+# Set the style of seaborn
+sns.set_style("whitegrid")
+# Create the boxplot
+fig, ax = plt.subplots(figsize=(10, 10))
+sns.boxplot(data=df_interaction, x='condition', y=f"interaction_{anova_target}", hue='treatment', palette=custome_palette, linewidth=3)
+ax.legend().set_visible(False)
+ax.set_xlabel("Interaction", fontsize=25, fontweight="bold")
+ax.set_xticklabels("")
+
+# Setting the xtick labels
+if anova_target == "hgs":
+    ax.set_ylabel("Raw HGS", fontsize=30, fontweight="bold")
+elif anova_target == "hgs_corrected_predicted":
+    ax.set_ylabel("Adjusted HGS", fontsize=30, fontweight="bold")
+elif anova_target == "hgs_predicted":
+    ax.set_ylabel("Predicted HGS", fontsize=30, fontweight="bold")
+elif anova_target == "hgs_corrected_delta":
+    ax.set_ylabel("Delta adjusted HGS", fontsize=30, fontweight="bold")
+elif anova_target == "hgs_delta":
+    ax.set_ylabel("Delta HGS", fontsize=30, fontweight="bold")
+    
+xticks_positios_array = add_median_labels(ax)
+
+x_box_pos = 0
+x1 = xticks_positios_array[x_box_pos]
+x2 = xticks_positios_array[x_box_pos+1]
+y, h, col = df_yaxis_max.loc["interaction", f"{anova_target}_max_value"]+1, 2, 'k'
+ax.plot([x1, x1, x2, x2], [y, y+h, y+h, y], lw=2, c=col)
+ax.text((x1+x2)*.5, y+h, f"p={p_value_interaction:.3f}", ha='center', va='bottom', fontsize=18, weight='bold',  color=col)
+
+if anova_target in ["hgs", "hgs_corrected_predicted"]:
+    ymin = round(ax.get_ylim()[0])
+    ymax = round(ax.get_ylim()[1])
+    ax.set_yticks(range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+20, 10))
+    ax.set_yticklabels(ax.get_yticks(), size=20, weight='bold')
+elif anova_target == "hgs_delta":
+    ymin = round(ax.get_ylim()[0])
+    ymax = round(ax.get_ylim()[1])
+    ax.set_yticks(range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+20, 10))
+    ax.set_yticklabels(ax.get_yticks(), size=20, weight='bold')
+elif anova_target in ["hgs_corrected_delta", "hgs_predicted"]:
+    ymin = round(ax.get_ylim()[0])
+    ymax = round(ax.get_ylim()[1])
+    ax.set_yticks(range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+10, 10))
+    ax.set_yticklabels(ax.get_yticks(), size=20, weight='bold')
+# Adjust layout
+plt.tight_layout()
+
+# Show the plot
+plt.show()
+file_path = os.path.join(folder_path, f"{population}_{anova_target}_interaction.png")
 plt.savefig(file_path)
 plt.close()
 
