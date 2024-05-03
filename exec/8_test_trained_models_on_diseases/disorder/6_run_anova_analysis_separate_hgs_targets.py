@@ -211,7 +211,23 @@ mixedlm_formula = f"{anova_target} ~ treatment * condition"
 mixedlm_model_fit_female = smf.mixedlm(formula=mixedlm_formula, data=df_female_tmp, groups="Subject").fit()
 mixedlm_model_fit_male = smf.mixedlm(formula=mixedlm_formula, data=df_male_tmp, groups="Subject").fit()
 
+import statsmodels.stats.multicomp as multi
 
+# Combine the predictions with the original data for reference
+df_female_tmp['pred'] = mixedlm_model_fit_female.fittedvalues
+df_male_tmp['pred'] = mixedlm_model_fit_male.fittedvalues
+
+# Perform pairwise comparisons for each group
+# Note: Modify the code according to your specific levels in 'treatment' and 'condition'
+tukey_hsd_female = multi.pairwise_tukeyhsd(endog=df_female_tmp['pred'], groups=df_female_tmp['treatment'] + "_" + df_female_tmp['condition'])
+tukey_hsd_male = multi.pairwise_tukeyhsd(endog=df_male_tmp['pred'], groups=df_male_tmp['treatment'] + "_" + df_male_tmp['condition'])
+
+print(tukey_hsd_female.summary())
+print(tukey_hsd_male.summary())
+
+
+print("===== Done! End =====")
+embed(globals(), locals())
 # get fixed effects
 print("Female MixedLM ANOVA Result:")
 print(mixedlm_model_fit_female.summary())
