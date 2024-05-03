@@ -68,7 +68,7 @@ def save_anova_results(
     
         with open(file_path, 'wb') as f:
             pickle.dump(df_anova_result, f)
-    else:
+    elif anova_type == "pingouin":
         file_path = os.path.join(
             folder_path,
             f"anova_table_{gender}.pkl")

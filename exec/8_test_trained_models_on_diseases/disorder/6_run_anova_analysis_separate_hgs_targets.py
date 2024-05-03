@@ -76,8 +76,22 @@ male_pre_patients = df[(df["gender"]=="male") & (df["condition"]==f"pre-{populat
 female_pre_patients = df[(df["gender"]=="female") & (df["condition"]==f"pre-{population}")][anova_target]
 male_post_patients = df[(df["gender"]=="male") & (df["condition"]==f"post-{population}")][anova_target]
 female_post_patients = df[(df["gender"]=="female") & (df["condition"]==f"post-{population}")][anova_target]
-# print("===== Done! End =====")
-# embed(globals(), locals())
+##############################################################################
+df_c = df[df['treatment']=='control']
+df_c_pre = df_c[df_c['condition']=='pre-control']
+df_c_post = df_c[df_c['condition']=='post-control']
+
+
+df_dis = df[df['treatment']==f'{population}']
+df_dis_pre = df_dis[df_dis['condition']==f'pre-{population}']
+df_dis_post = df_dis[df_dis['condition']==f'post-{population}']
+
+
+stat_c_dis_pre, p_value_c_dis_pre = levene(df_c_pre[anova_target], df_dis_pre[anova_target])
+stat_c_dis_post, p_value_c_dis_post = levene(df_c_post[anova_target], df_dis_post[anova_target])
+
+print("===== Done! End =====")
+embed(globals(), locals())
 ##############################################################################
 # Between male controls and female controls (pre-condition)
 stat1, p_value1 = levene(male_pre_controls, female_pre_controls)
@@ -269,7 +283,7 @@ save_anova_results(
 )
 ###############################################################################
 # Linear Mixed Models mixedlm for female and male separately:
-mixedlm_formula = f"{anova_target} ~ treatment * gender * condition"
+mixedlm_formula = f"{anova_target} ~ treatment * condition"
 mixedlm_model_fit = smf.mixedlm(formula=mixedlm_formula, data=data, groups="Subject").fit()
 
 # get fixed effects
