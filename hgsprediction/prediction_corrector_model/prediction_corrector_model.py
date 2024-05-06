@@ -38,7 +38,7 @@ def prediction_corrector_model(
     model = LinearRegression()
     # Beheshti Method:
     X = df.loc[:, f"{target}"].values.reshape(-1, 1)
-    y = df.loc[:, f"{target}_delta(true-predicted)"].values
+    y = df.loc[:, f"{target}_delta(predicted-true)"].values
 
     model.fit(X, y)
     slope = model.coef_[0]

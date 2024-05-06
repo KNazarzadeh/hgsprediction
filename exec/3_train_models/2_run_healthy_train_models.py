@@ -153,7 +153,7 @@ for idx, (train_val_index, validation_index) \
     # df_tmp = data_extracted.iloc[validation_index].assign(hgs_pred=y_pred.values)
     df_tmp.loc[:, "cv_fold"] = fold
     df_tmp.loc[:, "cv_repeat"] = repeat
-    df_tmp.loc[:, f"{target}_delta(true-predicted)"] = df_tmp.loc[:, f"{target}"] - df_tmp.loc[:, f"{target}_predicted"]
+    df_tmp.loc[:, f"{target}_delta(predicted-true)"] =  df_tmp.loc[:, f"{target}_predicted"] - df_tmp.loc[:, f"{target}"]
     
     df_validation_prediction_hgs = pd.concat([df_validation_prediction_hgs,df_tmp], axis=0)
 df_prediction_r2_scores.index.name = 'Repeats'
@@ -238,5 +238,5 @@ save_trained_model_results.save_prediction_hgs_on_validation_set(
     cv_repeats_number,
     cv_folds_number)
 ################################################################################
-print("===== Done! =====")
+print("===== END Done! =====")
 embed(globals(), locals())

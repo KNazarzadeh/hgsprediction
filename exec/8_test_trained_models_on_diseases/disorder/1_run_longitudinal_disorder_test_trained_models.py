@@ -102,7 +102,7 @@ for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
         prefix = f"4th_{disorder_subgroup}_"
 
     # Filter columns that require the prefix to be added
-    filtered_columns = [col for col in df_tmp.columns if col in features + [target] + [f"{target}_predicted"] + [f"{target}_delta(true-predicted)"]]
+    filtered_columns = [col for col in df_tmp.columns if col in features + [target] + [f"{target}_predicted"] + [f"{target}_delta(predicted-true)"]]
 
     # Add the prefix to selected column names
     for col in filtered_columns:
@@ -117,8 +117,8 @@ for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
 
 df_female = df_both[df_both["gender"] == 0]
 df_male = df_both[df_both["gender"] == 1]
-print("===== Done! =====")
-embed(globals(), locals())
+# print("===== Done! =====")
+# embed(globals(), locals())
 save_disorder_hgs_predicted_results(
     df_both,
     population,
@@ -160,7 +160,7 @@ save_disorder_hgs_predicted_results(
     n_repeats,
     n_folds,
 )
-print("===== Done! =====")
+print("===== END Done! =====")
 embed(globals(), locals())
 ##############################################################################
 # y_axis = ["actual", "predicted", "actual-predicted"]
