@@ -102,7 +102,7 @@ for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
         prefix = f"4th_{disorder_subgroup}_"
 
     # Filter columns that require the prefix to be added
-    filtered_columns = [col for col in df_tmp.columns if col in features + [target] + [f"{target}_predicted"] + [f"{target}_delta(predicted-true)"]]
+    filtered_columns = [col for col in df_tmp.columns if col in features + [target] + [f"{target}_predicted"] + [f"{target}_delta(true-predicted)"]]
 
     # Add the prefix to selected column names
     for col in filtered_columns:

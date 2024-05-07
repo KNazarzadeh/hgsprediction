@@ -77,8 +77,9 @@ for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
         
     # Beheshti Method:
     df.loc[:, f"{prefix}_{target}_corrected_predicted"] = (df.loc[:, f"{prefix}_{target}_predicted"] - ((slope * df.loc[:, f"{prefix}_{target}"]) + intercept))
-    df.loc[:, f"{prefix}_{target}_corrected_delta(predicted-true)"] =  df.loc[:, f"{prefix}_{target}_corrected_predicted"] - df.loc[:, f"{prefix}_{target}"]
-
+    df.loc[:, f"{prefix}_{target}_corrected_delta(true-predicted)"] = df.loc[:, f"{prefix}_{target}"] - df.loc[:, f"{prefix}_{target}_corrected_predicted"]
+print("===== Done! End =====")
+embed(globals(), locals())
 ###############################################################################
 save_disorder_corrected_prediction_results(
     df,
@@ -112,20 +113,20 @@ for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
         prefix = f"4th_{disorder_subgroup}"
 
     df_correlations.loc[0, f"{prefix}_r_values_true_predicted"] = pearsonr(df.loc[:, f"{prefix}_{target}"],df.loc[:, f"{prefix}_{target}_predicted"])[0]
-    df_correlations.loc[0, f"{prefix}_r_values_true_delta"] = pearsonr(df.loc[:, f"{prefix}_{target}"],df.loc[:, f"{prefix}_{target}_delta(predicted-true)"])[0]
+    df_correlations.loc[0, f"{prefix}_r_values_true_delta"] = pearsonr(df.loc[:, f"{prefix}_{target}"],df.loc[:, f"{prefix}_{target}_delta(true-predicted)"])[0]
     df_correlations.loc[0, f"{prefix}_r_values_true_corrected_predicted"] = pearsonr(df.loc[:, f"{prefix}_{target}"],df.loc[:, f"{prefix}_{target}_corrected_predicted"])[0]
-    df_correlations.loc[0, f"{prefix}_r_values_true_corrected_delta"] = pearsonr(df.loc[:, f"{prefix}_{target}"],df.loc[:, f"{prefix}_{target}_corrected_delta(predicted-true)"])[0]
+    df_correlations.loc[0, f"{prefix}_r_values_true_corrected_delta"] = pearsonr(df.loc[:, f"{prefix}_{target}"],df.loc[:, f"{prefix}_{target}_corrected_delta(true-predicted)"])[0]
 
     df_p_values.loc[0, f"{prefix}_r_values_true_predicted"] = pearsonr(df.loc[:, f"{prefix}_{target}"],df.loc[:, f"{prefix}_{target}_predicted"])[1]
-    df_p_values.loc[0, f"{prefix}_r_values_true_delta"] = pearsonr(df.loc[:, f"{prefix}_{target}"],df.loc[:, f"{prefix}_{target}_delta(predicted-true)"])[1]
+    df_p_values.loc[0, f"{prefix}_r_values_true_delta"] = pearsonr(df.loc[:, f"{prefix}_{target}"],df.loc[:, f"{prefix}_{target}_delta(true-predicted)"])[1]
     df_p_values.loc[0, f"{prefix}_r_values_true_corrected_predicted"] = pearsonr(df.loc[:, f"{prefix}_{target}"],df.loc[:, f"{prefix}_{target}_corrected_predicted"])[1]
-    df_p_values.loc[0, f"{prefix}_r_values_true_corrected_delta"] = pearsonr(df.loc[:, f"{prefix}_{target}"],df.loc[:, f"{prefix}_{target}_corrected_delta(predicted-true)"])[1]
+    df_p_values.loc[0, f"{prefix}_r_values_true_corrected_delta"] = pearsonr(df.loc[:, f"{prefix}_{target}"],df.loc[:, f"{prefix}_{target}_corrected_delta(true-predicted)"])[1]
 
 
     df_r2_values.loc[0, f"{prefix}_r2_values_true_predicted"] = r2_score(df.loc[:, f"{prefix}_{target}"],df.loc[:, f"{prefix}_{target}_predicted"])
-    df_r2_values.loc[0, f"{prefix}_r2_values_true_delta"] = r2_score(df.loc[:, f"{prefix}_{target}"],df.loc[:, f"{prefix}_{target}_delta(predicted-true)"])
+    df_r2_values.loc[0, f"{prefix}_r2_values_true_delta"] = r2_score(df.loc[:, f"{prefix}_{target}"],df.loc[:, f"{prefix}_{target}_delta(true-predicted)"])
     df_r2_values.loc[0, f"{prefix}_r2_values_true_corrected_predicted"] = r2_score(df.loc[:, f"{prefix}_{target}"],df.loc[:, f"{prefix}_{target}_corrected_predicted"])
-    df_r2_values.loc[0, f"{prefix}_r2_values_true_corrected_delta"] = r2_score(df.loc[:, f"{prefix}_{target}"],df.loc[:, f"{prefix}_{target}_corrected_delta(predicted-true)"])
+    df_r2_values.loc[0, f"{prefix}_r2_values_true_corrected_delta"] = r2_score(df.loc[:, f"{prefix}_{target}"],df.loc[:, f"{prefix}_{target}_corrected_delta(true-predicted)"])
 
 
 save_disorder_corrected_prediction_correlation_results(

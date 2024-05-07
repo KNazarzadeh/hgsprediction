@@ -179,13 +179,7 @@ def parse_args():
                         #         "hgs_right",
                         #         "hgs_L-R",],
                         help="Confound status (int).")
-    # Add Gender argument:
-    parser.add_argument("gender",
-                        type=str.lower,
-                        # choices=["female",
-                        #         "male",
-                        # "both_gender"],
-                        help="Gender (str).")
+    
     # Add Model argument:
     parser.add_argument("model_name",
                         type=str.lower,
@@ -212,6 +206,13 @@ def parse_args():
                         #         1,],
                         help="Fold Number (int).")
     
+    # Add Gender argument:
+    parser.add_argument("gender",
+                        type=str.lower,
+                        # choices=["female",
+                        #         "male",
+                        # "both_gender"],
+                        help="Gender (str).")
     # Parse the argument
     args = parser.parse_args()
     # Check validate of arguments
@@ -227,11 +228,12 @@ def input_arguments(args):
     mri_status = args.mri_status
     feature_type = args.feature_type
     target = args.target
-    gender = args.gender
     model_name = args.model_name
     confound_status = args.confound_status
     cv_repeats_number = args.repeat_number
     cv_folds_number = args.fold_number
+    gender = args.gender
+
 
     # Print all input
     print("================== Inputs ==================")
@@ -243,10 +245,6 @@ def input_arguments(args):
     print("MRI status =", mri_status)
     print("Feature type =", feature_type)
     print("Target =", target)
-    if gender == "both_gender":
-        print("Gender = both genders")
-    else:
-        print("Gender =", gender)
     if model_name == "random_forest":
         print("Model = random forest")
     elif model_name == "linear_svm":
@@ -259,6 +257,10 @@ def input_arguments(args):
     print("CV Repeat Numbers =", cv_repeats_number)
     print("CV Fold Numbers =", cv_folds_number)
 
+    if gender == "both_gender":
+        print("Gender = both genders")
+    else:
+        print("Gender =", gender)
     print("============================================")
 
-    return motor, population, mri_status, feature_type, target, gender, model_name, confound_status, cv_repeats_number, cv_folds_number
+    return motor, population, mri_status, feature_type, target, model_name, confound_status, cv_repeats_number, cv_folds_number, gender

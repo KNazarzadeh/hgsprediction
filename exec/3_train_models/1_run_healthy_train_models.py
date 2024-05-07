@@ -44,8 +44,8 @@ from ptpython.repl import embed
 ###############################################################################
 # Parse, add and return the arguments by function parse_args.
 args = parse_args()
-motor, population, mri_status, feature_type, target, gender, model_name, \
-    confound_status, cv_repeats_number, cv_folds_number = input_arguments(args)
+motor, population, mri_status, feature_type, target, model_name, \
+    confound_status, cv_repeats_number, cv_folds_number, gender = input_arguments(args)
 
 session="0"
 
@@ -74,7 +74,8 @@ register_scorer("pearson_corr", pearson_scorer)
 
 ###############################################################################
 df_train = healthy_load_data.load_preprocessed_data(population, mri_status, session, gender)
-
+# print("===== Done! =====")
+# embed(globals(), locals())
 features, extend_features = define_features(feature_type)
 
 data_extracted = healthy_extract_data.extract_data(df_train, features, extend_features, feature_type, target, mri_status, session)
@@ -153,7 +154,7 @@ for idx, (train_val_index, validation_index) \
     # df_tmp = data_extracted.iloc[validation_index].assign(hgs_pred=y_pred.values)
     df_tmp.loc[:, "cv_fold"] = fold
     df_tmp.loc[:, "cv_repeat"] = repeat
-    df_tmp.loc[:, f"{target}_delta(predicted-true)"] =  df_tmp.loc[:, f"{target}_predicted"] - df_tmp.loc[:, f"{target}"]
+    df_tmp.loc[:, f"{target}_delta(true-predicted)"] =  df_tmp.loc[:, f"{target}"] - df_tmp.loc[:, f"{target}_predicted"]
     
     df_validation_prediction_hgs = pd.concat([df_validation_prediction_hgs,df_tmp], axis=0)
 df_prediction_r2_scores.index.name = 'Repeats'

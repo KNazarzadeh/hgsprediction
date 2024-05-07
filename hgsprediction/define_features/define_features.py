@@ -8,8 +8,8 @@ from ptpython.repl import embed
 def define_features(feature_type):
     
     features = []
+    # extend_features = ["31", "Age1stVisit", "AgeRepVisit"]
     extend_features = []
-
     if feature_type == "anthropometrics":
         features, extend_features= define_anthropometrics_features()
         

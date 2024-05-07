@@ -29,13 +29,13 @@ session = sys.argv[6]
 confound_status = sys.argv[7]
 n_repeats = sys.argv[8]
 n_folds = sys.argv[9]
-
+gender = sys.argv[10]
 ###############################################################################
-female_best_model_trained = load_trained_models.load_best_model_trained(
+best_model_trained = load_trained_models.load_best_model_trained(
                                 "healthy",
                                 "nonmri",
                                 int(confound_status),
-                                "female",
+                                gender,
                                 feature_type,
                                 target,
                                 "linear_svm",
@@ -43,98 +43,55 @@ female_best_model_trained = load_trained_models.load_best_model_trained(
                                 n_folds,
                             )
 
-print(female_best_model_trained)
-
-male_best_model_trained = load_trained_models.load_best_model_trained(
-                                "healthy",
-                                "nonmri",
-                                int(confound_status),
-                                "male",
-                                feature_type,
-                                target,
-                                "linear_svm",
-                                n_repeats,
-                                n_folds,
-                            )
-print(male_best_model_trained)
-
+print(best_model_trained)
+print("gender is :", gender)
 ##############################################################################
 # load data
-df = healthy_load_data.load_preprocessed_data(population, mri_status, session, "both_gender")
+df = healthy_load_data.load_preprocessed_data(population, mri_status, session, gender)
 
+##############################################################################
+# Define main features and extra features:
 features, extend_features = define_features(feature_type)
-
+##############################################################################
+# Extract data based on main features, extra features, target for each session and mri status:
 data_extracted = healthy_extract_data.extract_data(df, features, extend_features, feature_type, target, mri_status, session)
 
+##############################################################################
+# Define X as main features and y as target:
 X = features
 y = target
+##############################################################################
+# Predict Handgrip strength (HGS) on X and y in dataframe
+# With best trained model on non-MRI healthy controls data
+df = predict_hgs(df, X, y, best_model_trained, target)
 
-df_female = data_extracted[data_extracted["gender"] == 0]
-df_male = data_extracted[data_extracted["gender"] == 1]
-
-df_female = predict_hgs(df_female, X, y, female_best_model_trained, target)
-df_male = predict_hgs(df_male, X, y, male_best_model_trained, target)
-
-print(df_female)
-print(df_male)
-
-df_both_gender = pd.concat([df_female, df_male], axis=0)
-print(df_both_gender)
-# print("===== Done! =====")
-# embed(globals(), locals())
+##############################################################################
+# Print the final dataframe after adding predicted and delta HGS columns
+print(df)
+##############################################################################
+# Save dataframe in the specific location
 save_hgs_predicted_results(
-    df_both_gender,
+    df,
     population,
     mri_status,
     model_name,
     feature_type,
     target,
-    "both_gender",
+    gender,
     session,
     confound_status,
     n_repeats,
     n_folds,
 )
 
-save_hgs_predicted_results(
-    df_female,
-    population,
-    mri_status,
-    model_name,
-    feature_type,
-    target,
-    "female",
-    session,
-    confound_status,
-    n_repeats,
-    n_folds,
-)
-
-save_hgs_predicted_results(
-    df_male,
-    population,
-    mri_status,
-    model_name,
-    feature_type,
-    target,
-    "male",
-    session,
-    confound_status,
-    n_repeats,
-    n_folds,
-)
 print("===== END Done! =====")
 embed(globals(), locals())
 
 ##############################################################################
 y_axis = ["true", "predicted", "delta(true-predicted)"]
 x_axis = ["true", "predicted"]
-df_corr, df_pvalue = calculate_pearson_hgs_correlation(df_both_gender, y_axis, x_axis)
-df_female_corr, df_female_pvalue = calculate_pearson_hgs_correlation(df_female, y_axis, x_axis)
-df_male_corr, df_male_pvalue = calculate_pearson_hgs_correlation(df_male, y_axis, x_axis)
+df_corr, df_pvalue = calculate_pearson_hgs_correlation(df, y_axis, x_axis)
 print(df_corr)
-print(df_female_corr)
-print(df_male_corr)
 
 save_correlation_results(
     df_corr,
@@ -144,40 +101,13 @@ save_correlation_results(
     model_name,
     feature_type,
     target,
-    "both_gender",
+    gender,
     session,
     confound_status,
     n_repeats,
     n_folds,
     )
-save_correlation_results(
-    df_female_corr,
-    df_female_pvalue,
-    population,
-    mri_status,
-    model_name,
-    feature_type,
-    target,
-    "female",
-    session,
-    confound_status,
-    n_repeats,
-    n_folds,
-    )
-save_correlation_results(
-    df_male_corr,
-    df_male_pvalue,
-    population,
-    mri_status,
-    model_name,
-    feature_type,
-    target,
-    "male",
-    session,
-    confound_status,
-    n_repeats,
-    n_folds,
-    )
+
 
 
 print("===== Done! =====")

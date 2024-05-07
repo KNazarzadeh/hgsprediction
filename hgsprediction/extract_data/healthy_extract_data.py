@@ -16,9 +16,9 @@ def extract_data(df, features, extend_features, feature_type, target, mri_status
             feature_list = [f"{item}-{session}.0" for item in features]
             extend_features_list = [f"{item}-{session}.0" for item in extend_features]
         extra_columns_list = ["gender",
-                            f"age_range-{session}.0",
                             "1707-0.0", 
                             "1707-1.0", 
+                            f"53-{session}.0",
                             "handness",                             
                             f"handedness-{session}.0", 
                             f"46-{session}.0", 
@@ -38,10 +38,10 @@ def extract_data(df, features, extend_features, feature_type, target, mri_status
             feature_list = [f"{item}-{session}.0" for item in features]
             extend_features_list = [f"{item}-{session}.0" for item in extend_features]
         extra_columns_list = ["gender",
-                            f"age_range-{session}.0",
                             "1707-0.0", 
                             "1707-1.0", 
                             "1707-2.0", 
+                            f"53-{session}.0",
                             "handness",                             
                             f"handedness-{session}.0", 
                             f"46-{session}.0", 
