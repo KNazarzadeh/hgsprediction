@@ -16,7 +16,8 @@ import os
 import sys
 # import argparse
 import pandas as pd
-from merged_toolkit.preprocessing.datalad_wrappers import UKBFetcher
+from datalad_wrappers import UKBFetcher
+
 # inserting the modules directory at
 # from arguments_input import parse_args
 from func_fetch_ukb_csv import fetch_ukb_csv

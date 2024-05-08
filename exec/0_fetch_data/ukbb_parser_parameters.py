@@ -66,12 +66,12 @@ class UkbbParams:
             -----------
             Returns
             -----------
-            ukb_icd10_excon : list of str
+            icd10_excon : list of str
                 List of diseases that must exclude
-            ukb_icd10_incon : list of str
+            icd10_incon : list of str
                 List of diseases that must include
         """
-        ukb_icd10_excon = [
+        icd10_excon = [
             'I60-I69',    # Cerebrovascular diseases
             'F',          # V - Mental and behavioural disorders
             'G',          # VI - Diseases of the nervous system
@@ -80,10 +80,10 @@ class UkbbParams:
             'S',          # XIX - Injury, poisoning and certain other
                           # consequences of external causes
             ] 
-        ukb_icd10_incon = []
+        icd10_incon = []
         
-        return  ukb_icd10_excon, \
-                ukb_icd10_incon
+        return  icd10_excon, \
+                icd10_incon
 
 ###############################################################################
     def get_stroke_params(
@@ -100,9 +100,9 @@ class UkbbParams:
             -----------
             Return
             -----------
-            ukb_icd10_excon : list of str
+            icd10_excon : list of str
                 List of diseases that must exclude
-            ukb_icd10_incon : list of str
+            icd10_incon : list of str
                 List of diseases that must include
         -----------------------------------------------------------------------
         The int values for different types of stroke:
@@ -125,7 +125,7 @@ class UkbbParams:
                                     G64 - Other disorders of peripheral nervous system
         -----------------------------------------------------------------------
         """    
-        ukb_icd10_excon = [
+        icd10_excon = [
             'G00-G09',  # VI - Inflammatory diseases of the central nervous system
             'G10-G14',  # VI - Systemic atrophies primarily affecting the central nervous system
             'G20-G26',  # VI - Extrapyramidal and movement disorders
@@ -145,13 +145,13 @@ class UkbbParams:
             'S',        # XIX - Injury, poisoning and certain other 
                         # consequences of external causes
             ]
-        ukb_icd10_incon = [
+        icd10_incon = [
             'I63',      # IX - Ischaemic stroke
             'I61',      # IX - Intracerebral Haemorrhage (ICH)
             ]
 
-        return  ukb_icd10_excon, \
-                ukb_icd10_incon
+        return  icd10_excon, \
+                icd10_incon
 
 # -----------------------------------------------------------------------------#
     def get_parkinson_params(
@@ -168,9 +168,9 @@ class UkbbParams:
             -----------
             Returns
             -----------
-            ukb_icd10_excon : list of str
+            icd10_excon : list of str
                 List of diseases that must exclude
-            ukb_icd10_incon : list of str
+            icd10_incon : list of str
                 List of diseases that must include
         -----------------------------------------------------------------------
         The int values for different types of parkinson:
@@ -189,7 +189,7 @@ class UkbbParams:
                         G64 - Other disorders of peripheral nervous system
         -----------------------------------------------------------------------
         """    
-        ukb_icd10_excon = [
+        icd10_excon = [
             'G00-G09',  # VI - Inflammatory diseases of the central nervous system
             'G10-G14',  # VI - Systemic atrophies primarily affecting the central nervous system
             'G30-G32',  # VI - Other degenerative diseases of the nervous system
@@ -209,12 +209,12 @@ class UkbbParams:
                         # consequences of external causes
             'I60-I69',  # IX - Cerebrovascular Diseases
             ]
-        ukb_icd10_incon = [
+        icd10_incon = [
             'G20-G26',      # VI - Idiopathic Parkinsons Disease
             ]
 
-        return  ukb_icd10_excon, \
-                ukb_icd10_incon
+        return  icd10_excon, \
+                icd10_incon
                 
 # -----------------------------------------------------------------------------#
 # --------------------------------#
@@ -236,12 +236,12 @@ class UkbbParams:
             -----------
             Returns
             -----------
-            ukb_icd10_excon : list of str
+            icd10_excon : list of str
                 List of diseases that must exclude
-            ukb_icd10_incon : list of str
+            icd10_incon : list of str
                 List of diseases that must include
         """
-        ukb_icd10_excon = [
+        icd10_excon = [
             'F00-F09',    # V -  Organic, including symptomatic, mental disorders
             'F10-F19',    # V -  Mental and behavioural disorders due to psychoactive substance use
             'F20-F29',    # V -  Schizophrenia, schizotypal and delusional disorders
@@ -267,12 +267,12 @@ class UkbbParams:
                           # consequences of external causes
             'I60-I69',    # Cerebrovascular diseases                          
             ] 
-        ukb_icd10_incon = [
+        icd10_incon = [
             'F32-F33',      # V - F32:Depressive episode & F33:Recurrent depressive disorder
         ]
         
-        return  ukb_icd10_excon, \
-                ukb_icd10_incon
+        return  icd10_excon, \
+                icd10_incon
 
 ###############################################################################
 # --------------------------------#
@@ -294,7 +294,7 @@ class UkbbParams:
             -----------
             Returns
             -----------
-            ukb_motor_inhdr : list of str
+            motor_inhdr : list of str
                 The list of Motor Performance primary and related Field IDs 
                 to be included to ukbb_parser command
         """
@@ -307,10 +307,10 @@ class UkbbParams:
         if self.motor_type == "handgrip_strength":
             # 46 ---- for Left Handgrip Strength
             # 47 ---- for Right Handgrip Strength
-            ukb_motor_incat = [
+            motor_incat = [
                 # '100019',   # Hand grip strength (Physical Measures - Category 100006)
             ]
-            ukb_motor_inhdr = [
+            motor_inhdr = [
                 '46',       # for Left Handgrip Strength
                 '47',       # for Right Handgrip Strength
                 '1707',     # Handedness (chirality/laterality)--
@@ -322,13 +322,13 @@ class UkbbParams:
                 # '38', 	# Hand grip dynamometer device ID --
                 #           # -- Category 100019 Hand grip strength
             ]
-            ukb_motor_exhdr = []
-            ukb_motor_excat = []
+            motor_exhdr = []
+            motor_excat = []
 
-        return ukb_motor_incat, \
-               ukb_motor_inhdr, \
-               ukb_motor_exhdr, \
-               ukb_motor_excat
+        return motor_incat, \
+               motor_inhdr, \
+               motor_exhdr, \
+               motor_excat
 # -----------------------------------------------------------------------------#
 # --------------------------------#
 # Define assessment centre parameters 
@@ -349,24 +349,24 @@ class UkbbParams:
             -----------
             Returns
             -----------
-            ukb_assessment_inhdr : list of str
+            assessment_inhdr : list of str
                 The list of Assessment primary and related Field IDs 
                 to be included to ukbb_parser command
         """
-        ukb_assessment_incat = []
-        ukb_assessment_inhdr = [
+        assessment_incat = []
+        assessment_inhdr = [
             '54',	    # UK Biobank assessment centre
             '53',	    # Date of attending assessment centre
             '55',	    # Month of attending assessment centre
             '21003',    # Age when attended assessment centre
         ]
-        ukb_assessment_exhdr = []
-        ukb_assessment_excat = []
+        assessment_exhdr = []
+        assessment_excat = []
 
-        return ukb_assessment_incat, \
-               ukb_assessment_inhdr, \
-               ukb_assessment_exhdr, \
-               ukb_assessment_excat
+        return assessment_incat, \
+               assessment_inhdr, \
+               assessment_exhdr, \
+               assessment_excat
 # -----------------------------------------------------------------------------#
 # --------------------------------#
 # Define stroke outcome parameters on UK Biobank 
@@ -385,30 +385,30 @@ class UkbbParams:
             -----------
             Returns
             -----------
-            ukb_stroke_outcome_inhdr: list of str
+            stroke_outcome_inhdr: list of str
                 The list of stroke outcome Field IDs to be included by --inhdr
                 to ukbb_parser command
 
-            ukb_stroke_outcome_exhdr: list of str
-            ukb_stroke_outcome_incat: list of str
-            ukb_stroke_outcome_excat: list of str
+            stroke_outcome_exhdr: list of str
+            stroke_outcome_incat: list of str
+            stroke_outcome_excat: list of str
         """
-        ukb_stroke_outcome_incat = [
+        stroke_outcome_incat = [
             '43', # Stroke outcomes
         ]
-        ukb_stroke_outcome_inhdr = [
+        stroke_outcome_inhdr = [
             # # Category 2409 - Circulatory system disorders-First occurrences
             # '131366',   # Date I63 first reported (cerebral infarction)
             # '131362',   # Date I61 first reported (intracerebral haemorrhage)
             # '131360',   # Date I60 first reported (subarachnoid haemorrhage)
         ]
-        ukb_stroke_outcome_exhdr = []
-        ukb_stroke_outcome_excat = []
+        stroke_outcome_exhdr = []
+        stroke_outcome_excat = []
 
-        return ukb_stroke_outcome_incat, \
-               ukb_stroke_outcome_inhdr, \
-               ukb_stroke_outcome_exhdr, \
-               ukb_stroke_outcome_excat
+        return stroke_outcome_incat, \
+               stroke_outcome_inhdr, \
+               stroke_outcome_exhdr, \
+               stroke_outcome_excat
 # -----------------------------------------------------------------------------#
 # --------------------------------#
 # Define parkinson's disease outcome parameters on UK Biobank 
@@ -427,18 +427,18 @@ class UkbbParams:
             -----------
             Returns
             -----------
-            ukb_PD_outcome_inhdr: list of str
+            PD_outcome_inhdr: list of str
                 The list of parkinson outcome Field IDs to be included by --inhdr
                 to ukbb_parser command
 
-            ukb_PD_outcome_exhdr: list of str
-            ukb_PD_outcome_incat: list of str
-            ukb_PD_outcome_excat: list of str
+            PD_outcome_exhdr: list of str
+            PD_outcome_incat: list of str
+            PD_outcome_excat: list of str
         """
-        ukb_pd_outcome_incat = [
+        pd_outcome_incat = [
             '50', # parkinson outcomes
         ]
-        ukb_pd_outcome_inhdr = [
+        pd_outcome_inhdr = [
             # 42030	Date of all cause parkinsonism report
             # 42031	Source of all cause parkinsonism report
             # 42032	Date of parkinson's disease report
@@ -448,13 +448,13 @@ class UkbbParams:
             # 42036	Date of multiple system atrophy report
             # 42037	Source of multiple system atrophy report
         ]
-        ukb_pd_outcome_exhdr = []
-        ukb_pd_outcome_excat = []
+        pd_outcome_exhdr = []
+        pd_outcome_excat = []
 
-        return ukb_pd_outcome_incat, \
-               ukb_pd_outcome_inhdr, \
-               ukb_pd_outcome_exhdr, \
-               ukb_pd_outcome_excat
+        return pd_outcome_incat, \
+               pd_outcome_inhdr, \
+               pd_outcome_exhdr, \
+               pd_outcome_excat
 
 # -----------------------------------------------------------------------------#
 # --------------------------------#
@@ -474,26 +474,26 @@ class UkbbParams:
             -----------
             Returns
             -----------
-            ukb_depression_outcome_inhdr: list of str
+            depression_outcome_inhdr: list of str
                 The list of parkinson outcome Field IDs to be included by --inhdr
                 to ukbb_parser command
 
-            ukb_depression_outcome_exhdr: list of str
-            ukb_depression_outcome_incat: list of str
-            ukb_depression_outcome_excat: list of str
+            depression_outcome_exhdr: list of str
+            depression_outcome_incat: list of str
+            depression_outcome_excat: list of str
         """
-        ukb_depression_outcome_incat = [
+        depression_outcome_incat = [
             '138', # Online follow-up ⏵ Mental health ⏵ Depression 
             '1502' # Online follow-up ⏵ Mental well-being ⏵ Depression 
         ]
-        ukb_depression_outcome_inhdr = []
-        ukb_depression_outcome_exhdr = []
-        ukb_depression_outcome_excat = []
+        depression_outcome_inhdr = []
+        depression_outcome_exhdr = []
+        depression_outcome_excat = []
 
-        return ukb_depression_outcome_incat, \
-               ukb_depression_outcome_inhdr, \
-               ukb_depression_outcome_exhdr, \
-               ukb_depression_outcome_excat
+        return depression_outcome_incat, \
+               depression_outcome_inhdr, \
+               depression_outcome_exhdr, \
+               depression_outcome_excat
 
 # -----------------------------------------------------------------------------#
 # --------------------------------#
@@ -1161,7 +1161,7 @@ class UkbbParams:
 # --------------------------------#
 # -----------------------------------------------------------------------------#
     def get_hospital_params(self):
-        ukb_hospital_incat = [
+        hospital_incat = [
             # '2002', # Contains summary fields relating to diagnoses --
                     # made during hospital inpatient admissions.
                     # Including main and secondary diagnoses(ICD10 & ICD9 codes)
@@ -1174,35 +1174,39 @@ class UkbbParams:
                     # The Office of Population Censuses and Surveys Classification
                     # of Interventions and Procedures (OPCS-3 & OPCS-4). 
         ]
-        ukb_hospital_inhdr = []
-        ukb_hospital_exhdr = []
-        ukb_hospital_excat = []
-
-        return ukb_hospital_incat, \
-               ukb_hospital_inhdr, \
-               ukb_hospital_exhdr, \
-               ukb_hospital_excat
-# -----------------------------------------------------------------------------#
-# --------------------------------#
-# Define primary care parameters on UK Biobank 
-# --------------------------------#
-# -----------------------------------------------------------------------------#
-    def get_primarycare_params(self):
-        ukb_primarycare_incat = [
-            # '3000', # Primary care
-                    # 
-            # '3001', # Record-level access
-                    # Grant access to the primary care records that are 
-                    # made available via the Data Portal. 
+        hospital_inhdr = [
+            # ----- Summary Diagnoses ------ #
+            '41270',	# Diagnoses - ICD10
+            '41280',	# Date of first in-patient diagnosis - ICD10
+            '41202',	# Diagnoses - main ICD10
+            '41262',	# Date of first in-patient diagnosis - main ICD10
+            '41204',	# Diagnoses - secondary ICD10
+            '41201',	# External causes - ICD10
         ]
-        ukb_primarycare_inhdr = []
-        ukb_primarycare_exhdr = []
-        ukb_primarycare_excat = []
+        hospital_exhdr = []
+        hospital_excat = []
 
-        return ukb_primarycare_incat, \
-               ukb_primarycare_inhdr, \
-               ukb_primarycare_exhdr, \
-               ukb_primarycare_excat
+        return hospital_incat, \
+               hospital_inhdr, \
+               hospital_exhdr, \
+               hospital_excat
+# -----------------------------------------------------------------------------#
+# --------------------------------#
+# Define Mental health conditions ever diagnosed by a professional Field on UK Biobank 
+# --------------------------------#
+# -----------------------------------------------------------------------------#
+    def get_mental_health_by_professional(self):
+        mental_health_incat = []
+        mental_health_inhdr = [
+            '29000', # Mental health conditions ever diagnosed by a professional
+        ]
+        mental_health_exhdr = []
+        mental_health_excat = []
+
+        return mental_health_incat, \
+               mental_health_inhdr, \
+               mental_health_exhdr, \
+               mental_health_excat
 
 # -----------------------------------------------------------------------------#
 # --------------------------------#
@@ -1211,12 +1215,12 @@ class UkbbParams:
 # -----------------------------------------------------------------------------#
     def get_selfreport_params(self):
 
-        ukb_selfreport_incat = []
-        ukb_selfreport_inhdr = [
+        selfreport_incat = []
+        selfreport_inhdr = [
+            '20002', # Non-cancer illness code, self-reported
             # '20009', # Interpolated Age of participant when non-cancer illness 
             #          # first diagnosed
             # '20008', # Interpolated Year when non-cancer illness first diagnosed
-            # '20002', # Non-cancer illness code, self-reported
             # '87',	 # Non-cancer illness year/age first occurred
             # '2956',	 # General pain for 3+ months
             # '135',	 # Number of self-reported non-cancer illnesses
@@ -1224,31 +1228,31 @@ class UkbbParams:
             # '3799',  # Headaches for 3+ months
             # '20013', # Method of recording time when non-cancer illness first diagnosed
         ]
-        ukb_selfreport_exhdr = []
-        ukb_selfreport_excat = []
+        selfreport_exhdr = []
+        selfreport_excat = []
 
-        return ukb_selfreport_incat, \
-               ukb_selfreport_inhdr, \
-               ukb_selfreport_exhdr, \
-               ukb_selfreport_excat
+        return selfreport_incat, \
+               selfreport_inhdr, \
+               selfreport_exhdr, \
+               selfreport_excat
 # -----------------------------------------------------------------------------#
 # --------------------------------#
 # Define death register parameters on UK Biobank 
 # --------------------------------#
 # -----------------------------------------------------------------------------#
     def get_death_params(self):
-        ukb_deathregister_incat = [
+        deathregister_incat = [
              '100093', # Death register
                       # Contains coded data on the cause of death and Dates
         ]
-        ukb_deathregister_inhdr = []
-        ukb_deathregister_exhdr = []
-        ukb_deathregister_excat = []
+        deathregister_inhdr = []
+        deathregister_exhdr = []
+        deathregister_excat = []
 
-        return ukb_deathregister_incat, \
-               ukb_deathregister_inhdr, \
-               ukb_deathregister_exhdr, \
-               ukb_deathregister_excat
+        return deathregister_incat, \
+               deathregister_inhdr, \
+               deathregister_exhdr, \
+               deathregister_excat
 # -----------------------------------------------------------------------------#
 # --------------------------------#
 # Define death register parameters on UK Biobank 
@@ -1257,18 +1261,18 @@ class UkbbParams:
     def get_first_occurrences_params(self):
         
         if self.population_name == "stroke":
-            ukb_first_occurrences_incat = []
-            ukb_first_occurrences_inhdr = [
+            first_occurrences_incat = []
+            first_occurrences_inhdr = [
             # Category 2409 - Circulatory system disorders-First occurrences
                 '131366',   # Date I63 first reported (cerebral infarction)
                 '131362',   # Date I61 first reported (intracerebral haemorrhage)
             ]
-            ukb_first_occurrences_exhdr = []
-            ukb_first_occurrences_excat = []
+            first_occurrences_exhdr = []
+            first_occurrences_excat = []
         
         elif self.population_name == "parkinson":
-            ukb_first_occurrences_incat = []
-            ukb_first_occurrences_inhdr = [
+            first_occurrences_incat = []
+            first_occurrences_inhdr = [
                 # Category 2406
                 '131022', # Date G20 first reported (parkinson's disease)
                         # Nervous system disorders
@@ -1287,25 +1291,25 @@ class UkbbParams:
                 '26260',  # Standard PRS for parkinson's disease (PD)
                         # Standard PRS
             ]
-            ukb_first_occurrences_exhdr = []
-            ukb_first_occurrences_excat = []
+            first_occurrences_exhdr = []
+            first_occurrences_excat = []
         
         elif self.population_name == "depression":
-            ukb_first_occurrences_incat = []
-            ukb_first_occurrences_inhdr = [
+            first_occurrences_incat = []
+            first_occurrences_inhdr = [
                 # Category 2405
                 '130894',	# Date F32 first reported (depressive episode)
                 '130895',	# Source of report of F32 (depressive episode)
                 '130896',	# Date F33 first reported (recurrent depressive disorder)
                 '130897',	# Source of report of F33 (recurrent depressive disorder)
             ]
-            ukb_first_occurrences_exhdr = []
-            ukb_first_occurrences_excat = []
+            first_occurrences_exhdr = []
+            first_occurrences_excat = []
 
-        return ukb_first_occurrences_incat, \
-               ukb_first_occurrences_inhdr, \
-               ukb_first_occurrences_exhdr, \
-               ukb_first_occurrences_excat
+        return first_occurrences_incat, \
+               first_occurrences_inhdr, \
+               first_occurrences_exhdr, \
+               first_occurrences_excat
 # -----------------------------------------------------------------------------#
 # --------------------------------#
 # Define Walking parameters on UK Biobank 
@@ -1403,79 +1407,85 @@ class UkbbParams:
         # -------- Healthy, stroke or Parkinson's disease Populations --------#
         # Get the list of Population Field IDs
         if self.ishealthy == 1 :
-            ukb_icd10_excon, \
-            ukb_icd10_incon =  self.get_healthy_params()
+            icd10_excon, \
+            icd10_incon =  self.get_healthy_params()
         else:
             if self.population_name in "stroke":
-                ukb_icd10_excon, \
-                ukb_icd10_incon =  self.get_stroke_params()
+                icd10_excon, \
+                icd10_incon =  self.get_stroke_params()
 
                 # ------------- Stroke Outcome --> Category 43 ------------- #
                 # Get the list of Field, Category IDs to be included/excluded 
                 # to/from ukbb_parser command
-                ukb_stroke_outcome_incat, \
-                ukb_stroke_outcome_inhdr, \
-                ukb_stroke_outcome_exhdr, \
-                ukb_stroke_outcome_excat = self.get_stroke_outcomes()
+                stroke_outcome_incat, \
+                stroke_outcome_inhdr, \
+                stroke_outcome_exhdr, \
+                stroke_outcome_excat = self.get_stroke_outcomes()
                 # ------ Stroke ------- #
                 # Get the list of Field, Category IDs to be included/excluded 
                 # to/from ukbb_parser command
-                ukb_first_occurrences_incat, \
-                ukb_first_occurrences_inhdr, \
-                ukb_first_occurrences_exhdr, \
-                ukb_first_occurrences_excat = self.get_first_occurrences_params()
+                first_occurrences_incat, \
+                first_occurrences_inhdr, \
+                first_occurrences_exhdr, \
+                first_occurrences_excat = self.get_first_occurrences_params()
                 
             elif self.population_name == "parkinson":
-                ukb_icd10_excon, \
-                ukb_icd10_incon =  self.get_parkinson_params()
+                icd10_excon, \
+                icd10_incon =  self.get_parkinson_params()
 
                 # ------ Parkinson's disease Outcome --> Category 50 ------- #
                 # Get the list of Field, Category IDs to be included/excluded 
                 # to/from ukbb_parser command
-                ukb_pd_outcome_incat, \
-                ukb_pd_outcome_inhdr, \
-                ukb_pd_outcome_exhdr, \
-                ukb_pd_outcome_excat = self.get_parkinson_outcomes()
+                pd_outcome_incat, \
+                pd_outcome_inhdr, \
+                pd_outcome_exhdr, \
+                pd_outcome_excat = self.get_parkinson_outcomes()
                 # ------ Parkinson's disease Nervouse System Disorders ------- #
                 # Get the list of Field, Category IDs to be included/excluded 
                 # to/from ukbb_parser command
-                ukb_first_occurrences_incat, \
-                ukb_first_occurrences_inhdr, \
-                ukb_first_occurrences_exhdr, \
-                ukb_first_occurrences_excat = self.get_first_occurrences_params()
+                first_occurrences_incat, \
+                first_occurrences_inhdr, \
+                first_occurrences_exhdr, \
+                first_occurrences_excat = self.get_first_occurrences_params()
             elif self.population_name == "depression":
-                ukb_icd10_excon, \
-                ukb_icd10_incon =  self.get_depression_params()
+                icd10_excon, \
+                icd10_incon =  self.get_depression_params()
 
                 # ------ Depression Outcome ------- #
                 # Get the list of Field, Category IDs to be included/excluded 
                 # to/from ukbb_parser command
-                ukb_depression_outcome_incat, \
-                ukb_depression_outcome_inhdr, \
-                ukb_depression_outcome_exhdr, \
-                ukb_depression_outcome_excat = self.get_depression_outcomes()
+                depression_outcome_incat, \
+                depression_outcome_inhdr, \
+                depression_outcome_exhdr, \
+                depression_outcome_excat = self.get_depression_outcomes()
                 # ------ Depression First Occurrences ------- #
                 # Get the list of Field, Category IDs to be included/excluded 
                 # to/from ukbb_parser command
-                ukb_first_occurrences_incat, \
-                ukb_first_occurrences_inhdr, \
-                ukb_first_occurrences_exhdr, \
-                ukb_first_occurrences_excat = self.get_first_occurrences_params()
+                first_occurrences_incat, \
+                first_occurrences_inhdr, \
+                first_occurrences_exhdr, \
+                first_occurrences_excat = self.get_first_occurrences_params()
+                
+                # ------ Mental health conditions ever diagnosed by a professional Field on UK Biobank 
+                mental_health_incat, \
+                mental_health_inhdr, \
+                mental_health_exhdr, \
+                mental_health_excat = self.get_mental_health_by_professional()
 
         # --------- Handgrip Strength (HGS) as the Motor Performance ---------#
         # Get the list of Motor Performance Field IDs
         if self.motor_type == 'handgrip_strength':
-            ukb_motor_incat, \
-            ukb_motor_inhdr, \
-            ukb_motor_exhdr, \
-            ukb_motor_excat = self.get_motor_params()
+            motor_incat, \
+            motor_inhdr, \
+            motor_exhdr, \
+            motor_excat = self.get_motor_params()
 
         # ------ AssessmentCentre --> Category 100024 (Reception) -----------#
         # Get the list of Assessment Field IDs
-        ukb_assessment_incat, \
-        ukb_assessment_inhdr, \
-        ukb_assessment_exhdr, \
-        ukb_assessment_excat = self.get_assessment_params()
+        assessment_incat, \
+        assessment_inhdr, \
+        assessment_exhdr, \
+        assessment_excat = self.get_assessment_params()
  
         # ---------- List of ukbb_parser flags with (MRI/Non-MRI) ----------- #
         # Get the list of flags to be included to ukbb_parser command
@@ -1540,74 +1550,30 @@ class UkbbParams:
         baseline_inhdr, \
         baseline_exhdr, \
         baseline_excat = self.get_baseline_params()
-
-        # # ------- Ongoing Characteristics --> Category 2 -------------- #
-        # # Get the list of Field IDs     
-        # ongoing_incat, \
-        # ongoing_inhdr, \
-        # ongoing_exhdr, \
-        # ongoing_excat = self.get_ongoing_params()
-
-        # ------- Medical condition --> Category 100036 -------------- #
-        # Get the list of Field IDs             
-        # medical_incat, \
-        # medical_inhdr, \
-        # medical_exhdr, \
-        # medical_excat = self.get_medical_history_params()
-
-        # ------- Biological samples --> Category 100078 -------------- #
-        # Get the list of Field IDs             
-        # biological_sample_incat, \
-        # biological_sample_inhdr, \
-        # biological_sample_exhdr, \
-        # biological_sample_excat = self.get_biological_sample_params()
-
-        # ------- Physical Measures --> Category 100078 -------------- #
-        # Get the list of Field IDs             
-        # physical_measures_incat, \
-        # physical_measures_inhdr, \
-        # physical_measures_exhdr, \
-        # physical_measures_excat = self.get_physical_measures_params()
-
-        # ------- Walking (Physical activity) --> Category 100054 ------------ #
-        # Get the list of Field IDs             
-        # walking_incat, \
-        # walking_inhdr, \
-        # walking_exhdr, \
-        # walking_excat = self.get_walking_params()
         
-
         # ------ Hospital Inpatient ------ Category 2000
         # Get the list of Field, Category IDs to be included/excluded 
         # to/from ukbb_parser command
-        # ukb_hospital_incat, \
-        # ukb_hospital_inhdr, \
-        # ukb_hospital_exhdr, \
-        # ukb_hospital_excat = self.get_hospital_params()
+        hospital_incat, \
+        hospital_inhdr, \
+        hospital_exhdr, \
+        hospital_excat = self.get_hospital_params()
 
-        # ------ Primary Care ------ Category 3000
-        # Get the list of Field, Category IDs to be included/excluded 
+        # ------ Self-Report ------
+        # Get the list of Field IDs to be included/excluded 
         # to/from ukbb_parser command
-        # ukb_primarycare_incat, \
-        # ukb_primarycare_inhdr, \
-        # ukb_primarycare_exhdr, \
-        # ukb_primarycare_excat = self.get_primarycare_params()
-
-        # # ------ Self-Report ------
-        # # Get the list of Field IDs to be included/excluded 
-        # # to/from ukbb_parser command
-        # ukb_selfreport_incat, \
-        # ukb_selfreport_inhdr, \
-        # ukb_selfreport_exhdr, \
-        # ukb_selfreport_excat = self.get_selfreport_params()
+        selfreport_incat, \
+        selfreport_inhdr, \
+        selfreport_exhdr, \
+        selfreport_excat = self.get_selfreport_params()
 
         # ------ Death register ------ Category 100093
         # Get the list of Field, Category IDs to be included/excluded 
         # to/from ukbb_parser command
-        ukb_deathregister_incat, \
-        ukb_deathregister_inhdr, \
-        ukb_deathregister_exhdr, \
-        ukb_deathregister_excat = self.get_death_params()
+        deathregister_incat, \
+        deathregister_inhdr, \
+        deathregister_exhdr, \
+        deathregister_excat = self.get_death_params()
 
         # -------------------------------------------------------------------- #
         # --------------------------------#
@@ -1619,105 +1585,105 @@ class UkbbParams:
         data_field_list = ""
 
         # ------ Add ICD-10 codes to ukbb string --------------------------- #
-        for n_icd10 in range(len(ukb_icd10_incon)):
+        for n_icd10 in range(len(icd10_incon)):
             data_field_list = f'{data_field_list}' \
-            ' --incon ' f'{ukb_icd10_incon[n_icd10]}'
+            ' --incon ' f'{icd10_incon[n_icd10]}'
 
-        for n_icd10 in range(len(ukb_icd10_excon)):
+        for n_icd10 in range(len(icd10_excon)):
             data_field_list = f'{data_field_list}' \
-            ' --excon ' f'{ukb_icd10_excon[n_icd10]}'
+            ' --excon ' f'{icd10_excon[n_icd10]}'
 
         # ------ Add (--inhdr) Motor Performance Field IDs ------------------- #
-        for n_motor in range(len(ukb_motor_incat)):
+        for n_motor in range(len(motor_incat)):
             data_field_list = f'{data_field_list}' \
-            ' --incat ' f'{ukb_motor_incat[n_motor]}'
+            ' --incat ' f'{motor_incat[n_motor]}'
         
-        for n_motor in range(len(ukb_motor_inhdr)):
+        for n_motor in range(len(motor_inhdr)):
             data_field_list = f'{data_field_list}' \
-            ' --inhdr ' f'{ukb_motor_inhdr[n_motor]}'
+            ' --inhdr ' f'{motor_inhdr[n_motor]}'
 
-        for n_motor in range(len(ukb_motor_exhdr)):
+        for n_motor in range(len(motor_exhdr)):
             data_field_list = f'{data_field_list}' \
-            ' --exhdr ' f'{ukb_motor_exhdr[n_motor]}'
+            ' --exhdr ' f'{motor_exhdr[n_motor]}'
 
-        for n_motor in range(len(ukb_motor_excat)):
+        for n_motor in range(len(motor_excat)):
             data_field_list = f'{data_field_list}' \
-            ' --excat ' f'{ukb_motor_excat[n_motor]}'
+            ' --excat ' f'{motor_excat[n_motor]}'
 
         # -------- stroke or Parkinson's disease Populations outcomes --------#
         if self.population_name in "stroke":
             # ------ Add Stroke Outcome ------ Category 43 --------------- #
             # Get the list of Field, Category IDs to be included/excluded 
             # to/from ukbb_parser command        
-            for n_inhdr in range(len(ukb_stroke_outcome_inhdr)):
+            for n_inhdr in range(len(stroke_outcome_inhdr)):
                 data_field_list = f'{data_field_list}' \
-                ' --inhdr ' f'{ukb_stroke_outcome_inhdr[n_inhdr]}'
+                ' --inhdr ' f'{stroke_outcome_inhdr[n_inhdr]}'
 
-            for n_exhdr in range(len(ukb_stroke_outcome_exhdr)):
+            for n_exhdr in range(len(stroke_outcome_exhdr)):
                 data_field_list = f'{data_field_list}' \
-                ' --exhdr ' f'{ukb_stroke_outcome_exhdr[n_exhdr]}'
+                ' --exhdr ' f'{stroke_outcome_exhdr[n_exhdr]}'
 
-            for n_incat in range(len(ukb_stroke_outcome_incat)):
+            for n_incat in range(len(stroke_outcome_incat)):
                 data_field_list = f'{data_field_list}' \
-                ' --incat ' f'{ukb_stroke_outcome_incat[n_incat]}'
+                ' --incat ' f'{stroke_outcome_incat[n_incat]}'
             
-            for n_excat in range(len(ukb_stroke_outcome_excat)):
+            for n_excat in range(len(stroke_outcome_excat)):
                 data_field_list = f'{data_field_list}' \
-                ' --excat ' f'{ukb_stroke_outcome_excat[n_excat]}'
+                ' --excat ' f'{stroke_outcome_excat[n_excat]}'
         elif self.population_name == "parkinson":
             # ------ Add Parkinson Outcome ------ Category 50 ------------ #
             # Get the list of Field, Category IDs to be included/excluded 
             # to ukbb_parser command        
-            for n_inhdr in range(len(ukb_pd_outcome_inhdr)):
+            for n_inhdr in range(len(pd_outcome_inhdr)):
                 data_field_list = f'{data_field_list}' \
-                ' --inhdr ' f'{ukb_pd_outcome_inhdr[n_inhdr]}'
+                ' --inhdr ' f'{pd_outcome_inhdr[n_inhdr]}'
 
-            for n_exhdr in range(len(ukb_pd_outcome_exhdr)):
+            for n_exhdr in range(len(pd_outcome_exhdr)):
                 data_field_list = f'{data_field_list}' \
-                ' --exhdr ' f'{ukb_pd_outcome_exhdr[n_exhdr]}'
+                ' --exhdr ' f'{pd_outcome_exhdr[n_exhdr]}'
 
-            for n_incat in range(len(ukb_pd_outcome_incat)):
+            for n_incat in range(len(pd_outcome_incat)):
                 data_field_list = f'{data_field_list}' \
-                ' --incat ' f'{ukb_pd_outcome_incat[n_incat]}'
+                ' --incat ' f'{pd_outcome_incat[n_incat]}'
             
-            for n_excat in range(len(ukb_pd_outcome_excat)):
+            for n_excat in range(len(pd_outcome_excat)):
                 data_field_list = f'{data_field_list}' \
-                ' --excat ' f'{ukb_pd_outcome_excat[n_excat]}'
+                ' --excat ' f'{pd_outcome_excat[n_excat]}'
         elif self.population_name == "depression":
             # ------ Add Depression Outcome ------ #
             # Get the list of Field, Category IDs to be included/excluded 
             # to ukbb_parser command        
-            for n_inhdr in range(len(ukb_depression_outcome_inhdr)):
+            for n_inhdr in range(len(depression_outcome_inhdr)):
                 data_field_list = f'{data_field_list}' \
-                ' --inhdr ' f'{ukb_depression_outcome_inhdr[n_inhdr]}'
+                ' --inhdr ' f'{depression_outcome_inhdr[n_inhdr]}'
 
-            for n_exhdr in range(len(ukb_depression_outcome_exhdr)):
+            for n_exhdr in range(len(depression_outcome_exhdr)):
                 data_field_list = f'{data_field_list}' \
-                ' --exhdr ' f'{ukb_depression_outcome_exhdr[n_exhdr]}'
+                ' --exhdr ' f'{depression_outcome_exhdr[n_exhdr]}'
 
-            for n_incat in range(len(ukb_depression_outcome_incat)):
+            for n_incat in range(len(depression_outcome_incat)):
                 data_field_list = f'{data_field_list}' \
-                ' --incat ' f'{ukb_depression_outcome_incat[n_incat]}'
+                ' --incat ' f'{depression_outcome_incat[n_incat]}'
             
-            for n_excat in range(len(ukb_depression_outcome_excat)):
+            for n_excat in range(len(depression_outcome_excat)):
                 data_field_list = f'{data_field_list}' \
-                ' --excat ' f'{ukb_depression_outcome_excat[n_excat]}'
+                ' --excat ' f'{depression_outcome_excat[n_excat]}'
         # ------ Add (--inhdr) Assessment Feild IDs -------------------------- #
-        for n_inhdr in range(len(ukb_assessment_incat)):
+        for n_inhdr in range(len(assessment_incat)):
             data_field_list = f'{data_field_list}' \
-            ' --incat ' f'{ukb_assessment_incat[n_inhdr]}'
+            ' --incat ' f'{assessment_incat[n_inhdr]}'
 
-        for n_inhdr in range(len(ukb_assessment_inhdr)):
+        for n_inhdr in range(len(assessment_inhdr)):
             data_field_list = f'{data_field_list}' \
-            ' --inhdr ' f'{ukb_assessment_inhdr[n_inhdr]}'
+            ' --inhdr ' f'{assessment_inhdr[n_inhdr]}'
 
-        for n_inhdr in range(len(ukb_assessment_exhdr)):
+        for n_inhdr in range(len(assessment_exhdr)):
             data_field_list = f'{data_field_list}' \
-            ' --exhdr ' f'{ukb_assessment_exhdr[n_inhdr]}'
+            ' --exhdr ' f'{assessment_exhdr[n_inhdr]}'
 
-        for n_inhdr in range(len(ukb_assessment_excat)):
+        for n_inhdr in range(len(assessment_excat)):
             data_field_list = f'{data_field_list}' \
-            ' --excat ' f'{ukb_assessment_excat[n_inhdr]}'
+            ' --excat ' f'{assessment_excat[n_inhdr]}'
     
         # ---- Add Demographics --> Category 1001 (Baseline characteristics )-#
         for n_inhdr in range(len(demographic_inhdr)):
@@ -1872,177 +1838,92 @@ class UkbbParams:
             data_field_list = f'{data_field_list}' \
             ' --excat ' f'{baseline_excat[n_excat]}'
 
-        #  # ------- Ongoing Characteristics --> Category 2 -------------- #
-        # for n_inhdr in range(len(ongoing_inhdr)):
-        #     data_field_list = f'{data_field_list}' \
-        #     ' --inhdr ' f'{ongoing_inhdr[n_inhdr]}'
-
-        # for n_exhdr in range(len(ongoing_exhdr)):
-        #     data_field_list = f'{data_field_list}' \
-        #     ' --exhdr ' f'{ongoing_exhdr[n_exhdr]}'
-
-        # for n_incat in range(len(ongoing_incat)):
-        #     data_field_list = f'{data_field_list}' \
-        #     ' --incat ' f'{ongoing_incat[n_incat]}'
-
-        # for n_excat in range(len(ongoing_excat)):
-        #     data_field_list = f'{data_field_list}' \
-        #     ' --excat ' f'{ongoing_excat[n_excat]}'
-
-        #-------------------------------
-        # for n_inhdr in range(len(ukb_hospital_inhdr)):
-        #     data_field_list = f'{data_field_list}' \
-        #     ' --inhdr ' f'{ukb_hospital_inhdr[n_inhdr]}'
-
-        # for n_exhdr in range(len(ukb_hospital_exhdr)):
-        #     data_field_list = f'{data_field_list}' \
-        #     ' --exhdr ' f'{ukb_hospital_exhdr[n_exhdr]}'
-
-        # for n_incat in range(len(ukb_hospital_incat)):
-        #     data_field_list = f'{data_field_list}' \
-        #     ' --incat ' f'{ukb_hospital_incat[n_incat]}'
-
-        # for n_excat in range(len(ukb_hospital_excat)):
-        #     data_field_list = f'{data_field_list}' \
-        #     ' --excat ' f'{ukb_hospital_excat[n_excat]}'
-
-        #--------#
-
-        # for n_inhdr in range(len(ukb_primarycare_inhdr)):
-        #     data_field_list = f'{data_field_list}' \
-        #     ' --inhdr ' f'{ukb_primarycare_inhdr[n_inhdr]}'
-
-        # for n_exhdr in range(len(ukb_primarycare_exhdr)):
-        #     data_field_list = f'{data_field_list}' \
-        #     ' --exhdr ' f'{ukb_primarycare_exhdr[n_exhdr]}'
-
-        # for n_incat in range(len(ukb_primarycare_incat)):
-        #     data_field_list = f'{data_field_list}' \
-        #     ' --incat ' f'{ukb_primarycare_incat[n_incat]}'
-
-        # for n_excat in range(len(ukb_primarycare_excat)):
-        #     data_field_list = f'{data_field_list}' \
-        #     ' --excat ' f'{ukb_primarycare_excat[n_excat]}'
-        # #--------#
-
-        for n_inhdr in range(len(ukb_deathregister_inhdr)):
+        #  # ------- Hospital inpatient--> Category 2000 -------------- #
+        for n_inhdr in range(len(hospital_inhdr)):
             data_field_list = f'{data_field_list}' \
-            ' --inhdr ' f'{ukb_deathregister_inhdr[n_inhdr]}'
+            ' --inhdr ' f'{hospital_inhdr[n_inhdr]}'
 
-        for n_exhdr in range(len(ukb_deathregister_exhdr)):
+        for n_exhdr in range(len(hospital_exhdr)):
             data_field_list = f'{data_field_list}' \
-            ' --exhdr ' f'{ukb_deathregister_exhdr[n_exhdr]}'
+            ' --exhdr ' f'{hospital_exhdr[n_exhdr]}'
 
-        for n_incat in range(len(ukb_deathregister_incat)):
+        for n_incat in range(len(hospital_incat)):
             data_field_list = f'{data_field_list}' \
-            ' --incat ' f'{ukb_deathregister_incat[n_incat]}'
+            ' --incat ' f'{hospital_incat[n_incat]}'
 
-        for n_excat in range(len(ukb_deathregister_excat)):
+        for n_excat in range(len(hospital_excat)):
             data_field_list = f'{data_field_list}' \
-            ' --excat ' f'{ukb_deathregister_excat[n_excat]}'
-        # #--------# 
-        # #--------#
+            ' --excat ' f'{hospital_excat[n_excat]}'
+
+        # -------- Mental Health by Professional -------- #
+        if self.population_name == "depression":
+            for n_inhdr in range(len(mental_health_inhdr)):
+                data_field_list = f'{data_field_list}' \
+                ' --inhdr ' f'{mental_health_inhdr[n_inhdr]}'
+
+            for n_exhdr in range(len(mental_health_exhdr)):
+                data_field_list = f'{data_field_list}' \
+                ' --exhdr ' f'{mental_health_exhdr[n_exhdr]}'
+
+            for n_incat in range(len(mental_health_incat)):
+                data_field_list = f'{data_field_list}' \
+                ' --incat ' f'{mental_health_incat[n_incat]}'
+
+            for n_excat in range(len(mental_health_excat)):
+                data_field_list = f'{data_field_list}' \
+                ' --excat ' f'{mental_health_excat[n_excat]}'
+            
+        # -------- Death Register ------- #
+        for n_inhdr in range(len(deathregister_inhdr)):
+            data_field_list = f'{data_field_list}' \
+            ' --inhdr ' f'{deathregister_inhdr[n_inhdr]}'
+
+        for n_exhdr in range(len(deathregister_exhdr)):
+            data_field_list = f'{data_field_list}' \
+            ' --exhdr ' f'{deathregister_exhdr[n_exhdr]}'
+
+        for n_incat in range(len(deathregister_incat)):
+            data_field_list = f'{data_field_list}' \
+            ' --incat ' f'{deathregister_incat[n_incat]}'
+
+        for n_excat in range(len(deathregister_excat)):
+            data_field_list = f'{data_field_list}' \
+            ' --excat ' f'{deathregister_excat[n_excat]}'
+        #-------- First Occurrences ------- #
         if self.population_name in ["stroke", "parkinson", "depression"]:
-            for n_inhdr in range(len(ukb_first_occurrences_inhdr)):
+            for n_inhdr in range(len(first_occurrences_inhdr)):
                 data_field_list = f'{data_field_list}' \
-                ' --inhdr ' f'{ukb_first_occurrences_inhdr[n_inhdr]}'
+                ' --inhdr ' f'{first_occurrences_inhdr[n_inhdr]}'
 
-            for n_exhdr in range(len(ukb_first_occurrences_exhdr)):
+            for n_exhdr in range(len(first_occurrences_exhdr)):
                 data_field_list = f'{data_field_list}' \
-                ' --exhdr ' f'{ukb_first_occurrences_exhdr[n_exhdr]}'
+                ' --exhdr ' f'{first_occurrences_exhdr[n_exhdr]}'
 
-            for n_incat in range(len(ukb_first_occurrences_incat)):
+            for n_incat in range(len(first_occurrences_incat)):
                 data_field_list = f'{data_field_list}' \
-                ' --incat ' f'{ukb_first_occurrences_incat[n_incat]}'
+                ' --incat ' f'{first_occurrences_incat[n_incat]}'
 
-            for n_excat in range(len(ukb_first_occurrences_excat)):
+            for n_excat in range(len(first_occurrences_excat)):
                 data_field_list = f'{data_field_list}' \
-                ' --excat ' f'{ukb_first_occurrences_excat[n_excat]}'
-        # #--------# 
-        # for n_incat in range(len(ukb_selfreport_incat)):
-        #     data_field_list = f'{data_field_list}' \
-        #     ' --incat ' f'{ukb_selfreport_incat[n_incat]}'
+                ' --excat ' f'{first_occurrences_excat[n_excat]}'
+        #-------- Self-Report medical Condition ------- #
+        for n_incat in range(len(selfreport_incat)):
+            data_field_list = f'{data_field_list}' \
+            ' --incat ' f'{selfreport_incat[n_incat]}'
 
-        # for n_insr in range(len(ukb_selfreport_inhdr)):
-        #     data_field_list = f'{data_field_list}' \
-        #    ' --inhdr ' f'{ukb_selfreport_inhdr[n_insr]}'
+        for n_insr in range(len(selfreport_inhdr)):
+            data_field_list = f'{data_field_list}' \
+           ' --inhdr ' f'{selfreport_inhdr[n_insr]}'
 
-        # for n_exsr in range(len(ukb_selfreport_exhdr)):
-        #     data_field_list = f'{data_field_list}' \
-        #     ' --exhdr ' f'{ukb_selfreport_exhdr[n_exsr]}'
+        for n_exsr in range(len(selfreport_exhdr)):
+            data_field_list = f'{data_field_list}' \
+            ' --exhdr ' f'{selfreport_exhdr[n_exsr]}'
 
-        # for n_excat in range(len(ukb_selfreport_excat)):
-        #     data_field_list = f'{data_field_list}' \
-        #     ' --excat ' f'{ukb_selfreport_excat[n_excat]}'
+        for n_excat in range(len(selfreport_excat)):
+            data_field_list = f'{data_field_list}' \
+            ' --excat ' f'{selfreport_excat[n_excat]}'
 
-        # for n_inhdr in range(len(walking_inhdr)):
-        #     data_field_list = f'{data_field_list}' \
-        #     ' --inhdr ' f'{walking_inhdr[n_inhdr]}'
-
-        # for n_exhdr in range(len(walking_exhdr)):
-        #     data_field_list = f'{data_field_list}' \
-        #     ' --exhdr ' f'{walking_exhdr[n_exhdr]}'
-
-        # for n_incat in range(len(walking_incat)):
-        #     data_field_list = f'{data_field_list}' \
-        #     ' --incat ' f'{walking_incat[n_incat]}'
-
-        # for n_excat in range(len(walking_excat)):
-        #     data_field_list = f'{data_field_list}' \
-        #     ' --excat ' f'{walking_excat[n_excat]}'
-        # #--------#
-        # for n_inhdr in range(len(medical_inhdr)):
-        #     data_field_list = f'{data_field_list}' \
-        #     ' --inhdr ' f'{medical_inhdr[n_inhdr]}'
-
-        # for n_exhdr in range(len(medical_exhdr)):
-        #     data_field_list = f'{data_field_list}' \
-        #     ' --exhdr ' f'{medical_exhdr[n_exhdr]}'
-
-        # for n_incat in range(len(medical_incat)):
-        #     data_field_list = f'{data_field_list}' \
-        #     ' --incat ' f'{medical_incat[n_incat]}'
-
-        # for n_excat in range(len(medical_excat)):
-        #     data_field_list = f'{data_field_list}' \
-        #     ' --excat ' f'{medical_excat[n_excat]}'
-        #--------#
-        #--------#
-        # for n_inhdr in range(len(biological_sample_inhdr)):
-        #     data_field_list = f'{data_field_list}' \
-        #     ' --inhdr ' f'{biological_sample_inhdr[n_inhdr]}'
-
-        # for n_exhdr in range(len(biological_sample_exhdr)):
-        #     data_field_list = f'{data_field_list}' \
-        #     ' --exhdr ' f'{biological_sample_exhdr[n_exhdr]}'
-
-        # for n_incat in range(len(biological_sample_incat)):
-        #     data_field_list = f'{data_field_list}' \
-        #     ' --incat ' f'{biological_sample_incat[n_incat]}'
-
-        # for n_excat in range(len(biological_sample_excat)):
-        #     data_field_list = f'{data_field_list}' \
-        #     ' --excat ' f'{biological_sample_excat[n_excat]}'
-
-        #---------#
-
-        # for n_inhdr in range(len(physical_measures_inhdr)):
-        #     data_field_list = f'{data_field_list}' \
-        #     ' --inhdr ' f'{physical_measures_inhdr[n_inhdr]}'
-
-        # for n_exhdr in range(len(physical_measures_exhdr)):
-        #     data_field_list = f'{data_field_list}' \
-        #     ' --exhdr ' f'{physical_measures_exhdr[n_exhdr]}'
-
-        # for n_incat in range(len(physical_measures_incat)):
-        #     data_field_list = f'{data_field_list}' \
-        #     ' --incat ' f'{physical_measures_incat[n_incat]}'
-
-        # for n_excat in range(len(physical_measures_excat)):
-        #     data_field_list = f'{data_field_list}' \
-        #     ' --excat ' f'{physical_measures_excat[n_excat]}'
-
-        #---------#
+        # -------- Add Flags for ukbb_parser ------- #
 
         for n_flag in range(len(ukbb_parser_flags)):
                 data_field_list = f'{data_field_list}' + \
