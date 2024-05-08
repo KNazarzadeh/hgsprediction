@@ -67,6 +67,8 @@ df_disorder = load_disorder_corrected_prediction_results(
 
 df_disorder.index.name = "subjectID"
 df_disorder.loc[:, "disorder"] = 1
+
+df_disorder = df_disorder[df_disorder[f'1st_pre-{population}_{target}'] > df_disorder[f'1st_post-{population}_{target}']]
 # print("===== Done! =====")
 # embed(globals(), locals())
 ###############################################################################

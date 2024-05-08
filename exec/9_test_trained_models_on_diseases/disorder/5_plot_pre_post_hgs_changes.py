@@ -70,8 +70,8 @@ df_disorder_matched_male, df_mathced_controls_male = load_disorder_matched_sampl
 )
 ##############################################################################
 # Replace 0 with "Male" in the 'Gender' column
-df_disorder_matched_male['gender'] = df_disorder_matched_male['gender'].replace(0, 'Male')
-df_mathced_controls_male['gender'] = df_mathced_controls_male['gender'].replace(0, 'Male')
+df_disorder_matched_male['gender'] = df_disorder_matched_male['gender'].replace(1, 'Male')
+df_mathced_controls_male['gender'] = df_mathced_controls_male['gender'].replace(1, 'Male')
 ##############################################################################
 if boxplot_target == "hgs":
     y_label = "Raw HGS"
@@ -101,17 +101,17 @@ elif boxplot_target in ["predicted", "corrected_predicted"]:
        
 elif boxplot_target in ["delta", "corrected_delta"]:
     # Example data for pre-hgs and post-hgs for female and male
-    disorder_pre_female = df_disorder_matched_female[[f'1st_pre-{population}_{target}_{boxplot_target}(predicted-true)', 'gender']]
-    disorder_pre_male = df_disorder_matched_male[[f'1st_pre-{population}_{target}_{boxplot_target}(predicted-true)', 'gender']]
-    disorder_post_female = df_disorder_matched_female[[f'1st_post-{population}_{target}_{boxplot_target}(predicted-true)', 'gender']]
-    disorder_post_male = df_disorder_matched_male[[f'1st_post-{population}_{target}_{boxplot_target}(predicted-true)', 'gender']]
+    disorder_pre_female = df_disorder_matched_female[[f'1st_pre-{population}_{target}_{boxplot_target}(true-predicted)', 'gender']]
+    disorder_pre_male = df_disorder_matched_male[[f'1st_pre-{population}_{target}_{boxplot_target}(true-predicted)', 'gender']]
+    disorder_post_female = df_disorder_matched_female[[f'1st_post-{population}_{target}_{boxplot_target}(true-predicted)', 'gender']]
+    disorder_post_male = df_disorder_matched_male[[f'1st_post-{population}_{target}_{boxplot_target}(true-predicted)', 'gender']]
     # Example data for pre-hgs and post-hgs for female and male
-    control_pre_female = df_mathced_controls_female[[f'1st_pre-{population}_{target}_{boxplot_target}(predicted-true)', 'gender']]
-    control_pre_male = df_mathced_controls_male[[f'1st_pre-{population}_{target}_{boxplot_target}(predicted-true)', 'gender']]
-    control_post_female = df_mathced_controls_female[[f'1st_post-{population}_{target}_{boxplot_target}(predicted-true)', 'gender']]
-    control_post_male = df_mathced_controls_male[[f'1st_post-{population}_{target}_{boxplot_target}(predicted-true)', 'gender']]
-# print("===== Done! End =====")
-# embed(globals(), locals())
+    control_pre_female = df_mathced_controls_female[[f'1st_pre-{population}_{target}_{boxplot_target}(true-predicted)', 'gender']]
+    control_pre_male = df_mathced_controls_male[[f'1st_pre-{population}_{target}_{boxplot_target}(true-predicted)', 'gender']]
+    control_post_female = df_mathced_controls_female[[f'1st_post-{population}_{target}_{boxplot_target}(true-predicted)', 'gender']]
+    control_post_male = df_mathced_controls_male[[f'1st_post-{population}_{target}_{boxplot_target}(true-predicted)', 'gender']]
+print("===== Done! End =====")
+embed(globals(), locals())
 # Combine data into a DataFrame
 data_disorder_pre = pd.concat([disorder_pre_female, disorder_pre_male])
 data_disorder_post = pd.concat([disorder_post_female, disorder_post_male])
@@ -229,7 +229,7 @@ for axis in ax:
     axis.set_ylabel(f'{y_label}', fontsize=16, fontweight='bold')
 
 plt.show()
-file_path = os.path.join(folder_path, f"new_new_box_plot_pair_plot_{population}_{boxplot_target}.png")
+file_path = os.path.join(folder_path, f"box_plot_pair_plot_{population}_{boxplot_target}.png")
 plt.savefig(file_path)
 plt.close()
 print("===== Done! End =====")

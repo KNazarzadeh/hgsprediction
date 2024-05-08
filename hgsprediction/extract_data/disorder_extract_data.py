@@ -68,10 +68,9 @@ def extract_data(df, population, features, extend_features, target, disorder_sub
     
     # Filter columns that start with the specified prefix
     filtered_columns = [col for col in df_extracted.columns if col in features]
-
     # Remove the prefix from selected column names
     for col in filtered_columns:
         new_col_name = col.replace(prefix, "")
         df_extracted.rename(columns={col: new_col_name}, inplace=True)
-
+    
     return df_extracted

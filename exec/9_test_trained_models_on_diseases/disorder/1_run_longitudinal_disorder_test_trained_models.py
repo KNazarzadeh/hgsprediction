@@ -31,14 +31,14 @@ model_name = sys.argv[7]
 confound_status = sys.argv[8]
 n_repeats = sys.argv[9]
 n_folds = sys.argv[10]
-
+gender = sys.argv[11]
 ###############################################################################
 
-female_best_model_trained = load_trained_models.load_best_model_trained(
+best_model_trained = load_trained_models.load_best_model_trained(
                                 "healthy",
                                 "nonmri",
                                 int(confound_status),
-                                "female",
+                                gender,
                                 feature_type,
                                 target,
                                 "linear_svm",
@@ -46,22 +46,17 @@ female_best_model_trained = load_trained_models.load_best_model_trained(
                                 n_folds,
                             )
 
-print(female_best_model_trained)
+print(best_model_trained)
 
-male_best_model_trained = load_trained_models.load_best_model_trained(
-                                "healthy",
-                                "nonmri",
-                                int(confound_status),
-                                "male",
-                                feature_type,
-                                target,
-                                "linear_svm",
-                                n_repeats,
-                                n_folds,
-                            )
-print(male_best_model_trained)
 # print("===== Done! =====")
 # embed(globals(), locals())
+##############################################################################
+# Define main features and extra features:
+features, extend_features = define_features(feature_type)
+##############################################################################
+# Define X as main features and y as target:
+X = features
+y = target
 ##############################################################################
 # load data
 disorder_cohort = f"{disorder_cohort}-{population}"
@@ -75,23 +70,16 @@ if mri_status == "mri+nonmri":
 else:
     df_longitudinal = disorder_load_data.load_preprocessed_data(population, mri_status, session_column, disorder_cohort)
 
-features, extend_features = define_features(feature_type)
+if gender == "female":
+    df = df_longitudinal[df_longitudinal['gender'] == 0]
+elif gender == "male":
+    df = df_longitudinal[df_longitudinal['gender'] == 1]
 
-X = features
-y = target
-
-df_both = pd.DataFrame()
 for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
-    df_extracted = disorder_extract_data.extract_data(df_longitudinal, population, features, extend_features, target, disorder_subgroup, visit_session)
-
-    df_female = df_extracted[df_extracted["gender"] == 0]
-    df_male = df_extracted[df_extracted["gender"] == 1]
+    df_extracted = disorder_extract_data.extract_data(df, population, features, extend_features, target, disorder_subgroup, visit_session)
     
-    df_female = predict_hgs(df_female, X, y, female_best_model_trained, target)
-    df_male = predict_hgs(df_male, X, y, male_best_model_trained, target)
-    
-    df_tmp = pd.concat([df_female, df_male], axis=0)
-        
+    df_tmp = predict_hgs(df_extracted, X, y, best_model_trained, target)
+            
     if visit_session == "1":
         prefix = f"1st_{disorder_subgroup}_"
     elif visit_session == "2":
@@ -110,52 +98,36 @@ for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
         df_tmp.rename(columns={col: new_col_name}, inplace=True)
 
     # Concatenate the DataFrames
-    df_both = pd.concat([df_both, df_tmp], axis=1)
+    if disorder_subgroup == f"pre-{population}":
+        print(disorder_subgroup)
+        df_pre = df_tmp.copy()
+        
+    elif disorder_subgroup == f"post-{population}":
+        print(disorder_subgroup)
+        df_post = df_tmp.copy()
+        # Merging DataFrames on index
 
-    # Drop duplicate columns
-    df_both = df_both.loc[:,~df_both.columns.duplicated()]
+# Reindex df_pre to match the index order of df_post
+df_post = df_post.reindex(df_pre.index)
 
-df_female = df_both[df_both["gender"] == 0]
-df_male = df_both[df_both["gender"] == 1]
-print("===== Done! =====")
-embed(globals(), locals())
+# Check if the indices of both dataframes are the same and in the same order
+indices_are_same_and_in_same_order = df_pre.index.equals(df_post.index)
+print("Indices are the same and in the same order:", indices_are_same_and_in_same_order)
+# Finding common columns
+common_cols = df_pre.columns.intersection(df_post.columns)
+# Merge DataFrames on index without duplicating common columns
+df_merged = pd.merge(df_pre.drop(columns=common_cols), df_post, left_index=True, right_index=True, how='inner')
+
+print(df_merged)
 save_disorder_hgs_predicted_results(
-    df_both,
+    df_merged,
     population,
     mri_status,
     session_column,
     model_name,
     feature_type,
     target,
-    "both_gender",
-    confound_status,
-    n_repeats,
-    n_folds,
-)
-
-save_disorder_hgs_predicted_results(
-    df_female,
-    population,
-    mri_status,
-    session_column,
-    model_name,
-    feature_type,
-    target,
-    "female",
-    confound_status,
-    n_repeats,
-    n_folds,
-)
-
-save_disorder_hgs_predicted_results(
-    df_male,
-    population,
-    mri_status,
-    session_column,
-    model_name,
-    feature_type,
-    target,
-    "male",
+    gender,
     confound_status,
     n_repeats,
     n_folds,
