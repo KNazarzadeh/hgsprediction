@@ -25,11 +25,11 @@ mri_status = sys.argv[2]
 feature_type = sys.argv[3]
 target = sys.argv[4]
 model_name = sys.argv[5]
-session = sys.argv[6]
-confound_status = sys.argv[7]
-n_repeats = sys.argv[8]
-n_folds = sys.argv[9]
-gender = sys.argv[10]
+confound_status = sys.argv[6]
+n_repeats = sys.argv[7]
+n_folds = sys.argv[8]
+gender = sys.argv[9]
+# session = sys.argv[10]
 ###############################################################################
 best_model_trained = load_trained_models.load_best_model_trained(
                                 "healthy",
@@ -46,43 +46,43 @@ best_model_trained = load_trained_models.load_best_model_trained(
 print(best_model_trained)
 print("gender is :", gender)
 ##############################################################################
-# load data
-df = healthy_load_data.load_preprocessed_data(population, mri_status, session, gender)
-
-##############################################################################
 # Define main features and extra features:
 features, extend_features = define_features(feature_type)
-##############################################################################
-# Extract data based on main features, extra features, target for each session and mri status:
-data_extracted = healthy_extract_data.extract_data(df, features, extend_features, feature_type, target, mri_status, session)
-
 ##############################################################################
 # Define X as main features and y as target:
 X = features
 y = target
 ##############################################################################
-# Predict Handgrip strength (HGS) on X and y in dataframe
-# With best trained model on non-MRI healthy controls data
-df = predict_hgs(df, X, y, best_model_trained, target)
+for session in ["0", "1", "2", "3"]: 
+    # load data
+    df = healthy_load_data.load_preprocessed_data(population, mri_status, session, gender)
+    ##############################################################################
+    # Extract data based on main features, extra features, target for each session and mri status:
+    data_extracted = healthy_extract_data.extract_data(df, features, extend_features, feature_type, target, mri_status, session)
+    ##############################################################################
+    # Predict Handgrip strength (HGS) on X and y in dataframe
+    # With best trained model on non-MRI healthy controls data
+    df = predict_hgs(data_extracted, X, y, best_model_trained, target)
 
-##############################################################################
-# Print the final dataframe after adding predicted and delta HGS columns
-print(df)
-##############################################################################
-# Save dataframe in the specific location
-save_hgs_predicted_results(
-    df,
-    population,
-    mri_status,
-    model_name,
-    feature_type,
-    target,
-    gender,
-    session,
-    confound_status,
-    n_repeats,
-    n_folds,
-)
+    ##############################################################################
+    # Print the final dataframe after adding predicted and delta HGS columns
+    print(df)
+
+    ##############################################################################
+    # Save dataframe in the specific location
+    save_hgs_predicted_results(
+        df,
+        population,
+        mri_status,
+        model_name,
+        feature_type,
+        target,
+        gender,
+        session,
+        confound_status,
+        n_repeats,
+        n_folds,
+    )
 
 print("===== END Done! =====")
 embed(globals(), locals())

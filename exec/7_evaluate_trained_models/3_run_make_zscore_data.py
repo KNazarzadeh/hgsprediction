@@ -20,61 +20,64 @@ mri_status = sys.argv[2]
 feature_type = sys.argv[3]
 target = sys.argv[4]
 model_name = sys.argv[5]
-session = sys.argv[6]
-confound_status = sys.argv[7]
-n_repeats = sys.argv[8]
-n_folds = sys.argv[9]
-gender = sys.argv[10]
-###############################################################################
-df = load_corrected_prediction_results(
-    population,
-    mri_status,
-    model_name,
-    feature_type,
-    target,
-    gender,
-    session,
-    confound_status,
-    n_repeats,
-    n_folds,
-)
+confound_status = sys.argv[6]
+n_repeats = sys.argv[7]
+n_folds = sys.argv[8]
+gender = sys.argv[9]
+# session = sys.argv[10]
 
+###############################################################################
 features, extend_features = define_features(feature_type)
 
 # Define feature columns including the target
 feature_columns = features + [target]
+###############################################################################
+for session in ["0", "1", "2", "3"]:
+# session = 0
+    df = load_corrected_prediction_results(
+        population,
+        mri_status,
+        model_name,
+        feature_type,
+        target,
+        gender,
+        session,
+        confound_status,
+        n_repeats,
+        n_folds,
+    )
 
-# Set the threshold for outlier detection
-threshold = 2
+    # Set the threshold for outlier detection
+    threshold = 2
 
-# Calculate z-scores for the selected features
-df_z_scores = zscore(df.loc[:, feature_columns])
+    # Calculate z-scores for the selected features
+    df_z_scores = zscore(df.loc[:, feature_columns])
 
-# Identify outliers based on z-scores exceeding the threshold
-outliers = (df_z_scores > threshold) | (df_z_scores < -threshold)
-# Remove outliers
-df_no_outliers = df_z_scores[~outliers.any(axis=1)]
-df_outliers = df_z_scores[outliers.any(axis=1)]
+    # Identify outliers based on z-scores exceeding the threshold
+    outliers = (df_z_scores > threshold) | (df_z_scores < -threshold)
+    # Remove outliers
+    df_no_outliers = df_z_scores[~outliers.any(axis=1)]
+    df_outliers = df_z_scores[outliers.any(axis=1)]
 
-df = df[df.index.isin(df_no_outliers.index)]
+    df = df[df.index.isin(df_no_outliers.index)]
 
-print(df)
-# print("===== Done! End =====")
-# embed(globals(), locals())
+    print(df)
+    # print("===== Done! End =====")
+    # embed(globals(), locals())
 
-save_zscore_results(
-    df,
-    population,
-    mri_status,
-    model_name,
-    feature_type,
-    target,
-    gender,
-    session,
-    confound_status,
-    n_repeats,
-    n_folds,
-)
+    save_zscore_results(
+        df,
+        population,
+        mri_status,
+        model_name,
+        feature_type,
+        target,
+        gender,
+        session,
+        confound_status,
+        n_repeats,
+        n_folds,
+    )
 
 print("===== Done! End =====")
 embed(globals(), locals())

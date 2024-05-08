@@ -34,11 +34,12 @@ mri_status = sys.argv[2]
 feature_type = sys.argv[3]
 target = sys.argv[4]
 model_name = sys.argv[5]
-session = sys.argv[6]
-confound_status = sys.argv[7]
-n_repeats = sys.argv[8]
-n_folds = sys.argv[9]
-gender = sys.argv[10]
+confound_status = sys.argv[6]
+n_repeats = sys.argv[7]
+n_folds = sys.argv[8]
+gender = sys.argv[9]
+# session = sys.argv[10]
+
 # print("===== Done! =====")
 # embed(globals(), locals())
 ###############################################################################
@@ -55,41 +56,43 @@ slope, intercept = prediction_corrector_model(
 print(slope)
 print(intercept)
 ###############################################################################
+for session in ["0", "1", "2", "3"]:
+    df = load_hgs_predicted_results(
+        population,
+        mri_status,
+        model_name,
+        feature_type,
+        target,
+        gender,
+        session,
+        confound_status,
+        n_repeats,
+        n_folds,
+    )
+    print(df)
 
-df = load_hgs_predicted_results(
-    population,
-    mri_status,
-    model_name,
-    feature_type,
-    target,
-    gender,
-    session,
-    confound_status,
-    n_repeats,
-    n_folds,
-)
+    ###############################################################################
 
-###############################################################################
+    #Beheshti Method:
+    df.loc[:, f"{target}_corrected_predicted"] = (df.loc[:, f"{target}_predicted"] + ((slope * df.loc[:, f"{target}"]) + intercept))
+    # Calculate Corrected Delta
+    df.loc[:, f"{target}_corrected_delta(true-predicted)"] =  df.loc[:, f"{target}_corrected_predicted"] - df.loc[:, f"{target}"]
 
-#Beheshti Method:
-df.loc[:, f"{target}_corrected_predicted"] = (df.loc[:, f"{target}_predicted"] + ((slope * df.loc[:, f"{target}"]) + intercept))
-# Calculate Corrected Delta
-df.loc[:, f"{target}_corrected_delta(true-predicted)"] =  df.loc[:, f"{target}_corrected_predicted"] - df.loc[:, f"{target}"]
-# print("===== Done! =====")
-# embed(globals(), locals())
-save_corrected_prediction_results(
-    df,
-    population,
-    mri_status,
-    model_name,
-    feature_type,
-    target,
-    gender,
-    session,
-    confound_status,
-    n_repeats,
-    n_folds,
-)
+    save_corrected_prediction_results(
+        df,
+        population,
+        mri_status,
+        model_name,
+        feature_type,
+        target,
+        gender,
+        session,
+        confound_status,
+        n_repeats,
+        n_folds,
+    )
+    
+    print(df)
 print("===== Done! =====")
 embed(globals(), locals())
 
