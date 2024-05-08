@@ -72,7 +72,7 @@ df = load_hgs_predicted_results(
 ###############################################################################
 
 #Beheshti Method:
-df.loc[:, f"{target}_corrected_predicted"] = (df.loc[:, f"{target}_predicted"] - ((slope * df.loc[:, f"{target}"]) + intercept))
+df.loc[:, f"{target}_corrected_predicted"] = (df.loc[:, f"{target}_predicted"] + ((slope * df.loc[:, f"{target}"]) + intercept))
 # Calculate Corrected Delta
 df.loc[:, f"{target}_corrected_delta(true-predicted)"] =  df.loc[:, f"{target}_corrected_predicted"] - df.loc[:, f"{target}"]
 # print("===== Done! =====")
