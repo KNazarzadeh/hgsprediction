@@ -30,7 +30,9 @@ gender = sys.argv[9]
 features, extend_features = define_features(feature_type)
 
 # Define feature columns including the target
-feature_columns = features + [target]
+# feature_columns = features + [target]
+feature_columns = features
+
 ###############################################################################
 for session in ["0", "1", "2", "3"]:
     df = load_corrected_prediction_results(

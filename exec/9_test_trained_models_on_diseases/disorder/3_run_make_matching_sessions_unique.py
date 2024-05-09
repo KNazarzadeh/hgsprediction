@@ -69,8 +69,8 @@ df_disorder.index.name = "subjectID"
 df_disorder.loc[:, "disorder"] = 1
 
 df_disorder = df_disorder[df_disorder[f'1st_pre-{population}_{target}'] > df_disorder[f'1st_post-{population}_{target}']]
-print("===== Done! =====")
-embed(globals(), locals())
+# print("===== Done! =====")
+# embed(globals(), locals())
 ###############################################################################
 # Load z-score results for healthy individuals with MRI data
 # And asssign to control dataframe
@@ -196,7 +196,7 @@ for pre_ses in range(pre_ses_min, pre_ses_max+1):
                 df_matched = pd.DataFrame()
                 df_control_pre_matched = pd.DataFrame()
                 df_control_post_matched = pd.DataFrame()
-                # Iterate over each row in treatment dataframe
+                # Iterate over each row in group dataframe
                 for subject_id, row in df_disorder_tmp.iterrows():
                     df_matched_tmp = pd.DataFrame()
                     propensity_score = row['propensity_scores']
@@ -207,7 +207,7 @@ for pre_ses in range(pre_ses_min, pre_ses_max+1):
                     
                     df_control_before_matched.append(df_control_pre_tmp)
 
-                    # Find 10 nearest neighbors for each treatment subject based on propensity scores
+                    # Find 10 nearest neighbors for each group subject based on propensity scores
                     distances, indices = nn_model.kneighbors([[propensity_score]])
                     print(indices)                
                     # Extract matched control_pre subjects
@@ -222,7 +222,7 @@ for pre_ses in range(pre_ses_min, pre_ses_max+1):
                     df_matched = pd.concat([df_matched, df_matched_tmp], axis=0)
                     df_control_pre_tmp.drop(index=matches, inplace=True)
                     
-                df_matched.loc[:, "condition"] = disorder_pre_subgroup
+                df_matched.loc[:, "time-point"] = disorder_pre_subgroup
 
                 df_control_pre_matched = pd.concat([df_control_pre_matched, df_matched], axis=0)
 
@@ -236,7 +236,7 @@ for pre_ses in range(pre_ses_min, pre_ses_max+1):
                     print("There is duplicate match:", df_matched[df_matched.index.duplicated()].index)
                 ###############################################################################
                 df_control_post_matched = df_control_post[df_control_post.index.isin(df_control_pre_matched.index)].copy()
-                df_control_post_matched.loc[:, "condition"] = f"post-{population}"
+                df_control_post_matched.loc[:, "time-point"] = f"post-{population}"
                 # Reindex the dataframes to have the same order of indices
                 df_control_post_matched = df_control_post_matched.reindex(index=df_control_pre_matched.index)
                 df_control_post_matched.loc[:, "patient_id"] = df_control_pre_matched.loc[:, "patient_id"].astype(int)
@@ -287,7 +287,7 @@ print(df_disorder)
 # print("===== Done! End =====")
 # embed(globals(), locals())
 ##############################################################################
-df_check_matching_pre = pd.DataFrame(columns=["patinets_pre_condition", "controls_pre_condition", "differece_pre_condition"])
+df_check_matching_pre = pd.DataFrame(columns=["patinets_pre_time-point", "controls_pre_time-point", "differece_pre_time-point"])
 # Adding a new index'
 age_mean_disorder = df_disorder[f"1st_pre-{population}_age"].mean()
 age_mean_control = df_control_matched[f"1st_pre-{population}_age"].mean()
@@ -310,8 +310,13 @@ WHR_mean_control= df_control_matched[f"1st_pre-{population}_waist_to_hip_ratio"]
 WHR_difference = WHR_mean_disorder - WHR_mean_control
 df_check_matching_pre.loc['WHR_mean'] = [WHR_mean_disorder, WHR_mean_control, WHR_difference]
 
+HGS_mean_disorder = df_disorder[f"1st_pre-{population}_{target}"].mean()
+HGS_mean_control= df_control_matched[f"1st_pre-{population}_{target}"].mean()
+HGS_difference = HGS_mean_disorder - HGS_mean_control
+df_check_matching_pre.loc['HGS_mean'] = [HGS_mean_disorder, HGS_mean_control, HGS_difference]
 
-df_check_matching_post = pd.DataFrame(columns=["patinets_post_condition", "controls_post_condition", "differece_post_condition"])
+#################################
+df_check_matching_post = pd.DataFrame(columns=["patinets_post_time-point", "controls_post_time-point", "differece_post_time-point"])
 # Adding a new index'
 age_mean_disorder = df_disorder[f"1st_post-{population}_age"].mean()
 age_mean_control = df_control_matched[f"1st_post-{population}_age"].mean()
@@ -333,6 +338,11 @@ WHR_mean_disorder = df_disorder[f"1st_post-{population}_waist_to_hip_ratio"].mea
 WHR_mean_control= df_control_matched[f"1st_post-{population}_waist_to_hip_ratio"].mean()
 WHR_difference = WHR_mean_disorder - WHR_mean_control
 df_check_matching_post.loc['WHR_mean'] = [WHR_mean_disorder, WHR_mean_control, WHR_difference]
+
+HGS_mean_disorder = df_disorder[f"1st_post-{population}_{target}"].mean()
+HGS_mean_control= df_control_matched[f"1st_post-{population}_{target}"].mean()
+HGS_difference = HGS_mean_disorder - HGS_mean_control
+df_check_matching_post.loc['HGS_mean'] = [HGS_mean_disorder, HGS_mean_control, HGS_difference]
 
 print(df_check_matching_pre)
 print(df_check_matching_post)
@@ -378,7 +388,7 @@ ax[0].set_xticks(np.arange(min(xlims_0), max(xlims_0), (max(xlims_0)-min(xlims_0
 ax[1].set_xticks(np.arange(min(xlims_0), max(xlims_0), (max(xlims_0)-min(xlims_0))/4))
 
 # Add main title
-fig.suptitle(f"{population.capitalize()}-{gender.capitalize()}\nComparison of Propensity Scores Before and After Matching(Pre-condition)", fontsize=12, weight="bold")
+fig.suptitle(f"{population.capitalize()}-{gender.capitalize()}\nComparison of Propensity Scores Before and After Matching(Pre-time-point)", fontsize=12, weight="bold")
 
 # Add legend outside the axes
 plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
@@ -418,7 +428,7 @@ embed(globals(), locals())
 
 # for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
 
-#     df = df_control_matched[df_control_matched["condition"] == disorder_subgroup]
+#     df = df_control_matched[df_control_matched["time-point"] == disorder_subgroup]
 
 #     df_correlations.loc[disorder_subgroup, "r_values_true_predicted"] = pearsonr(df.loc[:, f"{target}"],df.loc[:, f"{target}_predicted"])[0]
 #     df_correlations.loc[disorder_subgroup, "r_values_true_delta"] = pearsonr(df.loc[:, f"{target}"],df.loc[:, f"{target}_delta(true-predicted)"])[0]
