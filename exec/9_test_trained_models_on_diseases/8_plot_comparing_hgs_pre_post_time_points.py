@@ -22,15 +22,14 @@ population = sys.argv[1]
 mri_status = sys.argv[2]
 feature_type = sys.argv[3]
 model_name = sys.argv[4]
-session = sys.argv[5]
-confound_status = sys.argv[6]
-n_repeats = sys.argv[7]
-n_folds = sys.argv[8]
-disorder_cohort = sys.argv[9]
-visit_session = sys.argv[10]
-n_samples = sys.argv[11]
-target = sys.argv[12]
-anova_target = sys.argv[13]
+confound_status = sys.argv[5]
+n_repeats = sys.argv[6]
+n_folds = sys.argv[7]
+disorder_cohort = sys.argv[8]
+visit_session = sys.argv[9]
+n_samples = sys.argv[10]
+target = sys.argv[11]
+anova_target = sys.argv[12]
 ##############################################################################
 disorder_cohort = f"{disorder_cohort}-{population}"
 if visit_session == "1":
@@ -53,16 +52,16 @@ data = load_prepare_data_for_anova(
 # print("===== Done! =====")
 # embed(globals(), locals())
 
-df = data[["gender", "treatment", "condition", anova_target]]
+df = data[["gender", "group", "time_point", anova_target]]
 
-df_disorder = df[df["treatment"] == f"{population}"]
-df_control = df[df["treatment"] == "control"]
+df_disorder = df[df["group"] == f"{population}"]
+df_control = df[df["group"] == "control"]
 
-df_pre_disorder = df_disorder[df_disorder['condition']==f"pre-{population}"]
-df_post_disorder = df_disorder[df_disorder['condition']==f"post-{population}"]
+df_pre_disorder = df_disorder[df_disorder['time_point']==f"pre-{population}"]
+df_post_disorder = df_disorder[df_disorder['time_point']==f"post-{population}"]
 
-df_pre_control = df_control[df_control['condition']=="pre-control"]
-df_post_control= df_control[df_control['condition']=="post-control"]
+df_pre_control = df_control[df_control['time_point']=="pre-control"]
+df_post_control= df_control[df_control['time_point']=="post-control"]
 
 # Assuming df_post_control and df_pre_control are defined elsewhere
 df_interaction_control = pd.DataFrame()
@@ -70,27 +69,27 @@ df_interaction_disorder = pd.DataFrame()
 
 # Assuming df_post_control and df_pre_control have the same indices
 df_interaction_control[f"interaction_{anova_target}"] = df_post_control[f"{anova_target}"].values - df_pre_control[f"{anova_target}"].values
-df_interaction_control["treatment"] = "control"
-df_interaction_control["condition"] = "Interaction"
+df_interaction_control["group"] = "control"
+df_interaction_control["time_point"] = "Interaction"
 
 # Assuming df_post_disorder and df_pre_disorder are defined elsewhere
 df_interaction_disorder[f"interaction_{anova_target}"] = df_post_disorder[f"{anova_target}"].values - df_pre_disorder[f"{anova_target}"].values
-df_interaction_disorder["treatment"] = f"{population}"
-df_interaction_disorder["condition"] = "Interaction"
+df_interaction_disorder["group"] = f"{population}"
+df_interaction_disorder["time_point"] = "Interaction"
 
 # Concatenating the two DataFrames
 df_interaction = pd.concat([df_interaction_control, df_interaction_disorder], axis=0)
 # print("===== Done! =====")
 # embed(globals(), locals())
 ###############################################################################
-df_mannwhitneyu = pd.DataFrame(index=["pre-condition", "post-condition", "interaction"])
-df_yaxis_max = pd.DataFrame(index=["pre-condition", "post-condition", "interaction"])
+df_mannwhitneyu = pd.DataFrame(index=["pre-time_point", "post-time_point", "interaction"])
+df_yaxis_max = pd.DataFrame(index=["pre-time_point", "post-time_point", "interaction"])
 
 stat_pre, p_value_pre = mannwhitneyu(df_pre_control[f"{anova_target}"], df_pre_disorder[f"{anova_target}"], nan_policy='propagate')
 stat_post, p_value_post = mannwhitneyu(df_post_control[f"{anova_target}"], df_post_disorder[f"{anova_target}"], nan_policy='propagate')
 
-df_mannwhitneyu.loc["pre-condition", f"{anova_target}_p_value"] = p_value_pre
-df_mannwhitneyu.loc["post-condition", f"{anova_target}_p_value"] = p_value_post
+df_mannwhitneyu.loc["pre-time_point", f"{anova_target}_p_value"] = p_value_pre
+df_mannwhitneyu.loc["post-time_point", f"{anova_target}_p_value"] = p_value_post
 
 stat_interaction, p_value_interaction = stats.mannwhitneyu(df_interaction_control[f"interaction_{anova_target}"], df_interaction_disorder[f"interaction_{anova_target}"])
 
@@ -101,11 +100,11 @@ max_value_post = max(df_post_control[f"{anova_target}"].max(), df_post_disorder[
 max_value_interaction = max(df_interaction_control[f"interaction_{anova_target}"].max(), df_interaction_disorder[f"interaction_{anova_target}"].max())
 
 
-df_yaxis_max.loc["pre-condition", f"{anova_target}_max_value"] = max_value_pre
-df_yaxis_max.loc["post-condition", f"{anova_target}_max_value"] = max_value_post
+df_yaxis_max.loc["pre-time_point", f"{anova_target}_max_value"] = max_value_pre
+df_yaxis_max.loc["post-time_point", f"{anova_target}_max_value"] = max_value_post
 df_yaxis_max.loc["interaction", f"{anova_target}_max_value"] = max_value_interaction
-print("===== Done! =====")
-embed(globals(), locals())
+# print("===== Done! =====")
+# embed(globals(), locals())
 ###############################################################################
 def add_median_labels(ax, fmt='.3f'):
     xticks_positios_array = []
@@ -127,15 +126,15 @@ def add_median_labels(ax, fmt='.3f'):
     return xticks_positios_array
 
 ###############################################################################
-# Replace values based on conditions
-df.loc[data['condition'].str.contains('pre-'), 'condition'] = 'Pre-condition'
-df.loc[data['condition'].str.contains('post-'), 'condition'] = 'Post-condition'
+# Replace values based on time_points
+df.loc[data['time_point'].str.contains('pre-'), 'time_point'] = 'Pre-time_point'
+df.loc[data['time_point'].str.contains('post-'), 'time_point'] = 'Post-time_point'
 ###############################################################################
-folder_path = os.path.join("plot_hgs_comparison_pre_post_conditions", f"{population}", f"{target}", f"{n_samples}_matched")
+folder_path = os.path.join("plot_hgs_comparison_pre_post_time_points", f"{population}", f"{target}", f"{n_samples}_matched", "pre_post_time_points")
 if(not os.path.isdir(folder_path)):
         os.makedirs(folder_path)
 ###############################################################################        
-xtick_labels = ['Pre-condition', 'Post-condition']
+xtick_labels = ['Pre-time_point', 'Post-time_point']
 
 palette_control = sns.color_palette("Paired")
 palette_disorder = sns.color_palette("PiYG")
@@ -145,7 +144,7 @@ custome_palette = [palette_control[1], palette_disorder[0]]
 sns.set_style("whitegrid")
 # Create the boxplot
 fig, ax = plt.subplots(figsize=(10, 10))
-sns.boxplot(data=df, x='condition', y=f"{anova_target}", hue='treatment', palette=custome_palette, linewidth=3)
+sns.boxplot(data=df, x='time_point', y=f"{anova_target}", hue='group', palette=custome_palette, linewidth=3)
 ax.legend().set_visible(False)
 ax.set_xlabel(" ", fontsize=30, fontweight="bold")
 
@@ -166,9 +165,9 @@ xticks_positios_array = add_median_labels(ax)
 
 for x_box_pos in np.arange(0,4,2):
     if x_box_pos == 0:
-        idx = "pre-condition"
+        idx = "pre-time_point"
     if x_box_pos == 2:
-        idx = "post-condition"
+        idx = "post-time_point"
     x1 = xticks_positios_array[x_box_pos]
     x2 = xticks_positios_array[x_box_pos+1]
     y, h, col = df_yaxis_max.loc[idx, f"{anova_target}_max_value"]+.5, 2, 'k'
@@ -198,7 +197,7 @@ plt.close()
 
 
 ##############################################################################
-folder_path = os.path.join("plot_hgs_comparison_pre_post_conditions", f"{population}", f"{target}", f"{n_samples}_matched", "interaction")
+folder_path = os.path.join("plot_hgs_comparison_pre_post_time_points", f"{population}", f"{target}", f"{n_samples}_matched", "interaction")
 if(not os.path.isdir(folder_path)):
         os.makedirs(folder_path)
 ##############################################################################
@@ -206,7 +205,7 @@ if(not os.path.isdir(folder_path)):
 sns.set_style("whitegrid")
 # Create the boxplot
 fig, ax = plt.subplots(figsize=(10, 10))
-sns.boxplot(data=df_interaction, x='condition', y=f"interaction_{anova_target}", hue='treatment', palette=custome_palette, linewidth=3)
+sns.boxplot(data=df_interaction, x='time_point', y=f"interaction_{anova_target}", hue='group', palette=custome_palette, linewidth=3)
 ax.legend().set_visible(False)
 ax.set_xlabel("Interaction", fontsize=25, fontweight="bold")
 ax.set_xticklabels("")

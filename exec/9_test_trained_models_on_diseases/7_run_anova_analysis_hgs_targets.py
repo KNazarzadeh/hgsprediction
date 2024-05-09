@@ -76,23 +76,23 @@ else:
 
     print("Pinguin ANOVA Result:")
     print(aov)
-    # save_anova_results(
-    #     data,
-    #     aov,
-    #     population,
-    #     mri_status,
-    #     session_column,
-    #     model_name,
-    #     feature_type,
-    #     target,
-    #     confound_status,
-    #     n_repeats,
-    #     n_folds,
-    #     n_samples,
-    #     anova_target,
-    #     "non",
-    #     "pingouin",
-    # )
+    save_anova_results(
+        data,
+        aov,
+        population,
+        mri_status,
+        session_column,
+        model_name,
+        feature_type,
+        target,
+        confound_status,
+        n_repeats,
+        n_folds,
+        n_samples,
+        anova_target,
+        "non",
+        "pingouin",
+    )
     ###############################################################################
     # Scenario (D): Sanity check:
     # Linear mixed model technique on the males and females separately as a sanity check 
@@ -108,58 +108,48 @@ else:
     print("MixedLM ANOVA Result:")
     print(mixedlm_model_fit.summary())
 
-    # save_anova_results(
-    #     data,
-    #     mixedlm_model_fit,
-    #     population,
-    #     mri_status,
-    #     session_column,
-    #     model_name,
-    #     feature_type,
-    #     target,
-    #     confound_status,
-    #     n_repeats,
-    #     n_folds,
-    #     n_samples,
-    #     anova_target,
-    #     "non",
-    #     "mixedlm_both_gender",
-    # )
-    print("===== Done! =====")
-    embed(globals(), locals())
+    save_anova_results(
+        data,
+        mixedlm_model_fit,
+        population,
+        mri_status,
+        session_column,
+        model_name,
+        feature_type,
+        target,
+        confound_status,
+        n_repeats,
+        n_folds,
+        n_samples,
+        anova_target,
+        "non",
+        "mixedlm_both_gender",
+    )
+    # print("===== Done! =====")
+    # embed(globals(), locals())
 ###############################################################################
 
 
-# import statsmodels.stats.multicomp as multi
+import statsmodels.stats.multicomp as multi
 
-# # Combine the predictions with the original data for reference
-# data['pred'] = mixedlm_model_fit.fittedvalues
+# Combine the predictions with the original data for reference
+data['pred'] = mixedlm_model_fit.fittedvalues
 
-# # Perform pairwise comparisons for each group
-# # Note: Modify the code according to your specific levels in 'group' and 'time_point'
-# tukey_hsd = multi.pairwise_tukeyhsd(endog=data['pred'], groups=data['group'] + "_" + data['time_point'])
+# Perform pairwise comparisons for each group
+# Note: Modify the code according to your specific levels in 'group' and 'time_point'
+tukey_hsd = multi.pairwise_tukeyhsd(endog=data['pred'], groups=data['group'] + "_" + data['time_point'])
 
-# print(tukey_hsd.summary())
+print(tukey_hsd.summary())
 
 
-# import statsmodels.stats.multicomp as mc
-# interaction_groups =  data.group.astype(str) + " | " + data.time_point.astype(str)
-# comp = mc.MultiComparison(data[f"{anova_target}"], interaction_groups)
-# df_post_hoc_result_without_gender = comp.tukeyhsd()
-# print(df_post_hoc_result_without_gender.summary())
-# print("===== Done! End =====")
-# embed(globals(), locals())
-# # General Conclusions:
+import statsmodels.stats.multicomp as mc
+interaction_groups =  data.group.astype(str) + " | " + data.time_point.astype(str)
+comp = mc.MultiComparison(data[f"{anova_target}"], interaction_groups)
+df_post_hoc_result_without_gender = comp.tukeyhsd()
+print(df_post_hoc_result_without_gender.summary())
+print("===== Done! End =====")
+embed(globals(), locals())
 
-# # Disorder Episode is a significant factor affecting outcomes differently in both genders, particularly more impactful in males.
-# # group itself does not significantly affect the outcome for either gender.
-# # Interaction between group and disorder episode is not significant in either gender, 
-# # indicating the effect of group is consistent across different levels of the disorder episode.
-
-# # This analysis indicates that interventions might need to be more focused on the disorder episode itself rather than the type of group, and 
-# # this might require different strategies for male and female groups considering the stronger effect in males.
-# print("===== Done! End =====")
-# embed(globals(), locals())
 # ###############################################################################
 # # Linear Mixed Models mixedlm for female and male separately:
 # mixedlm_formula = f"{anova_target} ~ group * time_point"
