@@ -13,6 +13,8 @@ from statsmodels.stats.anova import AnovaRM
 from hgsprediction.load_results.load_prepared_data_for_anova import load_prepare_data_for_anova
 from hgsprediction.save_results.save_anova_results import save_anova_results
 from pingouin import mixed_anova
+import statsmodels.stats.multicomp as multi
+import statsmodels.stats.multicomp as mc
 
 from ptpython.repl import embed
 # print("===== Done! =====")
@@ -128,10 +130,6 @@ else:
     # print("===== Done! =====")
     # embed(globals(), locals())
 ###############################################################################
-
-
-import statsmodels.stats.multicomp as multi
-
 # Combine the predictions with the original data for reference
 data['pred'] = mixedlm_model_fit.fittedvalues
 
@@ -142,7 +140,6 @@ tukey_hsd = multi.pairwise_tukeyhsd(endog=data['pred'], groups=data['group'] + "
 print(tukey_hsd.summary())
 
 
-import statsmodels.stats.multicomp as mc
 interaction_groups =  data.group.astype(str) + " | " + data.time_point.astype(str)
 comp = mc.MultiComparison(data[f"{anova_target}"], interaction_groups)
 df_post_hoc_result_without_gender = comp.tukeyhsd()
@@ -151,137 +148,3 @@ print("===== Done! End =====")
 embed(globals(), locals())
 
 # ###############################################################################
-# # Linear Mixed Models mixedlm for female and male separately:
-# mixedlm_formula = f"{anova_target} ~ group * time_point"
-# mixedlm_model_fit_female = smf.mixedlm(formula=mixedlm_formula, data=df_female_tmp, groups="Subject").fit()
-# mixedlm_model_fit_male = smf.mixedlm(formula=mixedlm_formula, data=df_male_tmp, groups="Subject").fit()
-
-# import statsmodels.stats.multicomp as multi
-
-# # Combine the predictions with the original data for reference
-# df_female_tmp['pred'] = mixedlm_model_fit_female.fittedvalues
-# df_male_tmp['pred'] = mixedlm_model_fit_male.fittedvalues
-
-# # Perform pairwise comparisons for each group
-# # Note: Modify the code according to your specific levels in 'group' and 'time_point'
-# tukey_hsd_female = multi.pairwise_tukeyhsd(endog=df_female_tmp['pred'], groups=df_female_tmp['group'] + "_" + df_female_tmp['time_point'])
-# tukey_hsd_male = multi.pairwise_tukeyhsd(endog=df_male_tmp['pred'], groups=df_male_tmp['group'] + "_" + df_male_tmp['time_point'])
-
-# print(tukey_hsd_female.summary())
-# print(tukey_hsd_male.summary())
-
-
-# print("===== Done! End =====")
-# embed(globals(), locals())
-# # get fixed effects
-# print("Female MixedLM ANOVA Result:")
-# print(mixedlm_model_fit_female.summary())
-# save_anova_results(
-#     data,
-#     mixedlm_model_fit_female,
-#     population,
-#     mri_status,
-#     session_column,
-#     model_name,
-#     feature_type,
-#     target,
-#     confound_status,
-#     n_repeats,
-#     n_folds,
-#     n_samples,
-#     anova_target,
-#     "female",
-#     "mixedlm_gender_separated",
-# )
-# print("Male MixedLM ANOVA Result:")
-# print(mixedlm_model_fit_male.summary())
-# save_anova_results(
-#     data,
-#     mixedlm_model_fit_male,
-#     population,
-#     mri_status,
-#     session_column,
-#     model_name,
-#     feature_type,
-#     target,
-#     confound_status,
-#     n_repeats,
-#     n_folds,
-#     n_samples,
-#     anova_target,
-#     "male",
-#     "mixedlm_gender_separated",
-# )
-# ###############################################################################
-# # Linear Mixed Models mixedlm for female and male separately:
-# mixedlm_formula = f"{anova_target} ~ group * time_point"
-# mixedlm_model_fit = smf.mixedlm(formula=mixedlm_formula, data=data, groups="Subject").fit()
-
-# # get fixed effects
-# print("MixedLM ANOVA Result:")
-# print(mixedlm_model_fit.summary())
-
-# save_anova_results(
-#     data,
-#     mixedlm_model_fit,
-#     population,
-#     mri_status,
-#     session_column,
-#     model_name,
-#     feature_type,
-#     target,
-#     confound_status,
-#     n_repeats,
-#     n_folds,
-#     n_samples,
-#     anova_target,
-#     "non",
-#     "mixedlm_both_gender",
-# )
-# ###############################################################################
-# # Scenario (C)
-# ###############################################################################
-# aov_female = mixed_anova(dv=anova_target, between='group', within='time_point', subject='Subject', data=df_female_tmp)
-# aov_male = mixed_anova(dv=anova_target, between='group', within='time_point', subject='Subject', data=df_male_tmp)
-
-# print("Female Pinguin ANOVA Result:")
-# print(aov_female)
-# save_anova_results(
-#     data,
-#     aov_female,
-#     population,
-#     mri_status,
-#     session_column,
-#     model_name,
-#     feature_type,
-#     target,
-#     confound_status,
-#     n_repeats,
-#     n_folds,
-#     n_samples,
-#     anova_target,
-#     "female",
-#     "pingouin",
-# )
-# print("Male Pinguin ANOVA Result:")
-# print(aov_male)
-# save_anova_results(
-#     data,
-#     aov_male,
-#     population,
-#     mri_status,
-#     session_column,
-#     model_name,
-#     feature_type,
-#     target,
-#     confound_status,
-#     n_repeats,
-#     n_folds,
-#     n_samples,
-#     anova_target,
-#     "male",
-#     "pingouin",
-# )
-# ################################## Interpret ##################################
-# print("===== Done! End =====")
-# embed(globals(), locals())

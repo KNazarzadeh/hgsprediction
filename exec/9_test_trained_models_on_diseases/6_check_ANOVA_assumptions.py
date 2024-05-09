@@ -175,13 +175,13 @@ for description, p_value in p_values:
 # Don'T use shapiro wilk for larger datasets only for small database
 # Use kolmogrov smirnov for larger datasets
 # Perform Shapiro-Wilk tests and print results
-# Null Hypothesis (H0): The data is drawn from a normal distribution.
+# Null Hypothesis (H0): The data is normally distributed.
 # Alternative Hypothesis (H1): The data is not drawn from a normal distribution.
 # Interpreting the p-value:
-#     p-value ≤ α (commonly 0.05): If the p-value is less than or equal to the significance level (typically 0.05), 
-# you reject the null hypothesis. This means there is sufficient evidence to say that the data does not follow a normal distribution.
-#     p-value > α: If the p-value is greater than the significance level, you fail to reject the null hypothesis. 
-# This suggests that there is not enough evidence to conclude that the data distribution is different from normal.
+# If the p-value is greater than the chosen significance level (typically 0.05), 
+# you fail to reject the null hypothesis, meaning the data is likely to be normally distributed.
+# If the p-value is less than or equal to the significance level, you reject the null hypothesis, 
+# indicating that the data is unlikely to be normally distributed.
 if len(df_disorder[df_disorder['time_point']==f'pre-{population}']) < 30:
     #  Use shapiro wilk for small database
     # For male controls (pre-time_point)
@@ -272,8 +272,11 @@ if len(df_disorder[df_disorder['time_point']==f'pre-{population}']) < 30:
 elif len(df_disorder[df_disorder['time_point']==f'pre-{population}']) > 30:
     # Use kolmogrov smirnov (KS) for larger datasets
     # Hypotheses:
-    #     Null Hypothesis (H0): The sample data comes from a normal distribution.
-    #     Alternative Hypothesis (H1): The sample data does not come from a normal distribution.
+    #     Null Hypothesis (H0): The data is normally distributed.
+    # If the p-value is greater than the chosen significance level (typically 0.05), you fail to reject the null hypothesis,
+    # meaning the data is likely to be normally distributed.
+    # If the p-value is less than or equal to the significance level, you reject the null hypothesis,
+    # indicating that the data is unlikely to be normally distributed
 
     stat_male_pre_controls, p_value_male_pre_controls = kstest(male_pre_controls, "norm")
     if p_value <= .05:
@@ -282,21 +285,21 @@ elif len(df_disorder[df_disorder['time_point']==f'pre-{population}']) > 30:
         print(f"Kolmogorov-Smirnov test for male controls (pre-time_point) is met (The data  does not look normal): (p-value = {p_value_male_pre_controls:.6f}")
 
     # For male controls (post-time_point)
-    stat_male_post_controls, p_value_male_post_controls = kstest(male_post_controls, stats.norm.cdf)
+    stat_male_post_controls, p_value_male_post_controls = kstest(male_post_controls, "norm")
     if p_value <= .05:
         print(f"Kolmogorov-Smirnov test for male controls (post-time_point) is rejected (The data  does not look normal): (p-value = {p_value_male_post_controls:.6f}")    
     else:
         print(f"Kolmogorov-Smirnov test for male controls (post-time_point) is met (The data  does not look normal): (p-value = {p_value_male_post_controls:.6f}")
 
     # For female controls (pre-time_point)
-    stat_female_pre_controls, p_value_female_pre_controls = kstest(female_pre_controls, stats.norm.cdf)
+    stat_female_pre_controls, p_value_female_pre_controls = kstest(female_pre_controls, "norm")
     if p_value <= .05:
         print(f"Kolmogorov-Smirnov test for female controls (pre-time_point) is rejected (The data  does not look normal): (p-value = {p_value_female_pre_controls:.6f}")    
     else:
         print(f"Kolmogorov-Smirnov test for female controls (pre-time_point) is met (The data  does not look normal): (p-value = {p_value_female_pre_controls:.6f}")
         
     # For female controls (post-time_point)
-    stat_female_post_controls, p_value_female_post_controls = kstest(female_post_controls, stats.norm.cdf)
+    stat_female_post_controls, p_value_female_post_controls = kstest(female_post_controls, "norm")
     if p_value <= .05:
         print(f"Kolmogorov-Smirnov test for female controls (post-time_point) is rejected (The data  does not look normal): (p-value = {p_value_female_post_controls:.6f}")
         
@@ -304,21 +307,21 @@ elif len(df_disorder[df_disorder['time_point']==f'pre-{population}']) > 30:
         print(f"Kolmogorov-Smirnov test for female controls (post-time_point) is met (The data  does not look normal): (p-value = {p_value_female_post_controls:.6f}")
 
     # For male patients (pre-time_point)
-    stat_male_pre_patients, p_value_male_pre_patients = kstest(male_pre_patients, stats.norm.cdf)
+    stat_male_pre_patients, p_value_male_pre_patients = kstest(male_pre_patients, "norm")
     if p_value <= .05:
         print(f"Kolmogorov-Smirnov test for male patients (pre-time_point) is rejected (The data  does not look normal): (p-value = {p_value_male_pre_patients:.6f}")    
     else:
         print(f"Kolmogorov-Smirnov test for male patients (pre-time_point) is met (The data  does not look normal): (p-value = {p_value_male_pre_patients:.6f}")
         
     # For male patients (post-time_point)
-    stat_male_post_patients, p_value_male_post_patients = kstest(male_post_patients, stats.norm.cdf)
+    stat_male_post_patients, p_value_male_post_patients = kstest(male_post_patients, "norm")
     if p_value <= .05:
         print(f"Kolmogorov-Smirnov test for male patients (post-time_point) is rejected (The data  does not look normal): (p-value = {p_value_male_post_patients:.6f}")    
     else:
         print(f"Kolmogorov-Smirnov test for male patients (post-time_point) is met (The data  does not look normal): (p-value = {p_value_male_post_patients:.6f}")
 
     # For female patients (pre-time_point)
-    stat_female_pre_patients, p_value_female_pre_patients = kstest(female_pre_patients, stats.norm.cdf)
+    stat_female_pre_patients, p_value_female_pre_patients = kstest(female_pre_patients, "norm")
     if p_value <= .05:
         print(f"Kolmogorov-Smirnov test for male patients (pre-time_point) is rejected (The data  does not look normal): (p-value = {p_value_female_pre_patients:.6f}")    
     else:
@@ -423,21 +426,21 @@ if len(df_disorder[df_disorder['time_point']==f'pre-{population}']) < 30:
     # Perform Shapiro-Wilk test tests and print results
     # For Controls (pre-time_point):
     stat_control_pre, p_value_control_pre = shapiro(df_control_pre)
-    if p_value <= .05:
+    if p_value <= 0.05:
         print(f"Shapiro-Wilk test for controls (pre-time_point) is rejected (The data  does not look normal): (p-value = {p_value_control_pre:.6f}")
     else:
         print(f"Shapiro-Wilk test for controls (pre-time_point) is met (The data looks normal): (p-value = {p_value_control_pre:.6f}")
         
     # For Controls (post-time_point):
     stat_control_post, p_value_control_post = shapiro(df_control_post)
-    if p_value <= .05:
+    if p_value <= 0.05:
         print(f"Shapiro-Wilk test for controls (post-time_point) is rejected (The data  does not look normal): (p-value = {p_value_control_post:.6f}")
     else:
         print(f"Shapiro-Wilk test for controls (post-time_point) is met (The data looks normal): (p-value = {p_value_control_post:.6f}")
     
     # For Controls (post-time_point):
     stat_disorder_pre, p_value_disorder_pre = shapiro(df_disorder_pre)
-    if p_value <= .05:
+    if p_value <= 0.05:
         print(f"Shapiro-Wilk test for patients (pre-time_point) is rejected (The data  does not look normal): (p-value = {p_value_disorder_pre:.6f}")
     else:
         print(f"Shapiro-Wilk test for patients (pre-time_point) is met (The data looks normal): (p-value = {p_value_disorder_pre:.6f}")
@@ -467,31 +470,31 @@ elif len(df_disorder[df_disorder['time_point']==f'pre-{population}']) > 30:
     # Check Normality:
     # Perform Kolmogorov-Smirnov test tests and print results
     # For Controls (pre-time_point):
-    stat_control_pre, p_value_control_pre = kstest(stats.norm.rvs(df_control_pre), stats.norm.cdf)
-    if p_value <= .05:
-        print(f"Kolmogorov-Smirnov test for controls (pre-time_point) is rejected (The data  does not look normal): (p-value = {p_value_control_pre:.6f}")
+    stat_control_pre, p_value_control_pre = kstest(df_control_pre, "norm")
+    if p_value <= 0.05:
+        print(f"Kolmogorov-Smirnov test for controls (pre-time_point) is rejected (The data  does not look normal): (p-value = {p_value_control_pre:.6f})")
     else:
-        print(f"Kolmogorov-Smirnov test for controls (pre-time_point) is met (The data looks normal): (p-value = {p_value_control_pre:.6f}")
+        print(f"Kolmogorov-Smirnov test for controls (pre-time_point) is met (The data looks normal): (p-value = {p_value_control_pre:.6f})")
         
     # For Controls (post-time_point):
-    stat_control_post, p_value_control_post = kstest(stats.norm.rvs(df_control_post), stats.norm.cdf)
-    if p_value <= .05:
-        print(f"Kolmogorov-Smirnov test for controls (post-time_point) is rejected (The data  does not look normal): (p-value = {p_value_control_post:.6f}")
+    stat_control_post, p_value_control_post = kstest(df_control_post, "norm")
+    if p_value <= 0.05:
+        print(f"Kolmogorov-Smirnov test for controls (post-time_point) is rejected (The data  does not look normal): (p-value = {p_value_control_post:.6f})")
     else:
-        print(f"Kolmogorov-Smirnov test for controls (post-time_point) is met (The data looks normal): (p-value = {p_value_control_post:.6f}")
+        print(f"Kolmogorov-Smirnov test for controls (post-time_point) is met (The data looks normal): (p-value = {p_value_control_post:.6f})")
     
     # For Controls (post-time_point):
-    stat_disorder_pre, p_value_disorder_pre = kstest(stats.norm.rvs(df_disorder_pre), stats.norm.cdf)
-    if p_value <= .05:
-        print(f"Kolmogorov-Smirnov test for patients (pre-time_point) is rejected (The data  does not look normal): (p-value = {p_value_disorder_pre:.6f}")
+    stat_disorder_pre, p_value_disorder_pre = kstest(df_disorder_pre, "norm")
+    if p_value <= 0.05:
+        print(f"Kolmogorov-Smirnov test for patients (pre-time_point) is rejected (The data  does not look normal): (p-value = {p_value_disorder_pre:.6f})")
     else:
-        print(f"Kolmogorov-Smirnov test for patients (pre-time_point) is met (The data  looks normal): (p-value = {p_value_disorder_pre:.6f}")
+        print(f"Kolmogorov-Smirnov test for patients (pre-time_point) is met (The data  looks normal): (p-value = {p_value_disorder_pre:.6f})")
 
-    stat_disorder_post, p_value_disorder_post = kstest(stats.norm.rvs(df_disorder_post), stats.norm.cdf)
-    if p_value <= .05:
-            print(f"Kolmogorov-Smirnov test for patients (post-time_point) is rejected (The data  does not look normal): (p-value = {p_value_disorder_post:.6f}")
+    stat_disorder_post, p_value_disorder_post = kstest(df_disorder_post, "norm")
+    if p_value <= 0.05:
+            print(f"Kolmogorov-Smirnov test for patients (post-time_point) is rejected (The data  does not look normal): (p-value = {p_value_disorder_post:.6f})")
     else:
-        print(f"Kolmogorov-Smirnov test for patients (post-time_point) is met (The data  looks normal): (p-value = {p_value_disorder_post:.6f}")
+        print(f"Kolmogorov-Smirnov test for patients (post-time_point) is met (The data  looks normal): (p-value = {p_value_disorder_post:.6f})")
      
      # Check each p-value and print if it is less than 0.05
     # List of p-values with descriptive names

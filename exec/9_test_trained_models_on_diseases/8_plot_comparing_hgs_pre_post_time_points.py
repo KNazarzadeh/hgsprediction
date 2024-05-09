@@ -115,7 +115,7 @@ def add_median_labels(ax, fmt='.3f'):
         x, y = (data.mean() for data in median.get_data())
         # choose value depending on horizontal or vertical plot orientation
         value = x if (median.get_xdata()[1] - median.get_xdata()[0]) == 0 else y
-        text = ax.text(x, y, f'{value:{fmt}}', ha='center', va='center',  color='white', fontsize=20)
+        text = ax.text(x, y, f'{value:{fmt}}', ha='center', va='center',  color='white', fontsize=18)
                     #    fontweight='bold',
         # create median-colored border around white text for contrast
         text.set_path_effects([
