@@ -129,12 +129,12 @@ data_control_pre.columns = [f'{boxplot_target}', 'Gender']
 data_control_post.columns = [f'{boxplot_target}', 'Gender']
 
 
-# Add a new column for condition
-data_disorder_pre['Condition'] = 'Pre-condition'
-data_disorder_post['Condition'] = 'Post-condition'
-# Add a new column for condition
-data_control_pre['Condition'] = 'Pre-condition'
-data_control_post['Condition'] = 'Post-condition'
+# Add a new column for Time_point
+data_disorder_pre['Time_point'] = 'Pre-Time_point'
+data_disorder_post['Time_point'] = 'Post-Time_point'
+# Add a new column for Time_point
+data_control_pre['Time_point'] = 'Pre-Time_point'
+data_control_post['Time_point'] = 'Post-Time_point'
 
 # Check if the indices are in the same order
 if data_control_pre.index.equals(data_control_post.index):
@@ -166,14 +166,14 @@ elif boxplot_target == "delta":
 elif boxplot_target == "corrected_delta":
     y_label = "Delta adjusted HGS"
 ###############################################################################
-custom_palette = {'Pre-condition':'lightgrey', 'Post-condition':'grey'}
+custom_palette = {'Pre-time_point':'lightgrey', 'Post-time_point':'grey'}
 # Set the style of seaborn
 sns.set_style("whitegrid")
 
 # Create the boxplot
 fig, ax = plt.subplots(1, 2, figsize=(20, 10))
-sns.boxplot(x='Condition', y=f'{boxplot_target}', data=data_disorder, palette=custom_palette, ax=ax[0])
-sns.boxplot(x='Condition', y=f'{boxplot_target}', data=data_control, palette=custom_palette, ax=ax[1])
+sns.boxplot(x='Time_point', y=f'{boxplot_target}', data=data_disorder, palette=custom_palette, ax=ax[0])
+sns.boxplot(x='Time_point', y=f'{boxplot_target}', data=data_control, palette=custom_palette, ax=ax[1])
 
 # Adding connecting lines and scatter points with gender-based colors for disorder data
 # for idx in data_disorder_pre.index:
