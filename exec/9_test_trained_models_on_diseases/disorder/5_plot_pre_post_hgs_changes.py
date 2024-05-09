@@ -110,8 +110,8 @@ elif boxplot_target in ["delta", "corrected_delta"]:
     control_pre_male = df_mathced_controls_male[[f'1st_pre-{population}_{target}_{boxplot_target}(true-predicted)', 'gender']]
     control_post_female = df_mathced_controls_female[[f'1st_post-{population}_{target}_{boxplot_target}(true-predicted)', 'gender']]
     control_post_male = df_mathced_controls_male[[f'1st_post-{population}_{target}_{boxplot_target}(true-predicted)', 'gender']]
-print("===== Done! End =====")
-embed(globals(), locals())
+# print("===== Done! End =====")
+# embed(globals(), locals())
 # Combine data into a DataFrame
 data_disorder_pre = pd.concat([disorder_pre_female, disorder_pre_male])
 data_disorder_post = pd.concat([disorder_post_female, disorder_post_male])
