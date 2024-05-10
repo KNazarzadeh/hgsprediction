@@ -78,6 +78,7 @@ for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
     # Beheshti Method:
     df.loc[:, f"{prefix}_{target}_corrected_predicted"] = (df.loc[:, f"{prefix}_{target}_predicted"] + ((slope * df.loc[:, f"{prefix}_{target}"]) + intercept))
     df.loc[:, f"{prefix}_{target}_corrected_delta(true-predicted)"] = df.loc[:, f"{prefix}_{target}"] - df.loc[:, f"{prefix}_{target}_corrected_predicted"]
+    # df.loc[:, f"{prefix}_{target}_corrected_delta(predicted-true)"] = df.loc[:, f"{prefix}_{target}_corrected_predicted"] -  df.loc[:, f"{prefix}_{target}"]
 
 ###############################################################################
 save_disorder_corrected_prediction_results(

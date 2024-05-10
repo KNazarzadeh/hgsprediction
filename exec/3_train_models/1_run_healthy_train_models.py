@@ -155,7 +155,7 @@ for idx, (train_val_index, validation_index) \
     df_tmp.loc[:, "cv_fold"] = fold
     df_tmp.loc[:, "cv_repeat"] = repeat
     df_tmp.loc[:, f"{target}_delta(true-predicted)"] =  df_tmp.loc[:, f"{target}"] - df_tmp.loc[:, f"{target}_predicted"]
-    
+
     df_validation_prediction_hgs = pd.concat([df_validation_prediction_hgs,df_tmp], axis=0)
 df_prediction_r2_scores.index.name = 'Repeats'
 df_prediction_r2_scores.columns.name = 'K-fold splits'

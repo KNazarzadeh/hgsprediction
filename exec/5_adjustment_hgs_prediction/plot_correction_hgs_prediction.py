@@ -81,8 +81,8 @@ for gender in ["female", "male"]:
     elif gender == "male":
         df_male_corrected = df_corrected.copy()
         df_male_correlations = df_correlations.copy()
-print("===== Done! =====")
-embed(globals(), locals())
+# print("===== Done! =====")
+# embed(globals(), locals())
 ###############################################################################
 # Predicted vs True HGS
 # Raw predicted HGS vs True HGS
@@ -109,13 +109,13 @@ for i in range(2):
             ax.set_xlabel("")            
             ax.set_title(f"Fold:{fold}", fontsize=40, fontweight="bold")            
             
-            r_text_female = f"r:{df_female_correlations.loc[fold, 'r_values_true_raw_predicted']:.3f}\nR2:{df_female_correlations.loc[fold, 'r2_values_true_raw_predicted']:.3f}"
-            r_text_male = f"r:{df_male_correlations.loc[fold, 'r_values_true_raw_predicted']:.3f}\nR2:{df_male_correlations.loc[fold, 'r2_values_true_raw_predicted']:.3f}"
+            r_text_female = f"r:{df_female_correlations.loc[fold, 'r_values_true_predicted']:.3f}\nR2:{df_female_correlations.loc[fold, 'r2_values_true_predicted']:.3f}"
+            r_text_male = f"r:{df_male_correlations.loc[fold, 'r_values_true_predicted']:.3f}\nR2:{df_male_correlations.loc[fold, 'r2_values_true_predicted']:.3f}"
             ax.annotate(r_text_female, xy=(0.05, 0.9), xycoords='axes fraction', fontsize=30, fontweight="bold", color='red')
             ax.annotate(r_text_male, xy=(0.05, 0.8), xycoords='axes fraction', fontsize=30, fontweight="bold", color='#069AF3')
         elif i == 1:
-            sns.regplot(data=df_female_corrected[df_female_corrected['cv_fold']==fold], x=f"{target}", y=f"corrected_predicted_hgs", color='lightcoral', marker="$\circ$", scatter_kws={'s': 50, 'linewidths': 5}, line_kws={"color": "red"}, ax=ax)
-            sns.regplot(data=df_male_corrected[df_male_corrected['cv_fold']==fold], x=f"{target}", y=f"corrected_predicted_hgs", color='#069AF3', marker="$\circ$", scatter_kws={'s': 50, 'linewidths': 5}, line_kws={"color": "blue"}, ax=ax)
+            sns.regplot(data=df_female_corrected[df_female_corrected['cv_fold']==fold], x=f"{target}", y=f"hgs_L+R_corrected_predicted", color='lightcoral', marker="$\circ$", scatter_kws={'s': 50, 'linewidths': 5}, line_kws={"color": "red"}, ax=ax)
+            sns.regplot(data=df_male_corrected[df_male_corrected['cv_fold']==fold], x=f"{target}", y=f"hgs_L+R_corrected_predicted", color='#069AF3', marker="$\circ$", scatter_kws={'s': 50, 'linewidths': 5}, line_kws={"color": "blue"}, ax=ax)
             ax.set_ylabel("Corrected predicted HGS", fontsize=40, fontweight="bold")
             ax.set_xlabel("True HGS", fontsize=40, fontweight="bold")
 
@@ -160,13 +160,13 @@ for i in range(2):
             ax.set_xlabel("")                        
             ax.set_title(f"Fold:{fold}", fontsize=40, fontweight="bold")            
             
-            r_text_female = f"r:{df_female_correlations.loc[fold, 'r_values_true_raw_delta']:.3f}\nR2:{df_female_correlations.loc[fold, 'r2_values_true_raw_delta']:.3f}"
-            r_text_male = f"r:{df_male_correlations.loc[fold, 'r_values_true_raw_delta']:.3f}\nR2:{df_male_correlations.loc[fold, 'r2_values_true_raw_delta']:.3f}"
+            r_text_female = f"r:{df_female_correlations.loc[fold, 'r_values_true_delta']:.3f}\nR2:{df_female_correlations.loc[fold, 'r2_values_true_delta']:.3f}"
+            r_text_male = f"r:{df_male_correlations.loc[fold, 'r_values_true_delta']:.3f}\nR2:{df_male_correlations.loc[fold, 'r2_values_true_delta']:.3f}"
             ax.annotate(r_text_female, xy=(0.05, 0.9), xycoords='axes fraction', fontsize=30, fontweight="bold", color='red')
             ax.annotate(r_text_male, xy=(0.05, 0.8), xycoords='axes fraction', fontsize=30, fontweight="bold", color='#069AF3')
         elif i == 1:
-            sns.regplot(data=df_female_corrected[df_female_corrected['cv_fold']==fold], x=f"{target}", y=f"corrected_delta_hgs", color='lightcoral', marker="$\circ$", scatter_kws={'s': 50, 'linewidths': 5}, line_kws={"color": "red"}, ax=ax)
-            sns.regplot(data=df_male_corrected[df_male_corrected['cv_fold']==fold], x=f"{target}", y=f"corrected_delta_hgs", color='#069AF3', marker="$\circ$", scatter_kws={'s': 50, 'linewidths': 5}, line_kws={"color": "blue"}, ax=ax)
+            sns.regplot(data=df_female_corrected[df_female_corrected['cv_fold']==fold], x=f"{target}", y=f"hgs_L+R_corrected_delta(true-predicted)", color='lightcoral', marker="$\circ$", scatter_kws={'s': 50, 'linewidths': 5}, line_kws={"color": "red"}, ax=ax)
+            sns.regplot(data=df_male_corrected[df_male_corrected['cv_fold']==fold], x=f"{target}", y=f"hgs_L+R_corrected_delta(true-predicted)", color='#069AF3', marker="$\circ$", scatter_kws={'s': 50, 'linewidths': 5}, line_kws={"color": "blue"}, ax=ax)
             ax.set_ylabel("Corrected delta HGS", fontsize=40, fontweight="bold")
             ax.set_xlabel("True HGS", fontsize=40, fontweight="bold")
 
@@ -184,3 +184,6 @@ plt.tight_layout()
 plt.show()
 plt.savefig(f"true_delta.png")
 plt.close()
+
+print("===== Done! =====")
+embed(globals(), locals())

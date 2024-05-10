@@ -68,6 +68,8 @@ df_disorder_matched_male, df_mathced_controls_male = load_disorder_matched_sampl
     n_folds,
     n_samples,
 )
+# print("===== Done! End =====")
+# embed(globals(), locals())
 ##############################################################################
 # Replace 0 with "Male" in the 'Gender' column
 df_disorder_matched_male['gender'] = df_disorder_matched_male['gender'].replace(1, 'Male')
@@ -153,7 +155,8 @@ else:
 data_disorder = pd.concat([data_disorder_pre, data_disorder_post])
 
 data_control = pd.concat([data_control_pre, data_control_post])
-
+# print("===== Done! End =====")
+# embed(globals(), locals())
 ###############################################################################
 if boxplot_target == "hgs":
     y_label = "Raw HGS"
@@ -166,7 +169,7 @@ elif boxplot_target == "delta":
 elif boxplot_target == "corrected_delta":
     y_label = "Delta adjusted HGS"
 ###############################################################################
-custom_palette = {'Pre-time_point':'lightgrey', 'Post-time_point':'grey'}
+custom_palette = {'Pre-Time_point':'lightgrey', 'Post-Time_point':'grey'}
 # Set the style of seaborn
 sns.set_style("whitegrid")
 
