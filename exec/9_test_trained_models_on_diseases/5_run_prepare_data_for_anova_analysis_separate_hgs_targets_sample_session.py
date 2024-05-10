@@ -99,7 +99,7 @@ prefix_post = f"1st_post-{population}"
 df_control_tmp.loc[:, f"{prefix_post}_time_point"] = df_control_tmp.loc[:, f"{prefix_post}_time_point"].replace({f"post-{population}": "post-control"})
 
 
-df_control_tmp.rename(columns=lambda x: x.replace("delta(predicted-true)", "delta") if "delta(predicted-true)" in x else x, inplace=True)
+df_control_tmp.rename(columns=lambda x: x.replace("delta(true-predicted)", "delta") if "delta(true-predicted)" in x else x, inplace=True)
 
 # df_control_tmp = df_control_tmp.drop(columns=[f"1st_pre-{population}_age_range", f"1st_post-{population}_age_range"])
 
@@ -130,7 +130,7 @@ for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
             new_col_name = col.replace(prefix, "")
             df_control_extracted_pre = df_control_extracted_pre.rename(columns={col: new_col_name})
 
-        df_disorder_extracted_pre.rename(columns=lambda x: x.replace("delta(predicted-true)", "delta") if "delta(predicted-true)" in x else x, inplace=True)
+        df_disorder_extracted_pre.rename(columns=lambda x: x.replace("delta(true-predicted)", "delta") if "delta(true-predicted)" in x else x, inplace=True)
         
     elif disorder_subgroup == f"post-{population}":
         df_control_extracted_post = df_control_tmp[[col for col in df_control_tmp.columns if f"pre-{population}" not in col]]
@@ -148,7 +148,7 @@ for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
             new_col_name = col.replace(prefix, "")
             df_control_extracted_post = df_control_extracted_post.rename(columns={col: new_col_name})
             
-        df_disorder_extracted_post.rename(columns=lambda x: x.replace("delta(predicted-true)", "delta") if "delta(predicted-true)" in x else x, inplace=True)
+        df_disorder_extracted_post.rename(columns=lambda x: x.replace("delta(true-predicted)", "delta") if "delta(true-predicted)" in x else x, inplace=True)
 
 # Check if the indices are in the same order
 if df_disorder_extracted_pre.index.equals(df_disorder_extracted_post.index):
