@@ -35,3 +35,4 @@ from .load_brain_correlates_results_1 import load_brain_hgs_correlation_results,
 from .load_brain_correlation_results import load_brain_correlation_overlap_data_with_mri, load_brain_hgs_correlation_results, load_brain_hgs_correlation_results_for_plot
 
 from .load_prepared_data_for_anova import load_prepare_data_for_anova
+from .load_anova_results import load_anova_results

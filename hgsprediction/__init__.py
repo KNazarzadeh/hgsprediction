@@ -151,3 +151,5 @@ from .save_results.save_prepared_data_for_anova import save_prepare_data_for_ano
 from .load_results.load_prepared_data_for_anova import load_prepare_data_for_anova
 
 from .save_results.save_anova_results import save_anova_results
+
+from .load_results.load_anova_results import load_anova_results

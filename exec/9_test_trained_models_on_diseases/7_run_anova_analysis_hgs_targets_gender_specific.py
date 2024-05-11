@@ -14,7 +14,7 @@ from hgsprediction.load_results.load_prepared_data_for_anova import load_prepare
 from hgsprediction.save_results.save_anova_results import save_anova_results
 from pingouin import mixed_anova
 import statsmodels.stats.multicomp as multi
-
+import statsmodels.stats.multicomp as mc
 
 from ptpython.repl import embed
 # print("===== Done! =====")
@@ -173,6 +173,17 @@ tukey_hsd_male = multi.pairwise_tukeyhsd(endog=df_male['pred'], groups=df_male['
 
 print(tukey_hsd_female.summary())
 print(tukey_hsd_male.summary())
+
+
+interaction_female =  df_female.gender.astype(str) + " | " + df_female.group.astype(str) + " | " + df_female.time_point.astype(str)
+comp_female = mc.MultiComparison(df_female[f"{anova_target}"], interaction_female)
+df_post_hoc_result_female = comp_female.tukeyhsd()
+print(df_post_hoc_result_female.summary())
+
+interaction_male =  df_male.gender.astype(str) + " | " + df_male.group.astype(str) + " | " + df_male.time_point.astype(str)
+comp_male = mc.MultiComparison(df_male[f"{anova_target}"], interaction_male)
+df_post_hoc_result_male = comp_male.tukeyhsd()
+print(df_post_hoc_result_male.summary())
 
 print("===== Done! End =====")
 embed(globals(), locals())

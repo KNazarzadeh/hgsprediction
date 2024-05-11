@@ -75,9 +75,9 @@ else:
     data["Subject"] = data.index
     ###############################################################################
     aov = mixed_anova(dv=anova_target, between='group', within='time_point', subject='Subject', data=data)
-
     print("Pinguin ANOVA Result:")
     print(aov)
+    
     save_anova_results(
         data,
         aov,
@@ -127,23 +127,33 @@ else:
         "non",
         "mixedlm_both_gender",
     )
-    # print("===== Done! =====")
-    # embed(globals(), locals())
+
+# print("===== Done! =====")
+# embed(globals(), locals())
 ###############################################################################
-# Combine the predictions with the original data for reference
-data['pred'] = mixedlm_model_fit.fittedvalues
+# Find rows where column 'A' < 0.05 and return values from column 'B'
+# if aov[aov['Source']=='Interaction'] < 0.05:  # Assuming you're checking the uncorrected p-value
+data['interaction_groups']  =  data.group.astype(str) + " | " + data.time_point.astype(str)
+comp = mc.MultiComparison(data[f"{anova_target}"], data['interaction_groups'])
+post_hoc_result_without_gender = comp.tukeyhsd()
+print(post_hoc_result_without_gender.summary())
 
-# Perform pairwise comparisons for each group
-# Note: Modify the code according to your specific levels in 'group' and 'time_point'
-tukey_hsd = multi.pairwise_tukeyhsd(endog=data['pred'], groups=data['group'] + "_" + data['time_point'])
+    # save_post_hoc_results(
+    #     post_hoc_result_without_gender,
+    #     population,
+    #     mri_status,
+    #     session_column,
+    #     model_name,
+    #     feature_type,
+    #     target,
+    #     confound_status,
+    #     n_repeats,
+    #     n_folds,
+    #     n_samples,
+    #     anova_target,
+        
+    # )
 
-print(tukey_hsd.summary())
-
-
-interaction_groups =  data.group.astype(str) + " | " + data.time_point.astype(str)
-comp = mc.MultiComparison(data[f"{anova_target}"], interaction_groups)
-df_post_hoc_result_without_gender = comp.tukeyhsd()
-print(df_post_hoc_result_without_gender.summary())
 print("===== Done! End =====")
 embed(globals(), locals())
 
