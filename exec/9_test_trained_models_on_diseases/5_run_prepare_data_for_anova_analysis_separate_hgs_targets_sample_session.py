@@ -172,8 +172,8 @@ df_control = pd.concat([df_control, df_control_tmp2], axis=0)
 # Perform the ANOVA
 df = pd.concat([df_control, df_disorder], axis=0)
 df.index.name = "SubjectID"
-print("===== Done! End =====")
-embed(globals(), locals())
+# print("===== Done! End =====")
+# embed(globals(), locals())
 print(df)
 save_prepare_data_for_anova(
         df,
