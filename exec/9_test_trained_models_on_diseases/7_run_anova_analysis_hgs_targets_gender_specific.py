@@ -73,11 +73,11 @@ df_male = df[df["gender"]=="male"]
 # mixed ANOVA was conducted utilizing the Pingouin library.  
 ###############################################################################
 # Pinguin Mixed ANOVA
-# aov_female = mixed_anova(dv=anova_target, between='group', within='time_point', subject='Subject', data=df_female)
-# aov_male = mixed_anova(dv=anova_target, between='group', within='time_point', subject='Subject', data=df_male)
+aov_female = mixed_anova(dv=anova_target, between='group', within='time_point', subject='Subject', data=df_female)
+aov_male = mixed_anova(dv=anova_target, between='group', within='time_point', subject='Subject', data=df_male)
 
-# print("Female Pinguin ANOVA Result:")
-# print(aov_female)
+print("Female Pinguin ANOVA Result:")
+print(aov_female)
 # save_anova_results(
 #     df_female,
 #     aov_female,
@@ -95,8 +95,8 @@ df_male = df[df["gender"]=="male"]
 #     "female",
 #     "pingouin",
 # )
-# print("Male Pinguin ANOVA Result:")
-# print(aov_male)
+print("Male Pinguin ANOVA Result:")
+print(aov_male)
 # save_anova_results(
 #     df_male,
 #     aov_male,
@@ -116,13 +116,13 @@ df_male = df[df["gender"]=="male"]
 # )
 
 # ################################################################################
-# # Linear Mixed Models mixedlm for female and male separately:
-# mixedlm_formula = f"{anova_target} ~ group * time_point"
-# mixedlm_model_fit_female = smf.mixedlm(formula=mixedlm_formula, data=df_female, groups="Subject").fit()
-# mixedlm_model_fit_male = smf.mixedlm(formula=mixedlm_formula, data=df_male, groups="Subject").fit()
-# # get fixed effects
-# print("Female MixedLM ANOVA Result:")
-# print(mixedlm_model_fit_female.summary())
+# Linear Mixed Models mixedlm for female and male separately:
+mixedlm_formula = f"{anova_target} ~ group * time_point"
+mixedlm_model_fit_female = smf.mixedlm(formula=mixedlm_formula, data=df_female, groups="Subject").fit()
+mixedlm_model_fit_male = smf.mixedlm(formula=mixedlm_formula, data=df_male, groups="Subject").fit()
+# get fixed effects
+print("Female MixedLM ANOVA Result:")
+print(mixedlm_model_fit_female.summary())
 # save_anova_results(
 #     df_female,
 #     mixedlm_model_fit_female,
@@ -140,8 +140,8 @@ df_male = df[df["gender"]=="male"]
 #     "female",
 #     "mixedlm_gender_separated",
 # )
-# print("Male MixedLM ANOVA Result:")
-# print(mixedlm_model_fit_male.summary())
+print("Male MixedLM ANOVA Result:")
+print(mixedlm_model_fit_male.summary())
 # save_anova_results(
 #     df_female,
 #     mixedlm_model_fit_male,
@@ -174,30 +174,20 @@ df_male = df[df["gender"]=="male"]
 # print(tukey_hsd_female.summary())
 # print(tukey_hsd_male.summary())
 
-# mixedlm_formula = (
-#         f'{anova_target} ~ '
-#         'C(gender) + C(treatment) + C(disorder_episode) + C(hgs_target) + '
-#         'C(gender):C(treatment) + C(gender):C(disorder_episode) + C(gender):C(hgs_target) + '
-#         'C(treatment):C(disorder_episode) + C(treatment):C(hgs_target) + '
-#         'C(disorder_episode):C(hgs_target) + '
-#         'C(treatment):C(disorder_episode):C(hgs_target) + '
-#         'C(disorder_episode):C(hgs_target):C(gender) + '
-#         'C(treatment):C(disorder_episode):C(hgs_target):C(gender)'
-#     )
 
-mixedlm_formula = f"{anova_target} ~ group * gender * time_point"
-mixedlm_model_fit = smf.mixedlm(formula=mixedlm_formula, data=df, groups="Subject").fit()
-print(mixedlm_model_fit.summary())
+# mixedlm_formula = f"{anova_target} ~ group * gender * time_point"
+# mixedlm_model_fit = smf.mixedlm(formula=mixedlm_formula, data=df, groups="Subject").fit()
+# print(mixedlm_model_fit.summary())
 
-interaction =  df.gender.astype(str) + " | " + df.group.astype(str) + " | " + df.time_point.astype(str)
-comp = mc.MultiComparison(df[f"{anova_target}"], interaction)
-df_post_hoc_result = comp.tukeyhsd()
-print(df_post_hoc_result.summary())
+# interaction =  df.gender.astype(str) + " | " + df.group.astype(str) + " | " + df.time_point.astype(str)
+# comp = mc.MultiComparison(df[f"{anova_target}"], interaction)
+# df_post_hoc_result = comp.tukeyhsd()
+# print(df_post_hoc_result.summary())
 
 
 
-print("===== Done! End =====")
-embed(globals(), locals())
+# print("===== Done! End =====")
+# embed(globals(), locals())
 
 interaction_female =  df_female.gender.astype(str) + " | " + df_female.group.astype(str) + " | " + df_female.time_point.astype(str)
 comp_female = mc.MultiComparison(df_female[f"{anova_target}"], interaction_female)

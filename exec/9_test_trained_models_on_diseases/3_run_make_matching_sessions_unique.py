@@ -235,6 +235,7 @@ for pre_ses in range(pre_ses_min, pre_ses_max+1):
                     print("There is no duplicate match.")
                 else:
                     print("There is duplicate match:", df_matched[df_matched.index.duplicated()].index)
+                
                 ###############################################################################
                 df_control_post_matched = df_control_post[df_control_post.index.isin(df_control_pre_matched.index)].copy()
                 df_control_post_matched.loc[:, "time_point"] = f"post-{population}"
@@ -276,11 +277,13 @@ for pre_ses in range(pre_ses_min, pre_ses_max+1):
                     for i in range(len(dataframes_list)):
                         df = dataframes_list[i]
                         df.drop(indices_list, axis=0, inplace=True, errors='ignore')
-                remove_indices_from_dataframes(control_dataframes, df_control_matched_tmp.index.to_list())        
-
-    df_control_matched = pd.concat([df_control_matched, df_control_matched_tmp], axis=0)
+                remove_indices_from_dataframes(control_dataframes, df_control_matched_tmp.index.to_list())    
     
+    df_control_matched = pd.concat([df_control_matched, df_control_matched_tmp], axis=0)
+
+df_control_matched = df_control_matched[~df_control_matched.index.duplicated()]
 not_same_values = df_control_matched[df_control_matched[f'1st_pre-{population}_patient_id'] != df_control_matched[f'1st_post-{population}_patient_id']]
+
 if not_same_values.empty:
     print("pre and post controls are for the same paitent id")
 print(df_control_matched)
