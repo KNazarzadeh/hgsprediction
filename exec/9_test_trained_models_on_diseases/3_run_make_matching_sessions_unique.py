@@ -70,6 +70,7 @@ df_disorder.loc[:, "disorder"] = 1
 # print("===== Done! =====")
 # embed(globals(), locals())
 df_disorder = df_disorder[df_disorder[f'1st_pre-{population}_{target}'] > df_disorder[f'1st_post-{population}_{target}']]
+
 # print("===== Done! =====")
 # embed(globals(), locals())
 ###############################################################################
@@ -286,8 +287,11 @@ not_same_values = df_control_matched[df_control_matched[f'1st_pre-{population}_p
 
 if not_same_values.empty:
     print("pre and post controls are for the same paitent id")
+
 print(df_control_matched)
 print(df_disorder)
+if df_control_matched[df_control_matched.index.duplicated()].empty:
+    print("No Duplicated controls")
 # print("===== Done! End =====")
 # embed(globals(), locals())
 ##############################################################################

@@ -77,7 +77,6 @@ for session in ["0", "1", "2", "3"]:
     df.loc[:, f"{target}_corrected_predicted"] = (df.loc[:, f"{target}_predicted"] + ((slope * df.loc[:, f"{target}"]) + intercept))
     # Calculate Corrected Delta
     df.loc[:, f"{target}_corrected_delta(true-predicted)"] =  df.loc[:, f"{target}"] - df.loc[:, f"{target}_corrected_predicted"]
-    # df.loc[:, f"{target}_corrected_delta(predicted-true)"] =  df.loc[:, f"{target}_corrected_predicted"] - df.loc[:, f"{target}"]
 
     save_corrected_prediction_results(
         df,

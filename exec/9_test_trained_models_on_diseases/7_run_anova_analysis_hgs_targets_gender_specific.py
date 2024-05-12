@@ -175,14 +175,14 @@ print(mixedlm_model_fit_male.summary())
 # print(tukey_hsd_male.summary())
 
 
-# mixedlm_formula = f"{anova_target} ~ group * gender * time_point"
-# mixedlm_model_fit = smf.mixedlm(formula=mixedlm_formula, data=df, groups="Subject").fit()
-# print(mixedlm_model_fit.summary())
+mixedlm_formula = f"{anova_target} ~ group * gender * time_point"
+mixedlm_model_fit = smf.mixedlm(formula=mixedlm_formula, data=df, groups="Subject").fit()
+print(mixedlm_model_fit.summary())
 
-# interaction =  df.gender.astype(str) + " | " + df.group.astype(str) + " | " + df.time_point.astype(str)
-# comp = mc.MultiComparison(df[f"{anova_target}"], interaction)
-# df_post_hoc_result = comp.tukeyhsd()
-# print(df_post_hoc_result.summary())
+interaction =  df.gender.astype(str) + " | " + df.group.astype(str) + " | " + df.time_point.astype(str)
+comp = mc.MultiComparison(df[f"{anova_target}"], interaction)
+df_post_hoc_result = comp.tukeyhsd()
+print(df_post_hoc_result.summary())
 
 
 
