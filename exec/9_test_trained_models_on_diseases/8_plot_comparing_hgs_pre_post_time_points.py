@@ -130,7 +130,9 @@ def add_median_labels(ax, fmt='.3f'):
 df.loc[data['time_point'].str.contains('pre-'), 'time_point'] = 'Pre-time_point'
 df.loc[data['time_point'].str.contains('post-'), 'time_point'] = 'Post-time_point'
 ###############################################################################
-folder_path = os.path.join("plot_hgs_comparison_pre_post_time_points", f"{population}", f"{target}", f"{n_samples}_matched", "pre_post_time_points")
+# folder_path = os.path.join("plot_hgs_comparison_pre_post_conditions", f"{population}", f"{target}", f"{n_samples}_matched", "pre_post_time_points")
+folder_path = os.path.join("aa", f"{population}", f"{target}", f"{n_samples}_matched", "pre_post_time_points")
+
 if(not os.path.isdir(folder_path)):
         os.makedirs(folder_path)
 ###############################################################################        
@@ -197,7 +199,9 @@ plt.close()
 
 
 ##############################################################################
-folder_path = os.path.join("plot_hgs_comparison_pre_post_time_points", f"{population}", f"{target}", f"{n_samples}_matched", "interaction")
+# folder_path = os.path.join("plot_hgs_comparison_pre_post_conditions", f"{population}", f"{target}", f"{n_samples}_matched", "interaction")
+folder_path = os.path.join("aa", f"{population}", f"{target}", f"{n_samples}_matched", "interaction")
+
 if(not os.path.isdir(folder_path)):
         os.makedirs(folder_path)
 ##############################################################################

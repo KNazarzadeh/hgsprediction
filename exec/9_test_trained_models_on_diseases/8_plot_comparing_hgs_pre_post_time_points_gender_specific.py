@@ -182,7 +182,7 @@ df_both['gender_group'] = df_both['gender'] + '-' + df_both['group']
 # print("===== Done! =====")
 # embed(globals(), locals())
 ###############################################################################
-folder_path = os.path.join("plot_hgs_comparison_pre_post_time_points_gender_specific", f"{population}", f"{target}", f"{n_samples}_matched", "pre_post_time_points")
+folder_path = os.path.join("plot_hgs_comparison_pre_post_conditions_gender_specific", f"{population}", f"{target}", f"{n_samples}_matched", "pre_post_time_points")
 if(not os.path.isdir(folder_path)):
         os.makedirs(folder_path)
 ###############################################################################        
