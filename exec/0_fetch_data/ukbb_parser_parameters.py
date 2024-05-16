@@ -304,7 +304,7 @@ class UkbbParams:
                 "Please define the motor type for analysis!"
             )
         # if self.motor_type.isin(["handgrip_strength", "hgs", "HGS"]):
-        if self.motor_type == "handgrip_strength":
+        if self.motor_type in ["hgs", "handgrip_strength"]:
             # 46 ---- for Left Handgrip Strength
             # 47 ---- for Right Handgrip Strength
             motor_incat = [
@@ -1474,7 +1474,7 @@ class UkbbParams:
 
         # --------- Handgrip Strength (HGS) as the Motor Performance ---------#
         # Get the list of Motor Performance Field IDs
-        if self.motor_type == 'handgrip_strength':
+        if self.motor_type in ["hgs", "handgrip_strength"]:
             motor_incat, \
             motor_inhdr, \
             motor_exhdr, \

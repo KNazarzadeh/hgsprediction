@@ -15,8 +15,8 @@ population = sys.argv[1]
 mri_status = sys.argv[2]
 
 df_original = disorder_load_data.load_original_data(population, mri_status)
-# print("===== Done! =====")
-# embed(globals(), locals())
+print("===== Done! =====")
+embed(globals(), locals())
 ###############################################################################
 
 data_processor = disorder_data_preprocessor.DisorderMainDataPreprocessor(df_original, population)    

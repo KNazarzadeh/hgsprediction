@@ -74,7 +74,8 @@ def fetch_ukb_csv(
             f"ukbb_parser parse --incsv {UKB_tsv_filename} --out {UKB_out_file}"
             f"{data_field_list}"
         )
-        
+        # print("===== Done! =====")
+        # embed(globals(), locals())
         os.system(ukbb_cmd)  # Run the ukbb_parser command
 
         # Move the output files of ukbb_parser from the current directory
