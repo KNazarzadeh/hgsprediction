@@ -98,7 +98,7 @@ file_path = os.path.join(
     folder_path,
     "anova_gender_group_time_point_data.csv")
 
-df_merged.to_csv(file_path, sep=',', index=0)
+df_merged.to_csv(file_path, sep=',', index=True)
 
 print("===== Done! =====")
 embed(globals(), locals())
