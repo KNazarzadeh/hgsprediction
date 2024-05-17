@@ -21,39 +21,52 @@ class DisorderMainDataPreprocessor:
         self.df = df
         self.disorder = disorder
 ###############################################################################
-    def define_first_diagnoses_date(df, icd10_code):
-        filter_rows = df[df.filter(like="41270").astype(str).apply(lambda x: x.str.startswith(icd10_code)).any(axis=1)]
+    def define_diagnosis_date(self, df):
         
-        filtered_columns_first_diagnoses_code = filter_rows.filter(regex=("41270"))
-        filtered_columns_first_diagnoses_code = filtered_columns_first_diagnoses_code.dropna(axis=1, how="all")
-        
-        result = filtered_columns_first_diagnoses_code.apply(lambda row: next((col for col in row.index if str(row[col]).startswith(icd10_code)), None), axis=1)
+        disorder = self.disorder
+        if disorder == "stroke":
+            icd10_codes = ["I61", "I63"]
+        elif disorder == "parkinson":
+            icd10_codes = ["G20"]
+        elif disorder == "depression":
+            icd10_codes = ["F32", "F33"]
 
-        df["first_diagnoses_code_column"] = np.nan
-        df["first_diagnoses_date_column"] = np.nan
-        df["first_diagnoses_date"] = np.nan
-        
-        for idx in df.index:
-            if idx in result.index:
-                df.loc[idx, "first_diagnoses_code_column"] = str(result.loc[idx])
-        
-        filtered_columns_first_diagnoses_date = filter_rows.filter(regex=("41280"))
-        filtered_columns_first_diagnoses_date = filtered_columns_first_diagnoses_date.dropna(axis=1, how="all")
-        filtered_columns_first_diagnoses_date = filtered_columns_first_diagnoses_date.reindex(result.index)
+        for icd10_code in icd10_codes:
+            filter_rows = df[df.filter(like="41270").astype(str).apply(lambda x: x.str.startswith(icd10_code)).any(axis=1)]
+            
+            filtered_columns_first_diagnoses_code = filter_rows.filter(regex=("41270"))
+            filtered_columns_first_diagnoses_code = filtered_columns_first_diagnoses_code.dropna(axis=1, how="all")
+            
+            result = filtered_columns_first_diagnoses_code.apply(lambda row: next((col for col in row.index if str(row[col]).startswith(icd10_code)), None), axis=1)
 
-        for idx in df.index:
-            if pd.notna(df.loc[idx, "first_diagnoses_code_column"]):
-                df_diagnoses_code_split = df.loc[idx, "first_diagnoses_code_column"].split('-')[1]
-                if idx in filtered_columns_first_diagnoses_date.index:
-                    col_diagnoses_date = [col for col in filtered_columns_first_diagnoses_date.columns if df_diagnoses_code_split in col]
-                    if col_diagnoses_date:
-                        df.loc[idx, "first_diagnoses_date_column"] = col_diagnoses_date[0]
-                        df.loc[idx, "first_diagnoses_date"] = filtered_columns_first_diagnoses_date.loc[idx, col_diagnoses_date[0]]
+            first_diagnoses_code_column_name = f"first_diagnoses_code_column_{icd10_code}"
+            first_diagnoses_date_column_name = f"first_diagnoses_date_column_{icd10_code}"
+            first_diagnoses_date_name = f"first_diagnoses_date_{icd10_code}"
+
+            df[first_diagnoses_code_column_name] = np.nan
+            df[first_diagnoses_date_column_name] = np.nan
+            df[first_diagnoses_date_name] = np.nan
+            
+            for idx in df.index:
+                if idx in result.index:
+                    df.loc[idx, first_diagnoses_code_column_name] = str(result.loc[idx])
+            
+            filtered_columns_first_diagnoses_date = filter_rows.filter(regex=("41280"))
+            filtered_columns_first_diagnoses_date = filtered_columns_first_diagnoses_date.dropna(axis=1, how="all")
+            filtered_columns_first_diagnoses_date = filtered_columns_first_diagnoses_date.reindex(result.index)
+
+            for idx in df.index:
+                if pd.notna(df.loc[idx, first_diagnoses_code_column_name]):
+                    df_diagnoses_code_split = df.loc[idx, first_diagnoses_code_column_name].split('-')[1]
+                    if idx in filtered_columns_first_diagnoses_date.index:
+                        col_diagnoses_date = [col for col in filtered_columns_first_diagnoses_date.columns if df_diagnoses_code_split in col]
+                        if col_diagnoses_date:
+                            df.loc[idx, first_diagnoses_date_column_name] = col_diagnoses_date[0]
+                            df.loc[idx, first_diagnoses_date_name] = filtered_columns_first_diagnoses_date.loc[idx, col_diagnoses_date[0]]
 
         return df
-        
 ###############################################################################
-    def remove_missing_disorder_dates(self, df, disorder):
+    def remove_missing_disorder_dates(self, df):
         """ Drop all subjects who has no date of disorder and
             all dates of 1900-01-01 epresents "Date is unknown".
 
@@ -69,21 +82,37 @@ class DisorderMainDataPreprocessor:
         df : pandas.DataFrame
             DataFrame of data specified.   
         """
+        disorder = self.disorder
         if disorder == "stroke":
-            df = df[(~df.loc[:, "42006-0.0"].isna()) & (df.loc[:, "42006-0.0"] != "1900-01-01")]
-            
+            # df = df[(~df.loc[:, "42006-0.0"].isna()) & (df.loc[:, "42006-0.0"] != "1900-01-01")]
+            df.loc[:, "first_diagnoses_date_I63"] = pd.to_datetime(df.loc[:, "first_diagnoses_date_I63"])
+            df.loc[:, "first_diagnoses_date_I61"] = pd.to_datetime(df.loc[:, "first_diagnoses_date_I61"])
+            # Compare date of I61 and I63
+            df["stroke_diagnoses_date"] = df.loc[:, ["first_diagnoses_date_I63", "first_diagnoses_date_I61"]].min(axis=1)
+            df = df[(~df.loc[:, "stroke_diagnoses_date"].isna()) & (df.loc[:, "stroke_diagnoses_date"] != "1900-01-01")]
+
         elif disorder == "parkinson":
-            df = df[(~df.loc[:, "131022-0.0"].isna()) & (df.loc[:, "131022-0.0"] != "1900-01-01")]
+            # df = df[(~df.loc[:, "131022-0.0"].isna()) & (df.loc[:, "131022-0.0"] != "1900-01-01")]
+            df.loc[:, "first_diagnoses_date_G20"] = pd.to_datetime(df.loc[:, "first_diagnoses_date_G20"])
+            # Compare date of G20
+            df["parkinson_diagnoses_date"] = df.loc[:, "first_diagnoses_date_G20"]
+            df = df[(~df.loc[:, "parkinson_diagnoses_date"].isna()) & (df.loc[:, "parkinson_diagnoses_date"] != "1900-01-01")]
             
         elif disorder == "depression":
             ## Convert both columns to datetime
-            df.loc[:, "130894-0.0"] = pd.to_datetime(df.loc[:, "130894-0.0"])
-            df.loc[:, "130896-0.0"] = pd.to_datetime(df.loc[:, "130896-0.0"])
+            df.loc[:, "first_diagnoses_date_F32"] = pd.to_datetime(df.loc[:, "first_diagnoses_date_F32"])
+            df.loc[:, "first_diagnoses_date_F33"] = pd.to_datetime(df.loc[:, "first_diagnoses_date_F33"])
+            # Compare date of I61 and I63
+            df["depression_diagnoses_date"] = df.loc[:, ["first_diagnoses_date_F32", "first_diagnoses_date_F33"]].min(axis=1)
+            df = df[(~df.loc[:, "depression_diagnoses_date"].isna()) & (~df.loc[:, "depression_diagnoses_date"].isin(["1900-01-01", "1901-01-01", "1902-02-02", "1903-03-03", "1909-09-09", "2037-07-07"]))]
             
-            # Compare date of F32 and F33
-            df["depression_onset"] = df.loc[:, ["130894-0.0", "130896-0.0"]].min(axis=1)
+            # df.loc[:, "130894-0.0"] = pd.to_datetime(df.loc[:, "130894-0.0"])
+            # df.loc[:, "130896-0.0"] = pd.to_datetime(df.loc[:, "130896-0.0"])
+            
+            # # Compare date of F32 and F33
+            # df["depression_onset"] = df.loc[:, ["130894-0.0", "130896-0.0"]].min(axis=1)
 
-            df = df[(~df.loc[:, "depression_onset"].isna()) & (~df.loc[:, "depression_onset"].isin(["1900-01-01", "1901-01-01", "1902-02-02", "1903-03-03", "1909-09-09", "2037-07-07"]))]
+            # df = df[(~df.loc[:, "depression_onset"].isna()) & (~df.loc[:, "depression_onset"].isin(["1900-01-01", "1901-01-01", "1902-02-02", "1903-03-03", "1909-09-09", "2037-07-07"]))]
 
         return df
     
@@ -139,7 +168,7 @@ class DisorderMainDataPreprocessor:
 # To see each subject had disorder before/after disorder
 # to find the subject's disorder cohort (Pre-, Post- or Longitudinal)
 ###############################################################################
-    def define_followup_days(self, df, disorder):
+    def define_followup_days(self, df):
         """Calcuate the days differences between
             the Attendance date (the visit in clinic) and the Onset date of disease.
             
@@ -155,15 +184,19 @@ class DisorderMainDataPreprocessor:
         df : pandas.DataFrame
             DataFrame of data specified.
         """
+        disorder = self.disorder
         sessions = 4
         if disorder == "stroke":
-            onset_date = pd.to_datetime(df.loc[:, "42006-0.0"])
+            # onset_date = pd.to_datetime(df.loc[:, "42006-0.0"])
+            onset_date = pd.to_datetime(df.loc[:, "stroke_diagnoses_date"])
             
         elif disorder == "parkinson":
-            onset_date = pd.to_datetime(df.loc[:, "131022-0.0"])
-            
+            # onset_date = pd.to_datetime(df.loc[:, "131022-0.0"])
+            onset_date = pd.to_datetime(df.loc[:, "parkinson_diagnoses_date"])
+
         elif disorder == "depression":
-            onset_date = pd.to_datetime(df.loc[:, "depression_onset"])
+            # onset_date = pd.to_datetime(df.loc[:, "depression_onset"])
+            onset_date = pd.to_datetime(df.loc[:, "depression_diagnoses_date"])
 
         for ses in range(0, sessions):
             attendance_date = pd.to_datetime(df.loc[:, f"53-{ses}.0"])

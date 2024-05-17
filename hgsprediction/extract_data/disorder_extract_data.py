@@ -16,12 +16,12 @@ def extract_data(df, population, features, extend_features, target, disorder_sub
     
     if visit_session == "1":
         prefix = f"1st_{disorder_subgroup}_"
-    elif visit_session == "2":
-        prefix = f"2nd_{disorder_subgroup}_"
-    elif visit_session == "3":
-        prefix = f"3rd_{disorder_subgroup}_"
-    elif visit_session == "4":
-        prefix = f"4th_{disorder_subgroup}_"
+    # elif visit_session == "2":
+    #     prefix = f"2nd_{disorder_subgroup}_"
+    # elif visit_session == "3":
+    #     prefix = f"3rd_{disorder_subgroup}_"
+    # elif visit_session == "4":
+    #     prefix = f"4th_{disorder_subgroup}_"
     
         
     features_extra_list = ["days", 
@@ -45,11 +45,11 @@ def extract_data(df, population, features, extend_features, target, disorder_sub
                                             "followup",
                                             ]
     if population == "stroke":
-        extend_features = extend_features + ["stroke_subtype", "42006-0.0"]
+        extend_features = extend_features + ["stroke_subtype", "42006-0.0", "first_diagnoses_date_I63", "first_diagnoses_date_I63", "stroke_diagnoses_date"]
     elif population == "parkinson":
-        extend_features = extend_features + ["131022-0.0"]
+        extend_features = extend_features + ["131022-0.0", "first_diagnoses_date_G20", "parkinson_diagnoses_date"]
     if population == "depression":
-        extend_features = extend_features + ["130894-0.0", "130896-0.0", "depression_onset" ]
+        extend_features = extend_features + ["130894-0.0", "130896-0.0", "first_diagnoses_date_F32", "first_diagnoses_date_F33", "depression_diagnoses_date" ]
         
     features_extra_list = [col for col in df.columns if any(col.startswith(prefix) and col.endswith(item) for item in features_extra_list)]
     

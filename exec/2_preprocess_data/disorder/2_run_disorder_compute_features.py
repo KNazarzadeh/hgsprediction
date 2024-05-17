@@ -35,12 +35,12 @@ for disorder_cohort in [f"pre-{population}", f"post-{population}", f"longitudina
         for visit_session in visit_range:
             if visit_session == 1:
                 session_column = f"1st_{disorder_cohort}_session"
-            elif visit_session == 2:
-                session_column = f"2nd_{disorder_cohort}_session"
-            elif visit_session == 3:
-                session_column = f"3rd_{disorder_cohort}_session"
-                if population == "parkinson":
-                    break
+            # elif visit_session == 2:
+            #     session_column = f"2nd_{disorder_cohort}_session"
+            # elif visit_session == 3:
+            #     session_column = f"3rd_{disorder_cohort}_session"
+            #     if population == "parkinson":
+            #         break
             df = disorder_load_data.load_validated_hgs_data(population, mri_status, session_column, disorder_cohort)
             df = disorder_compute_features.compute_features(df, session_column, feature_type, mri_status)
         
