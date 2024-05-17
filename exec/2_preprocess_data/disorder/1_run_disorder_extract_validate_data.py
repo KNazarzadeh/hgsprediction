@@ -98,6 +98,11 @@ for idx in df.index:
 
 a = df[(~df['42032-0.0'].isna()) & (~df['first_diagnoses_date'].isna())]
 a[['131022-0.0', '42032-0.0', 'first_diagnoses_date']]
+
+b = df[df['20002-0.0']==1262.0]
+c =a[~a.index.isin(b.index)]
+c[['131022-0.0', '42032-0.0', 'first_diagnoses_date']]
+
 print("===== Done! =====")
 embed(globals(), locals())
 
