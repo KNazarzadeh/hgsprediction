@@ -21,6 +21,38 @@ class DisorderMainDataPreprocessor:
         self.df = df
         self.disorder = disorder
 ###############################################################################
+    def define_first_diagnoses_date(df, icd10_code):
+        filter_rows = df[df.filter(like="41270").astype(str).apply(lambda x: x.str.startswith(icd10_code)).any(axis=1)]
+        
+        filtered_columns_first_diagnoses_code = filter_rows.filter(regex=("41270"))
+        filtered_columns_first_diagnoses_code = filtered_columns_first_diagnoses_code.dropna(axis=1, how="all")
+        
+        result = filtered_columns_first_diagnoses_code.apply(lambda row: next((col for col in row.index if str(row[col]).startswith(icd10_code)), None), axis=1)
+
+        df["first_diagnoses_code_column"] = np.nan
+        df["first_diagnoses_date_column"] = np.nan
+        df["first_diagnoses_date"] = np.nan
+        
+        for idx in df.index:
+            if idx in result.index:
+                df.loc[idx, "first_diagnoses_code_column"] = str(result.loc[idx])
+        
+        filtered_columns_first_diagnoses_date = filter_rows.filter(regex=("41280"))
+        filtered_columns_first_diagnoses_date = filtered_columns_first_diagnoses_date.dropna(axis=1, how="all")
+        filtered_columns_first_diagnoses_date = filtered_columns_first_diagnoses_date.reindex(result.index)
+
+        for idx in df.index:
+            if pd.notna(df.loc[idx, "first_diagnoses_code_column"]):
+                df_diagnoses_code_split = df.loc[idx, "first_diagnoses_code_column"].split('-')[1]
+                if idx in filtered_columns_first_diagnoses_date.index:
+                    col_diagnoses_date = [col for col in filtered_columns_first_diagnoses_date.columns if df_diagnoses_code_split in col]
+                    if col_diagnoses_date:
+                        df.loc[idx, "first_diagnoses_date_column"] = col_diagnoses_date[0]
+                        df.loc[idx, "first_diagnoses_date"] = filtered_columns_first_diagnoses_date.loc[idx, col_diagnoses_date[0]]
+
+        return df
+        
+###############################################################################
     def remove_missing_disorder_dates(self, df, disorder):
         """ Drop all subjects who has no date of disorder and
             all dates of 1900-01-01 epresents "Date is unknown".

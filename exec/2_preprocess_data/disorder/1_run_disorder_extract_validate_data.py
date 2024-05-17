@@ -1,5 +1,6 @@
 
 import pandas as pd
+import numpy as np
 import sys
 
 from hgsprediction.load_data import disorder_load_data
@@ -15,12 +16,90 @@ population = sys.argv[1]
 mri_status = sys.argv[2]
 
 df_original = disorder_load_data.load_original_data(population, mri_status)
-print("===== Done! =====")
-embed(globals(), locals())
+
 ###############################################################################
 
 data_processor = disorder_data_preprocessor.DisorderMainDataPreprocessor(df_original, population)    
 df = data_processor.define_handness(df_original)
+
+
+icd10_code = "G20"
+
+# def process_data_for_icd10_codes(df, icd10_codes):
+#     for icd10_code in icd10_codes:
+#         filter_rows = df[df.filter(like="41270").astype(str).apply(lambda x: x.str.startswith(icd10_code)).any(axis=1)]
+        
+#         filtered_columns_first_diagnoses_code = filter_rows.filter(regex=("41270"))
+#         filtered_columns_first_diagnoses_code = filtered_columns_first_diagnoses_code.dropna(axis=1, how="all")
+        
+#         result = filtered_columns_first_diagnoses_code.apply(lambda row: next((col for col in row.index if str(row[col]).startswith(icd10_code)), None), axis=1)
+
+#         first_diagnoses_code_column_name = f"first_diagnoses_code_column_{icd10_code}"
+#         first_diagnoses_date_column_name = f"first_diagnoses_date_column_{icd10_code}"
+#         first_diagnoses_date_name = f"first_diagnoses_date_{icd10_code}"
+
+#         df[first_diagnoses_code_column_name] = np.nan
+#         df[first_diagnoses_date_column_name] = np.nan
+#         df[first_diagnoses_date_name] = np.nan
+        
+#         for idx in df.index:
+#             if idx in result.index:
+#                 df.loc[idx, first_diagnoses_code_column_name] = str(result.loc[idx])
+        
+#         filtered_columns_first_diagnoses_date = filter_rows.filter(regex=("41280"))
+#         filtered_columns_first_diagnoses_date = filtered_columns_first_diagnoses_date.dropna(axis=1, how="all")
+#         filtered_columns_first_diagnoses_date = filtered_columns_first_diagnoses_date.reindex(result.index)
+
+#         for idx in df.index:
+#             if pd.notna(df.loc[idx, first_diagnoses_code_column_name]):
+#                 df_diagnoses_code_split = df.loc[idx, first_diagnoses_code_column_name].split('-')[1]
+#                 if idx in filtered_columns_first_diagnoses_date.index:
+#                     col_diagnoses_date = [col for col in filtered_columns_first_diagnoses_date.columns if df_diagnoses_code_split in col]
+#                     if col_diagnoses_date:
+#                         df.loc[idx, first_diagnoses_date_column_name] = col_diagnoses_date[0]
+#                         df.loc[idx, first_diagnoses_date_name] = filtered_columns_first_diagnoses_date.loc[idx, col_diagnoses_date[0]]
+
+#     return df
+
+# Example usage:
+# df = ... # Load or create your DataFrame
+# icd10_codes = ["G20", "F32", "I10"]
+# df = process_data_for_icd10_codes(df, icd10_codes)
+
+filter_rows = df[df.filter(like="41270").astype(str).apply(lambda x: x.str.startswith(icd10_code)).any(axis=1)]
+filtered_columns_first_diagnoses_code = filter_rows.filter(regex=("41270"))
+filtered_columns_first_diagnoses_code = filtered_columns_first_diagnoses_code.dropna(axis=1, how="all")
+result = filtered_columns_first_diagnoses_code.apply(lambda row: next((col for col in row.index if str(row[col]).startswith(icd10_code)), None), axis=1)
+
+for idx in df.index:
+    if idx in result.index:            
+        df.loc[idx, "first_diagnoses_code_column"] = str(result.loc[idx])
+    else:
+        df.loc[idx, "first_diagnoses_code_column"] = np.NaN
+
+
+filtered_columns_first_diagnoses_date = filter_rows.filter(regex=("41280"))
+filtered_columns_first_diagnoses_date = filtered_columns_first_diagnoses_date.dropna(axis=1, how="all")
+filtered_columns_first_diagnoses_date = filtered_columns_first_diagnoses_date.reindex(result.index)
+
+# Step 1: Extract the second part of split values from column_x in df2
+for idx in df.index:
+    if pd.notna(df.loc[idx, "first_diagnoses_code_column"]):
+        df_diagnoses_code_split = df.loc[idx, "first_diagnoses_code_column"].split('-')[1]
+        if idx in filtered_columns_first_diagnoses_date.index:     
+            col_diagnoses_date = [col for col in filtered_columns_first_diagnoses_date.columns if df_diagnoses_code_split in col]
+            df.loc[idx, "first_diagnoses_date_column"] = col_diagnoses_date[0]
+            df.loc[idx, "first_diagnoses_date"] = filtered_columns_first_diagnoses_date.loc[idx, col_diagnoses_date[0]]
+
+    else:
+        df.loc[idx, "first_diagnoses_date_column"] = np.NaN
+        df.loc[idx, "first_diagnoses_date"] = np.NaN
+
+
+a = df[(~df['42032-0.0'].isna()) & (~df['first_diagnoses_date'].isna())]
+a[['131022-0.0', '42032-0.0', 'first_diagnoses_date']]
+print("===== Done! =====")
+embed(globals(), locals())
 
 df = data_processor.remove_missing_disorder_dates(df, population)
 
