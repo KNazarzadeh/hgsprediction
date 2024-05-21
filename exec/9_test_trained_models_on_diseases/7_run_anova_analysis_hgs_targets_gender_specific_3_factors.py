@@ -34,6 +34,8 @@ visit_session = sys.argv[9]
 n_samples = sys.argv[10]
 target = sys.argv[11]
 anova_target = sys.argv[12]
+first_event = sys.argv[13]
+
 ##############################################################################
 disorder_cohort = f"{disorder_cohort}-{population}"
 if visit_session == "1":
@@ -51,6 +53,7 @@ df = load_prepare_data_for_anova(
     n_repeats,
     n_folds,
     n_samples,
+    first_event,
 )
 df["gender"].replace(0, "female", inplace=True)
 df["gender"].replace(1, "male", inplace=True)
@@ -73,6 +76,25 @@ comp = mc.MultiComparison(df[f"{anova_target}"], interaction)
 df_post_hoc_result = comp.tukeyhsd()
 print("\n Post-Hoc Result:\n")
 print(df_post_hoc_result.summary())
+
+save_anova_results(
+    df,
+    mixedlm_model_fit,
+    population,
+    mri_status,
+    session_column,
+    model_name,
+    feature_type,
+    target,
+    confound_status,
+    n_repeats,
+    n_folds,
+    n_samples,
+    anova_target,
+    "non",
+    "mixedlm_both_gender",
+    first_event,
+)
 
 
 print("===== Done! End =====")

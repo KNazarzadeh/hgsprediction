@@ -30,6 +30,7 @@ visit_session = sys.argv[9]
 n_samples = sys.argv[10]
 target = sys.argv[11]
 anova_target = sys.argv[12]
+first_event = sys.argv[13]
 ##############################################################################
 disorder_cohort = f"{disorder_cohort}-{population}"
 if visit_session == "1":
@@ -48,6 +49,7 @@ data = load_prepare_data_for_anova(
     n_repeats,
     n_folds,
     n_samples,
+    first_event,
 )
 # print("===== Done! =====")
 # embed(globals(), locals())
@@ -130,8 +132,7 @@ def add_median_labels(ax, fmt='.3f'):
 df.loc[data['time_point'].str.contains('pre-'), 'time_point'] = 'Pre-time_point'
 df.loc[data['time_point'].str.contains('post-'), 'time_point'] = 'Post-time_point'
 ###############################################################################
-# folder_path = os.path.join("plot_hgs_comparison_pre_post_conditions", f"{population}", f"{target}", f"{n_samples}_matched", "pre_post_time_points")
-folder_path = os.path.join("aa", f"{population}", f"{target}", f"{n_samples}_matched", "pre_post_time_points")
+folder_path = os.path.join("plot_non_parametric_analysis", f"{population}", f"{first_event}", f"{target}", f"{n_samples}_matched", "pre_post_time_points")
 
 if(not os.path.isdir(folder_path)):
         os.makedirs(folder_path)
@@ -177,16 +178,20 @@ for x_box_pos in np.arange(0,4,2):
     ax.text((x1+x2)*.5, y+h, f"p={df_mannwhitneyu.loc[idx, f'{anova_target}_p_value']:.3f}", ha='center', va='bottom', fontsize=18, weight='bold',  color=col)
 
 if anova_target in ["hgs", "hgs_predicted", "hgs_corrected_predicted"]:
-    ax.set_yticks(range(0, 140, 20))
+    ymin = round(ax.get_ylim()[0])
+    ymax = round(ax.get_ylim()[1])
+    # ax.set_yticks(range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+20, 20))
+    ax.set_yticks(range(ymin, ymax, 20))
     ax.set_yticklabels(ax.get_yticks(), size=20, weight='bold')
-    plt.ylim(0, 140)
+    plt.ylim(ymin, ymax)
+    
 elif anova_target in ["hgs_delta", "hgs_corrected_delta"]:
     ymin = round(ax.get_ylim()[0])
     ymax = round(ax.get_ylim()[1])
     # ax.set_yticks(range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+20, 20))
-    ax.set_yticks(range(-60, 60, 20))
+    ax.set_yticks(range(ymin, ymax, 5))
     ax.set_yticklabels(ax.get_yticks(), size=20, weight='bold')
-    plt.ylim(-60, 60)
+    plt.ylim(ymin, ymax)
 
 # Adjust layout
 plt.tight_layout()
@@ -199,8 +204,7 @@ plt.close()
 
 
 ##############################################################################
-# folder_path = os.path.join("plot_hgs_comparison_pre_post_conditions", f"{population}", f"{target}", f"{n_samples}_matched", "interaction")
-folder_path = os.path.join("aa", f"{population}", f"{target}", f"{n_samples}_matched", "interaction")
+folder_path = os.path.join("plot_non_parametric_analysis", f"{population}", f"{first_event}", f"{target}", f"{n_samples}_matched", "interaction")
 
 if(not os.path.isdir(folder_path)):
         os.makedirs(folder_path)
@@ -238,17 +242,17 @@ ax.text((x1+x2)*.5, y+h, f"p={p_value_interaction:.3f}", ha='center', va='bottom
 if anova_target in ["hgs", "hgs_corrected_predicted"]:
     ymin = round(ax.get_ylim()[0])
     ymax = round(ax.get_ylim()[1])
-    ax.set_yticks(range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+20, 10))
+    ax.set_yticks(range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+20, 5))
     ax.set_yticklabels(ax.get_yticks(), size=20, weight='bold')
 elif anova_target == "hgs_delta":
     ymin = round(ax.get_ylim()[0])
     ymax = round(ax.get_ylim()[1])
-    ax.set_yticks(range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+20, 10))
+    ax.set_yticks(range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+20, 5))
     ax.set_yticklabels(ax.get_yticks(), size=20, weight='bold')
 elif anova_target in ["hgs_corrected_delta", "hgs_predicted"]:
     ymin = round(ax.get_ylim()[0])
     ymax = round(ax.get_ylim()[1])
-    ax.set_yticks(range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+10, 10))
+    ax.set_yticks(range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+10, 5))
     ax.set_yticklabels(ax.get_yticks(), size=20, weight='bold')
 # Adjust layout
 plt.tight_layout()

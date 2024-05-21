@@ -22,6 +22,7 @@ def save_anova_results(
     anova_target,
     gender,
     anova_type,
+    first_event,
 ):
     if confound_status == "0":
         confound = "without_confound_removal"
@@ -36,6 +37,7 @@ def save_anova_results(
             "project_hgsprediction",  
             "results_hgsprediction",
             f"{population}",
+            f"{first_event}",
             f"{mri_status}",
             f"{session_column}",
             f"{feature_type}",
