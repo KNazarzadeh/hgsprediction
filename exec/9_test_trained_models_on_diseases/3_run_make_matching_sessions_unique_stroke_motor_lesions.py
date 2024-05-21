@@ -73,10 +73,9 @@ df_disorder.loc[:, "disorder"] = 1
 df_lesions = pd.read_excel("/data/project/stroke_ukb/knazarzadeh/project_hgsprediction/results_hgsprediction/stroke/List_Stroke_Lesions.xlsx")
 df_lesions = df_lesions.set_index("SubjectID")
 
-df_motor_lesions = df_lesions[(~df_lesions['motor_right'].isna())]
+df_motor_lesions = df_lesions[(~df_lesions[f'motor_{lesion_side}'].isna())]
 
-if lesion_side == "right":
-    df_disorder = df_disorder[df_disorder.index.isin(df_motor_lesions.index)]
+df_disorder = df_disorder[df_disorder.index.isin(df_motor_lesions.index)]
 
 print("===== Done! =====")
 embed(globals(), locals())

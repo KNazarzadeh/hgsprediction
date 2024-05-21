@@ -32,12 +32,13 @@ session = sys.argv[6]
 confound_status = sys.argv[7]
 n_repeats = sys.argv[8]
 n_folds = sys.argv[9]
+gender = sys.argv[10]
 ###############################################################################
-female_best_model_trained = load_trained_models.load_best_model_trained(
+best_model_trained = load_trained_models.load_best_model_trained(
                                 "healthy",
                                 "nonmri",
                                 int(confound_status),
-                                "female",
+                                gender,
                                 feature_type,
                                 target,
                                 "linear_svm",
@@ -45,49 +46,32 @@ female_best_model_trained = load_trained_models.load_best_model_trained(
                                 n_folds,
                             )
 
-print(female_best_model_trained)
+print(best_model_trained)
+print("gender is :", gender)
 
-male_best_model_trained = load_trained_models.load_best_model_trained(
-                                "healthy",
-                                "nonmri",
-                                int(confound_status),
-                                "male",
-                                feature_type,
-                                target,
-                                "linear_svm",
-                                n_repeats,
-                                n_folds,
-                            )
-print(male_best_model_trained)
-# print("===== Done! =====")
-# embed(globals(), locals())
 ##############################################################################
-# load data
-df = healthy_load_data.load_preprocessed_nonmri_test_data(population, mri_status, session, "both_gender")
-
+# Define main features and extra features:
 features, extend_features = define_features(feature_type)
-
-data_extracted = healthy_extract_data.extract_data(df, features, extend_features, feature_type, target, mri_status, session)
-
+##############################################################################
+# Define X as main features and y as target:
 X = features
 y = target
+##############################################################################
+# load data
+df = healthy_load_data.load_preprocessed_nonmri_test_data(population, mri_status, session, gender)
 
+##############################################################################
+# Extract data based on main features, extra features, target for each session and mri status:
+data_extracted = healthy_extract_data.extract_data(df, features, extend_features, feature_type, target, mri_status, session)
 
-df_female = data_extracted[data_extracted["gender"] == 0]
-df_male = data_extracted[data_extracted["gender"] == 1]
+##############################################################################
+# Predict Handgrip strength (HGS) on X and y in dataframe
+# With best trained model on non-MRI healthy controls data
+df = predict_hgs(data_extracted, X, y, best_model_trained, target)
 
-# print("===== Done! =====")
-# embed(globals(), locals())
-df_female = predict_hgs(df_female, X, y, female_best_model_trained, target)
-df_male = predict_hgs(df_male, X, y, male_best_model_trained, target)
-
-print(df_female)
-print(df_male)
-
-df_both_gender = pd.concat([df_female, df_male], axis=0)
-print(df_both_gender)
-# print("===== Done! =====")
-# embed(globals(), locals())
+##############################################################################
+# Print the final dataframe after adding predicted and delta HGS columns
+print(df)
 
 # Assuming that you have already trained and instantiated the model as `model`
 folder_path = os.path.join(
@@ -111,25 +95,9 @@ if(not os.path.isdir(folder_path)):
 # Define the csv file path to save
 file_path = os.path.join(
     folder_path,
-    f"both_gender_hgs_predicted_results.csv")
+    f"{gender}_hgs_predicted_results.csv")
 
-df_both_gender.to_csv(file_path, sep=',', index=True)
-
-# Define the csv file path to save
-file_path = os.path.join(
-    folder_path,
-    f"female_hgs_predicted_results.csv")
-
-df_female.to_csv(file_path, sep=',', index=True)
-
-
-# Define the csv file path to save
-file_path = os.path.join(
-    folder_path,
-    f"male_hgs_predicted_results.csv")
-
-df_male.to_csv(file_path, sep=',', index=True)
-
+df.to_csv(file_path, sep=',', index=True)
 
 print("===== Done! =====")
 embed(globals(), locals())
