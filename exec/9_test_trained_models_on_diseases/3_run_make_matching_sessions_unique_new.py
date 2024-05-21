@@ -124,179 +124,180 @@ elif visit_session == "4":
 # Step 1: Calculate propensity scores for each patient
 # Assuming you have a column named 'propensity_scores' in patient_df representing propensity scores
 df_control_matched_main = pd.DataFrame()
-handedness_min = df_disorder_main['1st_pre-stroke_handedness'].min()
-handedness_max = df_disorder_main['1st_pre-stroke_handedness'].max()
-# print("===== Done! End =====")
-# embed(globals(), locals())
+handedness_min = df_disorder_main[f'1st_pre-{population}_handedness'].min()
+handedness_max = df_disorder_main[f'1st_pre-{population}_handedness'].max()
+
 for i in range(int(handedness_min), int(handedness_max)+1):
     df_disorder = df_disorder_main[df_disorder_main[f'{pre_prefix}handedness'] == i]
-    
-    df_control_before_matched = []
-    df_control_matched = pd.DataFrame()
+    if len(df_disorder) > 0:
+        df_control_before_matched = []
+        df_control_matched = pd.DataFrame()
 
-    pre_ses_min = int(df_disorder[f"{pre_prefix}session"].min())
-    pre_ses_max = int(df_disorder[f"{pre_prefix}session"].max())
-    # print("===== Done! End =====")
-    # embed(globals(), locals())
-    for pre_ses in range(pre_ses_min, pre_ses_max+1):
-        print("pre_ses=", pre_ses)
-        # Iterate over the range of session values
-        df_disorder_pre_sessions = df_disorder[df_disorder[f"{pre_prefix}session"]==pre_ses]
-        # Assuming df is your DataFrame
-        if not df_disorder_pre_sessions.empty:
-            df_control_pre = control_dataframes[pre_ses].copy()
-            df_control_pre = df_control_pre[df_control_pre[f'handedness-{pre_ses}.0'] == i]
-            df_control_matched_tmp = pd.DataFrame()
-            post_ses_min = int(df_disorder_pre_sessions[f"{post_prefix}session"].min())
-            post_ses_max = int(df_disorder_pre_sessions[f"{post_prefix}session"].max())
-            for post_ses in range(post_ses_min, post_ses_max+1):
-                print("post_ses=", post_ses)
-                # Iterate over the range of session values
-                df_disorder_post_sessions = df_disorder[df_disorder[f"{post_prefix}session"]==post_ses]
-                # Assuming df is your DataFrame
-                if not df_disorder_post_sessions.empty:
-                    df_control_post = control_dataframes[post_ses].copy()
-                    intersection_index = df_control_pre.index.intersection(df_control_post.index)
-                    df_control_pre = df_control_pre[df_control_pre.index.isin(intersection_index)]
-                    df_control_post = df_control_post[df_control_post.index.isin(intersection_index)]
-
-                    # Reindex the dataframes to have the same order of indices
-                    df_control_pre = df_control_pre.reindex(index=intersection_index)
-                    df_control_post = df_control_post.reindex(index=intersection_index)
-
-                    # Check if the indices are in the same order
-                    if df_control_pre.index.equals(df_control_post.index):
-                        print("The indices are in the same order.")
-                    else:
-                        print("The indices are not in the same order.")
-
-                    df_disorder_extract = df_disorder_pre_sessions[df_disorder_pre_sessions.index.isin(df_disorder_post_sessions.index)]
-                    df_disorder_pre = df_disorder_extract[[col for col in df_disorder_extract.columns if f"post-{population}" not in col]].copy()
-
-                    features_columns = [col for col in df_disorder_pre.columns for item in extract_columns if item in col]
-
-                    # Remove the prefix from selected column names
-                    for col in features_columns:
-                        new_col_name = col.replace(pre_prefix, "")
-                        df_disorder_pre.rename(columns={col: new_col_name}, inplace=True)
-            
-                    df = pd.concat([df_control_pre.loc[:, extract_columns], df_disorder_pre.loc[:, extract_columns]], axis=0)
-                    df.index.name = "SubjectID"
-                    ###############################################################################
-                    pipe = Pipeline([
-                        ('scaler', StandardScaler()),
-                        ('logistic_classifier', LogisticRegression())
-                    ])
-                    
-                    # Initialize logistic regression model
-                    propensity_model = pipe.fit(df.loc[:, X], df.loc[:, y])
-
-                    # Prediction
-                    # probabilities for classes
-                    propensity_scores = propensity_model.predict_proba(df.loc[:, X])
-                    # the propensity score is the probability of being 1 (i.e., in the disorder group)
-                    df.loc[:, "propensity_scores"] = propensity_scores[:, 1]
-                    ###############################################################################
-                    df_control_pre_tmp = df[df['disorder'] == 0].copy()
-                    df_disorder_tmp = df[df['disorder'] == 1].copy()
-                    ###############################################################################
-                    df_disorder.loc[df_disorder_extract.index, f"{pre_prefix}propensity_scores"] = df_disorder_tmp.loc[:, "propensity_scores"]
-                    df_disorder_main.loc[df_disorder_extract.index, f"{pre_prefix}propensity_scores"] = df_disorder_tmp.loc[:, "propensity_scores"]
-
-                    ###############################################################################
-                    # Dictionary to store matched samples for each subject
-                    matched_samples = {}
-                    df_matched = pd.DataFrame()
-                    df_control_pre_matched = pd.DataFrame()
-                    df_control_post_matched = pd.DataFrame()
-                    # Iterate over each row in group dataframe
-                    for subject_id, row in df_disorder_tmp.iterrows():
-                        df_matched_tmp = pd.DataFrame()
-                        propensity_score = row['propensity_scores']
-                        # Fit nearest neighbors model on control_pre group using propensity scores
-                        caliper = np.std(df_control_pre_tmp.propensity_scores) * 0.05
-                        nn_model = NearestNeighbors(n_neighbors=int(n_samples),radius=caliper)
-                        nn_model.fit(df_control_pre_tmp['propensity_scores'].values.reshape(-1, 1))
-                        
-                        df_control_before_matched.append(df_control_pre_tmp)
-
-                        # Find 10 nearest neighbors for each group subject based on propensity scores
-                        distances, indices = nn_model.kneighbors([[propensity_score]])
-                        print(indices)                
-                        # Extract matched control_pre subjects
-                        matches = df_control_pre_tmp.iloc[indices[0]].index.tolist()                
-                        matched_samples[subject_id] = matches
-                        print(matches)
-                        df_matched_tmp = pd.concat([df_matched_tmp, df_control_pre[df_control_pre.index.isin(matches)]], axis=0)
-                        df_matched_tmp = df_matched_tmp.reindex(matches)
-                        df_matched_tmp.loc[matches, "propensity_scores"] = df_control_pre_tmp[df_control_pre_tmp.index.isin(matches)].loc[:, "propensity_scores"]
-                        df_matched_tmp.loc[:, "patient_id"] = subject_id
-                        
-                        df_matched = pd.concat([df_matched, df_matched_tmp], axis=0)
-                        df_control_pre_tmp.drop(index=matches, inplace=True)
-                        
-                    df_matched.loc[:, "time_point"] = disorder_pre_subgroup
-
-                    df_control_pre_matched = pd.concat([df_control_pre_matched, df_matched], axis=0)
-
-                    # Print matched samples for each subject
-                    for subject_id, matches in matched_samples.items():
-                        print(f"SubjectID: {subject_id}, Matches: {matches}")
-                    
-                    if df_matched[df_matched.index.duplicated()].empty:
-                        print("There is no duplicate match.")
-                    else:
-                        print("There is duplicate match:", df_matched[df_matched.index.duplicated()].index)
-                    
-                    ###############################################################################
-                    df_control_post_matched = df_control_post[df_control_post.index.isin(df_control_pre_matched.index)].copy()
-                    df_control_post_matched.loc[:, "time_point"] = f"post-{population}"
-                    # Reindex the dataframes to have the same order of indices
-                    df_control_post_matched = df_control_post_matched.reindex(index=df_control_pre_matched.index)
-                    df_control_post_matched.loc[:, "patient_id"] = df_control_pre_matched.loc[:, "patient_id"].astype(int)
-
-                    # Check if the indices are in the same order
-                    if df_control_pre_matched.index.equals(df_control_post_matched.index):
-                        print("The indices are in the same order.")
-                    else:
-                        print("The indices are not in the same order.")    
+        pre_ses_min = int(df_disorder[f"{pre_prefix}session"].min())
+        pre_ses_max = int(df_disorder[f"{pre_prefix}session"].max())
         
-                    ###############################################################################
-                    # Add prefix to column names
-                    df_control_pre_matched.columns = [pre_prefix + col if col != 'gender' else col for col in df_control_pre_matched.columns]
-                    # Add the prefix to the column names excluding the gender column(s)
-                    df_control_post_matched.columns = [post_prefix + col if col != 'gender' else col for col in df_control_post_matched.columns]
-                    
-                    df_control_matched_pre_post = pd.concat([df_control_pre_matched, df_control_post_matched], axis=1)
-                    
-                    # Check if the indices are in the same order
-                    if df_control_matched_pre_post.index.equals(df_control_pre_matched.index):
-                        print("The indices are in the same order.")
-                    else:
-                        print("The indices are not in the same order.")
-            
-                    # Remove the specified suffixes from the column names in df1
-                    df_control_matched_pre_post.columns = df_control_matched_pre_post.columns.str.replace(r'-[0-3]\.0$', '', regex=True)
+        print("===== Done! End =====")
+        embed(globals(), locals())
+        for pre_ses in range(pre_ses_min, pre_ses_max+1):
+            print("pre_ses=", pre_ses)
+            # Iterate over the range of session values
+            df_disorder_pre_sessions = df_disorder[df_disorder[f"{pre_prefix}session"]==pre_ses]
+            # Assuming df is your DataFrame
+            if not df_disorder_pre_sessions.empty:
+                df_control_pre = control_dataframes[pre_ses].copy()
+                df_control_pre = df_control_pre[df_control_pre[f'handedness-{pre_ses}.0'] == i]
+                # print("===== Done! End =====")
+                # embed(globals(), locals())
+                df_control_matched_tmp = pd.DataFrame()
+                post_ses_min = int(df_disorder_pre_sessions[f"{post_prefix}session"].min())
+                post_ses_max = int(df_disorder_pre_sessions[f"{post_prefix}session"].max())
+                for post_ses in range(post_ses_min, post_ses_max+1):
+                    print("post_ses=", post_ses)
+                    # Iterate over the range of session values
+                    df_disorder_post_sessions = df_disorder[df_disorder[f"{post_prefix}session"]==post_ses]
+                    # Assuming df is your DataFrame
+                    if not df_disorder_post_sessions.empty:
+                        df_control_post = control_dataframes[post_ses].copy()
+                        intersection_index = df_control_pre.index.intersection(df_control_post.index)
+                        df_control_pre = df_control_pre[df_control_pre.index.isin(intersection_index)]
+                        df_control_post = df_control_post[df_control_post.index.isin(intersection_index)]
 
-                    df_control_matched_tmp = pd.concat([df_control_matched_tmp, df_control_matched_pre_post], axis=0)
-                    
-                    df_control_pre.drop(index=df_control_matched_tmp.index, inplace=True, errors='ignore')
-                    print(len(df_control_pre))
-                    print(pre_ses)
-                    print(len(df_control_post))
-                    print(post_ses)
-                    def remove_indices_from_dataframes(dataframes_list, indices_list):
-                        for i in range(len(dataframes_list)):
-                            df = dataframes_list[i]
-                            df.drop(indices_list, axis=0, inplace=True, errors='ignore')
-                    remove_indices_from_dataframes(control_dataframes, df_control_matched_tmp.index.to_list())    
+                        # Reindex the dataframes to have the same order of indices
+                        df_control_pre = df_control_pre.reindex(index=intersection_index)
+                        df_control_post = df_control_post.reindex(index=intersection_index)
+
+                        # Check if the indices are in the same order
+                        if df_control_pre.index.equals(df_control_post.index):
+                            print("The indices are in the same order.")
+                        else:
+                            print("The indices are not in the same order.")
+
+                        df_disorder_extract = df_disorder_pre_sessions[df_disorder_pre_sessions.index.isin(df_disorder_post_sessions.index)]
+                        df_disorder_pre = df_disorder_extract[[col for col in df_disorder_extract.columns if f"post-{population}" not in col]].copy()
+
+                        features_columns = [col for col in df_disorder_pre.columns for item in extract_columns if item in col]
+
+                        # Remove the prefix from selected column names
+                        for col in features_columns:
+                            new_col_name = col.replace(pre_prefix, "")
+                            df_disorder_pre.rename(columns={col: new_col_name}, inplace=True)
+                
+                        df = pd.concat([df_control_pre.loc[:, extract_columns], df_disorder_pre.loc[:, extract_columns]], axis=0)
+                        df.index.name = "SubjectID"
+                        ###############################################################################
+                        pipe = Pipeline([
+                            ('scaler', StandardScaler()),
+                            ('logistic_classifier', LogisticRegression())
+                        ])
+                        
+                        # Initialize logistic regression model
+                        propensity_model = pipe.fit(df.loc[:, X], df.loc[:, y])
+
+                        # Prediction
+                        # probabilities for classes
+                        propensity_scores = propensity_model.predict_proba(df.loc[:, X])
+                        # the propensity score is the probability of being 1 (i.e., in the disorder group)
+                        df.loc[:, "propensity_scores"] = propensity_scores[:, 1]
+                        ###############################################################################
+                        df_control_pre_tmp = df[df['disorder'] == 0].copy()
+                        df_disorder_tmp = df[df['disorder'] == 1].copy()
+                        ###############################################################################
+                        df_disorder.loc[df_disorder_extract.index, f"{pre_prefix}propensity_scores"] = df_disorder_tmp.loc[:, "propensity_scores"]
+                        df_disorder_main.loc[df_disorder_extract.index, f"{pre_prefix}propensity_scores"] = df_disorder_tmp.loc[:, "propensity_scores"]
+                   
+                        ###############################################################################
+                        # Dictionary to store matched samples for each subject
+                        matched_samples = {}
+                        df_matched = pd.DataFrame()
+                        df_control_pre_matched = pd.DataFrame()
+                        df_control_post_matched = pd.DataFrame()
+                        # Iterate over each row in group dataframe
+                        for subject_id, row in df_disorder_tmp.iterrows():
+                            df_matched_tmp = pd.DataFrame()
+                            propensity_score = row['propensity_scores']
+                            # Fit nearest neighbors model on control_pre group using propensity scores
+                            caliper = np.std(df_control_pre_tmp.propensity_scores) * 0.05
+                            nn_model = NearestNeighbors(n_neighbors=int(n_samples),radius=caliper)
+                            nn_model.fit(df_control_pre_tmp['propensity_scores'].values.reshape(-1, 1))
+                            
+                            df_control_before_matched.append(df_control_pre_tmp)
+
+                            # Find 10 nearest neighbors for each group subject based on propensity scores
+                            distances, indices = nn_model.kneighbors([[propensity_score]])
+                            print(indices)                
+                            # Extract matched control_pre subjects
+                            matches = df_control_pre_tmp.iloc[indices[0]].index.tolist()                
+                            matched_samples[subject_id] = matches
+                            print(matches)
+                            df_matched_tmp = pd.concat([df_matched_tmp, df_control_pre[df_control_pre.index.isin(matches)]], axis=0)
+                            df_matched_tmp = df_matched_tmp.reindex(matches)
+                            df_matched_tmp.loc[matches, "propensity_scores"] = df_control_pre_tmp[df_control_pre_tmp.index.isin(matches)].loc[:, "propensity_scores"]
+                            df_matched_tmp.loc[:, "patient_id"] = subject_id
+                            
+                            df_matched = pd.concat([df_matched, df_matched_tmp], axis=0)
+                            df_control_pre_tmp.drop(index=matches, inplace=True)
+                            
+                        df_matched.loc[:, "time_point"] = disorder_pre_subgroup
+
+                        df_control_pre_matched = pd.concat([df_control_pre_matched, df_matched], axis=0)
+
+                        # Print matched samples for each subject
+                        for subject_id, matches in matched_samples.items():
+                            print(f"SubjectID: {subject_id}, Matches: {matches}")
+                        
+                        if df_matched[df_matched.index.duplicated()].empty:
+                            print("There is no duplicate match.")
+                        else:
+                            print("There is duplicate match:", df_matched[df_matched.index.duplicated()].index)
+                        
+                        ###############################################################################
+                        df_control_post_matched = df_control_post[df_control_post.index.isin(df_control_pre_matched.index)].copy()
+                        df_control_post_matched.loc[:, "time_point"] = f"post-{population}"
+                        # Reindex the dataframes to have the same order of indices
+                        df_control_post_matched = df_control_post_matched.reindex(index=df_control_pre_matched.index)
+                        df_control_post_matched.loc[:, "patient_id"] = df_control_pre_matched.loc[:, "patient_id"].astype(int)
+
+                        # Check if the indices are in the same order
+                        if df_control_pre_matched.index.equals(df_control_post_matched.index):
+                            print("The indices are in the same order.")
+                        else:
+                            print("The indices are not in the same order.")    
             
-        df_control_matched = pd.concat([df_control_matched, df_control_matched_tmp], axis=0)
-        
+                        ###############################################################################
+                        # Add prefix to column names
+                        df_control_pre_matched.columns = [pre_prefix + col if col != 'gender' else col for col in df_control_pre_matched.columns]
+                        # Add the prefix to the column names excluding the gender column(s)
+                        df_control_post_matched.columns = [post_prefix + col if col != 'gender' else col for col in df_control_post_matched.columns]
+                        
+                        df_control_matched_pre_post = pd.concat([df_control_pre_matched, df_control_post_matched], axis=1)
+                        
+                        # Check if the indices are in the same order
+                        if df_control_matched_pre_post.index.equals(df_control_pre_matched.index):
+                            print("The indices are in the same order.")
+                        else:
+                            print("The indices are not in the same order.")
+                
+                        # Remove the specified suffixes from the column names in df1
+                        df_control_matched_pre_post.columns = df_control_matched_pre_post.columns.str.replace(r'-[0-3]\.0$', '', regex=True)
+
+                        df_control_matched_tmp = pd.concat([df_control_matched_tmp, df_control_matched_pre_post], axis=0)
+                        
+                        df_control_pre.drop(index=df_control_matched_tmp.index, inplace=True, errors='ignore')
+                        print(len(df_control_pre))
+                        print(pre_ses)
+                        print(len(df_control_post))
+                        print(post_ses)
+                        def remove_indices_from_dataframes(dataframes_list, indices_list):
+                            for i in range(len(dataframes_list)):
+                                df = dataframes_list[i]
+                                df.drop(indices_list, axis=0, inplace=True, errors='ignore')
+                        remove_indices_from_dataframes(control_dataframes, df_control_matched_tmp.index.to_list())    
+                
+            df_control_matched = pd.concat([df_control_matched, df_control_matched_tmp], axis=0)
+            
     df_control_matched_main = pd.concat([df_control_matched_main, df_control_matched], axis=0)
 
-    # df_disorder_main["1st_pre-stroke_propensity_scores"] = df_disorder["1st_pre-stroke_propensity_scores"]
-    # if i == 2:
+    # if pre_ses == 1:
     #     print("===== Done! End =====")
     #     embed(globals(), locals())
 df_control_matched_main = df_control_matched_main[~df_control_matched_main.index.duplicated()]
