@@ -38,7 +38,7 @@ n_samples = sys.argv[10]
 target = sys.argv[11]
 first_event = sys.argv[12]
 ##############################################################################
-main_extracted_columns = ["gender", "handedness", "hgs_dominant", "hgs_dominant_side", "hgs_nondominant", "hgs_nondominant_side", "age", "bmi", "height", "waist_to_hip_ratio", "group", "time_point", "hgs_target", "hgs", "hgs_predicted", "hgs_delta", "hgs_corrected_predicted", "hgs_corrected_delta"]
+main_extracted_columns = ["gender", "handedness", "hgs_dominant", "hgs_dominant_side", "hgs_nondominant", "hgs_nondominant_side", "age", "bmi", "height", "waist_to_hip_ratio", "group", "time_point", "hgs_target", "hgs", "hgs_predicted", "hgs_delta", "hgs_corrected_predicted", "hgs_corrected_delta", "patient_id"]
 
 df_disorder = pd.DataFrame()
 df_control = pd.DataFrame()
@@ -88,6 +88,9 @@ df_mathced_controls_female.loc[:, "hgs_target"] = target
 df_disorder_matched_male.loc[:, "hgs_target"] = target
 df_mathced_controls_male.loc[:, "hgs_target"] = target
 
+df_disorder_matched_female.loc[:, "patient_id"] = df_disorder_matched_female.index
+df_disorder_matched_male.loc[:, "patient_id"] = df_disorder_matched_male.index
+
 df_disorder_tmp = pd.concat([df_disorder_matched_female, df_disorder_matched_male], axis=0)
 df_control_tmp = pd.concat([df_mathced_controls_female, df_mathced_controls_male], axis=0)
 
@@ -103,8 +106,6 @@ df_control_tmp.loc[:, f"{prefix_post}_time_point"] = df_control_tmp.loc[:, f"{pr
 
 
 df_control_tmp.rename(columns=lambda x: x.replace("delta(true-predicted)", "delta") if "delta(true-predicted)" in x else x, inplace=True)
-
-# df_control_tmp = df_control_tmp.drop(columns=[f"1st_pre-{population}_age_range", f"1st_post-{population}_age_range"])
 
 ##############################################################################
 for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
@@ -177,6 +178,8 @@ df = pd.concat([df_control, df_disorder], axis=0)
 df.index.name = "SubjectID"
 
 print(df)
+# print("===== Done! End =====")
+# embed(globals(), locals())
 save_prepare_data_for_anova(
         df,
         population,
