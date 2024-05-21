@@ -39,7 +39,7 @@ disorder_cohort = sys.argv[9]
 visit_session = sys.argv[10]
 gender = sys.argv[11]
 n_samples = sys.argv[12]
-
+first_event = sys.argv[13]
 ##############################################################################
 features, extend_features = define_features(feature_type)
 # Define features and target for matching
@@ -63,6 +63,7 @@ df_disorder = load_disorder_corrected_prediction_results(
     confound_status,
     n_repeats,
     n_folds,
+    first_event,
 )
 
 df_disorder.index.name = "subjectID"
@@ -351,7 +352,7 @@ df_check_matching_post.loc['HGS_mean'] = [HGS_mean_disorder, HGS_mean_control, H
 print(df_check_matching_pre)
 print(df_check_matching_post)
 ##############################################################################
-folder_path = os.path.join("plot_distribution_kde", f"{population}", f"{target}", f"{n_samples}_matched")
+folder_path = os.path.join("plot_distribution_kde", f"{population}", f"{first_event}", f"{target}", f"{n_samples}_matched")
 if(not os.path.isdir(folder_path)):
         os.makedirs(folder_path)
         
@@ -420,6 +421,7 @@ save_disorder_matched_samples_results(
     n_repeats,
     n_folds,
     n_samples,
+    first_event,
 )
 
 print("===== END Done End! =====")

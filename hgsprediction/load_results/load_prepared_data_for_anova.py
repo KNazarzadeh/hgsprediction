@@ -17,6 +17,7 @@ def load_prepare_data_for_anova(
     n_repeats,
     n_folds,
     n_samples,
+    firts_event,
 ):
     if confound_status == "0":
         confound = "without_confound_removal"
@@ -31,6 +32,7 @@ def load_prepare_data_for_anova(
             "project_hgsprediction",  
             "results_hgsprediction",
             f"{population}",
+            f"{firts_event}",
             f"{mri_status}",
             f"{session_column}",
             f"{feature_type}",

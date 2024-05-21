@@ -28,7 +28,7 @@ confound_status = sys.argv[8]
 n_repeats = sys.argv[9]
 n_folds = sys.argv[10]
 gender = sys.argv[11]
-
+first_event = sys.argv[12]
 ###############################################################################
 
 slope, intercept = prediction_corrector_model(
@@ -62,6 +62,7 @@ df = load_disorder_hgs_predicted_results(
     confound_status,
     n_repeats,
     n_folds,
+    first_event,
 )
 
 ###############################################################################
@@ -92,6 +93,7 @@ save_disorder_corrected_prediction_results(
     confound_status,
     n_repeats,
     n_folds,
+    first_event,
 )
 print(df)
 print("===== Done! End =====")

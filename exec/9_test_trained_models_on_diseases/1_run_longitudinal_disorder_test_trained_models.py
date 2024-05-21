@@ -32,6 +32,7 @@ confound_status = sys.argv[8]
 n_repeats = sys.argv[9]
 n_folds = sys.argv[10]
 gender = sys.argv[11]
+first_event = sys.argv[12]
 ###############################################################################
 
 best_model_trained = load_trained_models.load_best_model_trained(
@@ -64,11 +65,11 @@ if visit_session == "1":
     session_column = f"1st_{disorder_cohort}_session"
 
 if mri_status == "mri+nonmri":
-    df_longitudinal_mri = disorder_load_data.load_preprocessed_data(population, "mri", session_column, disorder_cohort)
-    df_longitudinal_nonmri = disorder_load_data.load_preprocessed_data(population, "nonmri", session_column, disorder_cohort)
+    df_longitudinal_mri = disorder_load_data.load_preprocessed_data(population, "mri", session_column, disorder_cohort, first_event)
+    df_longitudinal_nonmri = disorder_load_data.load_preprocessed_data(population, "nonmri", session_column, disorder_cohort, first_event)
     df_longitudinal = pd.concat([df_longitudinal_mri, df_longitudinal_nonmri]).dropna(axis=1, how='all')
 else:
-    df_longitudinal = disorder_load_data.load_preprocessed_data(population, mri_status, session_column, disorder_cohort)
+    df_longitudinal = disorder_load_data.load_preprocessed_data(population, mri_status, session_column, disorder_cohort, first_event)
 
 if gender == "female":
     df = df_longitudinal[df_longitudinal['gender'] == 0]
@@ -133,6 +134,7 @@ save_disorder_hgs_predicted_results(
     confound_status,
     n_repeats,
     n_folds,
+    first_event,
 )
 print("===== END Done! =====")
 embed(globals(), locals())

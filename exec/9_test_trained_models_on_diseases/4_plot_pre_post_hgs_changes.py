@@ -26,8 +26,9 @@ visit_session = sys.argv[9]
 n_samples = sys.argv[10]
 target = sys.argv[11]
 boxplot_target = sys.argv[12]
+first_event = sys.argv[13]
 ##############################################################################
-folder_path = os.path.join("plot_paired", f"{population}", f"{target}", f"{n_samples}_matched")
+folder_path = os.path.join("plot_paired", f"{population}", f"{first_event}", f"{target}", f"{n_samples}_matched")
 if(not os.path.isdir(folder_path)):
         os.makedirs(folder_path)
 
@@ -49,6 +50,7 @@ df_disorder_matched_female, df_mathced_controls_female = load_disorder_matched_s
     n_repeats,
     n_folds,
     n_samples,
+    first_event,
 )
 
 # Replace 0 with "Male" in the 'Gender' column
@@ -67,6 +69,7 @@ df_disorder_matched_male, df_mathced_controls_male = load_disorder_matched_sampl
     n_repeats,
     n_folds,
     n_samples,
+    first_event,
 )
 # print("===== Done! End =====")
 # embed(globals(), locals())

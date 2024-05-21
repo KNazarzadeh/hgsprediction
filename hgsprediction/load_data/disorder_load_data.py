@@ -94,6 +94,7 @@ def load_validated_hgs_data(
     mri_status,
     session_column,
     disorder_cohort,
+    first_event,
 ):
     """Get data from the preprocessed csv file.
     Parameters
@@ -120,6 +121,7 @@ def load_validated_hgs_data(
         "data_hgs",
         f"{population}",
         "preprocessed_data",
+        f"{first_event}",
         f"{mri_status}_{population}",
         f"{disorder_cohort}_data",
         f"{session_column}_data",
@@ -136,7 +138,7 @@ def load_validated_hgs_data(
 
 ###############################################################################
 # Load preprocessed data
-def load_preprocessed_data(population, mri_status, session_column, disorder_cohort):
+def load_preprocessed_data(population, mri_status, session_column, disorder_cohort, first_event):
     """Get data from the preprocessed csv file.
     Parameters
     ----------
@@ -161,6 +163,7 @@ def load_preprocessed_data(population, mri_status, session_column, disorder_coho
     "data_hgs",
     f"{population}",
     "preprocessed_data",
+    f"{first_event}",
     f"{mri_status}_{population}",
     f"{disorder_cohort}_data",
     f"{session_column}_data",
