@@ -9,11 +9,11 @@ from ptpython.repl import embed
 
 
 
-all_file_path = "/data/project/stroke_ukb/knazarzadeh/GIT_repositories/motor_ukb/data_ukb/data_hgs/healthy/original_data/all_healthy/all_healthy.csv"
+all_file_path = "/data/project/stroke_ukb/knazarzadeh/project_hgsprediction/data_hgs/healthy/original_data/all_healthy/all_healthy.csv"
 
-mri_file_path = "/data/project/stroke_ukb/knazarzadeh/GIT_repositories/motor_ukb/data_ukb/data_hgs/healthy/original_data/mri_healthy/mri_healthy.csv"
+mri_file_path = "/data/project/stroke_ukb/knazarzadeh/project_hgsprediction/data_hgs/healthy/original_data/mri_healthy/mri_healthy.csv"
 
-nonmri_file_path = "/data/project/stroke_ukb/knazarzadeh/GIT_repositories/motor_ukb/data_ukb/data_hgs/healthy/original_data/nonmri_healthy/nonmri_healthy.csv"
+nonmri_file_path = "/data/project/stroke_ukb/knazarzadeh/project_hgsprediction/data_hgs/healthy/original_data/nonmri_healthy/nonmri_healthy.csv"
 
 df_all = pd.read_csv(all_file_path, sep=',', low_memory=False)
 

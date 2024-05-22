@@ -192,6 +192,7 @@ class UkbbParams:
         icd10_excon = [
             'G00-G09',  # VI - Inflammatory diseases of the central nervous system
             'G10-G14',  # VI - Systemic atrophies primarily affecting the central nervous system
+            'G21-G26',
             'G30-G32',  # VI - Other degenerative diseases of the nervous system
             'G35-G37',  # VI - Demyelinating diseases of the central nervous system
             'G54-G59',  # VI - Nerve, nerve root and plexus disorders
@@ -210,7 +211,8 @@ class UkbbParams:
             'I60-I69',  # IX - Cerebrovascular Diseases
             ]
         icd10_incon = [
-            'G20-G26',      # VI - Idiopathic Parkinsons Disease
+            # 'G20-G26',      # VI - Idiopathic Parkinsons Disease
+            'G20',  # VI - Parkinson disease   
             ]
 
         return  icd10_excon, \
