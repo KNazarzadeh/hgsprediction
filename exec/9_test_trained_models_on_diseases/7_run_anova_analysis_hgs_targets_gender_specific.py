@@ -34,6 +34,7 @@ visit_session = sys.argv[9]
 n_samples = sys.argv[10]
 target = sys.argv[11]
 anova_target = sys.argv[12]
+first_event = sys.argv[13]
 ##############################################################################
 disorder_cohort = f"{disorder_cohort}-{population}"
 if visit_session == "1":
@@ -51,6 +52,7 @@ df = load_prepare_data_for_anova(
     n_repeats,
     n_folds,
     n_samples,
+    first_event,
 )
 df["gender"].replace(0, "female", inplace=True)
 df["gender"].replace(1, "male", inplace=True)

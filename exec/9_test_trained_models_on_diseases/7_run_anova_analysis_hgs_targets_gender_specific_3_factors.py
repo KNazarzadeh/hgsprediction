@@ -63,6 +63,19 @@ df.loc[df['time_point'].str.contains('post-'), 'time_point'] = 'post'
 
 df["Subject"] = df.index
 
+mixedlm_formula = f"{anova_target} ~ group * time_point"
+mixedlm_model_fit = smf.mixedlm(formula=mixedlm_formula, data=df, groups="Subject").fit()
+print("ANOVA Result:\n")
+print(mixedlm_model_fit.summary())
+
+interaction = df.group.astype(str) + " | " + df.time_point.astype(str)
+comp = mc.MultiComparison(df[f"{anova_target}"], interaction)
+df_post_hoc_result = comp.tukeyhsd()
+print("\n Post-Hoc Result:\n")
+print(df_post_hoc_result.summary())
+
+print("===== Done! End =====")
+embed(globals(), locals())
 #################################################################################
 # Linear Mixed Models mixedlm for Group, Gender and Time-point factors:
 
