@@ -27,7 +27,7 @@ gender = sys.argv[9]
       
 # Read ready training data 
 df_train = healthy_load_data.load_ready_training_data(population, mri_status, feature_type, target, confound_status, gender) 
-
+ 
 # a list of samplesize based on the samplesize/percentage_step (e.g. 10%)
 # Take percentage_step% (e.g. 10%) sample from the entire data
 
@@ -76,9 +76,7 @@ for percent_interest in list_of_interest:
         print('num_samples', num_samples)
         print('sample_index', sample_index)
         print(df_sample)
-        
-        df_sample_female = df_sample[df_sample['gender']==0]
-        df_sample_male = df_sample[df_sample['gender']==1]   
+          
         # Now, df_sample contains cumulative samples for each percentage in list_of_interest
         # Ready to save
         save_multi_samplesize_training_data(
@@ -86,35 +84,7 @@ for percent_interest in list_of_interest:
             population,
             mri_status,
             confound_status,
-            "both_gender",
-            feature_type,
-            target,
-            model_name,
-            n_repeats,
-            n_folds,
-            samplesize,
-        )
-        
-        save_multi_samplesize_training_data(
-            df_sample_female,
-            population,
-            mri_status,
-            confound_status,
-            "female",
-            feature_type,
-            target,
-            model_name,
-            n_repeats,
-            n_folds,
-            samplesize,
-        )
-        
-        save_multi_samplesize_training_data(
-            df_sample_male,
-            population,
-            mri_status,
-            confound_status,
-            "male",
+            gender,
             feature_type,
             target,
             model_name,

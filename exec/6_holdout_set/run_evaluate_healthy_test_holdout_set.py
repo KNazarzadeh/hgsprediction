@@ -63,7 +63,8 @@ df = healthy_load_data.load_preprocessed_nonmri_test_data(population, mri_status
 ##############################################################################
 # Extract data based on main features, extra features, target for each session and mri status:
 data_extracted = healthy_extract_data.extract_data(df, features, extend_features, feature_type, target, mri_status, session)
-
+print("===== Done! =====")
+embed(globals(), locals())
 ##############################################################################
 # Predict Handgrip strength (HGS) on X and y in dataframe
 # With best trained model on non-MRI healthy controls data

@@ -52,6 +52,10 @@ print("Age \n=", summary_stats_all['Age1stVisit'])
 
 # Print the summary statistics for the ALL data (MRI and non-MRI) data
 print("ALL data (MRI and non-MRI) data describe=\n", summary_stats_all)
+
+Print("Age, BMI, Height, wasit-to-hip ration, HGS left, HGS right")
+print("All Females:\n:", df_all[df_all['31-0.0']==0].describe().apply(lambda x: round(x, 2)))
+
 ###################################################################
 # Count the number of female participants in the non-MRI data
 print("Female, non-MRI=", len(df_nonmri[df_nonmri['31-0.0']==0]))
