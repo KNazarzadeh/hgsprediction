@@ -39,10 +39,10 @@ def load_scores_trained(
             f"{feature_type}",
             f"{target}",
             f"{confound}",
+            "multi_samplesize_results",
             f"{model_name}",
             f"{n_repeats}_repeats_{n_folds}_folds",
             f"{gender}",
-            "multi_samplesize_results",
             f"results_samples_{samplesize}",
             "scores_trained",
         )
