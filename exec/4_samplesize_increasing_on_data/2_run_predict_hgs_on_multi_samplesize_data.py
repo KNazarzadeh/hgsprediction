@@ -91,9 +91,6 @@ df_train = load_multi_samplesize_training_data(
     gender,
     feature_type,
     target,
-    model_name,
-    n_repeats,
-    n_folds,
     samplesize,
     )
 

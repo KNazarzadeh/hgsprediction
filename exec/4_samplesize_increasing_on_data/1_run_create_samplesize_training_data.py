@@ -19,10 +19,7 @@ mri_status = sys.argv[2]
 feature_type = sys.argv[3]
 target = sys.argv[4]
 confound_status = sys.argv[5]
-model_name = sys.argv[6]
-n_repeats = sys.argv[7]
-n_folds = sys.argv[8]
-gender = sys.argv[9]
+gender = sys.argv[6]
 
       
 # Read ready training data 
@@ -87,9 +84,6 @@ for percent_interest in list_of_interest:
             gender,
             feature_type,
             target,
-            model_name,
-            n_repeats,
-            n_folds,
             samplesize,
         )
 

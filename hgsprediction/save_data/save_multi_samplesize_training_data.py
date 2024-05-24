@@ -11,9 +11,6 @@ def save_multi_samplesize_training_data(
     gender,
     feature_type,
     target,
-    model_name,
-    n_repeats,
-    n_folds,
     samplesize,
     ):
     
@@ -38,6 +35,7 @@ def save_multi_samplesize_training_data(
                 "multi_samplesize_results",
                 "data_ready_to_train_models",
                 f"results_samples_{samplesize}",
+                f"{gender}",
             )
             
         if(not os.path.isdir(folder_path)):

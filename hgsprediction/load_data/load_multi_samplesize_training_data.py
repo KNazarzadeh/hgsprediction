@@ -10,9 +10,6 @@ def load_multi_samplesize_training_data(
     gender,
     feature_type,
     target,
-    model_name,
-    n_repeats,
-    n_folds,
     samplesize,
     ):
     
@@ -34,18 +31,16 @@ def load_multi_samplesize_training_data(
                 f"{feature_type}",
                 f"{target}",
                 f"{confound}",
-                f"{model_name}",
-                f"{n_repeats}_repeats_{n_folds}_folds",
-                f"{gender}",
                 "multi_samplesize_results",
+                "data_ready_to_train_models",
                 f"results_samples_{samplesize}",
-                f"ready_training_data",
+                f"{gender}",
             )
         
         # Define the csv file path to save
         file_path = os.path.join(
             folder_path,
-            f"ready_training_data.csv")
+            f"{gender}_ready_training_data.csv")
         
         df_sample = pd.read_csv(file_path, sep=',', index_col=0)
         
