@@ -153,3 +153,7 @@ from .load_results.load_prepared_data_for_anova import load_prepare_data_for_ano
 from .save_results.save_anova_results import save_anova_results
 
 from .load_results.load_anova_results import load_anova_results
+
+from .save_results.save_disorder_extracted_data_by_features import save_disorder_extracted_data_by_features
+
+from .load_results.load_disorder_extracted_data_by_features import load_disorder_extracted_data_by_features

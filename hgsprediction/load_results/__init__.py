@@ -36,3 +36,5 @@ from .load_brain_correlation_results import load_brain_correlation_overlap_data_
 
 from .load_prepared_data_for_anova import load_prepare_data_for_anova
 from .load_anova_results import load_anova_results
+
+from .load_disorder_extracted_data_by_features import load_disorder_extracted_data_by_features

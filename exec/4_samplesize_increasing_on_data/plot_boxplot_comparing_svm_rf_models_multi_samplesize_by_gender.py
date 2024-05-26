@@ -29,10 +29,8 @@ if score_type == "r_score":
 elif score_type == "r2_score":
     test_score = "test_r2"
 ###############################################################################
-# samplesize_list = ["10_percent", "20_percent", "40_percent", "60_percent", "80_percent", "100_percent"]
-samplesize_list = ["10_percent", "20_percent", "40_percent"]
+samplesize_list = ["10_percent", "20_percent", "40_percent", "60_percent", "80_percent", "100_percent"]
 
-df_combined_models_scores = pd.DataFrame()
 for model_name in ["linear_svm", "random_forest"]:
     df_scores = pd.DataFrame()
     for samplesize in samplesize_list:
@@ -62,30 +60,25 @@ for model_name in ["linear_svm", "random_forest"]:
             samplesize,
             )
         
-        df_tmp_female.loc[:, 'samplesize_percent'] = samplesize
+        df_tmp_female.loc[:, 'samplesize_percent'] = samplesize.replace('_', ' ')
         df_tmp_female.loc[:, 'gender'] = "Female"
-        df_tmp_male.loc[:, 'samplesize_percent'] = samplesize
+        df_tmp_male.loc[:, 'samplesize_percent'] = samplesize.replace('_', ' ')
         df_tmp_male.loc[:, 'gender'] = "Male"
         
         df_tmp = pd.concat ([df_tmp_female[[test_score, 'samplesize_percent', 'gender']], df_tmp_male[[test_score, 'samplesize_percent', 'gender']]], axis=0)
 
         df_scores = pd.concat ([df_scores, df_tmp], axis=0)
     
-    df_scores.loc[:, 'model'] = model_name
-    df_combined_models_scores = pd.concat ([df_combined_models_scores, df_scores], axis=0)
-    
-df_combined_models_scores['samplesize_percent'] = df_combined_models_scores['samplesize_percent'].str.replace('_', ' ')
-df_combined_models_scores['model'] = df_combined_models_scores['model'].str.replace('_', ' ').str.capitalize()
-df_combined_models_scores['model_sample'] = df_combined_models_scores['model'] + " " + df_combined_models_scores['samplesize_percent']
+    df_scores.loc[:, 'model'] = model_name.replace('_', ' ').capitalize()
+    df_scores['model_sample'] = df_scores['model'] + " " + df_scores['samplesize_percent']
 
-print(df_combined_models_scores)
-
-df_linear_svm = df_combined_models_scores[df_combined_models_scores['model']==' Linear svm']
-df_random_forest = df_combined_models_scores[df_combined_models_scores['model']==' Random forest']
+    if model_name == "linear_svm":
+        df_linear_svm = df_scores
+    elif model_name == "random_forest":
+        df_random_forest = df_scores
 
 print("===== Done! =====")
 embed(globals(), locals())
-
 ###############################################################################
 plot_folder = os.path.join(os.getcwd(), f"plots/boxplots/{target}/{n_repeats}_repeats_{n_folds}_folds/{score_type}")
 if(not os.path.isdir(plot_folder)):
@@ -94,69 +87,79 @@ plot_file = os.path.join(plot_folder, f"comparing_SVM_RF_models_multi_samplesize
 ###############################################################################
 # Create a custom color palette dictionary
 # Define custom palettes
-
 palette_male = sns.color_palette("Blues")
-palette_female = sns.color_palette(palette='PuRd')
-custom_palette = {'Female': palette_female[1], 'Male': palette_male[1]}
+# palette_female = sns.color_palette(palette='PuRd')
+palette_female = sns.color_palette("cubehelix", 8)
+custom_palette = {'Female': palette_female[2], 'Male': palette_male[1]}
+
 ###############################################################################
-fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(18,12))
-
-ax[0] = sns.set_style("darkgrid")
+fig, ax = plt.subplots(1, 2)
+# Set the style once for all plots
+sns.set_style("whitegrid")
+# Plot the first boxplot on ax[0]
 sns.boxplot(data=df_linear_svm,
-                 x="model_sample",
-                 y=test_score,
-                 hue='gender',
-                 palette=custom_palette,
-                 linewidth=2,
-                 showcaps=False,
-                #  boxprops=dict(alpha=.5),
-                ax=ax[0]
-                )
-ax[1] = sns.set_style("darkgrid")
+            x="samplesize_percent",
+            y=test_score,  # Ensure y is passed as a string if it is a column name
+            hue="gender",
+            palette=custom_palette,
+            linewidth=2,
+            showcaps=False,
+            ax=ax[0],
+           )
+
+# Plot the second boxplot on ax[1]
 sns.boxplot(data=df_random_forest,
-                 x="model_sample",
-                 y=test_score,
-                 hue='gender',
-                 palette=custom_palette,
-                 linewidth=2,
-                 showcaps=False,
-                #  boxprops=dict(alpha=.5),
-                ax=ax[1]
-                )
+            x="samplesize_percent",
+            y=test_score,  # Ensure y is passed as a string if it is a column name
+            hue="gender",
+            palette=custom_palette,
+            linewidth=2,
+            showcaps=False,
+            ax=ax[1],
+           )
 
-# plt.title(f"Samplesize increasing for Anthropometrics and Age features {target}", fontsize=20, fontweight="bold", y=1.01)
+# Set the y-axis label with specified properties
+y_lable = "accuracy"
+ax[0].set_ylabel(y_lable, fontsize=40, fontweight="bold")
+ax[1].set_ylabel("")
 
-# ax[0].set_xlabel("Model", fontsize=40, fontweight="bold")
-# if score_type == "r_score":
-#     y_lable = "r value"
-# elif score_type == "r2_score":
-#     y_lable = "$R^2$ value"
-# y_lable = "accuracy"
-# ax[0].set_ylabel(y_lable, fontsize=40, fontweight="bold")
+if score_type == "r2_score":
+    y_step_value = 0.25
+    ax[0].set_yticks(np.arange(0, 1+y_step_value, y_step_value))
+elif score_type == "r_score":
+    y_step_value = 0.05
+    ax[0].set_yticks(np.arange(0, .5+y_step_value, y_step_value))
 
-ymin, ymax = plt.ylim()
-y_step_value = 0.01
-ax[0].set_yticks(np.arange(round(ymin/0.01)*.01-y_step_value, round(ymax/0.01)*.01, 0.01), fontsize=18)
+# Customize y-tick labels properties and set tick direction to 'out'
+ax[0].tick_params(axis='y', labelsize=18, direction='out')
+# Hide y-ticks on the second subplot
+ax[1].set_yticks([])
+  
+# set style for the axes
+new_xticks = ["10%", "20%", "40%", "60%", "80%", "100%"]
+for axes in [ax[0], ax[1]]:
+    axes.set_xticks(new_xticks, fontsize=40)
 
-# Change x-axis tick labels
-new_xticklabels = ["10%", "20%", "40%", "60%", "80%", "100%", "10%", "20%", "40%", "60%", "80%", "100%"]  # Replace with your desired labels
+# # Plot linear svm title
+for ax in [ax[0], ax[1]]:
+    if ax == ax[0]:
+        ax.set_title('Linear SVM')
+    else:
+        ax.set_title('Random Forest')
 
-ax[0].set_xticklabels(new_xticklabels, fontsize=18)
-
-# Set the color of the plot's spines to black for the first subplot
-for spine in ax[0].spines.values():
-    spine.set_color('black')
+# # Set the color of the plot's spines to black for the first subplot
+# for spine in ax[0].spines.values():
+#     spine.set_color('darkgrey')
     
-# Set the color of the plot's spines to black for the second subplot
-for spine in ax[1].spines.values():
-    spine.set_color('black')
-    
-    
+# # Set the color of the plot's spines to black for the second subplot
+# for spine in ax[1].spines.values():
+#     spine.set_color('darkgrey')
+
 # Place legend outside the plot
+# Remove legend from ax[0] and ax[1]
+ax[0].legend().remove()
+ax[1].legend().remove()
 legend = plt.legend(title="Gender", title_fontsize='24', fontsize='20', bbox_to_anchor=(1.05, 1), loc='upper left')
-# Adjust transparency of legend markers
-# for handle in legend.legend_handles:
-#     handle.set_alpha(0.5)  # Set the transparency here as desired
 
 plt.tight_layout()  # Adjust layout to prevent cropping
 

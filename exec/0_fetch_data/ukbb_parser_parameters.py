@@ -211,8 +211,8 @@ class UkbbParams:
             'I60-I69',  # IX - Cerebrovascular Diseases
             ]
         icd10_incon = [
-            # 'G20-G26',      # VI - Idiopathic Parkinsons Disease
-            'G20',  # VI - Parkinson disease   
+            'G20-G26',      # VI - Idiopathic Parkinsons Disease
+            # 'G20',  # VI - Parkinson disease   
             ]
 
         return  icd10_excon, \
