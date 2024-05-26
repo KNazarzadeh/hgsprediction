@@ -61,7 +61,6 @@ folder_path = os.path.join(
             f"{gender}",
             "prediction_hgs_on_validation_set_trained",
         )
-
 # Define the csv file path to save
 file_path = os.path.join(
     folder_path,
@@ -134,8 +133,6 @@ def calculate_correlations(df, n_folds, target):
 df_corrected, df_correlations = calculate_correlations(df, n_folds, target)
 
 ###############################################################################
-
-
 main_folder_path = os.path.join(
             "/data",
             "project",
@@ -168,7 +165,6 @@ for subfolder in subfolders:
         
     elif subfolder == "corrected_correlations":
         df_correlations.to_csv(file_path, sep=',', index=True)
-
 
 print("===== Done! =====")
 embed(globals(), locals())

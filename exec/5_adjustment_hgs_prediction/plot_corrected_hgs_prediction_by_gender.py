@@ -96,15 +96,9 @@ color_female = palette_female[1]
 # Predicted vs True HGS
 # Raw predicted HGS vs True HGS
 # Corrected predicted HGS vs True HGS
-fig, axes = plt.subplots(2, 5, figsize=(100, 25))
+fig, axes = plt.subplots(2, 2)
 
-plt.rcParams.update({"font.weight": "bold", 
-                     "axes.labelweight": "bold",
-                     "ytick.labelsize": 40,
-                     "xtick.labelsize": 40,
-                     })
-
-sns.set_style("whitegrid", {'axes.grid' : False})
+sns.set_style("white")
 
 for i in range(2):
     for j in range(5):
