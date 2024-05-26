@@ -51,16 +51,9 @@ def load_scores_trained(
     file_path = os.path.join(
         folder_path,
         f"scores_trained.pkl")
-    # print("===== Done! =====")
-    # embed(globals(), locals())
+
     # Load the scores to pickle format
     df = pd.read_pickle(file_path)
-    
-    # # Specify the path where you want to save the CSV file
-    # csv_file_path = 'scores_trained.csv'
-
-    # # Save the DataFrame to a CSV file
-    # df.to_csv(csv_file_path, sep=',', index=True)
     
     return df
 ############################################################################### 

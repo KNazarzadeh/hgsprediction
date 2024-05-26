@@ -88,14 +88,15 @@ plot_file = os.path.join(plot_folder, f"comparing_SVM_RF_models_multi_samplesize
 # Create a custom color palette dictionary
 # Define custom palettes
 palette_male = sns.color_palette("Blues")
-# palette_female = sns.color_palette(palette='PuRd')
-palette_female = sns.color_palette("cubehelix", 8)
-custom_palette = {'Female': palette_female[2], 'Male': palette_male[1]}
+# palette_female = sns.color_palette(palette='RdPu')
+palette_female = sns.cubehelix_palette()
+custom_palette = {'Female': palette_female[1], 'Male': palette_male[1]}
 
 ###############################################################################
-fig, ax = plt.subplots(1, 2)
 # Set the style once for all plots
+
 sns.set_style("whitegrid")
+fig, ax = plt.subplots(1, 2, figsize=(12,10))
 # Plot the first boxplot on ax[0]
 sns.boxplot(data=df_linear_svm,
             x="samplesize_percent",
@@ -120,46 +121,53 @@ sns.boxplot(data=df_random_forest,
 
 # Set the y-axis label with specified properties
 y_lable = "accuracy"
-ax[0].set_ylabel(y_lable, fontsize=40, fontweight="bold")
+ax[0].set_ylabel(y_lable, fontsize=16, fontweight="bold")
 ax[1].set_ylabel("")
 
+# Set y-ticks based on score type
 if score_type == "r2_score":
-    y_step_value = 0.25
-    ax[0].set_yticks(np.arange(0, 1+y_step_value, y_step_value))
+    y_step_value = 0.025
+    yticks = np.arange(0, 0.25 + y_step_value, y_step_value)
+    ax[0].set_yticks(yticks)
+    ax[1].set_yticks(yticks)
 elif score_type == "r_score":
     y_step_value = 0.05
-    ax[0].set_yticks(np.arange(0, .5+y_step_value, y_step_value))
+    yticks = np.arange(0.2, 0.5 + y_step_value, y_step_value)
+    ax[0].set_yticks(yticks)
+    ax[1].set_yticks(yticks)
 
 # Customize y-tick labels properties and set tick direction to 'out'
-ax[0].tick_params(axis='y', labelsize=18, direction='out')
-# Hide y-ticks on the second subplot
-ax[1].set_yticks([])
+ax[0].tick_params(axis='y', labelsize=16, direction='out')
+ax[1].tick_params(axis='y', labelsize=16, direction='out')
+
+# Format y-tick labels to one decimal place if they are round
+ax[0].set_yticklabels([f'{tick:.1f}' if tick % 1 == 0 else f'{tick:.3f}' for tick in yticks])
+ax[1].set_yticklabels([f'{tick:.1f}' if tick % 1 == 0 else f'{tick:.3f}' for tick in yticks])
+
+# Hide y-ticks on the second subplot (using ax[1].set_yticklabels([]) to keep the style)
+ax[1].set_yticklabels([])
   
 # set style for the axes
 new_xticks = ["10%", "20%", "40%", "60%", "80%", "100%"]
 for axes in [ax[0], ax[1]]:
-    axes.set_xticks(new_xticks, fontsize=40)
+    axes.set_xticks(range(len(new_xticks)))  # Set tick positions
+    axes.set_xticklabels(new_xticks, fontsize=16)  # Set tick labels
 
-# # Plot linear svm title
-for ax in [ax[0], ax[1]]:
-    if ax == ax[0]:
-        ax.set_title('Linear SVM')
-    else:
-        ax.set_title('Random Forest')
+# Plot linear svm title
+ax[0].set_title('Linear SVM', fontsize=16)
+ax[1].set_title('Random Forest',fontsize=16)
 
-# # Set the color of the plot's spines to black for the first subplot
-# for spine in ax[0].spines.values():
-#     spine.set_color('darkgrey')
-    
-# # Set the color of the plot's spines to black for the second subplot
-# for spine in ax[1].spines.values():
-#     spine.set_color('darkgrey')
+# Set the color of the plot's spines to black for both subplots
+for ax_subplot in ax:
+    for spine in ax_subplot.spines.values():
+        spine.set_color('darkgrey')
 
 # Place legend outside the plot
-# Remove legend from ax[0] and ax[1]
-ax[0].legend().remove()
-ax[1].legend().remove()
-legend = plt.legend(title="Gender", title_fontsize='24', fontsize='20', bbox_to_anchor=(1.05, 1), loc='upper left')
+legend = fig.legend(title="Gender", title_fontsize='12', fontsize='10', bbox_to_anchor=(1.05, 1), loc='upper left')
+
+# Remove legend from the axes
+for ax_subplot in ax:
+    ax_subplot.legend().remove()
 
 plt.tight_layout()  # Adjust layout to prevent cropping
 
