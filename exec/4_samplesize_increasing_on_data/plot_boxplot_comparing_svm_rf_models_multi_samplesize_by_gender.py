@@ -59,7 +59,7 @@ for model_name in ["linear_svm", "random_forest"]:
             n_folds,
             samplesize,
             )
-        
+
         df_tmp_female.loc[:, 'samplesize_percent'] = samplesize.replace('_', ' ')
         df_tmp_female.loc[:, 'gender'] = "Female"
         df_tmp_male.loc[:, 'samplesize_percent'] = samplesize.replace('_', ' ')
