@@ -5,7 +5,9 @@ from ptpython.repl import embed
 # print("===== Done! =====")
 # embed(globals(), locals())
 
-def load_disorder_extracted_data_by_features(
+def save_describe_disorder_extracted_data_by_features(
+    df_pre,
+    df_post,
     population,
     mri_status,
     session_column,
@@ -39,10 +41,14 @@ def load_disorder_extracted_data_by_features(
     # Define the csv file path to save
     file_path = os.path.join(
         folder_path,
-        f"{gender}_extracted_data_by_features.csv")
+        f"pre_timepoint_describe_extracted_data.xlsx")
+    df_pre.to_excel(file_path)
     
-    df = pd.read_csv(file_path, sep=',', index_col=0)
-    
-    return df
+     # Define the csv file path to save
+    file_path = os.path.join(
+        folder_path,
+        f"post_timepoint_describe_extracted_data.xlsx")
+    df_post.to_excel(file_path)
+
 
 ##############################################################################    

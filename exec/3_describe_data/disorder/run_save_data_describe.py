@@ -7,6 +7,7 @@ from hgsprediction.define_features import define_features
 from hgsprediction.extract_data import disorder_extract_data
 from hgsprediction.load_data import disorder_load_data
 from hgsprediction.load_results.load_disorder_extracted_data_by_features import load_disorder_extracted_data_by_features
+from hgsprediction.save_results.save_describe_disorder_extracted_data_by_features import save_describe_disorder_extracted_data_by_features
 from ptpython.repl import embed
 # print("===== Done! =====")
 # embed(globals(), locals())
@@ -46,11 +47,29 @@ df = load_disorder_extracted_data_by_features(
     gender,
     first_event,
 )
+
+subgroup_columns_pre = [col for col in df.columns if f"pre-{population}" in col]
+
+subgroup_columns_post = [col for col in df.columns if f"post-{population}" in col]
+
+summary_stats_pre = df[subgroup_columns_pre].describe().apply(lambda x: round(x, 2))
+summary_stats_post = df[subgroup_columns_post].describe().apply(lambda x: round(x, 2))
+
+
+print("summary_stats_pre:\n", summary_stats_pre)
+print("summary_stats_post:\n", summary_stats_post)
+
+save_describe_disorder_extracted_data_by_features(
+    summary_stats_pre,
+    summary_stats_post,
+    population,
+    mri_status,
+    session_column,
+    feature_type,
+    target,
+    gender,
+    first_event,
+)
+
 print("===== Done! =====")
 embed(globals(), locals())
-for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
-    
-    subgroup_columns = [col for col in df.columns if disorder_subgroup in col]
-    
-    print("===== Done! =====")
-    embed(globals(), locals())

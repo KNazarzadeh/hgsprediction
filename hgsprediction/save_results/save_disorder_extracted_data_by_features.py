@@ -31,6 +31,7 @@ def save_disorder_extracted_data_by_features(
             f"{feature_type}",
             f"{target}",
             "extracted_data_by_features",
+            f"{gender}",
         )
         
     if(not os.path.isdir(folder_path)):
