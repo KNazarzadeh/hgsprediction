@@ -103,7 +103,7 @@ sns.boxplot(data=df_linear_svm,
             y=test_score,  # Ensure y is passed as a string if it is a column name
             hue="gender",
             palette=custom_palette,
-            # linewidth=1,
+            linewidth=1,
             showcaps=False,
             ax=ax[0],
            )
@@ -114,7 +114,7 @@ sns.boxplot(data=df_random_forest,
             y=test_score,  # Ensure y is passed as a string if it is a column name
             hue="gender",
             palette=custom_palette,
-            # linewidth=1,
+            linewidth=1,
             showcaps=False,
             ax=ax[1],
            )
