@@ -3,11 +3,10 @@ import pandas as pd
 import numpy as np
 import sys
 
-from hgsprediction.load_data import disorder_load_data
 from hgsprediction.define_features import define_features
 from hgsprediction.extract_data import disorder_extract_data
+from hgsprediction.load_data import disorder_load_data
 from hgsprediction.save_results.save_disorder_extracted_data_by_features import save_disorder_extracted_data_by_features
-
 from ptpython.repl import embed
 # print("===== Done! =====")
 # embed(globals(), locals())
@@ -22,6 +21,7 @@ feature_type = sys.argv[5]
 target = sys.argv[6]
 gender = sys.argv[7]
 first_event = sys.argv[8]
+
 ##############################################################################
 # Define main features and extra features:
 features, extend_features = define_features(feature_type)
@@ -30,6 +30,7 @@ features, extend_features = define_features(feature_type)
 X = features
 y = target
 ##############################################################################
+# load data
 # load data
 disorder_cohort = f"{disorder_cohort}-{population}"
 if visit_session == "1":
@@ -49,7 +50,7 @@ elif gender == "male":
 
 for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
     df_extracted = disorder_extract_data.extract_data(df, population, features, extend_features, target, disorder_subgroup, visit_session)
-    df_tmp = df_extracted.copy()
+            
     if visit_session == "1":
         prefix = f"1st_{disorder_subgroup}_"
     # elif visit_session == "2":
@@ -60,21 +61,21 @@ for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
     #     prefix = f"4th_{disorder_subgroup}_"
 
     # Filter columns that require the prefix to be added
-    filtered_columns = [col for col in df_tmp.columns if col in features + [target]]
+    filtered_columns = [col for col in df_extracted.columns if col in features + [target]]
 
     # Add the prefix to selected column names
     for col in filtered_columns:
         new_col_name = prefix + col
-        df_tmp.rename(columns={col: new_col_name}, inplace=True)
+        df_extracted.rename(columns={col: new_col_name}, inplace=True)
 
     # Concatenate the DataFrames
     if disorder_subgroup == f"pre-{population}":
         print(disorder_subgroup)
-        df_pre = df_tmp.copy()
+        df_pre = df_extracted.copy()
         
     elif disorder_subgroup == f"post-{population}":
         print(disorder_subgroup)
-        df_post = df_tmp.copy()
+        df_post = df_extracted.copy()
         # Merging DataFrames on index
 
 # Reindex df_pre to match the index order of df_post
@@ -89,8 +90,8 @@ common_cols = df_pre.columns.intersection(df_post.columns)
 df_merged = pd.merge(df_pre.drop(columns=common_cols), df_post, left_index=True, right_index=True, how='inner')
 
 print(df_merged)
-print("===== Done! =====")
-embed(globals(), locals())
+# print("===== Done! =====")
+# embed(globals(), locals())
 save_disorder_extracted_data_by_features(
     df_merged,
     population,

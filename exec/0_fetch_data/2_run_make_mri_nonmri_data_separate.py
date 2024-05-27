@@ -26,7 +26,8 @@ elif mri_status == "nonmri":
     df_mri_original.index.names = ["SubjectID"]
 
     df = df_all_original[~df_all_original.index.isin(df_mri_original.index)]
-
+# print("===== Done! =====")
+# embed(globals(), locals())
 ###############################################################################
 #Create folders and file names to save the fetched data on Juseless
 # ----------- On Juseless ----------#

@@ -44,6 +44,7 @@ def extract_data(df, population, features, extend_features, target, disorder_sub
                                             "47-",
                                             "followup",
                                             ]
+
     if population == "stroke":
         extend_features = extend_features + ["stroke_subtype", "42006-0.0", "first_diagnoses_date_I63", "first_diagnoses_date_I63", "stroke_diagnoses_date"]
     elif population == "parkinson":
@@ -58,6 +59,7 @@ def extract_data(df, population, features, extend_features, target, disorder_sub
     all_featurtes = features + features_extra_list + extend_features_list
     # Extract the specified feature and target columns
     # Drop rows with NaN values in the combined feature and target columns
+
     df_tmp = df.loc[:, all_featurtes].dropna(subset=features) 
 
     if disorder_subgroup == f"pre-{population}":
@@ -65,7 +67,7 @@ def extract_data(df, population, features, extend_features, target, disorder_sub
 
     elif disorder_subgroup == f"post-{population}":
         df_extracted = df_tmp[[col for col in df_tmp.columns if f"pre-{population}" not in col]]
-    
+
     # Filter columns that start with the specified prefix
     filtered_columns = [col for col in df_extracted.columns if col in features]
     # Remove the prefix from selected column names

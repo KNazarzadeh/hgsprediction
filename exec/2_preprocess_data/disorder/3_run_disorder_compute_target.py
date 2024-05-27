@@ -32,6 +32,7 @@ for disorder_cohort in [f"pre-{population}", f"post-{population}", f"longitudina
                     subgroup_session_column = f"1st_{disorder_subgroup}_session"
                 for target in ["hgs_L+R", "hgs_left", "hgs_right", "hgs_LI", "hgs_L-R"]:
                     df = disorder_compute_target.compute_target(df, subgroup_session_column, target)
+            print(df)
             disorder_save_data.save_preprocessed_data(df, population, mri_status, session_column, disorder_cohort, first_event)
     else:
         for visit_session in visit_range:

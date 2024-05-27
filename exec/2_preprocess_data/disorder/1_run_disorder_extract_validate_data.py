@@ -17,7 +17,7 @@ mri_status = sys.argv[2]
 first_event = sys.argv[3]
 
 df_original = disorder_load_data.load_original_data(population, mri_status)
-df_original.index.name = "SubjectID"
+
 # print("===== Done! =====")
 # embed(globals(), locals())
 ###############################################################################

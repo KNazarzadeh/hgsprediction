@@ -53,21 +53,25 @@ features, extend_features = define_features(feature_type)
 X = features
 y = target
 ##############################################################################
-for session in ["0", "1", "2", "3"]: 
+# for session in ["0", "1", "2", "3"]: 
+for session in ["0"]: 
     # load data
-    df = healthy_load_data.load_preprocessed_data(population, mri_status, session, gender)
+    df_original = healthy_load_data.load_preprocessed_data(population, mri_status, session, gender)
     ##############################################################################
     # Extract data based on main features, extra features, target for each session and mri status:
-    data_extracted = healthy_extract_data.extract_data(df, features, extend_features, feature_type, target, mri_status, session)
+    data_extracted = healthy_extract_data.extract_data(df_original.copy(), features, extend_features, feature_type, target, mri_status, session)
     ##############################################################################
     # Predict Handgrip strength (HGS) on X and y in dataframe
     # With best trained model on non-MRI healthy controls data
-    df = predict_hgs(data_extracted, X, y, best_model_trained, target)
+    df = predict_hgs(data_extracted.copy(), X, y, best_model_trained, target)
 
     ##############################################################################
     # Print the final dataframe after adding predicted and delta HGS columns
     print(df)
-
+    summary_stats = data_extracted.describe().apply(lambda x: round(x, 2))
+    print(summary_stats)
+    print("===== END Done! =====")
+    embed(globals(), locals())
     ##############################################################################
     # Save dataframe in the specific location
     save_hgs_predicted_results(
