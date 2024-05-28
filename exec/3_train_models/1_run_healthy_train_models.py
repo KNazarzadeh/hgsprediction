@@ -30,7 +30,7 @@ from sklearn.metrics import make_scorer
 
 ####### sklearn libraries #######
 from sklearn.model_selection import RepeatedKFold
-from sklearn.metrics import r2_score
+from sklearn.metrics import r2_score, mean_absolute_error
 from scipy.stats import pearsonr
 # IMPORT SAVE FUNCTIONS
 import pickle
@@ -69,6 +69,7 @@ def pearson_corr(y_true, y_pred):
     """
     r = pearsonr(y_true, y_pred)[0]
     return r
+
 pearson_scorer = make_scorer(pearson_corr)
 register_scorer("pearson_corr", pearson_scorer)
 

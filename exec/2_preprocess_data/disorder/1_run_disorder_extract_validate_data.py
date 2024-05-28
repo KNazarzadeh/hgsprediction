@@ -23,7 +23,7 @@ df_original = disorder_load_data.load_original_data(population, mri_status)
 ###############################################################################
 
 data_processor = disorder_data_preprocessor.DisorderMainDataPreprocessor(df_original, population)    
-df = data_processor.define_handness(df_original)
+df = data_processor.define_handedness(df_original)
 
 df = data_processor.define_diagnosis_date(df)
 
@@ -35,12 +35,15 @@ df = data_processor.remove_missing_hgs(df)
 if population == "stroke":
     df = data_processor.define_disorder_type(df, population)
 df = data_processor.define_followup_days(df, first_event)
-# print("===== Done! =====")
-# embed(globals(), locals())
+
 ###############################################################################
 df_preprocessed = data_processor.preprocess_disorder_df(df, population)
+# print("===== Done! =====")
+# embed(globals(), locals())
 # Calculate and Add dominant and nondominant hgs to data
 df_preprocessed = data_processor.calculate_dominant_nondominant_hgs(df_preprocessed, population)
+print("===== Done! =====")
+embed(globals(), locals())
 # Remove all columns with all NaN values
 df_preprocessed = data_processor.remove_nan_columns(df_preprocessed)
 

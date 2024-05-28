@@ -37,8 +37,6 @@ from .compute_target import disorder_compute_target
 ############### STROKE FUNCTIONS ###############
 # Load Stroke Data
 from .load_data import stroke_load_data
-# Data Preprocessing
-from .data_preprocessing import stroke_data_preprocessor
 # Features Computing
 from .compute_features import stroke_compute_features
 # Target Computing
@@ -76,7 +74,6 @@ from .predict_hgs import calculate_t_valuesGMV_HGS
 
 ################################## PARKINSON DISEASE ##################################
 from .load_data import parkinson_load_data
-from .data_preprocessing import parkinson_data_preprocessor
 from .save_data import parkinson_save_data
 from .compute_features import parkinson_compute_features
 from .extract_data import parkinson_extract_data
@@ -86,7 +83,6 @@ from .load_results.healthy import load_hgs_predicted_results
 
 ################################## Major Depressive DISOREDR (MDD) ##################################
 from .load_data import depression_load_data
-from .data_preprocessing import depression_data_preprocessor
 from .save_data import depression_save_data
 from .compute_features import depression_compute_features
 from .extract_data import depression_extract_data
