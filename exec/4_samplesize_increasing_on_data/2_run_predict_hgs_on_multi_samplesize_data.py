@@ -54,10 +54,11 @@ confound_status = sys.argv[5]
 model_name = sys.argv[6]
 n_repeats = sys.argv[7]
 n_folds = sys.argv[8]
-gender = sys.argv[9]
-samplesize = sys.argv[10]
+data_set = sys.argv[9]
+gender = sys.argv[10]
+samplesize = sys.argv[11]
 
-###############################################################################
+session = "0"
 ###############################################################################
 def pearson_corr(y_true, y_pred):
     """ Creates a Julearn-compatible pearson correlation scorer
@@ -91,12 +92,13 @@ df_train = load_multi_samplesize_training_data(
     gender,
     feature_type,
     target,
+    session,
+    data_set,    
     samplesize,
     )
 
 print(len(df_train))
-print("===== Done! =====")
-embed(globals(), locals())
+
 ###############################################################################
 # Define Features:
 features, extend_features = define_features(feature_type)
@@ -121,7 +123,8 @@ cv_repeats_number = int(n_repeats)
 cv_folds_number = int(n_folds)
 
 cv = RepeatedKFold(n_splits=cv_folds_number, n_repeats=cv_repeats_number, random_state=47)
-
+# print("===== Done! =====")
+# embed(globals(), locals())
 ###############################################################################
 # run run_cross_validation
 if confound_status == '0':
@@ -208,6 +211,8 @@ save_multi_samples_trained_model_results.save_best_model_trained(
     model_name,
     cv_repeats_number,
     cv_folds_number,
+    session,
+    data_set,
     samplesize)
 ###############################################################################      
 save_multi_samples_trained_model_results.save_estimators_trained(
@@ -221,6 +226,8 @@ save_multi_samples_trained_model_results.save_estimators_trained(
     model_name,
     cv_repeats_number,
     cv_folds_number,
+    session,
+    data_set,
     samplesize)
 ################################################################################
 save_multi_samples_trained_model_results.save_scores_trained(
@@ -234,6 +241,8 @@ save_multi_samples_trained_model_results.save_scores_trained(
     model_name,
     cv_repeats_number,
     cv_folds_number,
+    session,
+    data_set,
     samplesize)
 ################################################################################
 save_multi_samples_trained_model_results.save_test_scores_trained(
@@ -248,6 +257,8 @@ save_multi_samples_trained_model_results.save_test_scores_trained(
     model_name,
     cv_repeats_number,
     cv_folds_number,
+    session,
+    data_set,
     samplesize)
 ################################################################################
 save_multi_samples_trained_model_results.save_prediction_hgs_on_validation_set(
@@ -261,6 +272,8 @@ save_multi_samples_trained_model_results.save_prediction_hgs_on_validation_set(
     model_name,
     cv_repeats_number,
     cv_folds_number,
+    session,
+    data_set,
     samplesize)
 ################################################################################
 print("===== Done! =====")

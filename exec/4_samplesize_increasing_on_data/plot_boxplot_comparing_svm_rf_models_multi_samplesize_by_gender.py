@@ -22,7 +22,10 @@ target = sys.argv[4]
 confound_status = sys.argv[5]
 n_repeats = sys.argv[6]
 n_folds = sys.argv[7]
-score_type = sys.argv[8]
+data_set = sys.argv[8]
+score_type = sys.argv[9]
+
+session = "0"
 ###############################################################################
 if score_type == "r_score":
     test_score = "test_pearson_corr"
@@ -45,6 +48,8 @@ for model_name in ["linear_svm", "random_forest"]:
             model_name,
             n_repeats,
             n_folds,
+            session,
+            data_set,
             samplesize,
             )
         df_tmp_male = load_scores_trained(
@@ -57,6 +62,8 @@ for model_name in ["linear_svm", "random_forest"]:
             model_name,
             n_repeats,
             n_folds,
+            session,
+            data_set,
             samplesize,
             )
 
@@ -90,8 +97,8 @@ palette_male = sns.color_palette("Blues")
 # palette_female = sns.color_palette(palette='RdPu')
 palette_female = sns.cubehelix_palette()
 custom_palette = {'Female': palette_female[1], 'Male': palette_male[2]}
-print("===== Done! =====")
-embed(globals(), locals())
+# print("===== Done! =====")
+# embed(globals(), locals())
 ###############################################################################
 # Set the style once for all plots
 

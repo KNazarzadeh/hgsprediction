@@ -19,6 +19,8 @@ def load_scores_trained(
     model_name,
     n_repeats,
     n_folds,
+    session,
+    data_set,     
     samplesize,
 ):
     if confound_status == "0":
@@ -36,6 +38,8 @@ def load_scores_trained(
             "results_hgsprediction",
             f"{population}",
             f"{mri_status}",
+            f"{data_set}",
+            f"{session}_session_ukb",                
             f"{feature_type}",
             f"{target}",
             f"{confound}",

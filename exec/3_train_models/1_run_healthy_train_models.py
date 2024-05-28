@@ -85,8 +85,8 @@ features, extend_features = define_features(feature_type)
 X = features
 y = target
 print(data_extracted)
-# print("===== Done! =====")
-# embed(globals(), locals())
+print("===== Done! =====")
+embed(globals(), locals())
 ###############################################################################
 # Define model and model parameters:
 if model_name == "linear_svm":

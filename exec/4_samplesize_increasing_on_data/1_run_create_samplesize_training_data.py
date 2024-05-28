@@ -4,7 +4,7 @@ import numpy as np
 import sys
 from sklearn.model_selection import RepeatedKFold
 from sklearn.metrics import r2_score
-from hgsprediction.load_data import healthy_load_data
+from hgsprediction.load_data.healthy_load_data import load_extracted_data_by_feature_and_target
 ####### Data Extraction #######
 from hgsprediction.extract_data import healthy_extract_data
 from hgsprediction.save_data import save_multi_samplesize_training_data
@@ -19,12 +19,20 @@ mri_status = sys.argv[2]
 feature_type = sys.argv[3]
 target = sys.argv[4]
 confound_status = sys.argv[5]
-gender = sys.argv[6]
+data_set = sys.argv[6]
+gender = sys.argv[7]
 
-      
+session="0"
 # Read ready training data 
-df_train = healthy_load_data.load_ready_training_data(population, mri_status, feature_type, target, confound_status, gender) 
- 
+data_extracted = load_extracted_data_by_feature_and_target(
+    population,
+    mri_status,
+    feature_type,
+    target,
+    session,
+    gender,
+    data_set,
+) 
 # a list of samplesize based on the samplesize/percentage_step (e.g. 10%)
 # Take percentage_step% (e.g. 10%) sample from the entire data
 
@@ -34,11 +42,11 @@ percentage_step = 10
 samplesize_list = list()
 
 # Take percentage_step% (e.g. 10%) sample from the entire data
-df_percent = df_train.sample(frac=1/percentage_step, random_state=47)
+df_percent = data_extracted.sample(frac=1/percentage_step, random_state=47)
 # Get the number of samples in the initial percentage_step% (e.g. 10%) sample
 n_sample_10_percent = len(df_percent)
 # Create a temporary DataFrame without the initial percentage_step% (e.g. 10%) sample
-df_tmp = df_train[~df_train.index.isin(df_percent.index)]
+df_tmp = data_extracted[~data_extracted.index.isin(df_percent.index)]
 
 # concat initial sample to the list of samples
 samplesize_list.insert(0, df_percent)
@@ -84,6 +92,8 @@ for percent_interest in list_of_interest:
             gender,
             feature_type,
             target,
+            session,
+            data_set,
             samplesize,
         )
 

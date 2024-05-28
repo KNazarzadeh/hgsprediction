@@ -19,6 +19,8 @@ def save_best_model_trained(
     model_name,
     n_repeats,
     n_folds,
+    session,
+    data_set, 
     samplesize,
 ):
     if confound_status == "0":
@@ -35,6 +37,8 @@ def save_best_model_trained(
             "results_hgsprediction",
             f"{population}",
             f"{mri_status}",
+            f"{data_set}",
+            f"{session}_session_ukb",                
             f"{feature_type}",
             f"{target}",
             f"{confound}",
@@ -69,6 +73,8 @@ def save_estimators_trained(
     model_name,
     n_repeats,
     n_folds,
+    session,
+    data_set,
     samplesize,
 ):
     if confound_status == "0":
@@ -86,6 +92,8 @@ def save_estimators_trained(
             "results_hgsprediction",
             f"{population}",
             f"{mri_status}",
+            f"{data_set}",
+            f"{session}_session_ukb",                
             f"{feature_type}",
             f"{target}",
             f"{confound}",
@@ -123,6 +131,8 @@ def save_scores_trained(
     model_name,
     n_repeats,
     n_folds,
+    session,
+    data_set,    
     samplesize,
 ):
     if confound_status == "0":
@@ -140,6 +150,8 @@ def save_scores_trained(
             "results_hgsprediction",
             f"{population}",
             f"{mri_status}",
+            f"{data_set}",
+            f"{session}_session_ukb",                
             f"{feature_type}",
             f"{target}",
             f"{confound}",
@@ -176,6 +188,8 @@ def save_test_scores_trained(
     model_name,
     n_repeats,
     n_folds,
+    session,
+    data_set,    
     samplesize,
 ):
     if confound_status == "0":
@@ -190,9 +204,11 @@ def save_test_scores_trained(
             "stroke_ukb",
             "knazarzadeh",
             "project_hgsprediction",
-            "results_hgsprediction",          
-            f"{population}",
+            "results_hgsprediction",
+            f"{population}",         
             f"{mri_status}",
+            f"{data_set}",
+            f"{session}_session_ukb",                
             f"{feature_type}",
             f"{target}",
             f"{confound}",
@@ -237,6 +253,8 @@ def save_prediction_hgs_on_validation_set(
     model_name,
     n_repeats,
     n_folds,
+    session,
+    data_set,    
     samplesize,
 ):
     if confound_status == "0":
@@ -254,6 +272,8 @@ def save_prediction_hgs_on_validation_set(
             "results_hgsprediction",
             f"{population}",
             f"{mri_status}",
+            f"{data_set}",
+            f"{session}_session_ukb",                
             f"{feature_type}",
             f"{target}",
             f"{confound}",

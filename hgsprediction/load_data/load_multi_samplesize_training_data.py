@@ -10,8 +10,10 @@ def load_multi_samplesize_training_data(
     gender,
     feature_type,
     target,
+    session,
+    data_set,
     samplesize,
-    ):
+):
     
         if confound_status == '0':
             confound = "without_confound_removal"
@@ -28,13 +30,14 @@ def load_multi_samplesize_training_data(
                 "results_hgsprediction",
                 f"{population}",
                 f"{mri_status}",
+                f"{data_set}",
+                f"{session}_session_ukb",                
                 f"{feature_type}",
                 f"{target}",
                 f"{confound}",
                 "multi_samplesize_results",
                 "data_ready_to_train_models",
                 f"results_samples_{samplesize}",
-                f"{gender}",
             )
         
         # Define the csv file path to save
