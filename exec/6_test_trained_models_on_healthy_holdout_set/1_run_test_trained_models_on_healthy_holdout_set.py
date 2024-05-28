@@ -48,7 +48,8 @@ best_model_trained = load_trained_models.load_best_model_trained(
 
 print(best_model_trained)
 print("gender is :", gender)
-
+print("===== Done! =====")
+embed(globals(), locals())
 ##############################################################################
 # Define main features and extra features:
 features, extend_features = define_features(feature_type)

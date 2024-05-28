@@ -82,15 +82,16 @@ data_extracted = healthy_extract_data.extract_data(df_train, features, extend_fe
 X = features
 y = target
 print(data_extracted)
-print("===== Done! =====")
-embed(globals(), locals())
+# print("===== Done! =====")
+# embed(globals(), locals())
 ###############################################################################
 # Define model and model parameters:
 if model_name == "linear_svm":
     model = svrhc(dual=False, loss='squared_epsilon_insensitive')
 elif model_name == "random_forest":
     model = "rf"
-
+print("===== Done! =====")
+embed(globals(), locals())
 ###############################################################################
 # When cv=None, it define as follows:
 cv = RepeatedKFold(n_splits=cv_folds_number, n_repeats=cv_repeats_number, random_state=47)

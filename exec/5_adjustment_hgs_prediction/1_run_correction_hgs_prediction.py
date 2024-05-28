@@ -68,6 +68,8 @@ file_path = os.path.join(
 
 df = pd.read_pickle(file_path)
 
+print("===== Done! =====")
+embed(globals(), locals())
 ###############################################################################
 def calculate_correlations(df, n_folds, target):
     df_corrected = pd.DataFrame()
