@@ -10,14 +10,13 @@ Motor is Handgrip strength (1 phase).
 """
 import pandas as pd
 import numpy as np
-import sys
 ####### Parse Input #######
 from hgsprediction.input_arguments import parse_args, input_arguments
 ####### Load Train set #######
 # Load Processed Train set (after data validation, feature engineering)
-from hgsprediction.load_data.healthy_load_data import load_extracted_data_by_feature_and_target
-####### Load results #######
-from hgsprediction.save_results.healthy import save_trained_model_results
+from hgsprediction.load_data import healthy_load_data
+####### Data Extraction #######
+from hgsprediction.extract_data import healthy_extract_data
 ####### Features Extraction #######
 from hgsprediction.define_features import define_features
 # Calculation of Heuristic C for Linear SVM model
@@ -27,10 +26,15 @@ import pickle
 ####### Julearn #######
 from julearn import run_cross_validation
 from julearn.scoring import register_scorer
+from sklearn.metrics import make_scorer
+
 ####### sklearn libraries #######
 from sklearn.model_selection import RepeatedKFold
-from sklearn.metrics import make_scorer, r2_score, mean_absolute_error
+from sklearn.metrics import r2_score, mean_absolute_error
 from scipy.stats import pearsonr
+# IMPORT SAVE FUNCTIONS
+import pickle
+from hgsprediction.save_results.healthy import save_trained_model_results
 
 #--------------------------------------------------------------------------#
 from ptpython.repl import embed
@@ -39,22 +43,9 @@ from ptpython.repl import embed
 
 ###############################################################################
 # Parse, add and return the arguments by function parse_args.
-# args = parse_args()
-# motor, population, mri_status, feature_type, target, model_name, \
-#     confound_status, cv_repeats_number, cv_folds_number, gender = input_arguments(args)
-
-filename = sys.argv[0]
-population = sys.argv[1]
-mri_status = sys.argv[2]
-feature_type = sys.argv[3]
-target = sys.argv[4]
-session = sys.argv[5]
-model_name = sys.argv[6]
-confound_status = sys.argv[7]
-cv_repeats_number = sys.argv[8]
-cv_folds_number = sys.argv[9]
-data_set = sys.argv[10]
-gender = sys.argv[11]
+args = parse_args()
+motor, population, mri_status, feature_type, target, model_name, \
+    confound_status, cv_repeats_number, cv_folds_number, gender = input_arguments(args)
 
 session="0"
 
@@ -83,17 +74,11 @@ pearson_scorer = make_scorer(pearson_corr)
 register_scorer("pearson_corr", pearson_scorer)
 
 ###############################################################################
-data_extracted = load_extracted_data_by_feature_and_target(
-    population,
-    mri_status,
-    feature_type,
-    target,
-    session,
-    gender,
-    data_set,
-)
+df_train = healthy_load_data.load_preprocessed_data(population, mri_status, session, gender)
 
 features, extend_features = define_features(feature_type)
+
+data_extracted = healthy_extract_data.extract_data(df_train, features, extend_features, feature_type, target, mri_status, session)
 
 X = features
 y = target
@@ -184,6 +169,15 @@ print(df_prediction_pearson_scores)
 
 ###############################################################################
 # SAVE THE RESULTS
+###############################################################################
+save_trained_model_results.save_extracted_data_to_train_model(
+    data_extracted,
+    population,
+    mri_status,
+    confound_status,
+    gender,
+    feature_type,
+    target)
 ###############################################################################
 save_trained_model_results.save_best_model_trained(
     model_trained,

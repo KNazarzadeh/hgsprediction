@@ -11,12 +11,12 @@ def load_original_binned_train_data(
     mri_status,
 ):
     """
-    Save results to csv file.
+    load results to csv file.
 
     Parameters
     ----------
     dataframe : pandas.DataFrame
-        DataFrame that should be save in specific folder.
+        DataFrame that should be load in specific folder.
     motor : str
         Name of the motor which to be analyse.
     population: str
@@ -68,7 +68,7 @@ def load_validate_hgs_data(
     Return
     ----------    
     df : pandas.DataFrame
-        DataFrame that should be save in specific folder.
+        DataFrame that should be load in specific folder.
     """
     if mri_status == "nonmri":
         folder_path = os.path.join(
@@ -128,7 +128,7 @@ def load_preprocessed_data(
     Return
     ----------    
     df : pandas.DataFrame
-        DataFrame that should be save in specific folder.
+        DataFrame that should be load in specific folder.
     """
     if mri_status == "nonmri":
         folder_path = os.path.join(
@@ -174,12 +174,12 @@ def load_original_data(
     mri_status,
 ):
     """
-    Save results to csv file.
+    load results to csv file.
 
     Parameters
     ----------
     dataframe : pandas.DataFrame
-        DataFrame that should be save in specific folder.
+        DataFrame that should be load in specific folder.
     motor : str
         Name of the motor which to be analyse.
     population: str
@@ -220,12 +220,12 @@ def load_ready_training_data(
     
 ):
     """
-    Save results to csv file.
+    load results to csv file.
 
     Parameters
     ----------
     dataframe : pandas.DataFrame
-        DataFrame that should be save in specific folder.
+        DataFrame that should be load in specific folder.
     motor : str
         Name of the motor which to be analyse.
     population: str
@@ -271,12 +271,12 @@ def load_original_nonmri_test_data(
     mri_status,
 ):
     """
-    Save results to csv file.
+    load results to csv file.
 
     Parameters
     ----------
     dataframe : pandas.DataFrame
-        DataFrame that should be save in specific folder.
+        DataFrame that should be load in specific folder.
     motor : str
         Name of the motor which to be analyse.
     population: str
@@ -307,3 +307,69 @@ def load_original_nonmri_test_data(
     
     return df
 
+###############################################################################
+def load_extracted_data_by_feature_and_target(
+    population,
+    mri_status,
+    feature_type,
+    target,
+    session,
+    gender,
+    data_set,
+):
+    """
+    load results to csv file.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        DataFrame that should be load in specific folder.
+    motor : str
+        Name of the motor which to be analyse.
+    population: str
+        Name of the population which to  to be analyse
+    mri_status: str
+        MRI status which data to be  to be analyse.
+    """
+    if mri_status == "nonmri":
+        folder_path = os.path.join(
+        "/data",
+        "project",
+        "stroke_ukb",
+        "knazarzadeh",
+        "project_hgsprediction",
+        "results_hgsprediction",
+        f"{population}",
+        f"{mri_status}",
+        f"{data_set}",
+        f"{session}_session_ukb",
+        f"{feature_type}",
+        f"{target}",
+        "extracted_data_by_feature_and_target",
+        )
+    else:
+        folder_path = os.path.join(
+            "/data",
+            "project",
+            "stroke_ukb",
+            "knazarzadeh",
+            "project_hgsprediction",
+            "results_hgsprediction",
+            f"{population}",
+            f"{mri_status}",
+            f"{session}_session_ukb",
+            f"{feature_type}",
+            f"{target}",
+            "extracted_data_by_feature_and_target",
+            )
+        
+    # Define the csv file path to load
+    file_path = os.path.join(
+        folder_path,
+        f"{gender}_extracted_data_by_feature_and_target.csv")
+    
+    # load the dataframe to csv file path
+    df = pd.read_csv(file_path, sep=',', index_col=0)
+    
+    return df
+###############################################################################

@@ -41,10 +41,6 @@ X = features
 y = target
 print(data_extracted)
 
-
-print("===== Done! =====")
-embed(globals(), locals())
-
 save_extracted_data_by_feature_and_target(
     data_extracted,
     population,
@@ -55,3 +51,12 @@ save_extracted_data_by_feature_and_target(
     gender,
     data_set,
 )
+
+print("===== Done! =====")
+embed(globals(), locals())
+
+# Test removed missed features and target
+df[[f"bmi-{session}.0", f"height-{session}.0", f"waist_to_hip_ratio-{session}.0", f"hgs_L+R-{session}.0"]].isna().sum()
+idx = df[df[f"bmi-{session}.0"].isna()].index
+df[df[f"height-{session}.0"].index.isin(idx)][f"height-{session}.0"].isna().sum()
+df[df[f"waist_to_hip_ratio-{session}.0"].index.isin(idx)][f"waist_to_hip_ratio-{session}.0"].isna().sum()

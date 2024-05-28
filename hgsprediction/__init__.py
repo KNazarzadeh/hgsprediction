@@ -33,8 +33,6 @@ from .compute_features import disorder_compute_features
 # Target Computing
 from .compute_target import disorder_compute_target
 ############### STROKE FUNCTIONS ###############
-# Load Stroke Data
-from .load_data import stroke_load_data
 
 from .predict_hgs import calculate_pearson_hgs_correlation
 from .load_results.stroke import load_hgs_predicted_results, load_hgs_predicted_results_mri_records_sessions_only
@@ -57,13 +55,11 @@ from .predict_hgs import calculate_brain_hgs
 from .predict_hgs import calculate_t_valuesGMV_HGS
 
 ################################## PARKINSON DISEASE ##################################
-from .load_data import parkinson_load_data
 from .save_results.parkinson_save_spearman_correlation_results import parkinson_save_spearman_correlation_results
 from .save_results.parkinson_save_hgs_predicted_results import parkinson_save_hgs_predicted_results
 from .load_results.healthy import load_hgs_predicted_results
 
 ################################## Major Depressive DISOREDR (MDD) ##################################
-from .load_data import depression_load_data
 from .save_results.depression_save_spearman_correlation_results import depression_save_spearman_correlation_results
 from .save_results.depression_save_hgs_predicted_results import depression_save_hgs_predicted_results
 from .load_results.healthy import load_hgs_predicted_results
