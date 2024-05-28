@@ -54,6 +54,7 @@ def load_validate_hgs_data(
     mri_status,
     session,
     gender,
+    data_set,
 ):
     """
     Load train set after binned process.
@@ -69,19 +70,35 @@ def load_validate_hgs_data(
     df : pandas.DataFrame
         DataFrame that should be save in specific folder.
     """
-    folder_path = os.path.join(
-        "/data",
-        "project",
-        "stroke_ukb",
-        "knazarzadeh",
-        "project_hgsprediction",
-        "data_hgs",
-        f"{population}",
-        "preprocessed_data",
-        f"{mri_status}_{population}",
-        "validated_hgs_data",
-        f"{session}_session_ukb",
-    )
+    if mri_status == "nonmri":
+        folder_path = os.path.join(
+            "/data",
+            "project",
+            "stroke_ukb",
+            "knazarzadeh",
+            "project_hgsprediction",
+            "data_hgs",
+            f"{population}",
+            "preprocessed_data",
+            f"{mri_status}_{population}",
+            f"{data_set}",
+            "validated_hgs_data",
+            f"{session}_session_ukb"
+            )
+    else:
+        folder_path = os.path.join(
+            "/data",
+            "project",
+            "stroke_ukb",
+            "knazarzadeh",
+            "project_hgsprediction",
+            "data_hgs",
+            f"{population}",
+            "preprocessed_data",
+            f"{mri_status}_{population}",
+            "validated_hgs_data",
+            f"{session}_session_ukb",
+            )
 
     file_path = os.path.join(
         folder_path,
@@ -97,6 +114,7 @@ def load_preprocessed_data(
     mri_status,
     session,
     gender,
+    data_set,
 ):
     """
     Load train set after binned process.
@@ -112,19 +130,35 @@ def load_preprocessed_data(
     df : pandas.DataFrame
         DataFrame that should be save in specific folder.
     """
-    folder_path = os.path.join(
-        "/data",
-        "project",
-        "stroke_ukb",
-        "knazarzadeh",
-        "project_hgsprediction",
-        "data_hgs",
-        f"{population}",
-        "preprocessed_data",
-        f"{mri_status}_{population}",
-        "preprocessed_data",
-        f"{session}_session_ukb",
-    )
+    if mri_status == "nonmri":
+        folder_path = os.path.join(
+            "/data",
+            "project",
+            "stroke_ukb",
+            "knazarzadeh",
+            "project_hgsprediction",
+            "data_hgs",
+            f"{population}",
+            "preprocessed_data",
+            f"{mri_status}_{population}",
+            f"{data_set}",
+            "preprocessed_data",
+            f"{session}_session_ukb"
+            )
+    else:
+        folder_path = os.path.join(
+            "/data",
+            "project",
+            "stroke_ukb",
+            "knazarzadeh",
+            "project_hgsprediction",
+            "data_hgs",
+            f"{population}",
+            "preprocessed_data",
+            f"{mri_status}_{population}",
+            "preprocessed_data",
+            f"{session}_session_ukb",
+            )
 
     file_path = os.path.join(
         folder_path,
@@ -273,92 +307,3 @@ def load_original_nonmri_test_data(
     
     return df
 
-###############################################################################
-def load_validate_hgs_nonmri_test_data(
-    population,
-    mri_status,
-    session,
-    gender,
-):
-    """
-    Load train set after binned process.
-    90 percent train from the binned data.
-    Parameters
-    ----------
-    population: str
-        Specifies the population.
-    mri_status: str
-        Specifies the MRI status.
-    Return
-    ----------    
-    df : pandas.DataFrame
-        DataFrame that should be save in specific folder.
-    """
-    folder_path = os.path.join(
-        "/data",
-        "project",
-        "stroke_ukb",
-        "knazarzadeh",
-        "project_hgsprediction",
-        "data_hgs",
-        f"{population}",
-        "preprocessed_data",
-        f"{mri_status}_{population}",
-        "test_holdout_set",
-        "validated_hgs_data",
-        f"{session}_session_ukb"
-    )
-    file_path = os.path.join(
-        folder_path,
-        f"both_gender_validate_hgs_data.csv")
-    # Load the dataframe from csv file path
-    df = pd.read_csv(file_path, sep=',', index_col=0)
-        
-    return df
-
-###############################################################################
-def load_preprocessed_nonmri_test_data(
-    population,
-    mri_status,
-    session,
-    gender,
-):
-    """
-    Load train set after binned process.
-    90 percent train from the binned data.
-    Parameters
-    ----------
-    population: str
-        Specifies the population.
-    mri_status: str
-        Specifies the MRI status.
-    Return
-    ----------    
-    df : pandas.DataFrame
-        DataFrame that should be save in specific folder.
-    """
-    folder_path = os.path.join(
-        "/data",
-        "project",
-        "stroke_ukb",
-        "knazarzadeh",
-        "project_hgsprediction",
-        "data_hgs",
-        f"{population}",
-        "preprocessed_data",
-        f"{mri_status}_{population}",
-        "test_holdout_set",
-        "preprocessed_data",
-        f"{session}_session_ukb",
-    )
-    
-    file_path = os.path.join(
-        folder_path,
-        f"{gender}_preprocessed_data.csv")
-    
-    # Load the dataframe from csv file path
-    df = pd.read_csv(file_path, sep=',', index_col=0, low_memory=False)
-    
-    return df
-
-###############################################################################

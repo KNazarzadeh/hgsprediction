@@ -1,1 +1,0 @@
-from .prepare_stroke_data import prepare_stroke

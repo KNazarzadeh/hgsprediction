@@ -16,13 +16,6 @@ def extract_data(df, population, features, extend_features, target, disorder_sub
     
     if visit_session == "1":
         prefix = f"1st_{disorder_subgroup}_"
-    # elif visit_session == "2":
-    #     prefix = f"2nd_{disorder_subgroup}_"
-    # elif visit_session == "3":
-    #     prefix = f"3rd_{disorder_subgroup}_"
-    # elif visit_session == "4":
-    #     prefix = f"4th_{disorder_subgroup}_"
-    
         
     features_extra_list = ["days", 
                             "years",
@@ -39,7 +32,7 @@ def extract_data(df, population, features, extend_features, target, disorder_sub
                                             "1707-1.0",
                                             "1707-2.0",
                                             "gender",
-                                            "handness",
+                                            "handedness",
                                             "46-", 
                                             "47-",
                                             "followup",

@@ -28,7 +28,8 @@ df = data_processor.define_handedness(df_original)
 df = data_processor.define_diagnosis_date(df)
 
 df = data_processor.remove_missing_disorder_dates(df, first_event)
-
+# print("===== Done! =====")
+# embed(globals(), locals())
 df = data_processor.remove_missing_hgs(df)
 
 ###############################################################################
@@ -42,11 +43,11 @@ df_preprocessed = data_processor.preprocess_disorder_df(df, population)
 # embed(globals(), locals())
 # Calculate and Add dominant and nondominant hgs to data
 df_preprocessed = data_processor.calculate_dominant_nondominant_hgs(df_preprocessed, population)
-print("===== Done! =====")
-embed(globals(), locals())
+
 # Remove all columns with all NaN values
 df_preprocessed = data_processor.remove_nan_columns(df_preprocessed)
-
+# print("===== Done! =====")
+# embed(globals(), locals())
 disorder_save_data.save_main_preprocessed_data(df_preprocessed, population, mri_status, disorder_cohort=f"all-{population}-subjects", first_event=f"{first_event}")
 
 ###############################################################################

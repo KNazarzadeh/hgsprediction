@@ -80,12 +80,6 @@ for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
             
     if visit_session == "1":
         prefix = f"1st_{disorder_subgroup}_"
-    # elif visit_session == "2":
-    #     prefix = f"2nd_{disorder_subgroup}_"
-    # elif visit_session == "3":
-    #     prefix = f"3rd_{disorder_subgroup}_"
-    # elif visit_session == "4":
-    #     prefix = f"4th_{disorder_subgroup}_"
 
     # Filter columns that require the prefix to be added
     filtered_columns = [col for col in df_tmp.columns if col in features + [target] + [f"{target}_predicted"] + [f"{target}_delta(true-predicted)"]]

@@ -127,10 +127,10 @@ class DisorderMainDataPreprocessor:
         original_handedness = df.loc[:, ["1707-0.0", "1707-1.0", "1707-2.0"]]
         
         # Find indices with NaN in the first column of original_handedness
-        index_withNaN = original_handedness[original_handedness.loc[:, "1707-0.0"].isna()].index
+        index_unavailable = original_handedness[(original_handedness.loc[:, "1707-0.0"].isna()) | (original_handedness.loc[:, "1707-0.0"] == -3)].index
         # Replace NaN in the first column with the max of the corresponding row
-        original_handedness.loc[index_withNaN, "1707-0.0"] = np.nanmax(original_handedness.loc[index_withNaN, :], axis=1)
-        
+        original_handedness.loc[index_unavailable, "1707-0.0"] = np.nanmax(original_handedness.loc[index_unavailable, :], axis=1)
+                
         # Find indices where the first column equals -3 and set them to NaN
         index_no_answer = original_handedness.loc[:, "1707-0.0"] == -3
         original_handedness.loc[index_no_answer, "1707-0.0"] = np.nan
@@ -147,22 +147,24 @@ class DisorderMainDataPreprocessor:
         df.loc[index_right, "handedness"] = 1.0
         df.loc[index_left, "handedness"] = 2.0
 
-        # Get the indices where the values in the two columns are equal    
-        # Filter the DataFrame to include only the specified indexes
-        filtered_df = df.loc[index_other]
-        # Find the indexes where the values in Column1 and Column2 are equal within the filtered DataFrame
-        index_other_equal_hgs = filtered_df[filtered_df["47-0.0"] == filtered_df["46-0.0"]].index
-        df.loc[index_other_equal_hgs, "handedness"] = 1.0
-        
-        # Find the indexes where the values in Column1 and Column2 are equal within the filtered DataFrame
-        index_other_not_equal_hgs = filtered_df[filtered_df["47-0.0"] != filtered_df["46-0.0"]].index
-        # Find the column with the maximum value among '46-0.0' and '47-0.0' for filtered rows
-        result_column = df.loc[index_other_not_equal_hgs, ["47-0.0", "46-0.0"]].idxmax(axis=1)
-        condition_right_index = result_column[result_column == "47-0.0"].index
-        df.loc[condition_right_index, "handedness"] = 1.0
-        condition_left_index = result_column[result_column == "46-0.0"].index
-        df.loc[condition_left_index, "handedness"] = 2.0
-                 
+        if len(index_other) > 0:
+            # Get the indices where the values in the two columns are equal    
+            # Filter the DataFrame to include only the specified indexes
+            filtered_df = df.loc[index_other]
+                  
+            # Find the indexes where the values in Column1 and Column2 are equal within the filtered DataFrame
+            index_other_not_equal_hgs = filtered_df[filtered_df["47-0.0"] != filtered_df["46-0.0"]].index
+            # Find the column with the maximum value among '46-0.0' and '47-0.0' for filtered rows
+            result_column = df.loc[index_other_not_equal_hgs, ["47-0.0", "46-0.0"]].idxmax(axis=1)
+            condition_right_index = result_column[result_column == "47-0.0"].index
+            df.loc[condition_right_index, "handedness"] = 1.0
+            condition_left_index = result_column[result_column == "46-0.0"].index
+            df.loc[condition_left_index, "handedness"] = 2.0
+            
+            # Find the indexes where the values in Column1 and Column2 are equal within the filtered DataFrame
+            index_other_equal_hgs = filtered_df[filtered_df["47-0.0"] == filtered_df["46-0.0"]].index
+            df.loc[index_other_equal_hgs, "handedness"] = 4.0
+            
         return df
 ###############################################################################
     def remove_missing_hgs(self, df):
@@ -177,12 +179,7 @@ class DisorderMainDataPreprocessor:
         df_output = pd.DataFrame()
         
         for ses in range(sessions):
-            # df_tmp = df[
-            #     ((~df.loc[:, f"{hgs_left}-{ses}.0"].isna()) &
-            #     (df.loc[:, f"{hgs_left}-{ses}.0"] !=  0) & (df.loc[:, f"{hgs_left}-{ses}.0"] >= 4.0))
-            #     & ((~df.loc[:, f"{hgs_right}-{ses}.0"].isna()) &
-            #     (df.loc[:, f"{hgs_right}-{ses}.0"] !=  0) & (df.loc[:, f"{hgs_right}-{ses}.0"] >= 4.0))
-            # ]
+            
             df_tmp = df[(~df.loc[:, f"{hgs_left}-{ses}.0"].isna()) & ((~df.loc[:, f"{hgs_right}-{ses}.0"].isna()))]
             df_output = pd.concat([df_output, df_tmp], axis=0)
 
@@ -434,6 +431,22 @@ class DisorderMainDataPreprocessor:
         assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
         substring_to_remove = "session"
         # -----------------------------------------------------------
+        # hgs_left field-ID: 46
+        # hgs_right field-ID: 47
+        # ------------------------------------
+        # ------- Handedness Field-ID: 1707
+        # Data-Coding: 100430
+        #           1	Right-handed
+        #           2	Left-handed
+        #           3	Use both right and left hands equally
+        #           -3	Prefer not to answer
+        # ------------------------------------
+        # If handedness is equal to 1 --> Right hand is Dominant
+        # Find handedness equal to left-handed, right-handed, and other
+        index_right = df[df.loc[:, "handedness"] == 1].index
+        index_left = df[df.loc[:, "handedness"] == 2].index                
+        index_other = df[df.loc[:, "handedness"] == 4].index   
+        # -----------------------------------------------------------        
         for disorder_cohort in [f"pre-{disorder}", f"post-{disorder}"]:
             for visit_session in range(1, 4):
                 if visit_session == 1:
@@ -450,70 +463,32 @@ class DisorderMainDataPreprocessor:
                 hgs_dominant_side = session_column.replace(substring_to_remove, "hgs_dominant_side")
                 hgs_nondominant_side = session_column.replace(substring_to_remove, "hgs_nondominant_side")
                 handedness = session_column.replace(substring_to_remove, "handedness")    
-
-                # -----------------------------------------------------------
-
-                # hgs_left field-ID: 46
-                # hgs_right field-ID: 47
-                # ------------------------------------
-                # ------- Handedness Field-ID: 1707
-                # Data-Coding: 100430
-                #           1	Right-handed
-                #           2	Left-handed
-                #           3	Use both right and left hands equally
-                #           -3	Prefer not to answer
-                # ------------------------------------
-                # If handedness is equal to 1 --> Right hand is Dominant
-                # Find handedness equal to left-handed, right-handed, and other
-                index_right = df[df.loc[:, "handedness"] == 1].index
-                index_left = df[df.loc[:, "handedness"] == 2].index                
                 
+                # -----------------------------------------------------------             
                 for ses in range(4):
-                    df.loc[index_right, handedness] = 1.0
-                    df.loc[index_right, hgs_dominant] = df.loc[index_right, f"47-{ses}.0"]
-                    df.loc[index_right, hgs_dominant_side] = "right"
-                    df.loc[index_right, hgs_nondominant] = df.loc[index_right, f"46-{ses}.0"]
-                    df.loc[index_right, hgs_nondominant_side] = "left"
+                    index_session = df[df.loc[:, session_column] == ses].index
+                    idx = [ind for ind in index_session if ind in index_right]
+                    
+                    df.loc[idx, handedness] = 1.0
+                    df.loc[idx, hgs_dominant] = df.loc[idx, f"47-{ses}.0"]
+                    df.loc[idx, hgs_dominant_side] = "right"
+                    df.loc[idx, hgs_nondominant] = df.loc[idx, f"46-{ses}.0"]
+                    df.loc[idx, hgs_nondominant_side] = "left"
+                    
+                    idx = [ind for ind in index_session if ind in index_left]
+                    df.loc[idx, handedness] = 2.0
+                    df.loc[idx, hgs_dominant] = df.loc[idx, f"46-{ses}.0"]
+                    df.loc[idx, hgs_dominant_side] = "left"
+                    df.loc[idx, hgs_nondominant] = df.loc[idx, f"47-{ses}.0"]
+                    df.loc[idx, hgs_nondominant_side] = "right"
 
-                    # idx = filtered_df[filtered_df.loc[:, "handedness"] == 2.0].index
-                    df.loc[index_left, handedness] = 2.0
-                    df.loc[index_left, hgs_dominant] = df.loc[index_left, f"46-{ses}.0"]
-                    df.loc[index_left, hgs_dominant_side] = "left"
-                    df.loc[index_left, hgs_nondominant] = df.loc[index_left, f"47-{ses}.0"]
-                    df.loc[index_left, hgs_nondominant_side] = "right"
+                    idx = [ind for ind in index_session if ind in index_other]                    
+                    df.loc[idx, handedness] = 4.0
+                    df.loc[idx, hgs_dominant] = np.NaN
+                    df.loc[idx, hgs_dominant_side] = "ambidextrous"
+                    df.loc[idx, hgs_nondominant] = np.NaN
+                    df.loc[idx, hgs_nondominant_side] = "ambidextrous"
 
-                    # # Get the indices where the values in the two columns are equal    
-                    # # Filter the DataFrame to include only the specified indexes
-                    # filtered_df = df.loc[index_other]
-                    # # Find the indexes where the values in Column1 and Column2 are equal within the filtered DataFrame
-                    # index_other_equal_hgs = filtered_df[filtered_df["47-0.0"] == filtered_df["46-0.0"]].index
-
-                    # df.loc[index_other_equal_hgs, handedness] = 1.0
-                    
-                    # df.loc[index_other_equal_hgs, hgs_dominant] = df.loc[index_other_equal_hgs, f"47-{ses}.0"]
-                    # df.loc[index_other_equal_hgs, hgs_dominant_side] = "right"
-                    # df.loc[index_other_equal_hgs, hgs_nondominant] = df.loc[index_other_equal_hgs, f"46-{ses}.0"]
-                    # df.loc[index_other_equal_hgs, hgs_nondominant_side] = "left"
-                    
-                    # # Find the indexes where the values in Column1 and Column2 are equal within the filtered DataFrame
-                    # index_other_not_equal_hgs = filtered_df[filtered_df["47-0.0"] != filtered_df["46-0.0"]].index
-                    # # Find the column with the maximum value among '46-0.0' and '47-0.0' for filtered rows
-                    # result_column = df.loc[index_other_not_equal_hgs, ["47-0.0", "46-0.0"]].idxmax(axis=1)
-                    
-                    # condition_right_index = result_column[result_column == f"47-0.0"].index
-                    # df.loc[condition_right_index, handedness] = 1.0
-                    # df.loc[condition_right_index, hgs_dominant] = df.loc[condition_right_index, f"47-{ses}.0"]
-                    # df.loc[condition_right_index, hgs_dominant_side] = "right"
-                    # df.loc[condition_right_index, hgs_nondominant] = df.loc[condition_right_index, f"46-{ses}.0"]
-                    # df.loc[condition_right_index, hgs_nondominant_side] = "left"
-                    
-                    # condition_left_index = result_column[result_column == f"46-0.0"].index
-                    # df.loc[condition_left_index, handedness] = 2.0
-                    # df.loc[condition_left_index, hgs_dominant] = df.loc[condition_left_index, f"46-{ses}.0"]
-                    # df.loc[condition_left_index, hgs_dominant_side] = "left"
-                    # df.loc[condition_left_index, hgs_nondominant] = df.loc[condition_left_index, f"47-{ses}.0"]
-                    # df.loc[condition_left_index, hgs_nondominant_side] = "right"
-                                
         return df
 
 ################################ EXTRACT DATA ##############################
@@ -565,12 +540,14 @@ class DisorderMainDataPreprocessor:
         disorder = self.disorder
         substring_to_remove = "session"
         # -----------------------------------------------------------
+        
         if df[session_column].isna().sum() < len(df):
             # Calculate Dominant HGS by
             # Calling the modules
             df = self.remove_missing_hgs_pre_post_disorder(df, session_column)
             hgs_dominant = session_column.replace(substring_to_remove, "hgs_dominant")
             hgs_nondominant = session_column.replace(substring_to_remove, "hgs_nondominant")
+            
             # ------------------------------------
             # Exclude all subjects who had Dominant HGS < 4:
             # The condition is applied to "hgs_dominant" columns

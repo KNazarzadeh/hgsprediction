@@ -9,6 +9,7 @@ def save_validate_hgs_data(
     mri_status,
     session,
     gender,
+    data_set,
 ):
     """
     Save data to csv file.
@@ -24,19 +25,35 @@ def save_validate_hgs_data(
     mri_status: str
         MRI status which data to be  to be analyse.
     """
-    folder_path = os.path.join(
-        "/data",
-        "project",
-        "stroke_ukb",
-        "knazarzadeh",
-        "project_hgsprediction",
-        "data_hgs",
-        f"{population}",
-        "preprocessed_data",
-        f"{mri_status}_{population}",
-        "validated_hgs_data",
-        f"{session}_session_ukb"
-    )
+    if mri_status == "nonmri":
+        folder_path = os.path.join(
+            "/data",
+            "project",
+            "stroke_ukb",
+            "knazarzadeh",
+            "project_hgsprediction",
+            "data_hgs",
+            f"{population}",
+            "preprocessed_data",
+            f"{mri_status}_{population}",
+            f"{data_set}",
+            "validated_hgs_data",
+            f"{session}_session_ukb",
+            )
+    else:    
+        folder_path = os.path.join(
+            "/data",
+            "project",
+            "stroke_ukb",
+            "knazarzadeh",
+            "project_hgsprediction",
+            "data_hgs",
+            f"{population}",
+            "preprocessed_data",
+            f"{mri_status}_{population}",
+            "validated_hgs_data",
+            f"{session}_session_ukb",
+            )
 
     if(not os.path.isdir(folder_path)):
         os.makedirs(folder_path)
@@ -54,6 +71,7 @@ def save_preprocessed_data(
     mri_status,
     session,
     gender,
+    data_set,
 ):
     """
     Save data to csv file.
@@ -69,7 +87,8 @@ def save_preprocessed_data(
     mri_status: str
         MRI status which data to be  to be analyse.
     """
-    folder_path = os.path.join(
+    if mri_status == "nonmri":
+        folder_path = os.path.join(
         "/data",
         "project",
         "stroke_ukb",
@@ -79,9 +98,24 @@ def save_preprocessed_data(
         f"{population}",
         "preprocessed_data",
         f"{mri_status}_{population}",
+        f"{data_set}",
         "preprocessed_data",
         f"{session}_session_ukb",
-    )
+        )
+    else:   
+        folder_path = os.path.join(
+            "/data",
+            "project",
+            "stroke_ukb",
+            "knazarzadeh",
+            "project_hgsprediction",
+            "data_hgs",
+            f"{population}",
+            "preprocessed_data",
+            f"{mri_status}_{population}",
+            "preprocessed_data",
+            f"{session}_session_ukb",
+            )
 
     if(not os.path.isdir(folder_path)):
         os.makedirs(folder_path)
@@ -92,4 +126,70 @@ def save_preprocessed_data(
     
     df.to_csv(file_path, sep=',', index=True)
   
-  ###############################################################################
+###############################################################################
+def save_extracted_data_by_feature_and_target(
+    df,
+    population,
+    mri_status,
+    feature_type,
+    target,
+    session,
+    gender,
+    data_set,
+):
+    """
+    Save results to csv file.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        DataFrame that should be save in specific folder.
+    motor : str
+        Name of the motor which to be analyse.
+    population: str
+        Name of the population which to  to be analyse
+    mri_status: str
+        MRI status which data to be  to be analyse.
+    """
+    if mri_status == "nonmri":
+        folder_path = os.path.join(
+        "/data",
+        "project",
+        "stroke_ukb",
+        "knazarzadeh",
+        "project_hgsprediction",
+        "results_hgsprediction",
+        f"{population}",
+        f"{mri_status}",
+        f"{data_set}",
+        f"{session}_session_ukb",
+        f"{feature_type}",
+        f"{target}",
+        "extracted_data_by_feature_and_target",
+        )
+    else:
+        folder_path = os.path.join(
+            "/data",
+            "project",
+            "stroke_ukb",
+            "knazarzadeh",
+            "project_hgsprediction",
+            "results_hgsprediction",
+            f"{population}",
+            f"{mri_status}",
+            f"{session}_session_ukb",
+            f"{feature_type}",
+            f"{target}",
+            "extracted_data_by_feature_and_target",
+            )
+    if(not os.path.isdir(folder_path)):
+        os.makedirs(folder_path)
+
+    # Define the csv file path to save
+    file_path = os.path.join(
+        folder_path,
+        f"{gender}_extracted_data_by_feature_and_target.csv")
+    # Save the dataframe to csv file path
+    df.to_csv(file_path, sep=',', index="True")
+
+###############################################################################

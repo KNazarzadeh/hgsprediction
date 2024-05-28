@@ -8,7 +8,6 @@ from .data_preprocessing import HealthyDataPreprocessor
 from .compute_features import healthy_compute_features
 # Target Computing
 from .compute_target import healthy_compute_target
-from .compute_extra_column import healthy_compute_extra_column
 # Save Data
 from .save_data import healthy_save_data
 
@@ -19,7 +18,6 @@ from .save_results.healthy import save_hgs_predicted_results, save_correlation_r
 from .load_results import load_trained_models
 from .load_results import load_corrected_prediction_results, load_corrected_prediction_correlation_results
 from .load_results.healthy import load_hgs_predicted_results
-# , load_correlation_results
 
 from .save_plot.save_correlations_plot import healthy_save_correlations_plot
 from .plots.plot_correlations import healthy_plot_hgs_correlations
@@ -37,15 +35,7 @@ from .compute_target import disorder_compute_target
 ############### STROKE FUNCTIONS ###############
 # Load Stroke Data
 from .load_data import stroke_load_data
-# Features Computing
-from .compute_features import stroke_compute_features
-# Target Computing
-from .compute_target import stroke_compute_target
-# Save Stroke Data
-from .save_data import stroke_save_data
 
-from .extract_data import stroke_extract_data
-from .compute_extra_column import stroke_compute_extra_column
 from .predict_hgs import calculate_pearson_hgs_correlation
 from .load_results.stroke import load_hgs_predicted_results, load_hgs_predicted_results_mri_records_sessions_only
 from .plots import plot_correlations
@@ -74,18 +64,12 @@ from .predict_hgs import calculate_t_valuesGMV_HGS
 
 ################################## PARKINSON DISEASE ##################################
 from .load_data import parkinson_load_data
-from .save_data import parkinson_save_data
-from .compute_features import parkinson_compute_features
-from .extract_data import parkinson_extract_data
 from .save_results.parkinson_save_spearman_correlation_results import parkinson_save_spearman_correlation_results
 from .save_results.parkinson_save_hgs_predicted_results import parkinson_save_hgs_predicted_results
 from .load_results.healthy import load_hgs_predicted_results
 
 ################################## Major Depressive DISOREDR (MDD) ##################################
 from .load_data import depression_load_data
-from .save_data import depression_save_data
-from .compute_features import depression_compute_features
-from .extract_data import depression_extract_data
 from .save_results.depression_save_spearman_correlation_results import depression_save_spearman_correlation_results
 from .save_results.depression_save_hgs_predicted_results import depression_save_hgs_predicted_results
 from .load_results.healthy import load_hgs_predicted_results

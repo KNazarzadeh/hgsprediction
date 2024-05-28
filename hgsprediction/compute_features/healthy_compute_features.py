@@ -15,16 +15,23 @@ from ptpython.repl import embed
 
 ###############################################################################
 # This class extract all required features from data:
-def compute_features(df, mri_status, session):
+def compute_features(df, feature_type, mri_status, session):
 
     assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
     assert isinstance(mri_status, str ), "mri_status must be a string!"
     # -----------------------------------------------------------
     df = calculate_age(df, session)
     df = calculate_gender(df, session)
-    df = calculate_age_range(df, session)     
-    df = calculate_anthropometrics(df, session)     
-    df = calculate_behavioral(df, session)
+    
+    if feature_type == "anthropometrics":
+        df = calculate_anthropometrics(df, session)
+        
+    if feature_type == "anthropometrics_age":
+        df = calculate_age(df, session)
+        df = calculate_anthropometrics(df, session)
+        
+    if feature_type == "behavioral":
+        df = calculate_behavioral(df, session)
 
     return df
 

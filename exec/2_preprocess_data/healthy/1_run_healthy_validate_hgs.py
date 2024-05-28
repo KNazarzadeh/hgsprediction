@@ -16,19 +16,19 @@ session = sys.argv[3]
 data_set = sys.argv[4]
 
 if mri_status == "nonmri":
-    if data_set == "training":
-        df = healthy_load_data.load_original_binned_train_data(population, mri_status)
-    elif data_set == "test":
-        df = healthy_load_data.load_original_nonmri_test_data(population, mri_status)
-        
+    if data_set == "training_set":
+        df_original = healthy_load_data.load_original_binned_train_data(population, mri_status)
+    elif data_set == "holdout_test_set":
+        df_original = healthy_load_data.load_original_nonmri_test_data(population, mri_status)
 elif mri_status == "mri":
-    df = healthy_load_data.load_original_data(population, mri_status)
+    df_original = healthy_load_data.load_original_data(population, mri_status)
+###############################################################################
+data_processor = HealthyDataPreprocessor(df_original, mri_status, session)
+df = data_processor.define_handedness(df_original)
 
-data_processor = HealthyDataPreprocessor(df, mri_status, session)
-print("===== Done! =====")
-embed(globals(), locals())
 # CHECK HGS AVAILABILITY
-df = data_processor.check_hgs_availability(df)
+df = data_processor.remove_missing_hgs(df)
+
 # DATA VALIDATION
 df = data_processor.validate_handgrips(df)
 
@@ -37,47 +37,9 @@ df = data_processor.remove_nan_columns(df)
 
 df_female = df[df["31-0.0"]==0.0]
 df_male = df[df["31-0.0"]==1.0]
-# print("===== Done! =====")
-# embed(globals(), locals())
-if data_set == "test":
-    folder_path = os.path.join(
-        "/data",
-        "project",
-        "stroke_ukb",
-        "knazarzadeh",
-        "project_hgsprediction",
-        "data_hgs",
-        f"{population}",
-        "preprocessed_data",
-        f"{mri_status}_{population}",
-        "test_holdout_set",
-        "validated_hgs_data",
-        f"{session}_session_ukb"
-    )
 
-    if(not os.path.isdir(folder_path)):
-        os.makedirs(folder_path)
-
-        
-    file_path = os.path.join(
-        folder_path,
-        f"female_validate_hgs_data.csv")
-    df_female.to_csv(file_path, sep=',', index=True)
-    
-    file_path = os.path.join(
-        folder_path,
-        f"male_validate_hgs_data.csv")
-    df_male.to_csv(file_path, sep=',', index=True)
-    
-    file_path = os.path.join(
-        folder_path,
-        f"both_gender_validate_hgs_data.csv")
-    df.to_csv(file_path, sep=',', index=True)
-    
-else:
-    healthy_save_data.save_validate_hgs_data(df_female, population, mri_status, session, "female")
-    healthy_save_data.save_validate_hgs_data(df_male, population, mri_status, session, "male")
-    healthy_save_data.save_validate_hgs_data(df, population, mri_status, session, "both_gender")
+healthy_save_data.save_validate_hgs_data(df_female, population, mri_status, session, "female", data_set)
+healthy_save_data.save_validate_hgs_data(df_male, population, mri_status, session, "male", data_set)
 
 
 print("===== Done! =====")

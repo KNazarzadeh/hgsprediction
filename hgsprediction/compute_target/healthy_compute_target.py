@@ -35,7 +35,7 @@ def compute_target(df, mri_status, session, target):
         df = calculate_right_hgs(df, session)
 
     elif target in ["hgs_dominant", "hgs_nondominant"]:
-        df = df
+        df = df.copy()
     
     elif target == "hgs_L-R":
         df = calculate_sub_hgs(df, session)
