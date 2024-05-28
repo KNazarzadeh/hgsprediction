@@ -206,12 +206,17 @@ def parse_args():
                         #         1,],
                         help="Fold Number (int).")
     
+    # Add data_set argument:
+    parser.add_argument("data_set",
+                        type=str.lower,
+                        # choices=["training_set",
+                        help="Data Set (str).")
+    
     # Add Gender argument:
     parser.add_argument("gender",
                         type=str.lower,
                         # choices=["female",
                         #         "male",
-                        # "both_gender"],
                         help="Gender (str).")
     # Parse the argument
     args = parser.parse_args()
@@ -232,6 +237,7 @@ def input_arguments(args):
     confound_status = args.confound_status
     cv_repeats_number = args.repeat_number
     cv_folds_number = args.fold_number
+    data_set = args.data_set
     gender = args.gender
 
 
@@ -257,10 +263,11 @@ def input_arguments(args):
     print("CV Repeat Numbers =", cv_repeats_number)
     print("CV Fold Numbers =", cv_folds_number)
 
+    print("data set =", data_set)
     if gender == "both_gender":
         print("Gender = both genders")
     else:
         print("Gender =", gender)
     print("============================================")
 
-    return motor, population, mri_status, feature_type, target, model_name, confound_status, cv_repeats_number, cv_folds_number, gender
+    return motor, population, mri_status, feature_type, target, model_name, confound_status, cv_repeats_number, cv_folds_number, data_set, gender

@@ -15,7 +15,7 @@ from .extract_data import healthy_extract_data
 
 from .save_results.healthy import save_hgs_predicted_results, save_correlation_results, save_trained_model_results, save_corrected_prediction_correlation_results, save_corrected_prediction_results
 
-from .load_results import load_trained_models
+from .load_results import load_trained_model_results
 from .load_results import load_corrected_prediction_results, load_corrected_prediction_correlation_results
 from .load_results.healthy import load_hgs_predicted_results
 
@@ -35,7 +35,6 @@ from .compute_target import disorder_compute_target
 ############### STROKE FUNCTIONS ###############
 
 from .predict_hgs import calculate_pearson_hgs_correlation
-from .load_results.stroke import load_hgs_predicted_results, load_hgs_predicted_results_mri_records_sessions_only
 from .plots import plot_correlations
 from .save_plot import save_correlations_plot, save_correlations_plot_mri_records_sessions_only
 

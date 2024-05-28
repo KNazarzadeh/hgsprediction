@@ -39,22 +39,9 @@ from ptpython.repl import embed
 
 ###############################################################################
 # Parse, add and return the arguments by function parse_args.
-# args = parse_args()
-# motor, population, mri_status, feature_type, target, model_name, \
-#     confound_status, cv_repeats_number, cv_folds_number, gender = input_arguments(args)
-
-filename = sys.argv[0]
-population = sys.argv[1]
-mri_status = sys.argv[2]
-feature_type = sys.argv[3]
-target = sys.argv[4]
-session = sys.argv[5]
-model_name = sys.argv[6]
-confound_status = sys.argv[7]
-cv_repeats_number = sys.argv[8]
-cv_folds_number = sys.argv[9]
-data_set = sys.argv[10]
-gender = sys.argv[11]
+args = parse_args()
+motor, population, mri_status, feature_type, target, model_name, \
+    confound_status, cv_repeats_number, cv_folds_number, data_set, gender = input_arguments(args)
 
 session="0"
 
@@ -106,8 +93,8 @@ if model_name == "linear_svm":
     model = svrhc(dual=False, loss='squared_epsilon_insensitive')
 elif model_name == "random_forest":
     model = "rf"
-print("===== Done! =====")
-embed(globals(), locals())
+# print("===== Done! =====")
+# embed(globals(), locals())
 ###############################################################################
 # When cv=None, it define as follows:
 cv = RepeatedKFold(n_splits=cv_folds_number, n_repeats=cv_repeats_number, random_state=47)
@@ -195,7 +182,9 @@ save_trained_model_results.save_best_model_trained(
     target,
     model_name,
     cv_repeats_number,
-    cv_folds_number)
+    cv_folds_number,
+    session,
+    data_set,)
 ###############################################################################      
 save_trained_model_results.save_estimators_trained(
     df_estimators,
@@ -207,7 +196,9 @@ save_trained_model_results.save_estimators_trained(
     target,
     model_name,
     cv_repeats_number,
-    cv_folds_number)
+    cv_folds_number,
+    session,
+    data_set,)
 ################################################################################
 save_trained_model_results.save_scores_trained(
     scores_trained,
@@ -219,7 +210,9 @@ save_trained_model_results.save_scores_trained(
     target,
     model_name,
     cv_repeats_number,
-    cv_folds_number)
+    cv_folds_number,
+    session,
+    data_set,)
 ################################################################################
 save_trained_model_results.save_test_scores_trained(
     df_test_r2_score,
@@ -232,7 +225,9 @@ save_trained_model_results.save_test_scores_trained(
     target,
     model_name,
     cv_repeats_number,
-    cv_folds_number)
+    cv_folds_number,
+    session,
+    data_set,)
 ################################################################################
 save_trained_model_results.save_prediction_hgs_on_validation_set(
     df_validation_prediction_hgs,
@@ -244,7 +239,9 @@ save_trained_model_results.save_prediction_hgs_on_validation_set(
     target,
     model_name,
     cv_repeats_number,
-    cv_folds_number)
+    cv_folds_number,
+    session,
+    data_set,)
 ################################################################################
 print("===== END Done! =====")
 embed(globals(), locals())

@@ -7,8 +7,7 @@ from ptpython.repl import embed
 # embed(globals(), locals())
 
 ###############################################################################
-def save_best_model_trained(
-    model_trained,
+def load_best_model_trained(
     population,
     mri_status,
     confound_status,
@@ -46,19 +45,18 @@ def save_best_model_trained(
             "best_model_trained",
         )
         
-    if(not os.path.isdir(folder_path)):
-        os.makedirs(folder_path)
 
-    # Define the csv file path to save
+    # Define the csv file path to load
     file_path = os.path.join(
         folder_path,
         f"best_model_trained.pkl")
-    # Save the model to disk
-    with open(file_path, 'wb') as f:
-        pickle.dump(model_trained, f)
+    # load the model to disk
+    with open(file_path, 'rb') as f:
+        model_trained = pickle.load(f)
+        
+    return model_trained
 ###############################################################################
-def save_estimators_trained(
-    df_estimators,
+def load_estimators_trained(
     population,
     mri_status,
     confound_status,
@@ -96,24 +94,25 @@ def save_estimators_trained(
             f"{gender}",
             "estimators_trained",
         )
-        
-    if(not os.path.isdir(folder_path)):
-        os.makedirs(folder_path)
 
-    # Define the csv file path to save
+    # Define the csv file path to load
     file_path = os.path.join(
         folder_path,
         f"estimators_trained.pkl")
-    # Save the model to disk
-    # Flatten the DataFrame and save cells as pickle
-    cells = df_estimators.values.flatten()  # Flatten the DataFrame into a 1D array
-    with open(file_path, 'wb') as pickle_file:
-        for cell_value in cells:
-            pickle.dump(cell_value, pickle_file)
+    # load the model to disk
+    # Open the pickle file for reading
+    with open(file_path, 'rb') as pickle_file:
+        loaded_estimators_cells = []
+        while True:
+            try:
+                cell_value = pickle.load(pickle_file)
+                loaded_estimators_cells.append(cell_value)
+            except EOFError:  # End of file
+                break
 
+    return loaded_estimators_cells
 ###############################################################################     
-def save_scores_trained(
-    df,
+def load_scores_trained(
     population,
     mri_status,
     confound_status,
@@ -152,20 +151,18 @@ def save_scores_trained(
             "scores_trained",
         )
         
-    if(not os.path.isdir(folder_path)):
-        os.makedirs(folder_path)
-
-    # Define the csv file path to save
+    # Define the csv file path to load
     file_path = os.path.join(
         folder_path,
         f"scores_trained.pkl")
     
-    # Save the scores to pickle format
-    with open(file_path, 'wb') as f:
-        pickle.dump(df, f)
+    # load the scores to pickle format
+    df = pd.read_pickle(file_path)
+    
+    return df
         
 ###############################################################################     
-def save_test_scores_trained(
+def load_test_scores_trained(
     r2_df,
     r_df,
     population,
@@ -206,30 +203,26 @@ def save_test_scores_trained(
             "test_scores_trained",
         )
         
-    if(not os.path.isdir(folder_path)):
-        os.makedirs(folder_path)
-
-    # Define the csv file path to save
+    # Define the csv file path to load
     file_path = os.path.join(
         folder_path,
         f"test_r2_scores_trained.pkl")
     
-    # Save the scores to pickle format
-    with open(file_path, 'wb') as f:
-        pickle.dump(r2_df, f)
+    # load the scores to pickle format
+    r2_df = pd.read_pickle(file_path)
         
-    # Define the csv file path to save
+    # Define the csv file path to load
     file_path = os.path.join(
         folder_path,
         f"test_pearson_r_scores_trained.pkl")
     
-    # Save the scores to pickle format
-    with open(file_path, 'wb') as f:
-        pickle.dump(r_df, f)
+    # load the scores to pickle format
+    r_df = pd.read_pickle(file_path)
+    
+    return r2_df, r_df
         
 ###############################################################################     
-def save_prediction_hgs_on_validation_set(
-    df,
+def load_prediction_hgs_on_validation_set(
     population,
     mri_status,
     confound_status,
@@ -268,14 +261,12 @@ def save_prediction_hgs_on_validation_set(
             "prediction_hgs_on_validation_set_trained",
         )
         
-    if(not os.path.isdir(folder_path)):
-        os.makedirs(folder_path)
-
-    # Define the csv file path to save
+    # Define the csv file path to load
     file_path = os.path.join(
         folder_path,
         f"prediction_hgs_on_validation_set_trained_trained.pkl")
     
-    # Save the scores to pickle format
-    with open(file_path, 'wb') as f:
-        pickle.dump(df, f)
+    # load the scores to pickle format
+    df = pd.read_pickle(file_path)
+    
+    return df
