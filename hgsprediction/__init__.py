@@ -56,12 +56,6 @@ from .predict_hgs import predict_hgs
 from .predict_hgs import calculate_brain_hgs
 from .predict_hgs import calculate_t_valuesGMV_HGS
 
-# from hgsprediction.input_arguments import parse_args, input_arguments
-# from hgsprediction.load_imaging_data import load_imaging_data
-# from hgsprediction.prepare_stroke.prepare_stroke_data import prepare_stroke
-
-
-
 ################################## PARKINSON DISEASE ##################################
 from .load_data import parkinson_load_data
 from .save_results.parkinson_save_spearman_correlation_results import parkinson_save_spearman_correlation_results
@@ -95,9 +89,6 @@ from .prediction_corrector_model import *
 
 from .save_results.healthy.save_corrected_prediction_results import *
 from .save_results.healthy.save_corrected_prediction_correlation_results import *
-
-# from load_results.load_corrected_prediction_correlation_results import load_corrected_prediction_correlation_results
-# from load_results.load_corrected_prediction_results import load_corrected_prediction_results
 
 from .extract_data import disorder_extract_data
 
