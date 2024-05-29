@@ -38,7 +38,7 @@ for model_name in ["linear_svm", "random_forest"]:
     df_scores = pd.DataFrame()
     for samplesize in samplesize_list:
         print(samplesize)
-        df_female = load_scores_trained(
+        df_tmp_female = load_scores_trained(
             population,
             mri_status,
             confound_status,
@@ -52,7 +52,7 @@ for model_name in ["linear_svm", "random_forest"]:
             data_set,
             samplesize,
             )
-        df_male = load_scores_trained(
+        df_tmp_male = load_scores_trained(
             population,
             mri_status,
             confound_status,
@@ -67,12 +67,12 @@ for model_name in ["linear_svm", "random_forest"]:
             samplesize,
             )
 
-        df_female.loc[:, 'samplesize_percent'] = samplesize.replace('_', ' ')
-        df_male.loc[:, 'gender'] = "Female"
-        df_male.loc[:, 'samplesize_percent'] = samplesize.replace('_', ' ')
-        df_male.loc[:, 'gender'] = "Male"
+        df_tmp_female.loc[:, 'samplesize_percent'] = samplesize.replace('_', ' ')
+        df_tmp_female.loc[:, 'gender'] = "Female"
+        df_tmp_male.loc[:, 'samplesize_percent'] = samplesize.replace('_', ' ')
+        df_tmp_male.loc[:, 'gender'] = "Male"
         
-        df_tmp = pd.concat ([df_female[[test_score, 'samplesize_percent', 'gender']], df_male[[test_score, 'samplesize_percent', 'gender']]], axis=0)
+        df_tmp = pd.concat ([df_tmp_female[[test_score, 'samplesize_percent', 'gender']], df_tmp_male[[test_score, 'samplesize_percent', 'gender']]], axis=0)
 
         df_scores = pd.concat ([df_scores, df_tmp], axis=0)
     
@@ -86,7 +86,7 @@ for model_name in ["linear_svm", "random_forest"]:
 
 
 ###############################################################################
-plot_folder = os.path.join(os.getcwd(), f"plots/boxplots/{target}/{n_repeats}_repeats_{n_folds}_folds/{score_type}")
+plot_folder = os.path.join(os.getcwd(), f"plots/violinplots/{target}/{n_repeats}_repeats_{n_folds}_folds/{score_type}")
 if(not os.path.isdir(plot_folder)):
         os.makedirs(plot_folder)
 plot_file = os.path.join(plot_folder, f"comparing_SVM_RF_models_multi_samplesize_by_gender_{target}.png")
@@ -104,25 +104,25 @@ custom_palette = {'Female': palette_female[1], 'Male': palette_male[2]}
 
 sns.set_style("whitegrid")
 fig, ax = plt.subplots(ncols=2)
-# Plot the first boxplot on ax[0]
-sns.boxplot(data=df_linear_svm,
+# Plot the first violinplot on ax[0]
+sns.violinplot(data=df_linear_svm,
             x="samplesize_percent",
             y=test_score,  # Ensure y is passed as a string if it is a column name
             hue="gender",
             palette=custom_palette,
-            linewidth=1,
-            showcaps=False,
+            linewidth=7,
+            inner="box",
             ax=ax[0],
            )
 
-# Plot the second boxplot on ax[1]
-sns.boxplot(data=df_random_forest,
+# Plot the second violinplot on ax[1]
+sns.violinplot(data=df_random_forest,
             x="samplesize_percent",
             y=test_score,  # Ensure y is passed as a string if it is a column name
             hue="gender",
             palette=custom_palette,
-            linewidth=1,
-            showcaps=False,
+            linewidth=7,
+            inner="box",
             ax=ax[1],
            )
 
@@ -130,7 +130,7 @@ sns.boxplot(data=df_random_forest,
 # Set y-ticks based on score type
 if score_type == "r2_score":
     y_step_value = 0.025
-    yticks = np.arange(0, 0.3 + y_step_value, y_step_value)
+    yticks = np.arange(0, 0.25 + y_step_value, y_step_value)
     ax[0].set_yticks(yticks)
     ax[1].set_yticks(yticks)
     y_lable = "R2 (CV)"
@@ -192,6 +192,7 @@ plt.show()
 plt.savefig(plot_file)
 plt.close()
 
+###############################################################################
 ###############################################################################
 
 print("===== Done! =====")
