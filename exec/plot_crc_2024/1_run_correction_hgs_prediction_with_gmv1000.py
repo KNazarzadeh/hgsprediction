@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 from scipy.stats import pearsonr
 from sklearn.metrics import r2_score
 from sklearn.linear_model import LinearRegression
-from hgsprediction.load_data import healthy_load_data
+from hgsprediction.load_data import load_healthy_data
 from hgsprediction.define_features import define_features
 from hgsprediction.predict_hgs import predict_hgs
 from hgsprediction.extract_data import healthy_extract_data

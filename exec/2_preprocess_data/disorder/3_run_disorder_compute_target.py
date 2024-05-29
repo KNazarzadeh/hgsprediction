@@ -1,8 +1,8 @@
 import sys
 import os
 import pandas as pd
-from hgsprediction.load_data import disorder_load_data
-from hgsprediction.save_data import disorder_save_data
+from hgsprediction.load_data import load_disorder_data
+from hgsprediction.save_data import save_disorder_data
 from hgsprediction.compute_target import disorder_compute_target
 
 from ptpython.repl import embed
@@ -25,7 +25,7 @@ for disorder_cohort in [f"pre-{population}", f"post-{population}", f"longitudina
         for visit_session in range(1, 2):
             if visit_session == 1:
                 session_column = f"1st_{disorder_cohort}_session"
-            df = disorder_load_data.load_preprocessed_data(population, mri_status, session_column, disorder_cohort, first_event)
+            df = load_disorder_data.load_preprocessed_data(population, mri_status, session_column, disorder_cohort, first_event)
 
             for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
                 if visit_session == 1:
@@ -33,7 +33,7 @@ for disorder_cohort in [f"pre-{population}", f"post-{population}", f"longitudina
                 for target in ["hgs_L+R", "hgs_left", "hgs_right", "hgs_LI", "hgs_L-R"]:
                     df = disorder_compute_target.compute_target(df, subgroup_session_column, target)
             print(df)
-            disorder_save_data.save_preprocessed_data(df, population, mri_status, session_column, disorder_cohort, first_event)
+            save_disorder_data.save_preprocessed_data(df, population, mri_status, session_column, disorder_cohort, first_event)
     else:
         for visit_session in visit_range:
             if first_event == "first_report":
@@ -49,11 +49,11 @@ for disorder_cohort in [f"pre-{population}", f"post-{population}", f"longitudina
                 if visit_session == 1:
                     session_column = f"1st_{disorder_cohort}_session"
                     
-            df = disorder_load_data.load_preprocessed_data(population, mri_status, session_column, disorder_cohort, first_event)
+            df = load_disorder_data.load_preprocessed_data(population, mri_status, session_column, disorder_cohort, first_event)
             for target in ["hgs_L+R", "hgs_left", "hgs_right", "hgs_LI", "hgs_L-R"]:
                 df = disorder_compute_target.compute_target(df, session_column, target)
 
-            disorder_save_data.save_preprocessed_data(df, population, mri_status, session_column, disorder_cohort, first_event)
+            save_disorder_data.save_preprocessed_data(df, population, mri_status, session_column, disorder_cohort, first_event)
 
 print("===== Done! =====")
 embed(globals(), locals())

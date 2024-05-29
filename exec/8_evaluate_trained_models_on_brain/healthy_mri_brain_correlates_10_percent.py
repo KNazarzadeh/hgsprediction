@@ -16,7 +16,7 @@ from hgsprediction.predict_hgs import calculate_spearman_hgs_correlation
 from hgsprediction.save_results.healthy import save_spearman_correlation_results, \
                                                save_hgs_predicted_results
 from hgsprediction.predict_hgs import calculate_spearman_hgs_correlation_on_brain_correlations
-from hgsprediction.save_results import save_data_overlap_hgs_predicted_brain_correlations_results,\
+from hgsprediction.save_results.disorder import save_data_overlap_hgs_predicted_brain_correlations_results,\
                                        save_spearman_correlation_on_brain_correlations_results
 from sklearn.metrics import r2_score 
 import statsmodels.stats.multitest as sm

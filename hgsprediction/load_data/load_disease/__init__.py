@@ -1,1 +1,1 @@
-from .load_disease import load_prepared_data, load_original_data
+from .load_disease import load_prepared_data

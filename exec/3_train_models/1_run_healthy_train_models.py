@@ -15,7 +15,7 @@ import sys
 from hgsprediction.input_arguments import parse_args, input_arguments
 ####### Load Train set #######
 # Load Processed Train set (after data validation, feature engineering)
-from hgsprediction.load_data.healthy_load_data import load_extracted_data_by_feature_and_target
+from hgsprediction.load_data.load_healthy_data import load_extracted_data_by_feature_and_target
 ####### Load results #######
 from hgsprediction.save_results.healthy import save_trained_model_results
 ####### Features Extraction #######

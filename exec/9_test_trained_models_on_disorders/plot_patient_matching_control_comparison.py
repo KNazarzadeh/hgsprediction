@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 from scipy.stats import ttest_ind
 
-from hgsprediction.load_results.load_prepared_data_for_anova import load_prepare_data_for_anova
+from hgsprediction.load_results.anova.load_prepared_data_for_anova import load_prepare_data_for_anova
 
 import matplotlib.pyplot as plt
 import seaborn as sns

@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
-from hgsprediction.load_results.load_prepared_data_for_anova import load_prepare_data_for_anova
+from hgsprediction.load_results.anova.load_prepared_data_for_anova import load_prepare_data_for_anova
 
 from ptpython.repl import embed
 # print("===== Done! =====")

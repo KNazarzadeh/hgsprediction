@@ -10,8 +10,8 @@ import statsmodels.formula.api as smf
 import statsmodels.api as sm
 from statsmodels.stats.anova import AnovaRM
 
-from hgsprediction.load_results.load_prepared_data_for_anova import load_prepare_data_for_anova
-from hgsprediction.load_results.load_anova_results import load_anova_results
+from hgsprediction.load_results.anova.load_prepared_data_for_anova import load_prepare_data_for_anova
+from hgsprediction.load_results.anova.load_anova_results import load_anova_results
 from pingouin import mixed_anova
 import statsmodels.stats.multicomp as multi
 import statsmodels.stats.multicomp as mc

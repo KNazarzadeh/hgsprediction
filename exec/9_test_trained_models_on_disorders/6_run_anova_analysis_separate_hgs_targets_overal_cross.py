@@ -10,8 +10,8 @@ import statsmodels.formula.api as smf
 import statsmodels.api as sm
 from statsmodels.stats.anova import AnovaRM
 
-from hgsprediction.load_results.load_prepared_data_for_anova import load_prepare_data_for_anova
-from hgsprediction.save_results.save_anova_results import save_anova_results
+from hgsprediction.load_results.anova.load_prepared_data_for_anova import load_prepare_data_for_anova
+from hgsprediction.save_results.anova.save_anova_results import save_anova_results
 from scipy.stats import levene, shapiro, kstest
 from pingouin import mixed_anova
 from scipy import stats

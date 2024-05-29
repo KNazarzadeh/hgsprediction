@@ -10,7 +10,7 @@ import matplotlib.patheffects as path_effects
 from scipy import stats
 
 
-from hgsprediction.load_results.load_prepared_data_for_anova import load_prepare_data_for_anova
+from hgsprediction.load_results.anova.load_prepared_data_for_anova import load_prepare_data_for_anova
 
 from ptpython.repl import embed
 # print("===== Done! =====")

@@ -6,7 +6,7 @@ import sys
 from hgsprediction.input_arguments import parse_args, input_arguments
 ####### Load Train set #######
 # Load Processed Train set (after data validation, feature engineering)
-from hgsprediction.load_data import healthy_load_data
+from hgsprediction.load_data import load_healthy_data
 ####### Data Extraction #######
 from hgsprediction.extract_data import healthy_extract_data
 ####### Features Extraction #######
@@ -31,7 +31,7 @@ data_set = sys.argv[6]
 gender = sys.argv[7]
 ###############################################################################
 
-df = healthy_load_data.load_preprocessed_data(population, mri_status, session, gender, data_set)
+df = load_healthy_data.load_preprocessed_data(population, mri_status, session, gender, data_set)
 
 features, extend_features = define_features(feature_type)
 

@@ -4,7 +4,7 @@ import numpy as np
 import sys
 import os
 
-from hgsprediction.load_data import disorder_load_data
+from hgsprediction.load_data import load_disorder_data
 
 
 from ptpython.repl import embed
@@ -16,13 +16,13 @@ population = sys.argv[1]
 mri_status = sys.argv[2]
 
 if mri_status in ["all", "mri"]:
-    df = disorder_load_data.load_original_data(population, mri_status)
+    df = load_disorder_data.load_original_data(population, mri_status)
     df.index.names = ["SubjectID"]
     
 elif mri_status == "nonmri":
-    df_all_original = disorder_load_data.load_original_data(population, "all")
+    df_all_original = load_disorder_data.load_original_data(population, "all")
     df_all_original.index.names = ["SubjectID"]
-    df_mri_original = disorder_load_data.load_original_data(population, "mri")
+    df_mri_original = load_disorder_data.load_original_data(population, "mri")
     df_mri_original.index.names = ["SubjectID"]
 
     df = df_all_original[~df_all_original.index.isin(df_mri_original.index)]

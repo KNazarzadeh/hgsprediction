@@ -3,9 +3,9 @@ import pandas as pd
 import numpy as np
 import sys
 
-from hgsprediction.load_data import disorder_load_data
+from hgsprediction.load_data import load_disorder_data
 from hgsprediction.data_preprocessing import disorder_data_preprocessor
-from hgsprediction.save_data import disorder_save_data
+from hgsprediction.save_data import save_disorder_data
 
 from ptpython.repl import embed
 # print("===== Done! =====")
@@ -16,7 +16,7 @@ population = sys.argv[1]
 mri_status = sys.argv[2]
 first_event = sys.argv[3]
 
-df_original = disorder_load_data.load_original_data(population, mri_status)
+df_original = load_disorder_data.load_original_data(population, mri_status)
 
 # print("===== Done! =====")
 # embed(globals(), locals())
@@ -48,7 +48,7 @@ df_preprocessed = data_processor.calculate_dominant_nondominant_hgs(df_preproces
 df_preprocessed = data_processor.remove_nan_columns(df_preprocessed)
 # print("===== Done! =====")
 # embed(globals(), locals())
-disorder_save_data.save_main_preprocessed_data(df_preprocessed, population, mri_status, disorder_cohort=f"all-{population}-subjects", first_event=f"{first_event}")
+save_disorder_data.save_main_preprocessed_data(df_preprocessed, population, mri_status, disorder_cohort=f"all-{population}-subjects", first_event=f"{first_event}")
 
 ###############################################################################
 for disorder_cohort in [f"pre-{population}", f"post-{population}"]:
@@ -68,8 +68,8 @@ for disorder_cohort in [f"pre-{population}", f"post-{population}"]:
                     session_column = f"1st_{disorder_cohort}_session"
             df_extracted = data_processor.extract_data(df_preprocessed, session_column)
             df_validated = data_processor.validate_handgrips(df_extracted, population, session_column)
-            disorder_save_data.save_primary_extracted_data(df_extracted, population, mri_status, session_column, disorder_cohort, first_event)
-            disorder_save_data.save_validated_hgs_data(df_validated, population, mri_status, session_column, disorder_cohort, first_event)
+            save_disorder_data.save_primary_extracted_data(df_extracted, population, mri_status, session_column, disorder_cohort, first_event)
+            save_disorder_data.save_validated_hgs_data(df_validated, population, mri_status, session_column, disorder_cohort, first_event)
             
         elif mri_status == "nonmri":
             if first_event == "first_report":
@@ -82,12 +82,12 @@ for disorder_cohort in [f"pre-{population}", f"post-{population}"]:
                     session_column = f"1st_{disorder_cohort}_session"
             df_extracted = data_processor.extract_data(df_preprocessed, session_column)
             df_validated = data_processor.validate_handgrips(df_extracted, population, session_column)
-            disorder_save_data.save_primary_extracted_data(df_extracted, population, mri_status, session_column, disorder_cohort, first_event)
-            disorder_save_data.save_validated_hgs_data(df_validated, population, mri_status, session_column, disorder_cohort, first_event)
+            save_disorder_data.save_primary_extracted_data(df_extracted, population, mri_status, session_column, disorder_cohort, first_event)
+            save_disorder_data.save_validated_hgs_data(df_validated, population, mri_status, session_column, disorder_cohort, first_event)
 # ###############################################################################
 disorder_cohort = f"post-{population}"
 df_post = data_processor.extract_post_disorder_df(df_preprocessed, mri_status)
-disorder_save_data.save_subgroups_only_preprocessed_data(df_post, population, mri_status, disorder_cohort=f"post-{population}", first_event=f"{first_event}")
+save_disorder_data.save_subgroups_only_preprocessed_data(df_post, population, mri_status, disorder_cohort=f"post-{population}", first_event=f"{first_event}")
 if mri_status == "mri":
     visit_range = range(1, 4)
 elif mri_status == "nonmri":
@@ -107,12 +107,12 @@ for visit_session in visit_range:
             session_column = f"1st_{disorder_cohort}_session"
     df_extracted = data_processor.extract_data(df_post, session_column)
     df_validated = data_processor.validate_handgrips(df_extracted, population, session_column)
-    disorder_save_data.save_subgroups_only_extracted_data(df_extracted, population, mri_status, session_column, disorder_cohort=f"post-{population}", first_event=f"{first_event}")
-    disorder_save_data.save_subgroups_only_validated_hgs_data(df_validated, population, mri_status, session_column, disorder_cohort=f"post-{population}", first_event=f"{first_event}")
+    save_disorder_data.save_subgroups_only_extracted_data(df_extracted, population, mri_status, session_column, disorder_cohort=f"post-{population}", first_event=f"{first_event}")
+    save_disorder_data.save_subgroups_only_validated_hgs_data(df_validated, population, mri_status, session_column, disorder_cohort=f"post-{population}", first_event=f"{first_event}")
 # ###############################################################################
 disorder_cohort = f"pre-{population}"
 df_pre = data_processor.extract_pre_disorder_df(df_preprocessed, mri_status)
-disorder_save_data.save_subgroups_only_preprocessed_data(df_pre, population, mri_status, disorder_cohort=f"pre-{population}", first_event=f"{first_event}")
+save_disorder_data.save_subgroups_only_preprocessed_data(df_pre, population, mri_status, disorder_cohort=f"pre-{population}", first_event=f"{first_event}")
 if mri_status == "mri":
     visit_range = range(1, 4)
 elif mri_status == "nonmri":
@@ -131,13 +131,13 @@ for visit_session in visit_range:
 
     df_extracted = data_processor.extract_data(df_pre, session_column)
     df_validated = data_processor.validate_handgrips(df_extracted, population, session_column)
-    disorder_save_data.save_subgroups_only_extracted_data(df_extracted, population, mri_status, session_column, disorder_cohort=f"pre-{population}", first_event=f"{first_event}")
-    disorder_save_data.save_subgroups_only_validated_hgs_data(df_validated, population, mri_status, session_column, disorder_cohort=f"pre-{population}", first_event=f"{first_event}")
+    save_disorder_data.save_subgroups_only_extracted_data(df_extracted, population, mri_status, session_column, disorder_cohort=f"pre-{population}", first_event=f"{first_event}")
+    save_disorder_data.save_subgroups_only_validated_hgs_data(df_validated, population, mri_status, session_column, disorder_cohort=f"pre-{population}", first_event=f"{first_event}")
 
 ###############################################################################
 disorder_cohort = f"longitudinal-{population}"
 df_longitudinal = data_processor.extract_longitudinal_disorder_df(df_preprocessed, mri_status)
-disorder_save_data.save_main_preprocessed_data(df_longitudinal, population, mri_status, disorder_cohort=f"longitudinal-{population}", first_event=f"{first_event}")
+save_disorder_data.save_main_preprocessed_data(df_longitudinal, population, mri_status, disorder_cohort=f"longitudinal-{population}", first_event=f"{first_event}")
 for visit_session in range(1, 2):
     if visit_session == 1:
         disorder_cohort = f"pre-{population}"
@@ -163,8 +163,8 @@ for visit_session in range(1, 2):
 # embed(globals(), locals())    
     disorder_cohort = f"longitudinal-{population}"
     session_column = f"1st_{disorder_cohort}_session"
-    disorder_save_data.save_primary_extracted_data(df_longitudinal_extracted, population, mri_status, session_column, disorder_cohort=f"longitudinal-{population}", first_event=f"{first_event}")
-    disorder_save_data.save_validated_hgs_data(df_longitudinal_validated, population, mri_status, session_column, disorder_cohort=f"longitudinal-{population}", first_event=f"{first_event}")
+    save_disorder_data.save_primary_extracted_data(df_longitudinal_extracted, population, mri_status, session_column, disorder_cohort=f"longitudinal-{population}", first_event=f"{first_event}")
+    save_disorder_data.save_validated_hgs_data(df_longitudinal_validated, population, mri_status, session_column, disorder_cohort=f"longitudinal-{population}", first_event=f"{first_event}")
 
 
 print("pre-dominant<4", len(df_longitudinal_extracted[df_longitudinal_extracted[f"1st_pre-{population}_hgs_dominant"]<4]))

@@ -4,7 +4,7 @@ import numpy as np
 import sys
 
 from hgsprediction.load_results import load_trained_models
-from hgsprediction.load_data import healthy_load_data
+from hgsprediction.load_data import load_healthy_data
 from hgsprediction.extract_data import healthy_extract_data
 from hgsprediction.define_features import define_features
 from hgsprediction.predict_hgs import predict_hgs
@@ -56,7 +56,7 @@ y = target
 # for session in ["0", "1", "2", "3"]: 
 for session in ["0"]: 
     # load data
-    df_original = healthy_load_data.load_preprocessed_data(population, mri_status, session, gender)
+    df_original = load_healthy_data.load_preprocessed_data(population, mri_status, session, gender)
     ##############################################################################
     # Extract data based on main features, extra features, target for each session and mri status:
     data_extracted = healthy_extract_data.extract_data(df_original.copy(), features, extend_features, feature_type, target, mri_status, session)

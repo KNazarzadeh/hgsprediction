@@ -14,7 +14,7 @@ import numpy as np
 from hgsprediction.input_arguments import parse_args, input_arguments
 ####### Load Train set #######
 # Load Processed Train set (after data validation, feature engineering)
-from hgsprediction.load_data import healthy_load_data
+from hgsprediction.load_data import load_healthy_data
 ####### Data Extraction #######
 from hgsprediction.extract_data import healthy_extract_data
 ####### Features Extraction #######
@@ -74,7 +74,7 @@ pearson_scorer = make_scorer(pearson_corr)
 register_scorer("pearson_corr", pearson_scorer)
 
 ###############################################################################
-df_train = healthy_load_data.load_preprocessed_data(population, mri_status, session, gender)
+df_train = load_healthy_data.load_preprocessed_data(population, mri_status, session, gender)
 
 features, extend_features = define_features(feature_type)
 

@@ -5,7 +5,7 @@ import sys
 
 from hgsprediction.define_features import define_features
 from hgsprediction.extract_data import disorder_extract_data
-from hgsprediction.load_data import disorder_load_data
+from hgsprediction.load_data import load_disorder_data
 from hgsprediction.save_results.save_disorder_extracted_data_by_features import save_disorder_extracted_data_by_features
 from ptpython.repl import embed
 # print("===== Done! =====")
@@ -37,11 +37,11 @@ if visit_session == "1":
     session_column = f"1st_{disorder_cohort}_session"
 
 if mri_status == "mri+nonmri":
-    df_longitudinal_mri = disorder_load_data.load_preprocessed_data(population, "mri", session_column, disorder_cohort, first_event)
-    df_longitudinal_nonmri = disorder_load_data.load_preprocessed_data(population, "nonmri", session_column, disorder_cohort, first_event)
+    df_longitudinal_mri = load_disorder_data.load_preprocessed_data(population, "mri", session_column, disorder_cohort, first_event)
+    df_longitudinal_nonmri = load_disorder_data.load_preprocessed_data(population, "nonmri", session_column, disorder_cohort, first_event)
     df_longitudinal = pd.concat([df_longitudinal_mri, df_longitudinal_nonmri]).dropna(axis=1, how='all')
 else:
-    df_longitudinal = disorder_load_data.load_preprocessed_data(population, mri_status, session_column, disorder_cohort, first_event)
+    df_longitudinal = load_disorder_data.load_preprocessed_data(population, mri_status, session_column, disorder_cohort, first_event)
 
 if gender == "female":
     df = df_longitudinal[df_longitudinal['gender'] == 0]

@@ -10,7 +10,7 @@ import statsmodels.formula.api as smf
 import statsmodels.api as sm
 from statsmodels.stats.anova import AnovaRM
 
-from hgsprediction.load_results.load_prepared_data_for_anova import load_prepare_data_for_anova
+from hgsprediction.load_results.anova.load_prepared_data_for_anova import load_prepare_data_for_anova
 from scipy.stats import levene, shapiro, kstest
 from scipy import stats
 from ptpython.repl import embed

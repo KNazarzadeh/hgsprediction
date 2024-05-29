@@ -1,7 +1,7 @@
 """Provide imports for the hgsprediction package."""
 ############### HEALTHY FUNCTIONS ###############
 # Load Data
-from .load_data import healthy_load_data
+from .load_data import load_healthy_data
 # Preprocessing Data
 from .data_preprocessing import HealthyDataPreprocessor
 # Features Computing
@@ -9,7 +9,7 @@ from .compute_features import healthy_compute_features
 # Target Computing
 from .compute_target import healthy_compute_target
 # Save Data
-from .save_data import healthy_save_data
+from .save_data import save_healthy_data
 
 from .extract_data import healthy_extract_data
 
@@ -19,15 +19,11 @@ from .load_results import load_trained_model_results
 from .load_results import load_corrected_prediction_results, load_corrected_prediction_correlation_results
 from .load_results.healthy import load_hgs_predicted_results
 
-from .save_plot.save_correlations_plot import healthy_save_correlations_plot
-from .plots.plot_correlations import healthy_plot_hgs_correlations
-
-
 ############## Disorders ##################
 # Load Stroke Data
-from .load_data import disorder_load_data
+from .load_data import load_disorder_data
 # Save Stroke Data
-from .save_data import disorder_save_data
+from .save_data import save_disorder_data
 
 from .compute_features import disorder_compute_features
 # Target Computing
@@ -35,45 +31,27 @@ from .compute_target import disorder_compute_target
 ############### STROKE FUNCTIONS ###############
 
 from .predict_hgs import calculate_pearson_hgs_correlation
-from .plots import plot_correlations
-from .save_plot import save_correlations_plot, save_correlations_plot_mri_records_sessions_only
-
-from .save_results.stroke_save_spearman_correlation_results import stroke_save_spearman_correlation_results,\
-    stroke_save_spearman_correlation_results_mri_records_sessions_only
-
-from .save_results.stroke_save_hgs_predicted_results import stroke_save_hgs_predicted_results,\
-    stroke_save_hgs_predicted_results_mri_records_sessions_only
                   
 from .old_define_features import stroke_define_features
-
-
 
 from .predict_hgs import predict_hgs
 
 from .predict_hgs import calculate_brain_hgs
 from .predict_hgs import calculate_t_valuesGMV_HGS
 
-################################## PARKINSON DISEASE ##################################
-from .save_results.parkinson_save_spearman_correlation_results import parkinson_save_spearman_correlation_results
-from .save_results.parkinson_save_hgs_predicted_results import parkinson_save_hgs_predicted_results
-from .load_results.healthy import load_hgs_predicted_results
-
-################################## Major Depressive DISOREDR (MDD) ##################################
-from .save_results.depression_save_spearman_correlation_results import depression_save_spearman_correlation_results
-from .save_results.depression_save_hgs_predicted_results import depression_save_hgs_predicted_results
 from .load_results.healthy import load_hgs_predicted_results
 
 ## ************************************************************************************************** #
 
 from .save_data import save_multi_samplesize_training_data
-from .save_results import save_multi_samples_trained_model_results
+from .save_results.healthy import save_multi_samples_trained_model_results
 ## ************************************************************************************************** #
 
 from .load_data import load_multi_samplesize_training_data
 from .load_results.load_multi_samples_trained_models_results import load_scores_trained
 
 
-from .save_results.brain_save_correlates_results import *
+from .save_results.healthy.brain_save_correlates_results import *
 
 
 from .load_results.load_brain_correlates_results_1 import *
@@ -87,43 +65,43 @@ from .save_results.healthy.save_corrected_prediction_correlation_results import 
 
 from .extract_data import disorder_extract_data
 
-from .save_results.save_disorder_hgs_predicted_results import save_disorder_hgs_predicted_results
+from .save_results.disorder.save_disorder_hgs_predicted_results import save_disorder_hgs_predicted_results
 
 from .load_results.load_hgs_predicted_results import load_hgs_predicted_results
 
-from .save_results.save_zscore_results import save_zscore_results
+from .save_results.healthy.save_zscore_results import save_zscore_results
 from .load_results.load_zscore_results import load_zscore_results
 
-from .load_results.load_disorder_hgs_predicted_results import load_disorder_hgs_predicted_results
-from .load_results.load_disorder_corrected_prediction_results import load_disorder_corrected_prediction_results
-from .save_results.save_disorder_corrected_prediction_results import save_disorder_corrected_prediction_results
-from .save_results.save_disorder_corrected_prediction_correlation_results import save_disorder_corrected_prediction_correlation_results
-from .load_results.load_disorder_corrected_prediction_correlation_results import load_disorder_corrected_prediction_correlation_results
-from .save_results.save_disorder_matched_samples_results import save_disorder_matched_samples_results
+from .load_results.disorder.load_disorder_hgs_predicted_results import load_disorder_hgs_predicted_results
+from .load_results.disorder.load_disorder_corrected_prediction_results import load_disorder_corrected_prediction_results
+from .save_results.disorder.save_disorder_corrected_prediction_results import save_disorder_corrected_prediction_results
+from .save_results.disorder.save_disorder_corrected_prediction_correlation_results import save_disorder_corrected_prediction_correlation_results
+from .load_results.disorder.load_disorder_corrected_prediction_correlation_results import load_disorder_corrected_prediction_correlation_results
+from .save_results.disorder.save_disorder_matched_samples_results import save_disorder_matched_samples_results
 
-from .load_results.load_disorder_matched_samples_results import load_disorder_matched_samples_results
-from .save_results.save_disorder_matched_samples_correlation_results import save_disorder_matched_control_samples_correlation_results
-from .save_results.save_disorder_anova_results import save_disorder_anova_results
-from .load_results.load_disorder_anova_results import load_disorder_anova_results
+from .load_results.disorder.load_disorder_matched_samples_results import load_disorder_matched_samples_results
+from .save_results.disorder.save_disorder_matched_samples_correlation_results import save_disorder_matched_control_samples_correlation_results
+from .save_results.anova.save_disorder_anova_results import save_disorder_anova_results
+from .load_results.disorder.load_disorder_anova_results import load_disorder_anova_results
 
 from .load_results.load_trained_scores_results import load_test_scores_trained, load_scores_trained
 
-from .save_results.save_brain_correlation_results import save_brain_correlation_overlap_data_with_mri, save_brain_hgs_correlation_results, save_brain_hgs_correlation_results_for_plot
+from .save_results.healthy.save_brain_correlation_results import save_brain_correlation_overlap_data_with_mri, save_brain_hgs_correlation_results, save_brain_hgs_correlation_results_for_plot
 
 from .load_results.load_brain_correlation_results import load_brain_correlation_overlap_data_with_mri, load_brain_hgs_correlation_results, load_brain_hgs_correlation_results_for_plot
 
-from .save_results.save_prepared_data_for_anova import save_prepare_data_for_anova
+from .save_results.anova.save_prepared_data_for_anova import save_prepare_data_for_anova
 
-from .load_results.load_prepared_data_for_anova import load_prepare_data_for_anova
+from .load_results.anova.load_prepared_data_for_anova import load_prepare_data_for_anova
 
-from .save_results.save_anova_results import save_anova_results
+from .save_results.anova.save_anova_results import save_anova_results
 
-from .load_results.load_anova_results import load_anova_results
+from .load_results.anova.load_anova_results import load_anova_results
 
-from .save_results.save_disorder_extracted_data_by_features import save_disorder_extracted_data_by_features
+from .save_results.disorder.save_disorder_extracted_data_by_features import save_disorder_extracted_data_by_features
 
-from .load_results.load_disorder_extracted_data_by_features import load_disorder_extracted_data_by_features
+from .load_results.disorder.load_disorder_extracted_data_by_features import load_disorder_extracted_data_by_features
 
 from .load_data.load_healthy_extracted_data_by_features import load_extracted_data_by_features
 
-from .save_results.save_describe_disorder_extracted_data_by_features import save_describe_disorder_extracted_data_by_features
+from .save_results.disorder.save_describe_disorder_extracted_data_by_features import save_describe_disorder_extracted_data_by_features

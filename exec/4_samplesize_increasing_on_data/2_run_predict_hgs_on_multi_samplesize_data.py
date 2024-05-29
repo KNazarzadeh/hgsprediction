@@ -25,7 +25,7 @@ from hgsprediction.define_features import define_features
 from hgsprediction.LinearSVRHeuristicC_zscore import LinearSVRHeuristicC_zscore as svrhc
 
 
-from hgsprediction.save_results import save_multi_samples_trained_model_results
+from hgsprediction.save_results.healthy import save_multi_samples_trained_model_results
 
 ####### Julearn #######
 from julearn import run_cross_validation

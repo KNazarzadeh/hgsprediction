@@ -15,7 +15,7 @@ from hgsprediction.save_results.save_disorder_matched_samples_correlation_result
 from scipy.stats import ttest_ind
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
-from hgsprediction.load_results.load_prepared_data_for_anova import load_prepare_data_for_anova
+from hgsprediction.load_results.anova.load_prepared_data_for_anova import load_prepare_data_for_anova
 
 from scipy.stats import pearsonr
 from sklearn.metrics import r2_score

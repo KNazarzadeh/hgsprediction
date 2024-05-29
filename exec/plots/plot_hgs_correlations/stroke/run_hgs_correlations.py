@@ -5,7 +5,7 @@ import sys
 
 from hgsprediction.load_results import load_trained_models
 from hgsprediction.predict_hgs import calculate_spearman_hgs_correlation
-from hgsprediction.save_results import save_spearman_correlation_results
+from hgsprediction.save_results.disorder import save_spearman_correlation_results
 from hgsprediction.load_results import load_hgs_predicted_results
 from hgsprediction.load_results import load_spearman_correlation_results
 from hgsprediction.save_plot.save_correlations_plot.stroke_save_correlations_plot import save_correlations_plot

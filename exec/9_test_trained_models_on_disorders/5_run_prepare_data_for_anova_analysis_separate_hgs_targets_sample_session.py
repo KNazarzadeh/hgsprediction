@@ -10,7 +10,7 @@ import statsmodels.stats.multicomp as mc
 from statsmodels.graphics.gofplots import qqplot
 from itertools import product
 from hgsprediction.load_results.load_disorder_matched_samples_results import load_disorder_matched_samples_results
-from hgsprediction.save_results.save_prepared_data_for_anova import save_prepare_data_for_anova
+from hgsprediction.save_results.anova.save_prepared_data_for_anova import save_prepare_data_for_anova
 from scipy import stats
 from scipy.stats import zscore
 import statsmodels.formula.api as smf

@@ -4,7 +4,7 @@ import numpy as np
 import sys
 from sklearn.model_selection import RepeatedKFold
 from sklearn.metrics import r2_score
-from hgsprediction.load_data.healthy_load_data import load_extracted_data_by_feature_and_target
+from hgsprediction.load_data.load_healthy_data import load_extracted_data_by_feature_and_target
 ####### Data Extraction #######
 from hgsprediction.extract_data import healthy_extract_data
 from hgsprediction.save_data import save_multi_samplesize_training_data
