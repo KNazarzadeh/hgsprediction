@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from sklearn.linear_model import LinearRegression
 
-from hgsprediction.load_results.load_trained_model_results import load_prediction_hgs_on_validation_set
+from hgsprediction.load_results.healthy import load_trained_model_results
 
 from ptpython.repl import embed
 # print("===== Done! =====")
@@ -22,7 +22,7 @@ def prediction_corrector_model(
     n_repeats = 1
     n_folds = 10
     
-    df = load_prediction_hgs_on_validation_set(
+    df = load_trained_model_results.load_prediction_hgs_on_validation_set(
         population,
         mri_status,
         model_name,
@@ -32,6 +32,8 @@ def prediction_corrector_model(
         confound_status,
         n_repeats,
         n_folds,
+        session,
+        data_set,
         )
 
 
