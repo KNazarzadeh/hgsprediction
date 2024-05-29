@@ -1,7 +1,7 @@
 """Provide imports for the hgsprediction package."""
 ############### HEALTHY FUNCTIONS ###############
 # Load Data
-from .load_data import load_healthy_data
+from .load_data.healthy import load_healthy_data
 # Preprocessing Data
 from .data_preprocessing import HealthyDataPreprocessor
 # Features Computing
@@ -21,7 +21,7 @@ from .load_results.healthy import load_hgs_predicted_results
 
 ############## Disorders ##################
 # Load Stroke Data
-from .load_data import load_disorder_data
+from .load_data.disorder import load_disorder_data
 # Save Stroke Data
 from .save_data import save_disorder_data
 
@@ -47,7 +47,7 @@ from .save_data import save_multi_samplesize_training_data
 from .save_results.healthy import save_multi_samples_trained_model_results
 ## ************************************************************************************************** #
 
-from .load_data import load_multi_samplesize_training_data
+from .load_data.healthy import load_multi_samplesize_training_data
 from .load_results.load_multi_samples_trained_models_results import load_scores_trained
 
 
@@ -102,6 +102,6 @@ from .save_results.disorder.save_disorder_extracted_data_by_features import save
 
 from .load_results.disorder.load_disorder_extracted_data_by_features import load_disorder_extracted_data_by_features
 
-from .load_data.load_healthy_extracted_data_by_features import load_extracted_data_by_features
+from .load_data.healthy.load_healthy_extracted_data_by_features import load_extracted_data_by_features
 
 from .save_results.disorder.save_describe_disorder_extracted_data_by_features import save_describe_disorder_extracted_data_by_features
