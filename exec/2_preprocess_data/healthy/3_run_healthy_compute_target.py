@@ -1,7 +1,7 @@
 import os
 import sys
 import pandas as pd
-from hgsprediction.load_data.disorder import load_healthy_data
+from hgsprediction.load_data.healthy import load_healthy_data
 from hgsprediction.save_data.healthy import save_healthy_data
 from hgsprediction.compute_target import healthy_compute_target
 from ptpython.repl import embed

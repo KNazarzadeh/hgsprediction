@@ -39,7 +39,8 @@ def load_hgs_predicted_results(
             f"{n_repeats}_repeats_{n_folds}_folds",            
             "hgs_predicted_results",
         )
-
+    print("===== Done! =====")
+    embed(globals(), locals())
     # Define the csv file path to save
     file_path = os.path.join(
         folder_path,

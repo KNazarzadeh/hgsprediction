@@ -17,7 +17,8 @@ import matplotlib.pyplot as plt
 from scipy.stats import pearsonr
 from sklearn.metrics import r2_score
 from sklearn.linear_model import LinearRegression
-from hgsprediction.load_results.healthy.load_trained_model_results import load_prediction_hgs_on_validation_set
+from hgsprediction.load_results.healthy import load_trained_model_results
+
 #--------------------------------------------------------------------------#
 from ptpython.repl import embed
 # print("===== Done! =====")
@@ -41,7 +42,7 @@ gender = sys.argv[11]
 # print("===== Done! =====")
 # embed(globals(), locals())
 ###############################################################################
-df = load_prediction_hgs_on_validation_set(
+df = load_trained_model_results.load_prediction_hgs_on_validation_set(
     population,
     mri_status,
     confound_status,
