@@ -6,7 +6,7 @@ import os
 from scipy.stats import zscore
 
 from hgsprediction.define_features import define_features
-from hgsprediction.load_results.load_corrected_prediction_results import load_corrected_prediction_results
+from hgsprediction.load_results.healthy.load_corrected_prediction_results import load_corrected_prediction_results
 from hgsprediction.save_results.healthy.save_zscore_results import save_zscore_results
 
 

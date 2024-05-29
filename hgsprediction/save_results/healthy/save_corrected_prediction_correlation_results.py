@@ -7,7 +7,6 @@ from ptpython.repl import embed
 
 def save_corrected_prediction_correlation_results(
     df_corr,
-    df_p_values,
     df_r2_values,
     population,
     mri_status,
@@ -19,6 +18,7 @@ def save_corrected_prediction_correlation_results(
     confound_status,
     n_repeats,
     n_folds,    
+    correlation_type,
     data_set,
 ):
     if confound_status == "0":
@@ -70,16 +70,9 @@ def save_corrected_prediction_correlation_results(
     # Define the csv file path to save
     file_path = os.path.join(
         folder_path,
-        f"{gender}_hgs_corrected_prediction_correlations.csv")
+        f"{gender}_hgs_{correlation_type}_correlation_values.csv")
     
     df_corr.to_csv(file_path, sep=',', index=True)
-    
-    # Define the csv file path to save
-    file_path = os.path.join(
-        folder_path,
-        f"{gender}_hgs_p_values.csv")
-    
-    df_p_values.to_csv(file_path, sep=',', index=True)
     
     # Define the csv file path to save
     file_path = os.path.join(

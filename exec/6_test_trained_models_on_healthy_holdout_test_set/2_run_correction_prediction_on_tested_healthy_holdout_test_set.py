@@ -73,13 +73,13 @@ df = load_hgs_predicted_results(
 # embed(globals(), locals())
 ###############################################################################
 #Beheshti Method:
-raw_hgs = df.loc[:, f"{target}"]
+true_hgs = df.loc[:, f"{target}"]
 predicted_hgs = df.loc[:, f"{target}_predicted"]
 
 df_corrected_hgs = beheshti_correction_method(
     df.copy(),
     target,
-    raw_hgs,
+    true_hgs,
     predicted_hgs,
     slope, 
     intercept,
