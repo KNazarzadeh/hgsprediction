@@ -9,7 +9,7 @@ from .compute_features import healthy_compute_features
 # Target Computing
 from .compute_target import healthy_compute_target
 # Save Data
-from .save_data import save_healthy_data
+from .save_data.healthy import save_healthy_data
 
 from .extract_data import healthy_extract_data
 
@@ -23,7 +23,7 @@ from .load_results.healthy import load_hgs_predicted_results
 # Load Stroke Data
 from .load_data.disorder import load_disorder_data
 # Save Stroke Data
-from .save_data import save_disorder_data
+from .save_data.disorder import save_disorder_data
 
 from .compute_features import disorder_compute_features
 # Target Computing

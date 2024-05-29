@@ -15,7 +15,7 @@ import sys
 from hgsprediction.input_arguments import parse_args, input_arguments
 ####### Load Train set #######
 # Load Processed Train set (after data validation, feature engineering)
-from hgsprediction.load_data.load_healthy_data import load_extracted_data_by_feature_and_target
+from hgsprediction.load_data.healthy import load_healthy_data
 ####### Load results #######
 from hgsprediction.save_results.healthy import save_trained_model_results
 ####### Features Extraction #######
@@ -70,7 +70,7 @@ pearson_scorer = make_scorer(pearson_corr)
 register_scorer("pearson_corr", pearson_scorer)
 
 ###############################################################################
-data_extracted = load_extracted_data_by_feature_and_target(
+data_extracted = load_healthy_data.load_extracted_data_by_feature_and_target(
     population,
     mri_status,
     feature_type,

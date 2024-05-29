@@ -3,9 +3,9 @@ import pandas as pd
 import numpy as np
 import sys
 
-from hgsprediction.load_data import load_disorder_data
+from hgsprediction.load_data.disorder import load_disorder_data
 from hgsprediction.data_preprocessing import disorder_data_preprocessor
-from hgsprediction.save_data import save_disorder_data
+from hgsprediction.save_data.disorder import save_disorder_data
 
 from ptpython.repl import embed
 # print("===== Done! =====")

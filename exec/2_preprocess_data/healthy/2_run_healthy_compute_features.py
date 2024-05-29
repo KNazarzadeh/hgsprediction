@@ -1,9 +1,9 @@
 import sys
 import os
 import pandas as pd
-from hgsprediction.load_data import load_healthy_data
+from hgsprediction.load_data.healthy import load_healthy_data
 from hgsprediction.compute_features import healthy_compute_features
-from hgsprediction.save_data import save_healthy_data
+from hgsprediction.save_data.healthy import save_healthy_data
 from ptpython.repl import embed
 # print("===== Done! =====")
 # embed(globals(), locals())

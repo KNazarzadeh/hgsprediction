@@ -4,9 +4,7 @@ import numpy as np
 import sys
 import os
 
-from hgsprediction.load_data import load_disorder_data
-
-
+from hgsprediction.load_data.disorder import load_disorder_data
 from ptpython.repl import embed
 # print("===== Done! =====")
 # embed(globals(), locals())

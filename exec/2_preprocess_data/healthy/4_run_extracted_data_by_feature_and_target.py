@@ -6,14 +6,14 @@ import sys
 from hgsprediction.input_arguments import parse_args, input_arguments
 ####### Load Train set #######
 # Load Processed Train set (after data validation, feature engineering)
-from hgsprediction.load_data import load_healthy_data
+from hgsprediction.load_data.healthy import load_healthy_data
 ####### Data Extraction #######
 from hgsprediction.extract_data import healthy_extract_data
 ####### Features Extraction #######
 from hgsprediction.define_features import define_features
 
 # IMPORT SAVE FUNCTIONS
-from hgsprediction.save_data import save_extracted_data_by_feature_and_target
+from hgsprediction.save_data.healthy import save_extracted_data_by_feature_and_target
 
 #--------------------------------------------------------------------------#
 from ptpython.repl import embed

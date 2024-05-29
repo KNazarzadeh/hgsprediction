@@ -1,8 +1,8 @@
 import sys
 import os
 import pandas as pd
-from hgsprediction.load_data import load_disorder_data
-from hgsprediction.save_data import save_disorder_data
+from hgsprediction.load_data.disorder import load_disorder_data
+from hgsprediction.save_data.disorder import save_disorder_data
 from hgsprediction.compute_target import disorder_compute_target
 
 from ptpython.repl import embed

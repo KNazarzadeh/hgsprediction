@@ -17,7 +17,7 @@ import pickle
 
 ####### Load Train set #######
 # Load Processed Train set for different samplesize
-from hgsprediction.load_data import load_multi_samplesize_training_data
+from hgsprediction.load_data.healthy import load_multi_samplesize_training_data
 
 from hgsprediction.define_features import define_features
 
