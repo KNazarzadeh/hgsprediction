@@ -69,12 +69,11 @@ def calculate_correlations(df, n_folds, target):
     for fold in range(int(n_folds)):
         df_tmp = df[df['cv_fold']==fold]
         df_half = df_tmp.sample(frac=0.5, random_state=47)
-        print("===== Done! =====")
-        embed(globals(), locals())
+
         # Beheshti Method:
-        X = df.loc[:, f"{target}"].values.reshape(-1, 1)
+        X = df_half.loc[:, f"{target}"].values.reshape(-1, 1)
         # y = df.loc[:, f"{target}_delta(true-predicted)"].values
-        y = df.loc[:, f"{target}_delta(true-predicted)"].values
+        y = df_half.loc[:, f"{target}_delta(true-predicted)"].values
 
         model.fit(X, y)
 
@@ -84,9 +83,6 @@ def calculate_correlations(df, n_folds, target):
         
         # Beheshti Method:
         df_half_rest.loc[:, f"{target}_corrected_predicted"] = (df_half_rest.loc[:, f"{target}_predicted"] + ((slope * df_half_rest.loc[:, f"{target}"]) + intercept))
-        # Cole Method
-        # df_half_rest.loc[:, "corrected_predicted_hgs"] = (df_half_rest.loc[:, f"{target}_predicted"] - intercept) / slope
-        # df_half_rest.loc[:, f"{target}_corrected_delta(true-predicted)"] =  df_half_rest.loc[:, f"{target}"] - df_half_rest.loc[:, f"{target}_corrected_predicted"]
         df_half_rest.loc[:, f"{target}_corrected_delta(true-predicted)"] =  df_half_rest.loc[:, f"{target}"] - df_half_rest.loc[:, f"{target}_corrected_predicted"]
 
         r_values_true_predicted = pearsonr(df_half_rest.loc[:, f"{target}"], df_half_rest.loc[:,f"{target}_predicted"])[0]
@@ -134,7 +130,7 @@ main_folder_path = os.path.join(
             f"{mri_status}",
             f"{feature_type}",
             f"{target}",
-            f"{confound}",
+            f"{confound_status}",
             f"{model_name}",
             f"{n_repeats}_repeats_{n_folds}_folds",
             f"{gender}",

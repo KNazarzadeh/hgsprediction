@@ -58,7 +58,7 @@ from .load_results.healthy.load_brain_correlates_results_1 import *
 
 from .load_results.healthy.load_trained_scores_results import *
 
-from .prediction_corrector_model import *
+from .correction_predicted_hgs import *
  
 from .save_results.healthy.save_corrected_prediction_results import *
 from .save_results.healthy.save_corrected_prediction_correlation_results import *
@@ -105,3 +105,6 @@ from .load_results.disorder.load_disorder_extracted_data_by_features import load
 from .load_data.healthy.load_healthy_extracted_data_by_features import load_extracted_data_by_features
 
 from .save_results.disorder.save_describe_disorder_extracted_data_by_features import save_describe_disorder_extracted_data_by_features
+
+
+from .correction_predicted_hgs.correction_method import beheshti_correction_method

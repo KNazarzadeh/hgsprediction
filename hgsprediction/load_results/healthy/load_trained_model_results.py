@@ -235,7 +235,7 @@ def load_prediction_hgs_on_validation_set(
     session,
     data_set,
 ):
-    if confound_status == 0:
+    if confound_status == "0":
         confound = "without_confound_removal"
     else:
         confound = "with_confound_removal"

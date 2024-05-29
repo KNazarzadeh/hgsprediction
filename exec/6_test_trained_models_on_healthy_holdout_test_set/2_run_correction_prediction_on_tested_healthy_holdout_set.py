@@ -12,10 +12,12 @@ import os
 import sys
 import pandas as pd
 import numpy as np
-from hgsprediction.prediction_corrector_model import prediction_corrector_model
+from hgsprediction.correction_predicted_hgs import prediction_corrector_model
 from hgsprediction.load_results.healthy.load_hgs_predicted_results import load_hgs_predicted_results
 from hgsprediction.save_results.healthy.save_corrected_prediction_results import save_corrected_prediction_results
 from hgsprediction.save_results.healthy.save_corrected_prediction_correlation_results import save_corrected_prediction_correlation_results
+from hgsprediction.correction_predicted_hgs.correction_method import beheshti_correction_method
+from hgsprediction.save_results.healthy.save_corrected_prediction_results import save_corrected_prediction_results
 
 from scipy.stats import pearsonr
 from sklearn.metrics import r2_score
@@ -38,80 +40,71 @@ session = sys.argv[6]
 confound_status = sys.argv[7]
 n_repeats = sys.argv[8]
 n_folds = sys.argv[9]
-gender = sys.argv[10]
+data_set = sys.argv[10]
+gender = sys.argv[11]
 # print("===== Done! =====")
 # embed(globals(), locals())
 ###############################################################################
 slope, intercept = prediction_corrector_model(
     population,
-    "nonmri",
+    mri_status,
     model_name,
     feature_type,
     target,
     gender,
     confound_status,
+    session,
 )
 
 print(slope)
 print(intercept)
 ###############################################################################
 # Assuming that you have already trained and instantiated the model as `model`
-folder_path = os.path.join(
-        "/data",
-        "project",
-        "stroke_ukb",
-        "knazarzadeh",
-        "project_hgsprediction",  
-        "results_hgsprediction",
-        f"{population}",
-        "nonmri_test_holdout_set",
-        f"{feature_type}",
-        f"{target}",
-        f"{model_name}",
-        "hgs_predicted_results",
-    )
-
-# Define the csv file path to save
-file_path = os.path.join(
-    folder_path,
-    f"{gender}_hgs_predicted_results.csv")
-
-df = pd.read_csv(file_path, sep=',', index_col=0)
+df = load_hgs_predicted_results(
+    population,
+    mri_status,
+    model_name,
+    feature_type,
+    target,
+    gender,
+    session,
+    confound_status,
+    n_repeats,
+    n_folds,
+    data_set,
+)
 
 ###############################################################################
-
 #Beheshti Method:
-df.loc[:, f"{target}_corrected_predicted"] = (df.loc[:, f"{target}_predicted"] + ((slope * df.loc[:, f"{target}"]) + intercept))
-# Calculate Corrected Delta
-df.loc[:, f"{target}_corrected_delta(true-predicted)"] =  df.loc[:, f"{target}"] - df.loc[:, f"{target}_corrected_predicted"]
+raw_hgs = df.loc[:, f"{target}"]
+predicted_hgs = df.loc[:, f"{target}_predicted"]
 
-folder_path = os.path.join(
-        "/data",
-        "project",
-        "stroke_ukb",
-        "knazarzadeh",
-        "project_hgsprediction",  
-        "results_hgsprediction",
-        f"{population}",
-        "nonmri_test_holdout_set",
-        f"{feature_type}",
-        f"{target}",
-        f"{model_name}",
-        "hgs_corrected_prediction_results",
-    )
+beheshti_correction_method(
+    df,
+    target,
+    raw_hgs,
+    predicted_hgs,
+    slope, 
+    intercept,
+)
 
-if(not os.path.isdir(folder_path)):
-    os.makedirs(folder_path)
+save_corrected_prediction_results(
+    df,
+    population,
+    mri_status,
+    model_name,
+    feature_type,
+    target,
+    gender,
+    session,
+    confound_status,
+    n_repeats,
+    n_folds,
+    data_set,
+)
 
-# Define the csv file path to save
-file_path = os.path.join(
-    folder_path,
-    f"{gender}_hgs_predicted_results.csv")
-
-df.to_csv(file_path, sep=',', index=True)
-
+print("===== Done! End =====")
 embed(globals(), locals())
-
 ###############################################################################
 df_correlations = pd.DataFrame()
 df_p_values = pd.DataFrame()
@@ -132,8 +125,6 @@ df_r2_values.loc[0, "r2_values_true_predicted"] = r2_score(df.loc[:, f"{target}"
 df_r2_values.loc[0, "r2_values_true_delta"] = r2_score(df.loc[:, f"{target}"],df.loc[:, f"{target}_delta(true-predicted)"])
 df_r2_values.loc[0, "r2_values_true_corrected_predicted"] = r2_score(df.loc[:, f"{target}"],df.loc[:, f"{target}_corrected_predicted"])
 df_r2_values.loc[0, "r2_values_true_corrected_delta"] = r2_score(df.loc[:, f"{target}"],df.loc[:, f"{target}_corrected_delta(true-predicted)"])
-
-
 
 save_corrected_prediction_correlation_results(
     df_correlations,

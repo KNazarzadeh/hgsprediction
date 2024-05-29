@@ -22,7 +22,7 @@ from hgsprediction.define_features import define_features
 from hgsprediction.predict_hgs import predict_hgs
 from hgsprediction.extract_data import healthy_extract_data
 from hgsprediction.predict_hgs import calculate_brain_hgs                    
-from hgsprediction.prediction_corrector_model import prediction_corrector_model
+from hgsprediction.correction_predicted_hgs import prediction_corrector_model
 from hgsprediction.load_results import load_corrected_prediction_results
 from hgsprediction.load_results import load_corrected_prediction_correlation_results
 from hgsprediction.save_results.save_brain_correlation_results import save_brain_correlation_overlap_data_with_mri, save_brain_hgs_correlation_results, save_brain_hgs_correlation_results_for_plot

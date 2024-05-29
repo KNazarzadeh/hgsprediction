@@ -17,6 +17,7 @@ def prediction_corrector_model(
     target,
     gender,
     confound_status,
+    session,
 ):
     
     n_repeats = 1
@@ -33,7 +34,7 @@ def prediction_corrector_model(
         n_repeats,
         n_folds,
         session,
-        data_set,
+        data_set="training_set",
         )
 
 
