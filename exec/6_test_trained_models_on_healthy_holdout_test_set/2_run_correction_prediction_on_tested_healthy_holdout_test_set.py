@@ -15,7 +15,6 @@ import numpy as np
 from hgsprediction.correction_predicted_hgs import prediction_corrector_model
 from hgsprediction.load_results.healthy.load_hgs_predicted_results import load_hgs_predicted_results
 from hgsprediction.save_results.healthy.save_corrected_prediction_results import save_corrected_prediction_results
-from hgsprediction.save_results.healthy.save_corrected_prediction_correlation_results import save_corrected_prediction_correlation_results
 from hgsprediction.correction_predicted_hgs.correction_method import beheshti_correction_method
 from hgsprediction.save_results.healthy.save_corrected_prediction_results import save_corrected_prediction_results
 
@@ -46,14 +45,11 @@ gender = sys.argv[11]
 # embed(globals(), locals())
 ###############################################################################
 slope, intercept = prediction_corrector_model(
-    population,
-    mri_status,
     model_name,
     feature_type,
     target,
     gender,
     confound_status,
-    session,
 )
 
 print(slope)
@@ -73,14 +69,15 @@ df = load_hgs_predicted_results(
     n_folds,
     data_set,
 )
-
+# print("===== Done! End =====")
+# embed(globals(), locals())
 ###############################################################################
 #Beheshti Method:
 raw_hgs = df.loc[:, f"{target}"]
 predicted_hgs = df.loc[:, f"{target}_predicted"]
 
-beheshti_correction_method(
-    df,
+df_corrected_hgs = beheshti_correction_method(
+    df.copy(),
     target,
     raw_hgs,
     predicted_hgs,
@@ -89,7 +86,7 @@ beheshti_correction_method(
 )
 
 save_corrected_prediction_results(
-    df,
+    df_corrected_hgs,
     population,
     mri_status,
     model_name,
@@ -103,43 +100,5 @@ save_corrected_prediction_results(
     data_set,
 )
 
-print("===== Done! End =====")
-embed(globals(), locals())
-###############################################################################
-df_correlations = pd.DataFrame()
-df_p_values = pd.DataFrame()
-df_r2_values = pd.DataFrame()
-
-df_correlations.loc[0, "r_values_true_predicted"] = pearsonr(df.loc[:, f"{target}"],df.loc[:, f"{target}_predicted"])[0]
-df_correlations.loc[0, "r_values_true_delta"] = pearsonr(df.loc[:, f"{target}"],df.loc[:, f"{target}_delta(true-predicted)"])[0]
-df_correlations.loc[0, "r_values_true_corrected_predicted"] = pearsonr(df.loc[:, f"{target}"],df.loc[:, f"{target}_corrected_predicted"])[0]
-df_correlations.loc[0, "r_values_true_corrected_delta"] = pearsonr(df.loc[:, f"{target}"],df.loc[:, f"{target}_corrected_delta(true-predicted)"])[0]
-
-df_p_values.loc[0, "p_values_true_predicted"] = pearsonr(df.loc[:, f"{target}"],df.loc[:, f"{target}_predicted"])[1]
-df_p_values.loc[0, "p_values_true_delta"] = pearsonr(df.loc[:, f"{target}"],df.loc[:, f"{target}_delta(true-predicted)"])[1]
-df_p_values.loc[0, "p_values_true_corrected_predicted"] = pearsonr(df.loc[:, f"{target}"],df.loc[:, f"{target}_corrected_predicted"])[1]
-df_p_values.loc[0, "p_values_true_corrected_delta"] = pearsonr(df.loc[:, f"{target}"],df.loc[:, f"{target}_corrected_delta(true-predicted)"])[1]
-
-
-df_r2_values.loc[0, "r2_values_true_predicted"] = r2_score(df.loc[:, f"{target}"],df.loc[:, f"{target}_predicted"])
-df_r2_values.loc[0, "r2_values_true_delta"] = r2_score(df.loc[:, f"{target}"],df.loc[:, f"{target}_delta(true-predicted)"])
-df_r2_values.loc[0, "r2_values_true_corrected_predicted"] = r2_score(df.loc[:, f"{target}"],df.loc[:, f"{target}_corrected_predicted"])
-df_r2_values.loc[0, "r2_values_true_corrected_delta"] = r2_score(df.loc[:, f"{target}"],df.loc[:, f"{target}_corrected_delta(true-predicted)"])
-
-save_corrected_prediction_correlation_results(
-    df_correlations,
-    df_p_values,
-    df_r2_values,
-    population,
-    mri_status,
-    model_name,
-    feature_type,
-    target,
-    gender,
-    session,
-    confound_status,
-    n_repeats,
-    n_folds,    
-)
 print("===== Done! End =====")
 embed(globals(), locals())
