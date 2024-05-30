@@ -105,7 +105,7 @@ df_male_correlation_values, df_male_r2_values = load_prediction_correlation_resu
 # print("===== Done! =====")
 # embed(globals(), locals())
 ###############################################################################
-plot_folder = os.path.join(os.getcwd(), f"plots/with_vs_withou_bias_hgs/scatterplot/{target}/{n_repeats}_repeats_{n_folds}_folds/{correlation_type}")
+plot_folder = os.path.join(os.getcwd(), f"plots/with_vs_withou_bias_hgs/scatterplot/{target}/{model_name}/{n_repeats}_repeats_{n_folds}_folds/{correlation_type}")
 if(not os.path.isdir(plot_folder)):
         os.makedirs(plot_folder)
 plot_file = os.path.join(plot_folder, f"comparing_with_vs_withou_bias_hgs_{target}.png")

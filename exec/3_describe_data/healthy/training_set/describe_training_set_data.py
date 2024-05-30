@@ -18,7 +18,7 @@ session = sys.argv[5]
 data_set = sys.argv[6]
 ###############################################################################
 # load data # Extract data based on main features, extra features, target for each session and mri status:
-df_female = load_healthy_data.load_extracted_data_by_feature_and_target(
+df_male = load_healthy_data.load_extracted_data_by_feature_and_target(
     population,
     mri_status,
     feature_type,
@@ -27,7 +27,7 @@ df_female = load_healthy_data.load_extracted_data_by_feature_and_target(
     "female",
     data_set,
 )
-df_male = load_healthy_data.load_extracted_data_by_feature_and_target(
+df_female = load_healthy_data.load_extracted_data_by_feature_and_target(
     population,
     mri_status,
     feature_type,
