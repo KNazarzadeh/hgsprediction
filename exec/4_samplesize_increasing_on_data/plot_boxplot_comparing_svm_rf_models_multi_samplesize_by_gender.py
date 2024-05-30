@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
 import math
-from hgsprediction.load_results.load_multi_samples_trained_models_results import load_scores_trained
+from hgsprediction.load_results.healthy.load_multi_samples_trained_models_results import load_scores_trained
 from ptpython.repl import embed
 # print("===== Done! =====")
 # embed(globals(), locals())
@@ -24,7 +24,7 @@ n_repeats = sys.argv[6]
 n_folds = sys.argv[7]
 data_set = sys.argv[8]
 score_type = sys.argv[9]
-
+###############################################################################
 session = "0"
 ###############################################################################
 if score_type == "r_score":
@@ -102,7 +102,6 @@ custom_palette = {'Female': palette_female[5], 'Male': palette_male[5]}
 # custom_palette = {'Female': palette_female[1], 'Male': palette_male[2]}
 ###############################################################################
 # Set the style once for all plots
-
 sns.set_style("whitegrid")
 fig, ax = plt.subplots(ncols=2)
 # Plot the first boxplot on ax[0]
@@ -115,7 +114,6 @@ sns.boxplot(data=df_linear_svm,
             showcaps=False,
             ax=ax[0],
            )
-
 # Plot the second boxplot on ax[1]
 sns.boxplot(data=df_random_forest,
             x="samplesize_percent",
@@ -126,7 +124,7 @@ sns.boxplot(data=df_random_forest,
             showcaps=False,
             ax=ax[1],
            )
-
+#-----------------------------------------------------------#
 # Set the y-axis label with specified properties
 # Set y-ticks based on score type
 if score_type == "r2_score":
@@ -145,48 +143,65 @@ elif score_type == "r_score":
     y_lable = "r (CV)"
     ax[0].set_ylabel(y_lable, fontsize=16)
     ax[1].set_ylabel("")
+#-----------------------------------------------------------#
 # Customize y-tick labels properties and set tick direction to 'out'
 ax[0].tick_params(axis='y', labelsize=14, direction='out')
 ax[1].tick_params(axis='y', labelsize=14, direction='out')
-
+#-----------------------------------------------------------#
 # Format y-tick labels to one decimal place if they are round
-ax[0].set_yticklabels([f'{tick:.1f}' if tick % 1 == 0 else f'{tick:.2f}' for tick in yticks])
-ax[1].set_yticklabels([f'{tick:.1f}' if tick % 1 == 0 else f'{tick:.2f}' for tick in yticks])
-  
+# Get x and y limits for the first subplot first row
+xmin0, xmax0 = ax[0].get_xlim()
+ymin0, ymax0 = ax[0].get_ylim()
+# Get x and y limits for the second subplot first row
+xmin1, xmax1 = ax[1].get_xlim()
+ymin1, ymax1 = ax[1].get_ylim()
+# Find the common y-axis limits
+ymin = min(ymin0, ymin1)
+ymax = max(ymax0, ymax1)
+# Set the y-ticks step value
+ystep_value = .25
+# Calculate the range for y-ticks
+yticks_range = np.arange(math.floor(ymin / 0.1) * 0.1, math.ceil(ymax / 0.1) * 0.1 + 0.1, ystep_value)
+# Set the y-ticks for both subplots
+ax[0].set_yticks(yticks_range)
+ax[1].set_yticks(yticks_range)
+# ax[0].set_yticklabels([f'{tick:.1f}' if tick % 1 == 0 else f'{tick:.2f}' for tick in yticks])
+# ax[1].set_yticklabels([f'{tick:.1f}' if tick % 1 == 0 else f'{tick:.2f}' for tick in yticks])
+#-----------------------------------------------------------#
 # set style for the axes
 new_xticks = ["10", "20", "40", "60", "80", "100"]
 for axes in [ax[0], ax[1]]:
     axes.set_xticks(range(len(new_xticks)))  # Set tick positions
     axes.set_xticklabels(new_xticks, fontsize=14)  # Set tick labels
-
+#-----------------------------------------------------------#
 # Plot linear svm title
 ax[0].set_title('Linear SVM', fontsize=12)
 ax[1].set_title('Random Forest',fontsize=12)
-
+#-----------------------------------------------------------#
 # Set the color of the plot's spines to black for both subplots
 for ax_subplot in ax:
     for spine in ax_subplot.spines.values():
         spine.set_color('darkgrey')
-
+#-----------------------------------------------------------#
 # Place legend outside the plot
 legend = fig.legend(title="Gender", title_fontsize='12', fontsize='10', bbox_to_anchor=(1.05, 1), loc='upper left')
-
+#-----------------------------------------------------------#
 # Remove legend from the axes
 for ax_subplot in ax:
     ax_subplot.legend().remove()
-    
+#-----------------------------------------------------------#    
 # Hide y-ticks on the second subplot (using ax[1].set_yticklabels([]) to keep the style)
 ax[1].set_yticklabels([])
 # Hide x-labels on the second subplot (using ax[1].set_yticklabels([]) to keep the style)
 ax[0].set_xlabel("")
 ax[1].set_xlabel("")
-
+#-----------------------------------------------------------#
 # Set a common x-label
 fig.text(0.5, 0.12, 'Sample size (%)', ha='center')
-
+#-----------------------------------------------------------#
 ax[0].set_box_aspect(1)
 ax[1].set_box_aspect(1)
-
+#-----------------------------------------------------------#
 plt.tight_layout()  # Adjust layout to fit x-label
 
 plt.show()

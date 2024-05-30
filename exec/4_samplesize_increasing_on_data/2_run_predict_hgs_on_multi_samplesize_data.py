@@ -18,27 +18,20 @@ import pickle
 ####### Load Train set #######
 # Load Processed Train set for different samplesize
 from hgsprediction.load_data.healthy import load_multi_samplesize_training_data
-
 from hgsprediction.define_features import define_features
 
 # Calculation of Heuristic C for Linear SVM model
 from hgsprediction.LinearSVRHeuristicC_zscore import LinearSVRHeuristicC_zscore as svrhc
-
-
 from hgsprediction.save_results.healthy import save_multi_samples_trained_model_results
 
 ####### Julearn #######
 from julearn import run_cross_validation
 from julearn.scoring import register_scorer
-from sklearn.metrics import make_scorer
-
-
 ####### sklearn libraries #######
 from sklearn.model_selection import RepeatedKFold
-from sklearn.metrics import r2_score
+from sklearn.metrics import r2_score, make_scorer
 from scipy.stats import pearsonr
 
-#--------------------------------------------------------------------------#
 from ptpython.repl import embed
 # print("===== Done! =====")
 # embed(globals(), locals())
@@ -57,7 +50,7 @@ n_folds = sys.argv[8]
 data_set = sys.argv[9]
 gender = sys.argv[10]
 samplesize = sys.argv[11]
-
+###############################################################################
 session = "0"
 ###############################################################################
 def pearson_corr(y_true, y_pred):

@@ -3,7 +3,7 @@ from .load_hgs_correlation_results import *
 from .load_trained_model_results import *
 from .load_hgs_predicted_results import load_hgs_predicted_results
 
-from .load_multi_samples_trained_models_results import *
+from .load_multi_samples_trained_models_results import load_scores_trained
 
 from .load_brain_correlates_results_1 import *
 

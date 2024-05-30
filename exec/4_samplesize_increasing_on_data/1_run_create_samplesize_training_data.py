@@ -2,17 +2,14 @@
 import pandas as pd
 import numpy as np
 import sys
-from sklearn.model_selection import RepeatedKFold
-from sklearn.metrics import r2_score
 from hgsprediction.load_data.healthy import load_healthy_data
 ####### Data Extraction #######
-from hgsprediction.extract_data import healthy_extract_data
 from hgsprediction.save_data.healthy import save_multi_samplesize_training_data
+
 from ptpython.repl import embed
 # print("===== Done! =====")
 # embed(globals(), locals())
-
-
+###################################################################################################
 filename = sys.argv[0]
 population = sys.argv[1]
 mri_status = sys.argv[2]
@@ -21,7 +18,7 @@ target = sys.argv[4]
 confound_status = sys.argv[5]
 data_set = sys.argv[6]
 gender = sys.argv[7]
-
+###################################################################################################
 session="0"
 # Read ready training data 
 data_extracted = load_healthy_data.load_extracted_data_by_feature_and_target(
@@ -35,12 +32,9 @@ data_extracted = load_healthy_data.load_extracted_data_by_feature_and_target(
 ) 
 # a list of samplesize based on the samplesize/percentage_step (e.g. 10%)
 # Take percentage_step% (e.g. 10%) sample from the entire data
-
 percentage_step = 10
-
 # Initialize a list to store multiple percentage_step% (e.g. 10%) samples
 samplesize_list = list()
-
 # Take percentage_step% (e.g. 10%) sample from the entire data
 df_percent = data_extracted.sample(frac=1/percentage_step, random_state=47)
 # Get the number of samples in the initial percentage_step% (e.g. 10%) sample
@@ -66,8 +60,6 @@ for i in range(1, 10):
         df_tmp = df_tmp[~df_tmp.index.isin(df_percent.index)]
       
 ###################################################################################################
-# Assuming samplesize_list contains your individual samples
-
 # list_of_interest contains percentage values like [10, 20, 40, 60, 80, 100]
 list_of_interest = [10, 20, 40, 60, 80, 100]
 
