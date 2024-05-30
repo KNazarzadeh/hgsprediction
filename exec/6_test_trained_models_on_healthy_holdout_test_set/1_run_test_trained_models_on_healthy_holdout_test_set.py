@@ -1,21 +1,12 @@
-import os
 import pandas as pd
 import numpy as np
 import sys
 
-
 from hgsprediction.load_results.healthy import load_trained_model_results
 from hgsprediction.load_data.healthy import load_healthy_data
-from hgsprediction.extract_data import healthy_extract_data
 from hgsprediction.define_features import define_features
 from hgsprediction.predict_hgs import predict_hgs
-from hgsprediction.predict_hgs import calculate_pearson_hgs_correlation
-from hgsprediction.save_results.healthy import save_correlation_results, \
-                                               save_hgs_predicted_results
-from scipy.stats import spearmanr
-import matplotlib.pyplot as plt
-import seaborn as sns
-
+from hgsprediction.save_results.healthy import save_hgs_predicted_results
 
 from ptpython.repl import embed
 # print("===== Done! =====")

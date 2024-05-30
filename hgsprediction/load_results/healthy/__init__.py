@@ -7,7 +7,7 @@ from .load_multi_samples_trained_models_results import *
 
 from .load_brain_correlates_results_1 import *
 
-from .load_corrected_prediction_correlation_results import load_corrected_prediction_correlation_results
+from .load_prediction_correlation_results import load_prediction_correlation_results
 from .load_corrected_prediction_results import load_corrected_prediction_results
 
 from .load_zscore_results import load_zscore_results

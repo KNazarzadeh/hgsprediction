@@ -5,7 +5,7 @@ from ptpython.repl import embed
 # print("===== Done! =====")
 # embed(globals(), locals())
 
-def save_corrected_prediction_correlation_results(
+def save_prediction_correlation_results(
     df_corr,
     df_r2_values,
     population,
@@ -43,7 +43,7 @@ def save_corrected_prediction_correlation_results(
                 f"{confound}",
                 f"{model_name}",
                 f"{n_repeats}_repeats_{n_folds}_folds",
-                "hgs_corrected_prediction_correlation_results",
+                "hgs_prediction_correlation_results",
             )
     else:
         folder_path = os.path.join(
@@ -61,7 +61,7 @@ def save_corrected_prediction_correlation_results(
                 f"{confound}",
                 f"{model_name}",
                 f"{n_repeats}_repeats_{n_folds}_folds",            
-                "hgs_corrected_prediction_correlation_results",
+                "hgs_prediction_correlation_results",
             )
         
     if(not os.path.isdir(folder_path)):

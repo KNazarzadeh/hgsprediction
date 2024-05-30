@@ -5,7 +5,7 @@ from ptpython.repl import embed
 # print("===== Done! =====")
 # embed(globals(), locals())
 
-def load_corrected_prediction_correlation_results(
+def load_prediction_correlation_results(
     population,
     mri_status,
     model_name,
@@ -41,7 +41,7 @@ def load_corrected_prediction_correlation_results(
                 f"{confound}",
                 f"{model_name}",
                 f"{n_repeats}_repeats_{n_folds}_folds",
-                "hgs_corrected_prediction_correlation_results",
+                "hgs_prediction_correlation_results",
             )
     else:
         folder_path = os.path.join(
@@ -59,7 +59,7 @@ def load_corrected_prediction_correlation_results(
                 f"{confound}",
                 f"{model_name}",
                 f"{n_repeats}_repeats_{n_folds}_folds",            
-                "hgs_corrected_prediction_correlation_results",
+                "hgs_prediction_correlation_results",
             )
 
     # Define the csv file path to save

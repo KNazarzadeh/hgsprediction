@@ -8,18 +8,13 @@ Motor is Handgrip strength (1 phase).
 # License: AGPL
 
 """
-import os
 import sys
 import pandas as pd
 import numpy as np
 from hgsprediction.correction_predicted_hgs import prediction_corrector_model
 from hgsprediction.load_results.healthy.load_hgs_predicted_results import load_hgs_predicted_results
-from hgsprediction.save_results.healthy.save_corrected_prediction_results import save_corrected_prediction_results
 from hgsprediction.correction_predicted_hgs.correction_method import beheshti_correction_method
 from hgsprediction.save_results.healthy.save_corrected_prediction_results import save_corrected_prediction_results
-
-from scipy.stats import pearsonr
-from sklearn.metrics import r2_score
 
 #--------------------------------------------------------------------------#
 from ptpython.repl import embed

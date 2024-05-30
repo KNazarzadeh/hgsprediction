@@ -17,7 +17,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 from hgsprediction.load_results.healthy.load_corrected_prediction_results import load_corrected_prediction_results
-from hgsprediction.load_results.healthy.load_corrected_prediction_correlation_results import load_corrected_prediction_correlation_results
+from hgsprediction.load_results.healthy.load_prediction_correlation_results import load_prediction_correlation_results
 
 #--------------------------------------------------------------------------#
 from ptpython.repl import embed
@@ -72,7 +72,7 @@ df_male = load_corrected_prediction_results(
 )
 
 ###############################################################################
-df_female_correlation_values, df_female_r2_values = load_corrected_prediction_correlation_results(
+df_female_correlation_values, df_female_r2_values = load_prediction_correlation_results(
     population,
     mri_status,
     model_name,
@@ -87,7 +87,7 @@ df_female_correlation_values, df_female_r2_values = load_corrected_prediction_co
     data_set,
 )
 
-df_male_correlation_values, df_male_r2_values = load_corrected_prediction_correlation_results(
+df_male_correlation_values, df_male_r2_values = load_prediction_correlation_results(
     population,
     mri_status,
     model_name,
@@ -113,9 +113,13 @@ plot_file = os.path.join(plot_folder, f"comparing_with_vs_withou_bias_hgs_{targe
 # Create a custom color palette dictionary
 # Define custom palettes
 palette_male = sns.color_palette("Blues")
-palette_female = sns.cubehelix_palette()
-color_female = palette_female[1]
-color_male = palette_male[2]
+palette_female = sns.color_palette("Reds")
+color_female = palette_female[5]
+color_male = palette_male[5]
+
+# palette_female = sns.cubehelix_palette()
+# color_female = palette_female[1]
+# color_male = palette_male[2]
 # print("===== Done! =====")
 # embed(globals(), locals())
 ###############################################################################
@@ -123,23 +127,23 @@ color_male = palette_male[2]
 sns.set_style("white")
 
 fig, ax = plt.subplots(2, 2, figsize=(10, 10))
+# Plot female and male data for target vs. predicted in the first subplot
+sns.regplot(data=df_male, x=f"{target}", y=f"{target}_predicted", color=color_male, marker="o", scatter_kws={'s': 50, 'edgecolor': 'black'}, line_kws={"color": color_male}, ax=ax[0][0])
+sns.regplot(data=df_female, x=f"{target}", y=f"{target}_predicted", color=color_female, marker="o", scatter_kws={'s': 50,'edgecolor': 'black'}, line_kws={"color": color_female}, ax=ax[0][0])
 
-sns.regplot(data=df_female, x=f"{target}", y=f"{target}_predicted", color=color_female, marker="$\circ$", scatter_kws={'s': 20, 'linewidths': 2}, line_kws={"color": color_female}, ax=ax[0][0])
-sns.regplot(data=df_male, x=f"{target}", y=f"{target}_predicted", color=color_male, marker="$\circ$", scatter_kws={'s': 20, 'linewidths': 2}, line_kws={"color": color_male}, ax=ax[0][0])
+# Plot female and male data for target vs. corrected predicted in the second subplot
+sns.regplot(data=df_male, x=f"{target}", y=f"{target}_corrected_predicted", color=color_male, marker="o", scatter_kws={'s': 50,'edgecolor': 'black'}, line_kws={"color": color_male}, ax=ax[0][1])
+sns.regplot(data=df_female, x=f"{target}", y=f"{target}_corrected_predicted", color=color_female, marker="o", scatter_kws={'s': 50,'edgecolor': 'black'}, line_kws={"color": color_female}, ax=ax[0][1])
 
+# Plot female and male data for target vs. delta (true-predicted) in the third subplot
+sns.regplot(data=df_male, x=f"{target}", y=f"{target}_delta(true-predicted)", color=color_male, marker="o", scatter_kws={'s': 50,'edgecolor': 'black'}, line_kws={"color": color_male}, ax=ax[1][0])
+sns.regplot(data=df_female, x=f"{target}", y=f"{target}_delta(true-predicted)", color=color_female, marker="o", scatter_kws={'s': 50,'edgecolor': 'black'}, line_kws={"color": color_female}, ax=ax[1][0])
 
-sns.regplot(data=df_female, x=f"{target}", y=f"{target}_corrected_predicted", color=color_female, marker="$\circ$", scatter_kws={'s': 20, 'linewidths': 2}, line_kws={"color": color_female}, ax=ax[0][1])
-sns.regplot(data=df_male, x=f"{target}", y=f"{target}_corrected_predicted", color=color_male, marker="$\circ$", scatter_kws={'s': 20, 'linewidths': 2}, line_kws={"color": color_male}, ax=ax[0][1])
+# Plot female and male data for target vs. corrected delta (true-predicted) in the fourth subplot
+sns.regplot(data=df_male, x=f"{target}", y=f"{target}_corrected_delta(true-predicted)", color=color_male, marker="o", scatter_kws={'s': 50,'edgecolor': 'black'}, line_kws={"color": color_male}, ax=ax[1][1])
+sns.regplot(data=df_female, x=f"{target}", y=f"{target}_corrected_delta(true-predicted)", color=color_female, marker="o", scatter_kws={'s': 50,'edgecolor': 'black'}, line_kws={"color": color_female}, ax=ax[1][1])
 
-
-sns.regplot(data=df_female, x=f"{target}", y=f"{target}_delta(true-predicted)", color=color_female, marker="$\circ$", scatter_kws={'s': 20, 'linewidths': 2}, line_kws={"color": color_female}, ax=ax[1][0])
-sns.regplot(data=df_male, x=f"{target}", y=f"{target}_delta(true-predicted)", color=color_male, marker="$\circ$", scatter_kws={'s': 20, 'linewidths': 2}, line_kws={"color": color_male}, ax=ax[1][0])
-
-
-sns.regplot(data=df_female, x=f"{target}", y=f"{target}_corrected_delta(true-predicted)", color=color_female, marker="$\circ$", scatter_kws={'s': 20, 'linewidths': 2}, line_kws={"color": color_female}, ax=ax[1][1])
-sns.regplot(data=df_male, x=f"{target}", y=f"{target}_corrected_delta(true-predicted)", color=color_male, marker="$\circ$", scatter_kws={'s': 20, 'linewidths': 2}, line_kws={"color": color_male}, ax=ax[1][1])
-
-
+#-----------------------------------------------------------#
 ax[0][0].set_ylabel("Predicted HGS", fontsize=16)
 ax[1][0].set_ylabel("Delta HGS", fontsize=16)
 ax[0][1].set_ylabel("Predicted HGS", fontsize=16)
@@ -150,49 +154,104 @@ ax[0][1].set_xlabel("")
 ax[1][0].set_xlabel("Raw HGS", fontsize=16) 
 ax[1][1].set_xlabel("Raw HGS", fontsize=16)     
 
-                   
-ax[0][0].set_title(f"Without bias-adjustment", fontsize=16)            
-ax[0][1].set_title(f"With bias-adjustment", fontsize=16)
+#-----------------------------------------------------------#                   
+ax[0][0].set_title(f"Without bias-adjustment", fontsize=16, fontweight="bold")            
+ax[0][1].set_title(f"With bias-adjustment", fontsize=16, fontweight="bold")
 
-            
+#-----------------------------------------------------------#            
+# Annotation for female data in the first subplot
+r_text_male_00 = f"r(m) = {df_male_correlation_values.loc['r_values', 'true_vs_predicted']:.2f}\nR²(m) = {df_male_r2_values.loc['r2_values', 'true_vs_predicted']:.2f}"
+r_text_female_00 = f"r(f) = {df_female_correlation_values.loc['r_values', 'true_vs_predicted']:.2f}\nR²(f) = {df_female_r2_values.loc['r2_values', 'true_vs_predicted']:.2f}"
+# Annotations for male and female data in the first subplot
+ax[0, 0].annotate(r_text_male_00, xy=(0.03, 0.887), xycoords='axes fraction', fontsize=12, color=color_male, bbox=dict(boxstyle='square,pad=0.3', edgecolor='lightgrey', facecolor='none'))
+ax[0, 0].annotate(r_text_male_00, xy=(0.335, 0.887), xycoords='axes fraction', fontsize=12, color=color_female, bbox=dict(boxstyle='square,pad=0.3', edgecolor='lightgrey', facecolor='none'))
 
-# r_text_female = f"r:{df_female_correlations.loc[fold, 'r_values_true_delta']:.3f}\nR2:{df_female_correlations.loc[fold, 'r2_values_true_delta']:.3f}"
-# r_text_male = f"r:{df_male_correlations.loc[fold, 'r_values_true_delta']:.3f}\nR2:{df_male_correlations.loc[fold, 'r2_values_true_delta']:.3f}"
-# ax.annotate(r_text_female, xy=(0.05, 0.9), xycoords='axes fraction', fontsize=30, fontweight="bold", color=color_female)
-# ax.annotate(r_text_male, xy=(0.05, 0.8), xycoords='axes fraction', fontsize=30, fontweight="bold", color=color_male)
+# Annotation for female data in the second subplot
+r_text_male_01 = f"r(m) = {df_male_correlation_values.loc['r_values', 'true_vs_corrected_predicted']:.2f}\nR²(m) = {df_male_r2_values.loc['r2_values', 'true_vs_corrected_predicted']:.2f}"
+r_text_female_01 = f"r(f) = {df_female_correlation_values.loc['r_values', 'true_vs_corrected_predicted']:.2f}\nR²(f) = {df_female_r2_values.loc['r2_values', 'true_vs_corrected_predicted']:.2f}"
+# Annotations for male and female data in the second subplot
+ax[0, 1].annotate(r_text_male_01, xy=(0.03, 0.887), xycoords='axes fraction', fontsize=12, color=color_male, bbox=dict(boxstyle='square,pad=0.3', edgecolor='lightgrey', facecolor='none'))
+ax[0, 1].annotate(r_text_female_01, xy=(0.335, 0.887), xycoords='axes fraction', fontsize=12, color=color_female, bbox=dict(boxstyle='square,pad=0.3', edgecolor='lightgrey', facecolor='none'))
 
-# r_text_female = f"r:{df_female_correlations.loc[fold, 'r_values_true_corrected_delta']:.3f}\nR2:{df_female_correlations.loc[fold, 'r2_values_true_corrected_delta']:.3f}"
-# r_text_male = f"r:{df_male_correlations.loc[fold, 'r_values_true_corrected_delta']:.3f}\nR2:{df_male_correlations.loc[fold, 'r2_values_true_corrected_delta']:.3f}"
-# ax.annotate(r_text_female, xy=(0.05, 0.9), xycoords='axes fraction', fontsize=30, fontweight="bold", color=color_female)
-# ax.annotate(r_text_male, xy=(0.05, 0.8), xycoords='axes fraction', fontsize=30, fontweight="bold", color=color_male)
+# Annotation for female data in the third subplot
+r_text_male_10 = f"r(m) = {df_male_correlation_values.loc['r_values', 'true_vs_delta']:.2f}\nR²(m) = {df_male_r2_values.loc['r2_values', 'true_vs_delta']:.2f}"
+r_text_female_10 = f"r(f) = {df_female_correlation_values.loc['r_values', 'true_vs_delta']:.2f}\nR²(f) = {df_female_r2_values.loc['r2_values', 'true_vs_delta']:.2f}"
+# Annotations for male and female data in the third subplot
+ax[1, 0].annotate(r_text_male_10, xy=(0.03, 0.887), xycoords='axes fraction', fontsize=12, color=color_male, bbox=dict(boxstyle='square,pad=0.3', edgecolor='lightgrey', facecolor='none'))
+ax[1, 0].annotate(r_text_female_10, xy=(0.377, 0.887), xycoords='axes fraction', fontsize=12, color=color_female, bbox=dict(boxstyle='square,pad=0.3', edgecolor='lightgrey', facecolor='none'))
 
+# Annotation for female data in the fourth subplot
+r_text_male_11 = f"r(m) = {df_male_correlation_values.loc['r_values', 'true_vs_corrected_delta']:.2f}\nR²(m) = {df_male_r2_values.loc['r2_values', 'true_vs_corrected_delta']:.2f}"
+r_text_female_11 = f"r(f) = {df_female_correlation_values.loc['r_values', 'true_vs_corrected_delta']:.2f}\nR²(f) = {df_female_r2_values.loc['r2_values', 'true_vs_corrected_delta']:.2f}"
+# Annotations for male and female data in the fourth subplot
+ax[1, 1].annotate(r_text_male_11, xy=(0.03, 0.887), xycoords='axes fraction', fontsize=12, color=color_male, bbox=dict(boxstyle='square,pad=0.3', edgecolor='lightgrey', facecolor='none'))
+ax[1, 1].annotate(r_text_female_11, xy=(0.377, 0.887), xycoords='axes fraction', fontsize=12, color=color_female, bbox=dict(boxstyle='square,pad=0.3', edgecolor='lightgrey', facecolor='none'))
+#-----------------------------------------------------------#
 ax[0][0].set_box_aspect(1)
 ax[0][1].set_box_aspect(1)
 ax[1][0].set_box_aspect(1)
 ax[1][1].set_box_aspect(1)
-
+#-----------------------------------------------------------#
+# Iterate over each subplot to change the font size for tick labels
+for axis in ax.flatten():
+    axis.tick_params(axis='both', labelsize=12)
+#-----------------------------------------------------------#
+# Get x and y limits for the first subplot first row
 xmin00, xmax00 = ax[0][0].get_xlim()
 ymin00, ymax00 = ax[0][0].get_ylim()
-
-y_step_value = 20
-ax[0][0].set_yticks(np.arange(math.floor(ymin00/10)*10, math.ceil(ymax00/10)*10+10, y_step_value))
-
-ax[0][1].set_yticks(np.arange(math.floor(ymin00/10)*10, math.ceil(ymax00/10)*10+10, y_step_value))
-
+# Get x and y limits for the second subplot first row
 xmin01, xmax01 = ax[0][1].get_xlim()
 ymin01, ymax01 = ax[0][1].get_ylim()
-
+# Find the common y-axis limits
+ymin_0 = min(ymin00, ymin01)
+ymax_0 = max(ymax00, ymax01)
+# Set the y-ticks step value
+ystep0_value = 20
+# Calculate the range for y-ticks
+yticks0_range = np.arange(math.floor(ymin_0 / 10) * 10, math.ceil(ymax_0 / 10) * 10 + 10, ystep0_value)
+# Set the y-ticks for both subplots
+ax[0][0].set_yticks(yticks0_range)
+ax[0][1].set_yticks(yticks0_range)
+#-----------------------------------------------------------#
+# Get x and y limits for the first subplot second row
 xmin10, xmax10 = ax[1][0].get_xlim()
 ymin10, ymax10 = ax[1][0].get_ylim()
+# Get x and y limits for the second subplot second row
+xmin11, xmax11 = ax[1][1].get_xlim()
+ymin11, ymax11 = ax[1][1].get_ylim()
+# Find the common y-axis limits
+ymin_1 = min(ymin10, ymin11)
+ymax_1 = max(ymax10, ymax11)
+# Set the y-ticks step value
+ystep1_value = 20
+# Calculate the range for y-ticks
+yticks1_range = np.arange(math.floor(ymin_1 / 10) * 10, math.ceil(ymax_1 / 10) * 10 + 10, ystep1_value)
+# Set the y-ticks for both subplots
+ax[1][0].set_yticks(yticks1_range)
+ax[1][1].set_yticks(yticks1_range)
 
-
+#-----------------------------------------------------------#
+# Get x and y limits for the first subplot first row
+xmin00, xmax00 = ax[0][0].get_xlim()
+ymin00, ymax00 = ax[0][0].get_ylim()
+# Get x and y limits for the second subplot first row
+xmin01, xmax01 = ax[0][1].get_xlim()
+ymin01, ymax01 = ax[0][1].get_ylim()
+# Get x and y limits for the first subplot second row
+xmin10, xmax10 = ax[1][0].get_xlim()
+ymin10, ymax10 = ax[1][0].get_ylim()
+# Get x and y limits for the second subplot second row
 xmin11, xmax11 = ax[1][1].get_xlim()
 ymin11, ymax11 = ax[1][1].get_ylim()
 
-
+#-----------------------------------------------------------#
+# Plot a dark grey dashed line with width 3 from (xmin00, ymin00) to (xmax00, ymax00) on the first subplot
 ax[0][0].plot([xmin00, xmax00], [ymin00, ymax00], color='darkgrey', linestyle='--', linewidth=3)
+# Plot a dark grey dashed line with width 3 from (xmin01, ymin01) to (xmax01, ymax01) on the second subplot
 ax[0][1].plot([xmin01, xmax01], [ymin01, ymax01], color='darkgrey', linestyle='--', linewidth=3)
+# Plot a dark grey dashed line with width 3 from (xmin10, ymin10) to (xmax10, ymax10) on the third subplot
 ax[1][0].plot([xmin10, xmax10], [ymin10, ymax10], color='darkgrey', linestyle='--', linewidth=3)
+# Plot a dark grey dashed line with width 3 from (xmin11, ymin11) to (xmax11, ymax11) on the fourth subplot
 ax[1][1].plot([xmin11, xmax11], [ymin11, ymax11], color='darkgrey', linestyle='--', linewidth=3)
 
 plt.tight_layout()

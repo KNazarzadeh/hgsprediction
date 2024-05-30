@@ -1,10 +1,9 @@
 
-import os
 import sys
 import pandas as pd
 import numpy as np
 from hgsprediction.load_results.healthy.load_corrected_prediction_results import load_corrected_prediction_results
-from hgsprediction.save_results.healthy.save_corrected_prediction_correlation_results import save_corrected_prediction_correlation_results
+from hgsprediction.save_results.healthy.save_prediction_correlation_results import save_prediction_correlation_results
 from scipy.stats import pearsonr, spearmanr
 from sklearn.metrics import r2_score
 
@@ -28,9 +27,6 @@ n_folds = sys.argv[9]
 data_set = sys.argv[10]
 correlation_type = sys.argv[11]
 gender = sys.argv[12]
-
-# print("===== Done! =====")
-# embed(globals(), locals())
 
 ###############################################################################
 df = load_corrected_prediction_results(
@@ -79,7 +75,7 @@ df_r2_values.loc["r2_values", "true_vs_delta"] = r2_score(true_hgs, delta_hgs)
 df_r2_values.loc["r2_values", "true_vs_corrected_predicted"] = r2_score(true_hgs, corrected_predicted_hgs)
 df_r2_values.loc["r2_values", "true_vs_corrected_delta"] = r2_score(true_hgs, delta_corrected_hgs)
 
-save_corrected_prediction_correlation_results(
+save_prediction_correlation_results(
     df_correlations,
     df_r2_values,
     population,

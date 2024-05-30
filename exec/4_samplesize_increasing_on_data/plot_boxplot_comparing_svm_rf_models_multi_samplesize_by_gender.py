@@ -94,11 +94,12 @@ plot_file = os.path.join(plot_folder, f"comparing_SVM_RF_models_multi_samplesize
 # Create a custom color palette dictionary
 # Define custom palettes
 palette_male = sns.color_palette("Blues")
-# palette_female = sns.color_palette(palette='RdPu')
-palette_female = sns.cubehelix_palette()
-custom_palette = {'Female': palette_female[1], 'Male': palette_male[2]}
-# print("===== Done! =====")
-# embed(globals(), locals())
+palette_female = sns.color_palette("Reds")
+custom_palette = {'Female': palette_female[5], 'Male': palette_male[5]}
+
+# palette_male = sns.color_palette("Blues")
+# palette_female = sns.cubehelix_palette()
+# custom_palette = {'Female': palette_female[1], 'Male': palette_male[2]}
 ###############################################################################
 # Set the style once for all plots
 
