@@ -146,8 +146,8 @@ sns.regplot(data=df_female, x=f"{target}", y=f"{target}_corrected_delta(true-pre
 #-----------------------------------------------------------#
 ax[0][0].set_ylabel("Predicted HGS", fontsize=16)
 ax[1][0].set_ylabel("Delta HGS", fontsize=16)
-ax[0][1].set_ylabel("Predicted HGS", fontsize=16)
-ax[1][1].set_ylabel("Delta HGS", fontsize=16)
+ax[0][1].set_ylabel("Adjusted HGS", fontsize=16)
+ax[1][1].set_ylabel("Delta adjusted HGS", fontsize=16)
 
 ax[0][0].set_xlabel("") 
 ax[0][1].set_xlabel("") 
@@ -194,7 +194,7 @@ ax[1][1].set_box_aspect(1)
 #-----------------------------------------------------------#
 # Iterate over each subplot to change the font size for tick labels
 for axis in ax.flatten():
-    axis.tick_params(axis='both', labelsize=12)
+    axis.tick_params(axis='both', labelsize=12, direction='out', length=5)
 #-----------------------------------------------------------#
 # Get x and y limits for the first subplot first row
 xmin00, xmax00 = ax[0][0].get_xlim()
@@ -250,11 +250,15 @@ ax[0][0].plot([xmin00, xmax00], [ymin00, ymax00], color='darkgrey', linestyle='-
 # Plot a dark grey dashed line with width 3 from (xmin01, ymin01) to (xmax01, ymax01) on the second subplot
 ax[0][1].plot([xmin01, xmax01], [ymin01, ymax01], color='darkgrey', linestyle='--', linewidth=3)
 # Plot a dark grey dashed line with width 3 from (xmin10, ymin10) to (xmax10, ymax10) on the third subplot
-ax[1][0].plot([xmin10, xmax10], [ymin10, ymax10], color='darkgrey', linestyle='--', linewidth=3)
+ax[1][0].plot([xmin10, xmax10], [0, 0], color='darkgrey', linestyle='--', linewidth=3)
 # Plot a dark grey dashed line with width 3 from (xmin11, ymin11) to (xmax11, ymax11) on the fourth subplot
-ax[1][1].plot([xmin11, xmax11], [ymin11, ymax11], color='darkgrey', linestyle='--', linewidth=3)
+ax[1][1].plot([xmin11, xmax11], [0, 0], color='darkgrey', linestyle='--', linewidth=3)
+# Ensure y-axis ticks (ymin and ymax) remain unchanged
+ax[1][1].set_yticks(yticks1_range)
 
+#-----------------------------------------------------------#
 plt.tight_layout()
+#-----------------------------------------------------------#
 plt.show()
 plt.savefig(plot_file)
 plt.close()
