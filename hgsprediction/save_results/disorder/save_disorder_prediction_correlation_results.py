@@ -5,7 +5,9 @@ from ptpython.repl import embed
 # print("===== Done! =====")
 # embed(globals(), locals())
 
-def load_disorder_corrected_prediction_correlation_results(
+def save_disorder_prediction_correlation_results(
+    df_corr,
+    df_r2_values,
     population,
     mri_status,
     session_column,
@@ -15,7 +17,9 @@ def load_disorder_corrected_prediction_correlation_results(
     gender,
     confound_status,
     n_repeats,
-    n_folds,   
+    n_folds,
+    first_event,
+    correlation_type,    
 ):
     if confound_status == "0":
         confound = "without_confound_removal"
@@ -30,6 +34,7 @@ def load_disorder_corrected_prediction_correlation_results(
             "project_hgsprediction",  
             "results_hgsprediction",
             f"{population}",
+            f"{first_event}",
             f"{mri_status}",
             f"{session_column}",
             f"{feature_type}",
@@ -37,29 +42,23 @@ def load_disorder_corrected_prediction_correlation_results(
             f"{confound}",            
             f"{model_name}",
             f"{n_repeats}_repeats_{n_folds}_folds",           
-            "hgs_corrected_prediction_correlation_results",
+            "hgs_prediction_correlation_results",
         )
-    
+        
+    if(not os.path.isdir(folder_path)):
+        os.makedirs(folder_path)
+
     # Define the csv file path to save
     file_path = os.path.join(
         folder_path,
-        f"{gender}_hgs_corrected_prediction_correlations.csv")
+        f"{gender}_hgs_{correlation_type}_correlation_values.csv")
     
-    df_corr = pd.read_csv(file_path, sep=',', index_col=0)
-    
-    # Define the csv file path to save
-    file_path = os.path.join(
-        folder_path,
-        f"{gender}_hgs_p_values.csv")
-    
-    df_p_values = pd.read_csv(file_path, sep=',', index_col=0)
+    df_corr.to_csv(file_path, sep=',', index=True)
     
     # Define the csv file path to save
     file_path = os.path.join(
         folder_path,
         f"{gender}_hgs_r2_values.csv")
     
-    df_r2_values = pd.read_csv(file_path, sep=',', index_col=0)
-    
-    return df_corr, df_p_values, df_r2_values
+    df_r2_values.to_csv(file_path, sep=',', index=True)
 ##############################################################################

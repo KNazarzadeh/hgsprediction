@@ -1,10 +1,9 @@
                              
 from .save_disorder_hgs_predicted_results import save_disorder_hgs_predicted_results
 
-from .save_disorder_corrected_prediction_results import save_disorder_corrected_prediction_results
-from .save_disorder_hgs_predicted_results import save_disorder_hgs_predicted_results
+from .save_disorder_prediction_correlation_results import save_disorder_prediction_correlation_results
 
-from .save_disorder_corrected_prediction_correlation_results import save_disorder_corrected_prediction_correlation_results
+from .save_disorder_hgs_predicted_results import save_disorder_hgs_predicted_results
 
 from .save_disorder_matched_samples_results import save_disorder_matched_samples_results
 

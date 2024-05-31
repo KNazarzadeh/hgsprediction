@@ -5,10 +5,7 @@ from ptpython.repl import embed
 # print("===== Done! =====")
 # embed(globals(), locals())
 
-def save_disorder_corrected_prediction_correlation_results(
-    df_corr,
-    df_p_values,
-    df_r2_values,
+def load_disorder_prediction_correlation_results(
     population,
     mri_status,
     session_column,
@@ -42,28 +39,27 @@ def save_disorder_corrected_prediction_correlation_results(
             f"{n_repeats}_repeats_{n_folds}_folds",           
             "hgs_corrected_prediction_correlation_results",
         )
-        
-    if(not os.path.isdir(folder_path)):
-        os.makedirs(folder_path)
-
+    
     # Define the csv file path to save
     file_path = os.path.join(
         folder_path,
         f"{gender}_hgs_corrected_prediction_correlations.csv")
     
-    df_corr.to_csv(file_path, sep=',', index=True)
+    df_corr = pd.read_csv(file_path, sep=',', index_col=0)
     
     # Define the csv file path to save
     file_path = os.path.join(
         folder_path,
         f"{gender}_hgs_p_values.csv")
     
-    df_p_values.to_csv(file_path, sep=',', index=True)
+    df_p_values = pd.read_csv(file_path, sep=',', index_col=0)
     
     # Define the csv file path to save
     file_path = os.path.join(
         folder_path,
         f"{gender}_hgs_r2_values.csv")
     
-    df_r2_values.to_csv(file_path, sep=',', index=True)
+    df_r2_values = pd.read_csv(file_path, sep=',', index_col=0)
+    
+    return df_corr, df_p_values, df_r2_values
 ##############################################################################
