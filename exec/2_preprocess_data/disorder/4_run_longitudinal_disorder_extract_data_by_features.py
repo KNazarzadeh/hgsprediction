@@ -5,8 +5,8 @@ import sys
 
 from hgsprediction.define_features import define_features
 from hgsprediction.extract_data import disorder_extract_data
-from hgsprediction.load_data import load_disorder_data
-from hgsprediction.save_results.save_disorder_extracted_data_by_features import save_disorder_extracted_data_by_features
+from hgsprediction.load_data.disorder import load_disorder_data
+from hgsprediction.save_results.disorder.save_disorder_extracted_data_by_feature_and_target import save_disorder_extracted_data_by_feature_and_target
 from ptpython.repl import embed
 # print("===== Done! =====")
 # embed(globals(), locals())
@@ -21,33 +21,27 @@ feature_type = sys.argv[5]
 target = sys.argv[6]
 gender = sys.argv[7]
 first_event = sys.argv[8]
-
 ##############################################################################
 # Define main features and extra features:
 features, extend_features = define_features(feature_type)
 ##############################################################################
-# Define X as main features and y as target:
-X = features
-y = target
-##############################################################################
-# load data
 # load data
 disorder_cohort = f"{disorder_cohort}-{population}"
 if visit_session == "1":
     session_column = f"1st_{disorder_cohort}_session"
-
+##############################################################################
 if mri_status == "mri+nonmri":
     df_longitudinal_mri = load_disorder_data.load_preprocessed_data(population, "mri", session_column, disorder_cohort, first_event)
     df_longitudinal_nonmri = load_disorder_data.load_preprocessed_data(population, "nonmri", session_column, disorder_cohort, first_event)
     df_longitudinal = pd.concat([df_longitudinal_mri, df_longitudinal_nonmri]).dropna(axis=1, how='all')
 else:
     df_longitudinal = load_disorder_data.load_preprocessed_data(population, mri_status, session_column, disorder_cohort, first_event)
-
+##############################################################################
 if gender == "female":
     df = df_longitudinal[df_longitudinal['gender'] == 0]
 elif gender == "male":
     df = df_longitudinal[df_longitudinal['gender'] == 1]
-
+##############################################################################
 for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
     df_extracted = disorder_extract_data.extract_data(df, population, features, extend_features, target, disorder_subgroup, visit_session)
             
@@ -86,7 +80,7 @@ df_merged = pd.merge(df_pre.drop(columns=common_cols), df_post, left_index=True,
 print(df_merged)
 print("===== Done! =====")
 embed(globals(), locals())
-save_disorder_extracted_data_by_features(
+save_disorder_extracted_data_by_feature_and_target(
     df_merged,
     population,
     mri_status,

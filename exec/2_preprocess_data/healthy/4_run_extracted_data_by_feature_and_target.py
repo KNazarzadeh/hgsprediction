@@ -29,16 +29,15 @@ target = sys.argv[4]
 session = sys.argv[5]
 data_set = sys.argv[6]
 gender = sys.argv[7]
-###############################################################################
+##############################################################################
+# Define main features and extra features:
+features, extend_features = define_features(feature_type)
+##############################################################################
 
 df = load_healthy_data.load_preprocessed_data(population, mri_status, session, gender, data_set)
 
-features, extend_features = define_features(feature_type)
-
 data_extracted = healthy_extract_data.extract_data(df, features, extend_features, feature_type, target, mri_status, session)
 
-X = features
-y = target
 print(data_extracted)
 
 save_extracted_data_by_feature_and_target(

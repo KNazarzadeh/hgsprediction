@@ -5,7 +5,7 @@ from ptpython.repl import embed
 # print("===== Done! =====")
 # embed(globals(), locals())
 
-def save_disorder_extracted_data_by_features(
+def save_disorder_extracted_data_by_feature_and_target(
     df,
     population,
     mri_status,
@@ -30,8 +30,7 @@ def save_disorder_extracted_data_by_features(
             f"{session_column}",
             f"{feature_type}",
             f"{target}",
-            "extracted_data_by_features",
-            f"{gender}",
+            "extracted_data_by_feature_and_target",
         )
         
     if(not os.path.isdir(folder_path)):
@@ -40,7 +39,7 @@ def save_disorder_extracted_data_by_features(
     # Define the csv file path to save
     file_path = os.path.join(
         folder_path,
-        f"{gender}_extracted_data_by_features.csv")
+        f"{gender}_extracted_data_by_feature_and_target.csv")
     
     df.to_csv(file_path, sep=',', index=True)
 

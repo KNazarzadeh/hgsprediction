@@ -276,3 +276,41 @@ def load_preprocessed_longitudinal_data(
     df = pd.read_csv(file_path, sep=',', index_col=0)
 
     return df
+
+###############################################################################
+def load_extracted_data_by_feature_and_target(
+    population,
+    mri_status,
+    session_column,
+    feature_type,
+    target,
+    gender,
+    first_event,
+):
+    
+    # Assuming that you have already trained and instantiated the model as `model`
+    folder_path = os.path.join(
+            "/data",
+            "project",
+            "stroke_ukb",
+            "knazarzadeh",
+            "project_hgsprediction",  
+            "results_hgsprediction",
+            f"{population}",
+            f"{first_event}",
+            f"{mri_status}",
+            f"{session_column}",
+            f"{feature_type}",
+            f"{target}",
+            "extracted_data_by_feature_and_target",
+        )
+
+    # Define the csv file path to save
+    file_path = os.path.join(
+        folder_path,
+        f"{gender}_extracted_data_by_feature_and_target.csv")
+    
+    df = pd.read_csv(file_path, sep=',', index_col=0)    
+
+    return df
+###############################################################################

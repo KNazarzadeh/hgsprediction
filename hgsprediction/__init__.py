@@ -53,13 +53,9 @@ from .save_results.healthy import save_multi_samples_trained_model_results
 from .load_data.healthy import load_multi_samplesize_training_data
 from .load_results.healthy.load_multi_samples_trained_models_results import load_scores_trained
 
-
 from .save_results.healthy.brain_save_correlates_results import *
 
-
 from .load_results.healthy.load_brain_correlates_results_1 import *
-
-from .load_results.healthy.load_trained_scores_results import *
 
 from .correction_predicted_hgs import *
  
@@ -87,8 +83,6 @@ from .save_results.disorder.save_disorder_matched_samples_correlation_results im
 from .save_results.anova.save_disorder_anova_results import save_disorder_anova_results
 from .load_results.disorder.load_disorder_anova_results import load_disorder_anova_results
 
-from .load_results.healthy.load_trained_scores_results import load_test_scores_trained, load_scores_trained
-
 from .save_results.healthy.save_brain_correlation_results import save_brain_correlation_overlap_data_with_mri, save_brain_hgs_correlation_results, save_brain_hgs_correlation_results_for_plot
 
 from .load_results.healthy.load_brain_correlation_results import load_brain_correlation_overlap_data_with_mri, load_brain_hgs_correlation_results, load_brain_hgs_correlation_results_for_plot
@@ -101,7 +95,7 @@ from .save_results.anova.save_anova_results import save_anova_results
 
 from .load_results.anova.load_anova_results import load_anova_results
 
-from .save_results.disorder.save_disorder_extracted_data_by_features import save_disorder_extracted_data_by_features
+from .save_results.disorder.save_disorder_extracted_data_by_feature_and_target import save_disorder_extracted_data_by_feature_and_target
 
 from .load_results.disorder.load_disorder_extracted_data_by_features import load_disorder_extracted_data_by_features
 
