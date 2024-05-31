@@ -23,16 +23,13 @@ model_name = sys.argv[5]
 confound_status = sys.argv[6]
 n_repeats = sys.argv[7]
 n_folds = sys.argv[8]
-gender = sys.argv[9]
-# session = sys.argv[10]
-
+data_set = sys.argv[9]
+gender = sys.argv[10]
 ###############################################################################
+# Define main features and extra features:
 features, extend_features = define_features(feature_type)
-
 # Define feature columns including the target
 feature_columns = features + [target]
-# feature_columns = features
-
 ###############################################################################
 for session in ["0", "1", "2", "3"]:
     df = load_corrected_prediction_results(
@@ -46,8 +43,9 @@ for session in ["0", "1", "2", "3"]:
         confound_status,
         n_repeats,
         n_folds,
+        data_set,
     )
-
+    print(df)
     # Set the threshold for outlier detection
     threshold = 3.2
 

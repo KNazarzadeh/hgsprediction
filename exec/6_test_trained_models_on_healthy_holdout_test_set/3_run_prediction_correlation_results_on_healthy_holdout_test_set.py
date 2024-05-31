@@ -27,7 +27,11 @@ n_folds = sys.argv[9]
 data_set = sys.argv[10]
 correlation_type = sys.argv[11]
 gender = sys.argv[12]
-
+###############################################################################   
+if correlation_type == "pearson":
+    correlation_func = pearsonr
+elif correlation_type == "spearman":
+    correlation_func = spearmanr
 ###############################################################################
 df = load_corrected_prediction_results(
     population,
@@ -44,11 +48,6 @@ df = load_corrected_prediction_results(
 )
 # print("===== Done! =====")
 # embed(globals(), locals())
-###############################################################################   
-if correlation_type == "pearson":
-    correlation_func = pearsonr
-elif correlation_type == "spearman":
-    correlation_func = spearmanr
 ###############################################################################         
 true_hgs = df.loc[:, f"{target}"]
 predicted_hgs = df.loc[:, f"{target}_predicted"]

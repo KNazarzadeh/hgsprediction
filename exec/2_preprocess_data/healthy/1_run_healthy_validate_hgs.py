@@ -28,7 +28,8 @@ df = data_processor.define_handedness(df_original)
 
 # CHECK HGS AVAILABILITY
 df = data_processor.remove_missing_hgs(df)
-
+print("===== Done! =====")
+embed(globals(), locals())
 # DATA VALIDATION
 df = data_processor.validate_handgrips(df)
 
@@ -37,6 +38,7 @@ df = data_processor.remove_nan_columns(df)
 
 df_female = df[df["31-0.0"]==0.0]
 df_male = df[df["31-0.0"]==1.0]
+
 
 save_healthy_data.save_validate_hgs_data(df_female, population, mri_status, session, "female", data_set)
 save_healthy_data.save_validate_hgs_data(df_male, population, mri_status, session, "male", data_set)
