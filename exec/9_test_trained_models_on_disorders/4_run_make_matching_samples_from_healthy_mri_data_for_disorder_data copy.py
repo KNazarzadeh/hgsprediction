@@ -6,10 +6,9 @@ import os
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import NearestNeighbors
 
-from hgsprediction.load_results.load_zscore_results import load_zscore_results
-from hgsprediction.load_results.load_corrected_prediction_results import load_corrected_prediction_results
-from hgsprediction.load_results.load_disorder_corrected_prediction_results import load_disorder_corrected_prediction_results
 from hgsprediction.define_features import define_features
+from hgsprediction.load_results.disorder.load_disorder_corrected_prediction_results import load_disorder_corrected_prediction_results
+from hgsprediction.load_results.healthy.load_zscore_results import load_zscore_results
 from hgsprediction.save_results.save_disorder_matched_samples_results import save_disorder_matched_samples_results
 from hgsprediction.save_results.save_disorder_matched_samples_correlation_results import save_disorder_matched_control_samples_correlation_results
 from scipy.stats import ttest_ind
@@ -25,7 +24,6 @@ from ptpython.repl import embed
 # embed(globals(), locals())
 
 ###############################################################################
-
 filename = sys.argv[0]
 population = sys.argv[1]
 mri_status = sys.argv[2]
@@ -41,11 +39,12 @@ gender = sys.argv[11]
 n_samples = sys.argv[12]
 first_event = sys.argv[13]
 ##############################################################################
-features, extend_features = define_features(feature_type)
 # Define features and target for matching
-# X = features + [target]
+features, extend_features = define_features(feature_type)
+
 X = features
 y = "disorder"
+
 extract_columns = X + [y] + [target]
 # print("===== Done! =====")
 # embed(globals(), locals())
@@ -53,7 +52,7 @@ extract_columns = X + [y] + [target]
 disorder_cohort = f"{disorder_cohort}-{population}"
 if visit_session == "1":
     session_column = f"1st_{disorder_cohort}_session"
-
+###############################################################################
 df_disorder = load_disorder_corrected_prediction_results(
     population,
     mri_status,
@@ -70,8 +69,6 @@ df_disorder = load_disorder_corrected_prediction_results(
 
 df_disorder.index.name = "subjectID"
 df_disorder.loc[:, "disorder"] = 1
-# print("===== Done! =====")
-# embed(globals(), locals())
 ###############################################################################
 # Load z-score results for healthy individuals with MRI data
 # And asssign to control dataframe
@@ -98,7 +95,8 @@ control_dataframes = []
 for session_number in range(4):
     df_control_session = load_control_session(session_number)
     control_dataframes.append(df_control_session)
-
+print("===== Done! =====")
+embed(globals(), locals())
 ###############################################################################
 disorder_pre_subgroup = f"pre-{population}"
 if visit_session == "1":
