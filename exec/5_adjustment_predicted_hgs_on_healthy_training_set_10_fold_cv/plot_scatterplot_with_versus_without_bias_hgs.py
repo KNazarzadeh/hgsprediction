@@ -171,7 +171,7 @@ r_text_male_01 = f"r(m) = {df_male_correlation_values.loc['r_values', 'true_vs_c
 r_text_female_01 = f"r(f) = {df_female_correlation_values.loc['r_values', 'true_vs_corrected_predicted']:.2f}\nR²(f) = {df_female_r2_values.loc['r2_values', 'true_vs_corrected_predicted']:.2f}\nMAE(f) = {df_female_mae_values.loc['MAE_values', 'true_vs_corrected_predicted']:.2f}"
 # Annotations for male and female data in the second subplot
 ax[0, 1].annotate(r_text_male_01, xy=(0.025, 0.87), xycoords='axes fraction', fontsize=10, color=color_male, bbox=dict(boxstyle='square,pad=0.3', edgecolor='lightgrey', facecolor='none'))
-ax[0, 1].annotate(r_text_female_01, xy=(0.322, 0.87), xycoords='axes fraction', fontsize=10, color=color_female, bbox=dict(boxstyle='square,pad=0.3', edgecolor='lightgrey', facecolor='none'))
+ax[0, 1].annotate(r_text_female_01, xy=(0.318, 0.87), xycoords='axes fraction', fontsize=10, color=color_female, bbox=dict(boxstyle='square,pad=0.3', edgecolor='lightgrey', facecolor='none'))
 
 # Annotation for female data in the third subplot
 r_text_male_10 = f"r(m) = {df_male_correlation_values.loc['r_values', 'true_vs_delta']:.2f}\nR²(m) = {df_male_r2_values.loc['r2_values', 'true_vs_delta']:.2f}\nMAE(m) = {df_male_mae_values.loc['MAE_values', 'true_vs_delta']:.2f}"
