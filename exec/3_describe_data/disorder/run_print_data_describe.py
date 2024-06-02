@@ -6,8 +6,7 @@ import sys
 from hgsprediction.define_features import define_features
 from hgsprediction.extract_data import disorder_extract_data
 from hgsprediction.load_data import load_disorder_data
-from hgsprediction.load_results.load_disorder_extracted_data_by_features import load_disorder_extracted_data_by_features
-from hgsprediction.save_results.disorder.save_describe_disorder_extracted_data_by_features import save_describe_disorder_extracted_data_by_features
+from hgsprediction.load_results.disorder.load_disorder_extracted_data_by_features import load_disorder_extracted_data_by_features
 from ptpython.repl import embed
 # print("===== Done! =====")
 # embed(globals(), locals())

@@ -12,39 +12,22 @@ from ptpython.repl import embed
 filename = sys.argv[0]
 population = sys.argv[1]
 mri_status = sys.argv[2]
-feature_type = sys.argv[3]
-target = sys.argv[4]
-session = sys.argv[5]
-data_set = sys.argv[6]
+data_set = sys.argv[3]
 ###############################################################################
 # load data # Extract data based on main features, extra features, target for each session and mri status:
-df_female = load_healthy_data.load_extracted_data_by_feature_and_target(
-    population,
-    mri_status,
-    feature_type,
-    target,
-    session,
-    "female",
-    data_set,
-)
-df_male = load_healthy_data.load_extracted_data_by_feature_and_target(
-    population,
-    mri_status,
-    feature_type,
-    target,
-    session,
-    "male",
-    data_set,
-)
+df = load_healthy_data.load_original_data(population, mri_status)
+
+df_female = df[df['31-0.0'] == 0]
+df_male = df[df['31-0.0'] == 1]
 ###############################################################################
 whole_data_length = len(df_female)+len(df_male)
-print("\n Number of whole holdout test data N=", whole_data_length)
+print("\n Number of whole Original MRI data N=", whole_data_length)
 
-print("\n Number of Female holdout test data N=", len(df_female))
-print("'%' of Female holdout test data N=%", "{:.2f}".format(len(df_female)*100/whole_data_length))
+print("\n Number of Female Original MRI data N=", len(df_female))
+print("'%' of Female Original MRIt data N=%", "{:.2f}".format(len(df_female)*100/whole_data_length))
 
-print("\n Number of Male holdout test data N=", len(df_male))
-print("'%' of Male holdout test data N=%", "{:.2f}".format(len(df_male)*100/whole_data_length))
+print("\n Number of Male Original MRI data N=", len(df_male))
+print("'%' of Male Original MRI data N=%", "{:.2f}".format(len(df_male)*100/whole_data_length))
 
 print("\n Female Describe=\n", df_female.describe().apply(lambda x: round(x, 2)))
 
