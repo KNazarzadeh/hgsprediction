@@ -78,8 +78,8 @@ common_cols = df_pre.columns.intersection(df_post.columns)
 df_merged = pd.merge(df_pre.drop(columns=common_cols), df_post, left_index=True, right_index=True, how='inner')
 
 print(df_merged)
-print("===== Done! =====")
-embed(globals(), locals())
+# print("===== Done! =====")
+# embed(globals(), locals())
 save_disorder_extracted_data_by_feature_and_target(
     df_merged,
     population,

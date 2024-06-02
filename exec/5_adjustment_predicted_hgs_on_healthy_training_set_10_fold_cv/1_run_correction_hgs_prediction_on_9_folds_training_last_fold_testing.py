@@ -8,12 +8,17 @@ Motor is Handgrip strength (1 phase).
 # License: AGPL
 
 """
+import os
 import sys
 import pandas as pd
 import numpy as np
-from hgsprediction.correction_predicted_hgs import prediction_corrector_model
-from hgsprediction.load_results.healthy.load_hgs_predicted_results import load_hgs_predicted_results
-from hgsprediction.correction_predicted_hgs.correction_beheshti_method import beheshti_correction_method
+import seaborn as sns
+import matplotlib.pyplot as plt
+from scipy.stats import pearsonr, spearmanr
+from sklearn.metrics import r2_score, mean_absolute_error
+from sklearn.linear_model import LinearRegression
+from hgsprediction.load_results.healthy import load_trained_model_results
+from hgsprediction.correction_predicted_hgs import beheshti_correction_method
 from hgsprediction.save_results.healthy.save_corrected_prediction_results import save_corrected_prediction_results
 
 #--------------------------------------------------------------------------#
@@ -35,51 +40,55 @@ confound_status = sys.argv[7]
 n_repeats = sys.argv[8]
 n_folds = sys.argv[9]
 data_set = sys.argv[10]
-gender = sys.argv[11]
+correlation_type = sys.argv[11]
+gender = sys.argv[12]
 # print("===== Done! =====")
 # embed(globals(), locals())
 ###############################################################################
-slope, intercept = prediction_corrector_model(
-    model_name,
-    feature_type,
-    target,
-    gender,
-    confound_status,
-)
-
-print(slope)
-print(intercept)
+if correlation_type == "pearson":
+    correlation_func = pearsonr
+elif correlation_type == "spearman":
+    correlation_func = spearmanr
 ###############################################################################
-# Assuming that you have already trained and instantiated the model as `model`
-df = load_hgs_predicted_results(
+df = load_trained_model_results.load_prediction_hgs_on_validation_set(
     population,
     mri_status,
-    model_name,
+    confound_status,
+    gender,
     feature_type,
     target,
-    gender,
-    session,
-    confound_status,
+    model_name,
     n_repeats,
     n_folds,
+    session,
     data_set,
 )
-# print("===== Done! End =====")
-# embed(globals(), locals())
+
 ###############################################################################
-#Beheshti Method:
-true_hgs = df.loc[:, f"{target}"]
-predicted_hgs = df.loc[:, f"{target}_predicted"]
+model = LinearRegression()
+###############################################################################
+df_train = df[df['cv_fold'] != int(n_folds)-1]
+# Beheshti Method:
+X = df_train.loc[:, f"{target}"].values.reshape(-1, 1)
+# y = df.loc[:, f"{target}_delta(true-predicted)"].values
+y = df_train.loc[:, f"{target}_delta(true-predicted)"].values
 
-df_corrected_hgs = beheshti_correction_method(
-    df.copy(),
-    target,
-    true_hgs,
-    predicted_hgs,
-    slope, 
-    intercept,
-)
+model.fit(X, y)
 
+slope = model.coef_[0]
+intercept = model.intercept_  
+###############################################################################     
+df_test = df[df['cv_fold'] == int(n_folds)-1]
+        
+# Beheshti Method:
+true_hgs = df_test.loc[:, f"{target}"]
+predicted_hgs = df_test.loc[:, f"{target}_predicted"]
+df_corrected_hgs = beheshti_correction_method(df_test.copy(), target, true_hgs, predicted_hgs, slope, intercept)
+
+
+print("===== Done! =====")
+embed(globals(), locals())
+###############################################################################
 save_corrected_prediction_results(
     df_corrected_hgs,
     population,
@@ -95,5 +104,5 @@ save_corrected_prediction_results(
     data_set,
 )
 
-print("===== Done! End =====")
+print("===== Done! =====")
 embed(globals(), locals())

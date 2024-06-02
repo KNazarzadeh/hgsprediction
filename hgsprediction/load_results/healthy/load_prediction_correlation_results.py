@@ -76,5 +76,12 @@ def load_prediction_correlation_results(
     
     df_r2_values = pd.read_csv(file_path, sep=',', index_col=0)
     
-    return df_correlation_values, df_r2_values
+    # Define the csv file path to save
+    file_path = os.path.join(
+        folder_path,
+        f"{gender}_hgs_MAE_values.csv")
+    
+    df_mae_values = pd.read_csv(file_path, sep=',', index_col=0)
+    
+    return df_correlation_values, df_r2_values, df_mae_values
 ##############################################################################

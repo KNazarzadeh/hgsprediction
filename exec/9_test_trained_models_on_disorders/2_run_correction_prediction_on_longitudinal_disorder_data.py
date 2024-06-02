@@ -5,7 +5,6 @@ import sys
 
 from hgsprediction.correction_predicted_hgs import prediction_corrector_model
 from hgsprediction.load_results.disorder.load_disorder_hgs_predicted_results import load_disorder_hgs_predicted_results
-from hgsprediction.correction_predicted_hgs.correction_method import beheshti_correction_method
 from hgsprediction.save_results.disorder.save_disorder_corrected_prediction_results import save_disorder_corrected_prediction_results
 
 from ptpython.repl import embed

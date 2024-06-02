@@ -127,7 +127,7 @@ class DisorderMainDataPreprocessor:
         original_handedness = df.loc[:, ["1707-0.0", "1707-1.0", "1707-2.0"]]
         
         # Find indices with NaN in the first column of original_handedness
-        index_unavailable = original_handedness[(original_handedness.loc[:, "1707-0.0"].isna()) | (original_handedness.loc[:, "1707-0.0"] == -3)].index
+        index_unavailable = original_handedness[(original_handedness.loc[:, "1707-0.0"].isna())].index
         # Replace NaN in the first column with the max of the corresponding row
         original_handedness.loc[index_unavailable, "1707-0.0"] = np.nanmax(original_handedness.loc[index_unavailable, :], axis=1)
                 
@@ -555,7 +555,7 @@ class DisorderMainDataPreprocessor:
             if f"pre-{disorder}" in session_column:
                 df = df[(df.loc[:, hgs_dominant] >= 4) & (~df.loc[:, hgs_dominant].isna())]
                 df = df[(df.loc[:, hgs_nondominant] >= 4) & (~df.loc[:, hgs_nondominant].isna())]
-                df = df[(df.loc[:, hgs_dominant] >= df.loc[:, hgs_nondominant])]
+                # df = df[(df.loc[:, hgs_dominant] >= df.loc[:, hgs_nondominant])]
             else:
                 # print("===== Done! =====")
                 # embed(globals(), locals())

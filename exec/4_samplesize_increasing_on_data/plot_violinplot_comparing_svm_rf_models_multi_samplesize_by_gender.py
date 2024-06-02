@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
 import math
-from hgsprediction.load_results.load_multi_samples_trained_models_results import load_scores_trained
+from hgsprediction.load_results.healthy.load_multi_samples_trained_models_results import load_scores_trained
 from ptpython.repl import embed
 # print("===== Done! =====")
 # embed(globals(), locals())
@@ -142,12 +142,12 @@ ymax = max(ymax0, ymax1)
 if score_type == "r2_score":
     ystep_value = 0.025
     # Calculate the range for y-ticks
-    yticks_range = np.arange(math.floor(ymin / 0.01) * 0.01, math.ceil(ymax / 0.01) * 0.01 , ystep_value)
+    yticks_range = np.arange(math.floor(ymin / 0.01) * 0.01, math.ceil(ymax / 0.01) * 0.01 + 0.01, ystep_value)
     y_lable = "R² (CV)"
 elif score_type == "r_score":
     ystep_value = 0.05
     # Calculate the range for y-ticks
-    yticks_range = np.arange(math.floor(ymin / 0.05) * 0.05, math.ceil(ymax / 0.05) * 0.05, ystep_value)
+    yticks_range = np.arange(math.floor(ymin / 0.05) * 0.05, math.ceil(ymax / 0.05) * 0.05 + 0.05, ystep_value)
     y_lable = "r (CV)"
 #-----------------------------------------------------------#
 # Set the y-ticks for both subplots

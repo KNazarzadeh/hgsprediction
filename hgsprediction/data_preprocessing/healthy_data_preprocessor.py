@@ -65,19 +65,21 @@ class HealthyDataPreprocessor:
         return df
 ###############################################################################
     def define_handedness(self, df):
-        
+          
         # Extract columns "1707-0.0", "1707-1.0", "1707-2.0" for original_handedness
         original_handedness = df.loc[:, ["1707-0.0", "1707-1.0", "1707-2.0"]]
         
         # Find indices with NaN in the first column of original_handedness
-        index_unavailable = original_handedness[(original_handedness.loc[:, "1707-0.0"].isna()) | (original_handedness.loc[:, "1707-0.0"] == -3)].index
+        # Step 1: Identify rows where "1707-0.0" is NaN ,3 or -3
+        index_unavailable = original_handedness[(original_handedness.loc[:, "1707-0.0"].isna())].index
+
         # Replace NaN in the first column with the max of the corresponding row
-        original_handedness.loc[index_unavailable, "1707-0.0"] = np.nanmax(original_handedness.loc[index_unavailable, :], axis=1)
-                
-        # Find indices where the first column equals -3 and set them to NaN
-        index_no_answer = original_handedness.loc[:, "1707-0.0"] == -3
-        original_handedness.loc[index_no_answer, "1707-0.0"] = np.nan
+        original_handedness.loc[index_unavailable, "1707-0.0"] = np.nanmax(original_handedness.loc[index_unavailable, :], axis=1)           
         
+        # Find indices where the first column equals -3 and set them to NaN
+        index_no_answer = original_handedness[original_handedness.loc[:, "1707-0.0"] == -3].index
+        original_handedness.loc[index_no_answer, "1707-0.0"] = np.nan
+         
         # Remove all columns except the first and add it to df as new column
         df.loc[:, "original_handedness"] = original_handedness.loc[:, "1707-0.0"]
         
@@ -145,7 +147,7 @@ class HealthyDataPreprocessor:
         # df = df[(df.loc[:, hgs_nondominant] >= 4) & (~df.loc[:, hgs_nondominant].isna())]
         df = df[~df.loc[:, hgs_dominant].isna()]
         df = df[~df.loc[:, hgs_nondominant].isna()]        
-        df = df[(df.loc[:, hgs_dominant] >= df.loc[:, hgs_nondominant])]
+        # df = df[(df.loc[:, hgs_dominant] >= df.loc[:, hgs_nondominant])]
 
         return df
 
