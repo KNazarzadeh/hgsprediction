@@ -5,7 +5,7 @@ import sys
 from hgsprediction.load_results.disorder import load_disorder_corrected_prediction_results
 from hgsprediction.save_results.disorder.save_disorder_prediction_correlation_results import save_disorder_prediction_correlation_results
 from scipy.stats import pearsonr, spearmanr
-from sklearn.metrics import r2_score
+from sklearn.metrics import r2_score, mean_absolute_error
 
 from ptpython.repl import embed
 # print("===== Done! =====")
@@ -54,6 +54,7 @@ print(df)
 ###############################################################################
 df_correlations = pd.DataFrame(index=["r_values", "p_values"])
 df_r2_values = pd.DataFrame(index=["r2_values"])
+df_mae_values = pd.DataFrame(index=["MAE_values"])
 
 for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
     if visit_session == "1":
@@ -81,9 +82,15 @@ for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
     df_r2_values.loc["r2_values", f"{prefix}_true_vs_corrected_predicted"] = r2_score(true_hgs, corrected_predicted_hgs)
     df_r2_values.loc["r2_values", f"{prefix}_true_vs_corrected_delta"] = r2_score(true_hgs, delta_corrected_hgs)
 
+    df_mae_values.loc["MAE_values", f"{prefix}_true_vs_predicted"] = mean_absolute_error(true_hgs, predicted_hgs)
+    df_mae_values.loc["MAE_values", f"{prefix}_true_vs_delta"] = mean_absolute_error(true_hgs, delta_hgs)
+    df_mae_values.loc["MAE_values", f"{prefix}_true_vs_corrected_predicted"] = mean_absolute_error(true_hgs, corrected_predicted_hgs)
+    df_mae_values.loc["MAE_values", f"{prefix}_true_vs_corrected_delta"] = mean_absolute_error(true_hgs, delta_corrected_hgs)
+
 save_disorder_prediction_correlation_results(
     df_correlations,
     df_r2_values,
+    df_mae_values,
     population,
     mri_status,
     session_column,

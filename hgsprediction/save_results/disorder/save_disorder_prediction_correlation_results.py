@@ -8,6 +8,7 @@ from ptpython.repl import embed
 def save_disorder_prediction_correlation_results(
     df_corr,
     df_r2_values,
+    df_mae_values,
     population,
     mri_status,
     session_column,
@@ -61,4 +62,12 @@ def save_disorder_prediction_correlation_results(
         f"{gender}_hgs_r2_values.csv")
     
     df_r2_values.to_csv(file_path, sep=',', index=True)
+    
+    # Define the csv file path to save
+    file_path = os.path.join(
+        folder_path,
+        f"{gender}_hgs_MAE_values.csv")
+    
+    df_mae_values.to_csv(file_path, sep=',', index=True)
+    
 ##############################################################################
