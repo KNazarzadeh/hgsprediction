@@ -19,7 +19,6 @@ def extract_data(df, features, extend_features, feature_type, target, mri_status
                             "1707-0.0", 
                             "1707-1.0", 
                             f"53-{session}.0",
-                            "handedness",                             
                             f"handedness-{session}.0", 
                             f"46-{session}.0", 
                             f"47-{session}.0",
@@ -42,7 +41,6 @@ def extract_data(df, features, extend_features, feature_type, target, mri_status
                             "1707-1.0", 
                             "1707-2.0", 
                             f"53-{session}.0",
-                            "handedness",                             
                             f"handedness-{session}.0", 
                             f"46-{session}.0", 
                             f"47-{session}.0",
@@ -71,9 +69,10 @@ def extract_data(df, features, extend_features, feature_type, target, mri_status
 
     # Update the column names of the DataFrame
     df_extracted.columns = new_columns
-
+    
     if target in ["hgs_dominant", "hgs_nondominant"]:
         df_extracted = df_extracted.loc[:, ~df_extracted.columns.duplicated()]
+    
     
     return df_extracted
 

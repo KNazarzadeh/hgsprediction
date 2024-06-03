@@ -83,6 +83,8 @@ for session in ["0", "1", "2", "3"]:
     df_control_by_session.loc[:, "session"] = float(session)
     # Append the dataframe for the current session to the list    
     control_dataframes.append(df_control_by_session)
+# print("===== Done! =====")
+# embed(globals(), locals())
 ###############################################################################
 # Define prefix for pre- and post- columns
 disorder_pre_subgroup = f"pre-{population}"
