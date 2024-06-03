@@ -105,7 +105,7 @@ df_male_correlation_values, df_male_r2_values, df_male_mae_values = load_predict
 # print("===== Done! =====")
 # embed(globals(), locals())
 ###############################################################################
-plot_folder = os.path.join(os.getcwd(), f"plots/with_vs_withou_bias_hgs/scatterplot/{target}/{model_name}/{n_repeats}_repeats_{n_folds}_folds/{correlation_type}")
+plot_folder = os.path.join(os.getcwd(), f"plots/with_vs_withou_bias_hgs/jointplot_scatterplot/{target}/{model_name}/{n_repeats}_repeats_{n_folds}_folds/{correlation_type}")
 if(not os.path.isdir(plot_folder)):
         os.makedirs(plot_folder)
 plot_file = os.path.join(plot_folder, f"comparing_with_vs_withou_bias_hgs_{target}.png")
@@ -128,21 +128,20 @@ sns.set_style("white")
 
 fig, ax = plt.subplots(2, 2, figsize=(10, 10))
 # Plot female and male data for target vs. predicted in the first subplot
-sns.regplot(data=df_male, x=f"{target}", y=f"{target}_predicted", color=color_male, marker="o", scatter_kws={'s': 50, 'edgecolor': 'black'}, line_kws={"color": color_male}, ax=ax[0][0])
-sns.regplot(data=df_female, x=f"{target}", y=f"{target}_predicted", color=color_female, marker="o", scatter_kws={'s': 50,'edgecolor': 'black'}, line_kws={"color": color_female}, ax=ax[0][0])
+sns.jointplot(data=df_male, x=f"{target}", y=f"{target}_predicted", color=color_male, kind="reg", scatter_kws={'s': 50, 'edgecolor': 'black'}, ax=ax[0][0])
+sns.jointplot(data=df_female, x=f"{target}", y=f"{target}_predicted", color=color_female, kind="reg", scatter_kws={'s': 50, 'edgecolor': 'black'}, ax=ax[0][0])
 
-# Plot female and male data for target vs. corrected predicted in the second subplot
-sns.regplot(data=df_male, x=f"{target}", y=f"{target}_corrected_predicted", color=color_male, marker="o", scatter_kws={'s': 50,'edgecolor': 'black'}, line_kws={"color": color_male}, ax=ax[0][1])
-sns.regplot(data=df_female, x=f"{target}", y=f"{target}_corrected_predicted", color=color_female, marker="o", scatter_kws={'s': 50,'edgecolor': 'black'}, line_kws={"color": color_female}, ax=ax[0][1])
+# Jointplot for target vs. corrected predicted in the second subplot
+sns.jointplot(data=df_male, x=f"{target}", y=f"{target}_corrected_predicted", color=color_male, kind="reg", scatter_kws={'s': 50, 'edgecolor': 'black'}, ax=ax[0][1])
+sns.jointplot(data=df_female, x=f"{target}", y=f"{target}_corrected_predicted", color=color_female, kind="reg", scatter_kws={'s': 50, 'edgecolor': 'black'}, ax=ax[0][1])
 
-# Plot female and male data for target vs. delta (true-predicted) in the third subplot
-sns.regplot(data=df_male, x=f"{target}", y=f"{target}_delta(true-predicted)", color=color_male, marker="o", scatter_kws={'s': 50,'edgecolor': 'black'}, line_kws={"color": color_male}, ax=ax[1][0])
-sns.regplot(data=df_female, x=f"{target}", y=f"{target}_delta(true-predicted)", color=color_female, marker="o", scatter_kws={'s': 50,'edgecolor': 'black'}, line_kws={"color": color_female}, ax=ax[1][0])
+# Jointplot for target vs. delta (true-predicted) in the third subplot
+sns.jointplot(data=df_male, x=f"{target}", y=f"{target}_delta(true-predicted)", color=color_male, kind="reg", scatter_kws={'s': 50, 'edgecolor': 'black'}, ax=ax[1][0])
+sns.jointplot(data=df_female, x=f"{target}", y=f"{target}_delta(true-predicted)", color=color_female, kind="reg", scatter_kws={'s': 50, 'edgecolor': 'black'}, ax=ax[1][0])
 
-# Plot female and male data for target vs. corrected delta (true-predicted) in the fourth subplot
-sns.regplot(data=df_male, x=f"{target}", y=f"{target}_corrected_delta(true-predicted)", color=color_male, marker="o", scatter_kws={'s': 50,'edgecolor': 'black'}, line_kws={"color": color_male}, ax=ax[1][1])
-sns.regplot(data=df_female, x=f"{target}", y=f"{target}_corrected_delta(true-predicted)", color=color_female, marker="o", scatter_kws={'s': 50,'edgecolor': 'black'}, line_kws={"color": color_female}, ax=ax[1][1])
-
+# Jointplot for target vs. corrected delta (true-predicted) in the fourth subplot
+sns.jointplot(data=df_male, x=f"{target}", y=f"{target}_corrected_delta(true-predicted)", color=color_male, kind="reg", scatter_kws={'s': 50, 'edgecolor': 'black'}, ax=ax[1][1])
+sns.jointplot(data=df_female, x=f"{target}", y=f"{target}_corrected_delta(true-predicted)", color=color_female, kind="reg", scatter_kws={'s': 50, 'edgecolor': 'black'}, ax=ax[1][1])
 #-----------------------------------------------------------#
 ax[0][0].set_ylabel("Predicted HGS", fontsize=16)
 ax[1][0].set_ylabel("Delta HGS", fontsize=16)

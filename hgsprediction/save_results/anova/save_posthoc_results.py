@@ -6,9 +6,9 @@ from ptpython.repl import embed
 # print("===== Done! =====")
 # embed(globals(), locals())
 
-def save_anova_results(
-    df,
-    df_anova_result,
+def save_posthoc_results(
+    df_pairwise_posthoc,
+    df_posthoc_summary,
     population,
     mri_status,
     session_column,
@@ -55,16 +55,15 @@ def save_anova_results(
     if(not os.path.isdir(folder_path)):
         os.makedirs(folder_path)
 
-    # Define the csv file path to save
     file_path = os.path.join(
         folder_path,
-        f"{gender}_anova_contact_control_disorder_data.csv")
-    
-    df.to_csv(file_path, sep=',', index=True)
+        f"{gender}_pairwise_posthoc_result_table.pkl")
+        
+    df_pairwise_posthoc.to_csv(file_path, sep=',', index=True)
 
     file_path = os.path.join(
         folder_path,
-        f"{gender}_anova_result_table.pkl")
+        f"{gender}_tukeyhsd_posthoc_result_table.pkl")
         
     with open(file_path, 'wb') as f:
-        pickle.dump(df_anova_result, f)
+        pickle.dump(df_posthoc_summary, f)
