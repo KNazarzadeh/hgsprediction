@@ -24,5 +24,6 @@ df = healthy_compute_features.compute_features(df, feature_type, mri_status, ses
 
 save_healthy_data.save_preprocessed_data(df, population, mri_status, session, gender, data_set)
 
+print(df)
 print("===== Done! =====")
 embed(globals(), locals())

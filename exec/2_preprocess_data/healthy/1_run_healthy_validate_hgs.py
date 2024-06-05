@@ -25,11 +25,11 @@ elif mri_status == "mri":
 ###############################################################################
 data_processor = HealthyDataPreprocessor(df_original, mri_status, session)
 df = data_processor.define_handedness(df_original)
-
-# CHECK HGS AVAILABILITY
-df = data_processor.remove_missing_hgs(df)
 print("===== Done! =====")
 embed(globals(), locals())
+# CHECK HGS AVAILABILITY
+df = data_processor.remove_missing_hgs(df)
+
 # DATA VALIDATION
 df = data_processor.validate_handgrips(df)
 

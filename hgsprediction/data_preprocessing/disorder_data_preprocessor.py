@@ -157,12 +157,13 @@ class DisorderMainDataPreprocessor:
             # Find the column with the maximum value among '46-0.0' and '47-0.0' for filtered rows
             result_column = df.loc[index_other_not_equal_hgs, ["47-0.0", "46-0.0"]].idxmax(axis=1)
             condition_right_index = result_column[result_column == "47-0.0"].index
-            df.loc[condition_right_index, "handedness"] = 1.0
+            df.loc[condition_right_index, "handedness"] = 31.0
             condition_left_index = result_column[result_column == "46-0.0"].index
-            df.loc[condition_left_index, "handedness"] = 2.0
+            df.loc[condition_left_index, "handedness"] = 32.0
             
             # Find the indexes where the values in Column1 and Column2 are equal within the filtered DataFrame
             index_other_equal_hgs = filtered_df[filtered_df["47-0.0"] == filtered_df["46-0.0"]].index
+            # set 4.0 as ambidextrous
             df.loc[index_other_equal_hgs, "handedness"] = 4.0
             
         return df
@@ -179,8 +180,8 @@ class DisorderMainDataPreprocessor:
         df_output = pd.DataFrame()
         
         for ses in range(sessions):
-            
-            df_tmp = df[(~df.loc[:, f"{hgs_left}-{ses}.0"].isna()) & ((~df.loc[:, f"{hgs_right}-{ses}.0"].isna()))]
+            df_tmp = df[((~df.loc[:, f"{hgs_left}-{ses}.0"].isna()) & (df.loc[:, f"{hgs_left}-{ses}.0"] != 0.0))
+                        & ((~df.loc[:, f"{hgs_right}-{ses}.0"].isna()) & (df.loc[:, f"{hgs_right}-{ses}.0"] != 0.0))]
             df_output = pd.concat([df_output, df_tmp], axis=0)
 
         # Drop the duplicated subjects
@@ -445,7 +446,9 @@ class DisorderMainDataPreprocessor:
         # Find handedness equal to left-handed, right-handed, and other
         index_right = df[df.loc[:, "handedness"] == 1].index
         index_left = df[df.loc[:, "handedness"] == 2].index                
-        index_other = df[df.loc[:, "handedness"] == 4].index   
+        index_other_max_hgs_right = df[df.loc[:, "handedness"] == 31.0].index   
+        index_other_max_hgs_left = df[df.loc[:, "handedness"] == 32.0].index                         
+        index_other_equal_hgs = df[df.loc[:, "handedness"] == 4.0].index 
         # -----------------------------------------------------------        
         for disorder_cohort in [f"pre-{disorder}", f"post-{disorder}"]:
             for visit_session in range(1, 4):
@@ -467,8 +470,8 @@ class DisorderMainDataPreprocessor:
                 # -----------------------------------------------------------             
                 for ses in range(4):
                     index_session = df[df.loc[:, session_column] == ses].index
-                    idx = [ind for ind in index_session if ind in index_right]
                     
+                    idx = [ind for ind in index_session if ind in index_right]
                     df.loc[idx, handedness] = 1.0
                     df.loc[idx, hgs_dominant] = df.loc[idx, f"47-{ses}.0"]
                     df.loc[idx, hgs_dominant_side] = "right"
@@ -482,11 +485,26 @@ class DisorderMainDataPreprocessor:
                     df.loc[idx, hgs_nondominant] = df.loc[idx, f"47-{ses}.0"]
                     df.loc[idx, hgs_nondominant_side] = "right"
 
-                    idx = [ind for ind in index_session if ind in index_other]                    
-                    df.loc[idx, handedness] = 4.0
-                    df.loc[idx, hgs_dominant] = np.NaN
+                    idx = [ind for ind in index_session if ind in index_other_max_hgs_right]                    
+                    df.loc[idx, handedness] = 31.0
+                    df.loc[idx, hgs_dominant] = df.loc[idx, f"47-{ses}.0"]
                     df.loc[idx, hgs_dominant_side] = "ambidextrous"
-                    df.loc[idx, hgs_nondominant] = np.NaN
+                    df.loc[idx, hgs_nondominant] = df.loc[idx, f"46-{ses}.0"]
+                    df.loc[idx, hgs_nondominant_side] = "ambidextrous"
+                    
+                    idx = [ind for ind in index_session if ind in index_other_max_hgs_left]                    
+                    df.loc[idx, handedness] = 32.0
+                    df.loc[idx, hgs_dominant] = df.loc[idx, f"46-{ses}.0"]
+                    df.loc[idx, hgs_dominant_side] = "ambidextrous"
+                    df.loc[idx, hgs_nondominant] = df.loc[idx, f"47-{ses}.0"]
+                    df.loc[idx, hgs_nondominant_side] = "ambidextrous"
+                    
+                    idx = [ind for ind in index_session if ind in index_other_equal_hgs]    
+                    equal_hgs = df.loc[idx, f"47-{ses}.0"]                
+                    df.loc[idx, handedness] = 4.0
+                    df.loc[idx, hgs_dominant] = equal_hgs
+                    df.loc[idx, hgs_dominant_side] = "ambidextrous"
+                    df.loc[idx, hgs_nondominant] = equal_hgs
                     df.loc[idx, hgs_nondominant_side] = "ambidextrous"
 
         return df
@@ -553,9 +571,10 @@ class DisorderMainDataPreprocessor:
             # The condition is applied to "hgs_dominant" columns
             # And then reset_index the new dataframe:
             if f"pre-{disorder}" in session_column:
-                df = df[(df.loc[:, hgs_dominant] >= 4) & (~df.loc[:, hgs_dominant].isna())]
-                df = df[(df.loc[:, hgs_nondominant] >= 4) & (~df.loc[:, hgs_nondominant].isna())]
-                # df = df[(df.loc[:, hgs_dominant] >= df.loc[:, hgs_nondominant])]
+                df = df[~df.loc[:, hgs_dominant].isna()]
+                df = df[~df.loc[:, hgs_nondominant].isna()]   
+                df = df[(df.loc[:, hgs_dominant] >= 4.0) & (df.loc[:, hgs_dominant] >= df.loc[:, hgs_nondominant])]
+                # df = df[(df.loc[:, hgs_nondominant] >= 4) & (~df.loc[:, hgs_nondominant].isna())]
             else:
                 # print("===== Done! =====")
                 # embed(globals(), locals())

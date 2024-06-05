@@ -52,7 +52,7 @@ X = features
 y = target
 ##############################################################################
 # load data # Extract data based on main features, extra features, target for each session and mri status:
-data_extracted = load_healthy_data.load_extracted_data_by_feature_and_target(
+df_extracted = load_healthy_data.load_extracted_data_by_feature_and_target(
     population,
     mri_status,
     feature_type,
@@ -61,11 +61,12 @@ data_extracted = load_healthy_data.load_extracted_data_by_feature_and_target(
     gender,
     data_set,
 )
-
+# print("===== Done! =====")
+# embed(globals(), locals())
 ##############################################################################
 # Predict Handgrip strength (HGS) on X and y in dataframe
 # With best trained model on non-MRI healthy controls data
-df = predict_hgs(data_extracted.copy(), X, y, best_model_trained, target)
+df = predict_hgs(df_extracted.copy(), X, y, best_model_trained, target)
 
 ##############################################################################
 # Print the final dataframe after adding predicted and delta HGS columns

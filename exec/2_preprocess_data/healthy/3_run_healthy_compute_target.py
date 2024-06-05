@@ -22,5 +22,6 @@ for target in ["hgs_L+R", "hgs_left", "hgs_right", "hgs_LI", "hgs_L-R"]:
 
 save_healthy_data.save_preprocessed_data(df, population, mri_status, session, gender, data_set)
 
+print(df)
 print("===== Done! =====")
 embed(globals(), locals())
