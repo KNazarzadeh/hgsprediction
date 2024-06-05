@@ -105,6 +105,10 @@ df_male_correlation_values, df_male_r2_values, df_male_mae_values = load_predict
 # print("===== Done! =====")
 # embed(globals(), locals())
 ###############################################################################
+df = pd.concat([df_female, df_male], axis=0)
+#  Replace 0 with "Female" and 1 with "Male" in the gender column
+df['gender'] = df['gender'].replace({0: 'Female', 1: 'Male'})
+###############################################################################
 plot_folder = os.path.join(os.getcwd(), f"plots/with_vs_withou_bias_hgs/jointplot_scatterplot/{target}/{model_name}/{n_repeats}_repeats_{n_folds}_folds/{correlation_type}")
 if(not os.path.isdir(plot_folder)):
         os.makedirs(plot_folder)
@@ -117,31 +121,25 @@ palette_female = sns.color_palette("Reds")
 color_female = palette_female[5]
 color_male = palette_male[5]
 
-# palette_female = sns.cubehelix_palette()
-# color_female = palette_female[1]
-# color_male = palette_male[2]
-# print("===== Done! =====")
-# embed(globals(), locals())
+custom_palette = {"Female": color_female, "Male": color_male}
 ###############################################################################
 
 sns.set_style("white")
 
-fig, ax = plt.subplots(2, 2, figsize=(10, 10))
+fig, ax = plt.subplots(2, 2, figsize=(15, 15))
 # Plot female and male data for target vs. predicted in the first subplot
-sns.jointplot(data=df_male, x=f"{target}", y=f"{target}_predicted", color=color_male, kind="reg", scatter_kws={'s': 50, 'edgecolor': 'black'}, ax=ax[0][0])
-sns.jointplot(data=df_female, x=f"{target}", y=f"{target}_predicted", color=color_female, kind="reg", scatter_kws={'s': 50, 'edgecolor': 'black'}, ax=ax[0][0])
+sns.jointplot(data=df, x=f"{target}", y=f"{target}_predicted", hue="gender", palette=custom_palette, ax=ax[0][0])
 
 # Jointplot for target vs. corrected predicted in the second subplot
-sns.jointplot(data=df_male, x=f"{target}", y=f"{target}_corrected_predicted", color=color_male, kind="reg", scatter_kws={'s': 50, 'edgecolor': 'black'}, ax=ax[0][1])
-sns.jointplot(data=df_female, x=f"{target}", y=f"{target}_corrected_predicted", color=color_female, kind="reg", scatter_kws={'s': 50, 'edgecolor': 'black'}, ax=ax[0][1])
+sns.jointplot(data=df, x=f"{target}", y=f"{target}_corrected_predicted", hue="gender", palette=custom_palette, ax=ax[0][1])
 
 # Jointplot for target vs. delta (true-predicted) in the third subplot
-sns.jointplot(data=df_male, x=f"{target}", y=f"{target}_delta(true-predicted)", color=color_male, kind="reg", scatter_kws={'s': 50, 'edgecolor': 'black'}, ax=ax[1][0])
-sns.jointplot(data=df_female, x=f"{target}", y=f"{target}_delta(true-predicted)", color=color_female, kind="reg", scatter_kws={'s': 50, 'edgecolor': 'black'}, ax=ax[1][0])
+sns.jointplot(data=df, x=f"{target}", y=f"{target}_delta(true-predicted)", hue="gender", palette=custom_palette, ax=ax[1][0])
 
 # Jointplot for target vs. corrected delta (true-predicted) in the fourth subplot
-sns.jointplot(data=df_male, x=f"{target}", y=f"{target}_corrected_delta(true-predicted)", color=color_male, kind="reg", scatter_kws={'s': 50, 'edgecolor': 'black'}, ax=ax[1][1])
-sns.jointplot(data=df_female, x=f"{target}", y=f"{target}_corrected_delta(true-predicted)", color=color_female, kind="reg", scatter_kws={'s': 50, 'edgecolor': 'black'}, ax=ax[1][1])
+sns.jointplot(data=df, x=f"{target}", y=f"{target}_corrected_delta(true-predicted)", hue="gender", palette=custom_palette, ax=ax[1][1])
+print("===== Done! =====")
+embed(globals(), locals())
 #-----------------------------------------------------------#
 ax[0][0].set_ylabel("Predicted HGS", fontsize=16)
 ax[1][0].set_ylabel("Delta HGS", fontsize=16)
