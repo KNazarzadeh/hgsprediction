@@ -29,8 +29,7 @@ def load_disorder_extracted_data_by_features(
             f"{session_column}",
             f"{feature_type}",
             f"{target}",
-            "extracted_data_by_features",
-            f"{gender}",
+            "extracted_data_by_feature_and_target",
         )
         
     if(not os.path.isdir(folder_path)):

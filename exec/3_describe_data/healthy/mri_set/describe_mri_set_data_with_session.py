@@ -50,5 +50,12 @@ print("\n Female Describe=\n", df_female.describe().apply(lambda x: round(x, 2))
 
 print("\n Male Describe=\n", df_male.describe().apply(lambda x: round(x, 2)))
 
+
+female_right_handed = len(df_female[df_female[f'handedness-{session}.0']==1.0])
+male_right_handed = len(df_male[df_male[f'handedness-{session}.0']==1.0])
+
+print("'%' of Female Right dominant hand =", "{:.2f}".format(female_right_handed*100/len(df_female)))
+print("'%' of Male Right dominant hand =", "{:.2f}".format(male_right_handed*100/len(df_male)))
+
 print("===== Done! =====")
 embed(globals(), locals())
