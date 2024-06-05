@@ -57,8 +57,8 @@ class HealthyDataPreprocessor:
         hgs_left = "46"  # Handgrip_strength_(left)
         hgs_right = "47"  # Handgrip_strength_(right)
         # UK Biobank assessed handgrip strength in 4 sessions
-        index = df[((~df[f'{hgs_left}-{session}.0'].isna()) & (df[f'{hgs_left}-{session}.0'] >= 4.0))
-                   & ((~df[f'{hgs_right}-{session}.0'].isna()) & (df[f'{hgs_right}-{session}.0'] >= 4.0))].index
+        index = df[((~df[f'{hgs_left}-{session}.0'].isna()) & (df[f'{hgs_left}-{session}.0'] != 0.0))
+                   & ((~df[f'{hgs_right}-{session}.0'].isna()) & (df[f'{hgs_right}-{session}.0'] != 0.0))].index
 
         df = df.loc[index, :]
 
@@ -102,9 +102,9 @@ class HealthyDataPreprocessor:
             # Find the column with the maximum value among '46-0.0' and '47-0.0' for filtered rows
             result_column = df.loc[index_other_not_equal_hgs, ["47-0.0", "46-0.0"]].idxmax(axis=1)
             condition_right_index = result_column[result_column == "47-0.0"].index
-            df.loc[condition_right_index, "handedness"] = 1.0
+            df.loc[condition_right_index, "handedness"] = 31.0
             condition_left_index = result_column[result_column == "46-0.0"].index
-            df.loc[condition_left_index, "handedness"] = 2.0
+            df.loc[condition_left_index, "handedness"] = 32.0
             
             # Find the indexes where the values in Column1 and Column2 are equal within the filtered DataFrame
             index_other_equal_hgs = filtered_df[filtered_df["47-0.0"] == filtered_df["46-0.0"]].index
@@ -147,7 +147,7 @@ class HealthyDataPreprocessor:
         # df = df[(df.loc[:, hgs_nondominant] >= 4) & (~df.loc[:, hgs_nondominant].isna())]
         df = df[~df.loc[:, hgs_dominant].isna()]
         df = df[~df.loc[:, hgs_nondominant].isna()]        
-        # df = df[(df.loc[:, hgs_dominant] >= df.loc[:, hgs_nondominant])]
+        df = df[(df.loc[:, hgs_dominant] >= 4.0) & (df.loc[:, hgs_dominant] >= df.loc[:, hgs_nondominant])]
 
         return df
 
@@ -191,9 +191,11 @@ class HealthyDataPreprocessor:
         # ------------------------------------
         # If handedness is equal to 1 --> Right hand is Dominant
         # Find handedness equal to left-handed, right-handed, and other
-        index_right = df[df.loc[:, "handedness"] == 1].index
-        index_left = df[df.loc[:, "handedness"] == 2].index                
-        index_other = df[df.loc[:, "handedness"] == 4].index   
+        index_right = df[df.loc[:, "handedness"] == 1.0].index
+        index_left = df[df.loc[:, "handedness"] == 2.0].index  
+        index_other_max_hgs_right = df[df.loc[:, "handedness"] == 31.0].index   
+        index_other_max_hgs_left = df[df.loc[:, "handedness"] == 32.0].index                         
+        index_other_equal_hgs = df[df.loc[:, "handedness"] == 4.0].index   
         # -----------------------------------------------------------    
         # -----------------------------------------------------------             
  
@@ -209,11 +211,24 @@ class HealthyDataPreprocessor:
         df.loc[index_left, hgs_nondominant] = df.loc[index_left, f"47-{session}.0"]
         df.loc[index_left, hgs_nondominant_side] = "right"
 
-        df.loc[index_other, handedness] = 4.0
-        df.loc[index_other, hgs_dominant] = np.NaN
-        df.loc[index_other, hgs_dominant_side] = "ambidextrous"
-        df.loc[index_other, hgs_nondominant] = np.NaN
-        df.loc[index_other, hgs_nondominant_side] = "ambidextrous"
+        df.loc[index_other_max_hgs_right, handedness] = 31.0
+        df.loc[index_other_max_hgs_right, hgs_dominant] = df.loc[index_other_max_hgs_right, f"47-{session}.0"]
+        df.loc[index_other_max_hgs_right, hgs_dominant_side] = "ambidextrous"
+        df.loc[index_other_max_hgs_right, hgs_nondominant] = df.loc[index_other_max_hgs_right, f"46-{session}.0"]
+        df.loc[index_other_max_hgs_right, hgs_nondominant_side] = "ambidextrous"
+        
+        df.loc[index_other_max_hgs_left, handedness] = 32.0
+        df.loc[index_other_max_hgs_left, hgs_dominant] = df.loc[index_other_max_hgs_left, f"46-{session}.0"]
+        df.loc[index_other_max_hgs_left, hgs_dominant_side] = "ambidextrous"
+        df.loc[index_other_max_hgs_left, hgs_nondominant] = df.loc[index_other_max_hgs_left, f"47-{session}.0"]
+        df.loc[index_other_max_hgs_left, hgs_nondominant_side] = "ambidextrous"
+        
+        df.loc[index_other_equal_hgs, handedness] = 4.0
+        equal_hgs = df.loc[index_other_equal_hgs, f"47-{session}.0"]
+        df.loc[index_other_equal_hgs, hgs_dominant] = equal_hgs
+        df.loc[index_other_equal_hgs, hgs_dominant_side] = "ambidextrous"
+        df.loc[index_other_equal_hgs, hgs_nondominant] = equal_hgs
+        df.loc[index_other_equal_hgs, hgs_nondominant_side] = "ambidextrous"
         
         df.loc[:, "percent_diff_bw_dominant_nonominant"] = ((df.loc[:, hgs_dominant]-df.loc[:, hgs_nondominant])/df.loc[:, hgs_dominant])*100
         

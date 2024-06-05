@@ -28,8 +28,8 @@ df = data_processor.define_handedness(df_original)
 
 # CHECK HGS AVAILABILITY
 df = data_processor.remove_missing_hgs(df)
-# print("===== Done! =====")
-# embed(globals(), locals())
+print("===== Done! =====")
+embed(globals(), locals())
 # DATA VALIDATION
 df = data_processor.validate_handgrips(df)
 
