@@ -45,10 +45,9 @@ df = load_scores_trained(
     samplesize,
     )
 ###############################################################################
-
-print("R2 Median =", "{:.2f}".format(np.median(df["test_r2"])))
-print("R Score Median =", "{:.2f}".format(np.median(df["test_pearson_corr"])))
-print("MAE Median =", "{:.2f}".format(np.median(df["test_neg_mean_absolute_error"]*-1)))
+print("R2 Median =", "{:.3f}".format(np.median(df["test_r2"])))
+print("R Score Median =", "{:.3f}".format(np.median(df["test_pearson_corr"])))
+print("MAE Median =", "{:.3f}".format(np.median(df["test_neg_mean_absolute_error"]*-1)))
 
 print("===== Done! End =====")
 embed(globals(), locals())
