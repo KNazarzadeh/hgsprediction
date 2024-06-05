@@ -24,6 +24,7 @@ n_repeats = sys.argv[6]
 n_folds = sys.argv[7]
 data_set = sys.argv[8]
 score_type = sys.argv[9]
+preprocessing_condition = sys.argv[10]
 
 session = "0"
 ###############################################################################
@@ -85,7 +86,7 @@ for model_name in ["linear_svm", "random_forest"]:
         df_random_forest = df_scores
 
 ###############################################################################
-plot_folder = os.path.join(os.getcwd(), f"plots/violinplots/{target}/{n_repeats}_repeats_{n_folds}_folds/{score_type}")
+plot_folder = os.path.join(os.getcwd(), f"plots/violinplots/{preprocessing_condition}/{target}/{n_repeats}_repeats_{n_folds}_folds/{score_type}")
 if(not os.path.isdir(plot_folder)):
         os.makedirs(plot_folder)
 plot_file = os.path.join(plot_folder, f"comparing_SVM_RF_models_multi_samplesize_by_gender_{target}.png")

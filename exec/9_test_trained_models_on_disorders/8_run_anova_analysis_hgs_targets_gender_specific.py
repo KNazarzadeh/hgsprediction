@@ -74,8 +74,6 @@ df_male = df[df["gender"]=="male"]
 aov_female = mixed_anova(dv=anova_target, between='group', within='time_point', subject='Subject', data=df_female)
 aov_male = mixed_anova(dv=anova_target, between='group', within='time_point', subject='Subject', data=df_male)
 
-print("Female Pinguin ANOVA Result:")
-print(aov_female)
 save_anova_results(
     df_female,
     aov_female,
@@ -94,8 +92,7 @@ save_anova_results(
     "pingouin",
     first_event,    
 )
-print("\n Male Pinguin ANOVA Result:")
-print(aov_male)
+
 save_anova_results(
     df_male,
     aov_male,
@@ -114,6 +111,20 @@ save_anova_results(
     "pingouin",
     first_event,
 )
+
+
+print("\n Female Pinguin ANOVA Result:")
+# Applying 2 decimal format to the DataFrame
+aov_female_df = aov_female.applymap(lambda x: "{:.3f}".format(x) if isinstance(x, (int, float)) else x)
+print(aov_female_df)
+
+print("#-----------------------------------------------------------#")
+
+print("\n Male Pinguin ANOVA Result:")
+# Applying 2 decimal format to the DataFrame
+aov_male_df = aov_male.applymap(lambda x: "{:.3f}".format(x) if isinstance(x, (int, float)) else x)
+print(aov_male_df)
+
 print("=================================================================================")
 ################################################################################
 # Perform post-hoc tests if the ANOVA is significant
