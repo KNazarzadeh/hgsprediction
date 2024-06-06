@@ -86,8 +86,8 @@ predicted_hgs = df_test.loc[:, f"{target}_predicted"]
 df_corrected_hgs = beheshti_correction_method(df_test.copy(), target, true_hgs, predicted_hgs, slope, intercept)
 
 
-print("===== Done! =====")
-embed(globals(), locals())
+# print("===== Done! =====")
+# embed(globals(), locals())
 ###############################################################################
 save_corrected_prediction_results(
     df_corrected_hgs,
