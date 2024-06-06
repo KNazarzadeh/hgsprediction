@@ -39,6 +39,8 @@ n_repeats = sys.argv[8]
 n_folds = sys.argv[9]
 data_set = sys.argv[10]
 correlation_type = sys.argv[11]
+preprocessing_condition = sys.argv[12]
+
 # print("===== Done! =====")
 # embed(globals(), locals())
 ###############################################################################
@@ -102,10 +104,10 @@ df_male_correlation_values, df_male_r2_values, df_male_mae_values = load_predict
     data_set,
 )
 
-# print("===== Done! =====")
-# embed(globals(), locals())
+print("===== Done! =====")
+embed(globals(), locals())
 ###############################################################################
-plot_folder = os.path.join(os.getcwd(), f"plots/with_vs_withou_bias_hgs/scatterplot/{target}/{model_name}/{n_repeats}_repeats_{n_folds}_folds/{correlation_type}")
+plot_folder = os.path.join(os.getcwd(), f"plots/with_vs_withou_bias_hgs/scatterplot/{preprocessing_condition}/{target}/{model_name}/{n_repeats}_repeats_{n_folds}_folds/{correlation_type}")
 if(not os.path.isdir(plot_folder)):
         os.makedirs(plot_folder)
 plot_file = os.path.join(plot_folder, f"comparing_with_vs_withou_bias_hgs_{target}.png")
