@@ -109,3 +109,8 @@ from .save_results.disorder.save_disorder_comparison_matched_samples_disorder_vs
 
 from .save_results.anova.save_posthoc_results import save_posthoc_results
 from .save_results.anova.save_prepared_data_for_jamovi_software import save_prepared_data_for_jamovi_software
+
+
+from .load_data.brain_correlate.load_original_brain_data import load_original_brain_data
+from .load_data.brain_correlate.load_tiv_data import load_tiv_data
+from .save_data.brain_correlate.save_removed_tiv_from_brain_data import save_removed_tiv_from_brain_data

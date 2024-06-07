@@ -1,10 +1,11 @@
 
 import pandas as pd
 import numpy as np
-import os
 import sys
-import datatable as dt
 
+from sklearn.linear_model import LinearRegression
+from hgsprediction.load_data.brain_correlate import load_original_brain_data
+from hgsprediction.load_data.brain_correlate import load_tiv_data
 from ptpython.repl import embed
 # print("===== Done! =====")
 # embed(globals(), locals())
@@ -14,51 +15,57 @@ brain_data_type = sys.argv[1]
 schaefer = sys.argv[2]
 
 ###############################################################################
-jay_path = os.path.join(
-    "/data",
-    "project",
-    "stroke_ukb",
-    "knazarzadeh",
-    "project_hgsprediction",
-    "brain_imaging_data",
-    f"{brain_data_type.upper()}",
+df_brain = load_original_brain_data(brain_data_type, schaefer)
+###############################################################################
+
+df_tiv = load_tiv_data()
+##############################################################################
+
+df_tiv_ses_2 = df_tiv[df_tiv['Session']=='ses-2']['TIV']
+df_tiv_ses_3 = df_tiv[df_tiv['Session']=='ses-3']['TIV']
+
+
+df_merged_gmv_tiv_ses_2 = pd.merge(df_brain, df_tiv_ses_2 , left_index=True, right_index=True, how='inner')
+df_merged_gmv_tiv_ses_3 = pd.merge(df_brain, df_tiv_ses_3 , left_index=True, right_index=True, how='inner')
+
+brain_regions = df_brain.columns
+##############################################################################
+def calculate_residuals(df, brain_regions):
+    df_residuals = pd.DataFrame(index=df.index, columns=brain_regions)
+    for region in brain_regions:
+        X = df.loc[:, 'TIV'].values.reshape(-1, 1)
+        y = df.loc[:, region].values.reshape(-1, 1)
+        # Fit linear regression model
+        model = LinearRegression()
+        model.fit(X, y)
+        # Predict using the model        
+        y_pred = model.predict(X)
+        # Calculate residuals
+        residuals = y - y_pred
+        # Store residuals in the DataFrame
+        df_residuals.loc[:, region] = residuals
+
+    df_residuals.index = df_residuals.index.str.replace("sub-", "")
+    df_residuals.index = df_residuals.index.map(int)
+    
+    return df_residuals
+##############################################################################
+# Calculate residuals for ses_2
+df_residuals_ses_2 = calculate_residuals(df_merged_gmv_tiv_ses_2, brain_regions)
+
+# Calculate residuals for ses_3
+df_residuals_ses_3 = calculate_residuals(df_merged_gmv_tiv_ses_3, brain_regions)
+
+# Display the residuals DataFrames
+print(df_residuals_ses_2.head())
+print(df_residuals_ses_3.head())
+
+##############################################################################
+save_brain_{brain_data_type}_without_tiv(
+    brain_data_type,
+    schaefer,
+    
 )
 
-schaefer_file = os.path.join(jay_path, f"{brain_data_type.upper()}_Schaefer{schaefer}x7_Mean.jay")
-
-dt_schaefer = dt.fread(schaefer_file)
-df_schaefer = dt_schaefer.to_pandas()
-df_schaefer.set_index('SubjectID', inplace=True)
-
-tian_file = os.path.join(jay_path, f"4_gmd_tianS1_all_subjects.jay")
-dt_tian = dt.fread(tian_file)
-df_tian = dt_tian.to_pandas()
-df_tian.set_index('SubjectID', inplace=True)
-
-if brain_data_type == "gmv":
-    suit_file = os.path.join(jay_path, f"{brain_data_type.upper()}_SUIT_Mean.jay")
-    dt_suit = dt.fread(suit_file)
-    df_suit = dt_suit.to_pandas()
-    df_suit.set_index('SubjectID', inplace=True)
-
-merged_df = pd.merge(df_schaefer, df_tian, left_index=True, right_index=True, how='inner')
-merged_df = pd.merge(merged_df, df_suit, left_index=True, right_index=True, how='inner')
-
-merged_df = merged_df.dropna()
-merged_df.index = merged_df.index.str.replace("sub-", "")
-merged_df.index = merged_df.index.map(int)
-
-tiv_path = os.path.join(
-    "/data",
-    "project",
-    "stroke_ukb",
-    "knazarzadeh",
-    "project_hgsprediction",
-    "brain_imaging_data",
-    f"TIV",
-)
-
-df_tiv = pd.read_csv(f"{tiv_path}/cat_rois_Schaefer2018_600Parcels_17Networks_order.csv", sep=',', index_col=0)
 print("===== Done! =====")
 embed(globals(), locals())
-##############################################################################

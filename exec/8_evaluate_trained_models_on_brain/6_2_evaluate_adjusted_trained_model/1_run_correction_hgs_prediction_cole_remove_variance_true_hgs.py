@@ -17,13 +17,12 @@ import matplotlib.pyplot as plt
 from scipy.stats import pearsonr
 from sklearn.metrics import r2_score
 from sklearn.linear_model import LinearRegression
-from hgsprediction.load_data import load_healthy_data
 from hgsprediction.define_features import define_features
 from hgsprediction.predict_hgs import predict_hgs
 from hgsprediction.extract_data import healthy_extract_data
 from hgsprediction.predict_hgs import calculate_brain_hgs                    
 from hgsprediction.correction_predicted_hgs import prediction_corrector_model
-from hgsprediction.load_results import load_corrected_prediction_results
+from hgsprediction.load_results.healthy import load_corrected_prediction_results
 #--------------------------------------------------------------------------#
 from ptpython.repl import embed
 # print("===== Done! =====")
