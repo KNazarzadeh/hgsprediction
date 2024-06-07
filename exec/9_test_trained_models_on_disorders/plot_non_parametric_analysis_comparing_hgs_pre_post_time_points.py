@@ -142,12 +142,23 @@ xtick_labels = ['Pre-time_point', 'Post-time_point']
 palette_control = sns.color_palette("Paired")
 palette_disorder = sns.color_palette("PiYG")
 custome_palette = [palette_control[1], palette_disorder[0]]
-
+###############################################################################
 # Set the style of seaborn
 sns.set_style("whitegrid")
 # Create the boxplot
 fig, ax = plt.subplots(figsize=(10, 10))
-sns.boxplot(data=df, x='time_point', y=f"{anova_target}", hue='group', palette=custome_palette, linewidth=3)
+
+g = sns.violinplot(data=df, x='time_point', y=f"{anova_target}", hue='group', palette=custome_palette, linewidth=3, inner=None, ax=ax)
+g.boxplot(data=df, x='time_point', y=f"{anova_target}", hue='group', palette=custome_palette, whis=0.5, width=0.1, fliersize=0, linewidth=0.5)
+
+# Violin plot with split=True for hue groups
+# sns.violinplot(data=df, x='time_point', y=f"{anova_target}", hue='group', palette=custome_palette, linewidth=3, inner=None, fill=False, ax=ax)
+
+# # Boxplot without the hue parameter
+# sns.boxplot(data=df, x='time_point', y=f"{anova_target}", hue='group', palette=custome_palette, width=0.5, fliersize=0, boxprops={'zorder': 2}, ax=ax)
+
+
+# sns.boxplot(data=df, x='time_point', y=f"{anova_target}", hue='group', palette=custome_palette, linewidth=3)
 ax.legend().set_visible(False)
 ax.set_xlabel(" ", fontsize=30, fontweight="bold")
 
@@ -166,16 +177,16 @@ elif anova_target == "hgs_delta":
     
 xticks_positios_array = add_median_labels(ax)
 
-for x_box_pos in np.arange(0,4,2):
-    if x_box_pos == 0:
-        idx = "pre-time_point"
-    if x_box_pos == 2:
-        idx = "post-time_point"
-    x1 = xticks_positios_array[x_box_pos]
-    x2 = xticks_positios_array[x_box_pos+1]
-    y, h, col = df_yaxis_max.loc[idx, f"{anova_target}_max_value"]+.5, 2, 'k'
-    ax.plot([x1, x1, x2, x2], [y, y+h, y+h, y], lw=2, c=col)
-    ax.text((x1+x2)*.5, y+h, f"p={df_mannwhitneyu.loc[idx, f'{anova_target}_p_value']:.3f}", ha='center', va='bottom', fontsize=18, weight='bold',  color=col)
+# for x_box_pos in np.arange(0,4,2):
+#     if x_box_pos == 0:
+#         idx = "pre-time_point"
+#     if x_box_pos == 2:
+#         idx = "post-time_point"
+#     x1 = xticks_positios_array[x_box_pos]
+#     x2 = xticks_positios_array[x_box_pos+1]
+#     y, h, col = df_yaxis_max.loc[idx, f"{anova_target}_max_value"]+.5, 2, 'k'
+#     ax.plot([x1, x1, x2, x2], [y, y+h, y+h, y], lw=2, c=col)
+#     ax.text((x1+x2)*.5, y+h, f"p={df_mannwhitneyu.loc[idx, f'{anova_target}_p_value']:.3f}", ha='center', va='bottom', fontsize=18, weight='bold',  color=col)
 
 if anova_target in ["hgs", "hgs_predicted", "hgs_corrected_predicted"]:
     ymin = round(ax.get_ylim()[0])
@@ -198,11 +209,11 @@ plt.tight_layout()
 
 # Show the plot
 plt.show()
-file_path = os.path.join(folder_path, f"{population}_{anova_target}.png")
+file_path = os.path.join(folder_path, f"{population}_{anova_target}_2.png")
 plt.savefig(file_path)
 plt.close()
-
-
+print("===== Done! =====")
+embed(globals(), locals())
 ##############################################################################
 folder_path = os.path.join("plot_non_parametric_analysis", f"{population}", f"{first_event}", f"{target}", f"{n_samples}_matched", "interaction")
 
