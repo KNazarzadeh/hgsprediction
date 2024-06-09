@@ -6,27 +6,29 @@ import sys
 from sklearn.linear_model import LinearRegression
 from hgsprediction.load_data.brain_correlate import load_original_brain_data
 from hgsprediction.load_data.brain_correlate import load_tiv_data
+from hgsprediction.save_data.brain_correlate.save_removed_tiv_from_brain_data import save_removed_tiv_from_brain_data
+
 from ptpython.repl import embed
 # print("===== Done! =====")
 # embed(globals(), locals())
 
 filename = sys.argv[0]
-brain_data_type = sys.argv[1]
-schaefer = sys.argv[2]
+population = sys.argv[1]
+mri_status = sys.argv[2]
+session =sys.argv[3]
+brain_data_type = sys.argv[4]
+schaefer = sys.argv[5]
 
 ###############################################################################
 df_brain = load_original_brain_data(brain_data_type, schaefer)
 ###############################################################################
 
-df_tiv = load_tiv_data()
+df_tiv_original = load_tiv_data()
 ##############################################################################
 
-df_tiv_ses_2 = df_tiv[df_tiv['Session']=='ses-2']['TIV']
-df_tiv_ses_3 = df_tiv[df_tiv['Session']=='ses-3']['TIV']
+df_tiv = df_tiv_original[df_tiv_original['Session'] == f'ses-{session}']['TIV']
 
-
-df_merged_gmv_tiv_ses_2 = pd.merge(df_brain, df_tiv_ses_2 , left_index=True, right_index=True, how='inner')
-df_merged_gmv_tiv_ses_3 = pd.merge(df_brain, df_tiv_ses_3 , left_index=True, right_index=True, how='inner')
+df_merged_gmv_tiv = pd.merge(df_brain, df_tiv , left_index=True, right_index=True, how='inner')
 
 brain_regions = df_brain.columns
 ##############################################################################
@@ -37,6 +39,7 @@ def calculate_residuals(df, brain_regions):
         y = df.loc[:, region].values.reshape(-1, 1)
         # Fit linear regression model
         model = LinearRegression()
+        
         model.fit(X, y)
         # Predict using the model        
         y_pred = model.predict(X)
@@ -50,21 +53,18 @@ def calculate_residuals(df, brain_regions):
     
     return df_residuals
 ##############################################################################
-# Calculate residuals for ses_2
-df_residuals_ses_2 = calculate_residuals(df_merged_gmv_tiv_ses_2, brain_regions)
-
-# Calculate residuals for ses_3
-df_residuals_ses_3 = calculate_residuals(df_merged_gmv_tiv_ses_3, brain_regions)
+# Calculate residuals for mri session (ses_2 or ses-3)
+df_residuals = calculate_residuals(df_merged_gmv_tiv, brain_regions)
 
 # Display the residuals DataFrames
-print(df_residuals_ses_2.head())
-print(df_residuals_ses_3.head())
+print(df_residuals)
 
 ##############################################################################
-save_brain_{brain_data_type}_without_tiv(
+save_removed_tiv_from_brain_data(
+    df_residuals,
+    session,
     brain_data_type,
-    schaefer,
-    
+    schaefer,   
 )
 
 print("===== Done! =====")

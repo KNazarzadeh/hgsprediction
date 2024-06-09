@@ -3,8 +3,7 @@ import pandas as pd
 import numpy as np
 
 
-def save_removed_tiv_from_brain_data(
-    df,
+def load_removed_tiv_from_brain_data(
     session,
     brain_data_type,
     schaefer,
@@ -23,11 +22,12 @@ def save_removed_tiv_from_brain_data(
                 "brain_data_without_tiv",
                 f"{session}_session_ukb",
             )
-    if(not os.path.isdir(folder_path)):
-        os.makedirs(folder_path)
+    
     # Define the csv file path to save
     file_path = os.path.join(
         folder_path,
         f"brain_{brain_data_type}_Schaefer{schaefer}_without_tiv_data.csv")
 
-    df.to_csv(file_path, sep=',', index=True)
+    df = pd.read_csv(file_path, sep=',', index_col=0)
+    
+    return df
