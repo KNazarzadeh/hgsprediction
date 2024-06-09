@@ -117,8 +117,7 @@ def add_median_labels(ax, fmt='.3f'):
         x, y = (data.mean() for data in median.get_data())
         # choose value depending on horizontal or vertical plot orientation
         value = x if (median.get_xdata()[1] - median.get_xdata()[0]) == 0 else y
-        text = ax.text(x, y, f'{value:{fmt}}', ha='center', va='center',  color='white', fontsize=18)
-                    #    fontweight='bold',
+        text = ax.text(x, y, f'{value:{fmt}}', ha='center', va='center',  color='white', fontsize=16)
         # create median-colored border around white text for contrast
         text.set_path_effects([
             path_effects.Stroke(linewidth=4, foreground=median.get_color()),
@@ -139,70 +138,60 @@ if(not os.path.isdir(folder_path)):
 ###############################################################################        
 xtick_labels = ['Pre-time_point', 'Post-time_point']
 
-palette_control = sns.color_palette("Paired")
-palette_disorder = sns.color_palette("PiYG")
-custome_palette = [palette_control[1], palette_disorder[0]]
+palette_control = sns.color_palette("PuBuGn")
+palette_disorder = sns.color_palette("YlOrBr")
+custome_palette = [palette_control[5], palette_disorder[5]]
 ###############################################################################
 # Set the style of seaborn
 sns.set_style("whitegrid")
 # Create the boxplot
 fig, ax = plt.subplots(figsize=(10, 10))
 
-g = sns.violinplot(data=df, x='time_point', y=f"{anova_target}", hue='group', palette=custome_palette, linewidth=3, inner=None, ax=ax)
-g.boxplot(data=df, x='time_point', y=f"{anova_target}", hue='group', palette=custome_palette, whis=0.5, width=0.1, fliersize=0, linewidth=0.5)
-
-# Violin plot with split=True for hue groups
-# sns.violinplot(data=df, x='time_point', y=f"{anova_target}", hue='group', palette=custome_palette, linewidth=3, inner=None, fill=False, ax=ax)
-
-# # Boxplot without the hue parameter
-# sns.boxplot(data=df, x='time_point', y=f"{anova_target}", hue='group', palette=custome_palette, width=0.5, fliersize=0, boxprops={'zorder': 2}, ax=ax)
-
-
-# sns.boxplot(data=df, x='time_point', y=f"{anova_target}", hue='group', palette=custome_palette, linewidth=3)
+sns.boxplot(data=df, x='time_point', y=f"{anova_target}", hue='group', palette=custome_palette, linewidth=3)
 ax.legend().set_visible(False)
-ax.set_xlabel(" ", fontsize=30, fontweight="bold")
+ax.set_xlabel(" ")
 
 # Setting the xtick labels
-ax.set_xticklabels(xtick_labels, size=25, weight='bold')
-if anova_target == "hgs":
-    ax.set_ylabel("Raw HGS", fontsize=30, fontweight="bold")
+ax.set_xticklabels(xtick_labels, size=14)
+if anova_target == "true_hgs":
+    ax.set_ylabel("Raw HGS", fontsize=16)
 elif anova_target == "hgs_corrected_predicted":
-    ax.set_ylabel("Adjusted HGS", fontsize=30, fontweight="bold")
+    ax.set_ylabel("Adjusted HGS", fontsize=16)
 elif anova_target == "hgs_predicted":
-    ax.set_ylabel("Predicted HGS", fontsize=30, fontweight="bold")
+    ax.set_ylabel("Predicted HGS", fontsize=16)
 elif anova_target == "hgs_corrected_delta":
-    ax.set_ylabel("Delta adjusted HGS", fontsize=30, fontweight="bold")
+    ax.set_ylabel("Delta adjusted HGS", fontsize=16)
 elif anova_target == "hgs_delta":
-    ax.set_ylabel("Delta HGS", fontsize=30, fontweight="bold")
+    ax.set_ylabel("Delta HGS", fontsize=16)
     
 xticks_positios_array = add_median_labels(ax)
 
-# for x_box_pos in np.arange(0,4,2):
-#     if x_box_pos == 0:
-#         idx = "pre-time_point"
-#     if x_box_pos == 2:
-#         idx = "post-time_point"
-#     x1 = xticks_positios_array[x_box_pos]
-#     x2 = xticks_positios_array[x_box_pos+1]
-#     y, h, col = df_yaxis_max.loc[idx, f"{anova_target}_max_value"]+.5, 2, 'k'
-#     ax.plot([x1, x1, x2, x2], [y, y+h, y+h, y], lw=2, c=col)
-#     ax.text((x1+x2)*.5, y+h, f"p={df_mannwhitneyu.loc[idx, f'{anova_target}_p_value']:.3f}", ha='center', va='bottom', fontsize=18, weight='bold',  color=col)
+for x_box_pos in np.arange(0,4,2):
+    if x_box_pos == 0:
+        idx = "pre-time_point"
+    if x_box_pos == 2:
+        idx = "post-time_point"
+    x1 = xticks_positios_array[x_box_pos]
+    x2 = xticks_positios_array[x_box_pos+1]
+    y, h, col = df_yaxis_max.loc[idx, f"{anova_target}_max_value"]+.5, 2, 'k'
+    ax.plot([x1, x1, x2, x2], [y, y+h, y+h, y], lw=2, c=col)
+    ax.text((x1+x2)*.5, y+h, f"p={df_mannwhitneyu.loc[idx, f'{anova_target}_p_value']:.3f}", ha='center', va='bottom', fontsize=14,  color=col)
 
-if anova_target in ["hgs", "hgs_predicted", "hgs_corrected_predicted"]:
+if anova_target in ["true_hgs", "hgs_predicted", "hgs_corrected_predicted"]:
     ymin = round(ax.get_ylim()[0])
     ymax = round(ax.get_ylim()[1])
     # ax.set_yticks(range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+20, 20))
-    ax.set_yticks(range(ymin, ymax, 20))
-    ax.set_yticklabels(ax.get_yticks(), size=20, weight='bold')
-    plt.ylim(ymin, ymax)
+    ax.set_ylim(0, 140)
+    ax.set_yticks(range(0, 141, 20))
+    ax.set_yticklabels(ax.get_yticks(), size=14)
     
 elif anova_target in ["hgs_delta", "hgs_corrected_delta"]:
     ymin = round(ax.get_ylim()[0])
     ymax = round(ax.get_ylim()[1])
     # ax.set_yticks(range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+20, 20))
-    ax.set_yticks(range(ymin, ymax, 5))
-    ax.set_yticklabels(ax.get_yticks(), size=20, weight='bold')
-    plt.ylim(ymin, ymax)
+    ax.set_ylim(-30, 30)
+    ax.set_yticks(range(-30, 31, 10))
+    ax.set_yticklabels(ax.get_yticks(), size=14)
 
 # Adjust layout
 plt.tight_layout()
@@ -212,8 +201,8 @@ plt.show()
 file_path = os.path.join(folder_path, f"{population}_{anova_target}_2.png")
 plt.savefig(file_path)
 plt.close()
-print("===== Done! =====")
-embed(globals(), locals())
+# print("===== Done! =====")
+# embed(globals(), locals())
 ##############################################################################
 folder_path = os.path.join("plot_non_parametric_analysis", f"{population}", f"{first_event}", f"{target}", f"{n_samples}_matched", "interaction")
 
@@ -226,20 +215,20 @@ sns.set_style("whitegrid")
 fig, ax = plt.subplots(figsize=(10, 10))
 sns.boxplot(data=df_interaction, x='time_point', y=f"interaction_{anova_target}", hue='group', palette=custome_palette, linewidth=3)
 ax.legend().set_visible(False)
-ax.set_xlabel("Interaction", fontsize=25, fontweight="bold")
+ax.set_xlabel("Interaction", fontsize=25)
 ax.set_xticklabels("")
 
 # Setting the xtick labels
-if anova_target == "hgs":
-    ax.set_ylabel("Raw HGS", fontsize=30, fontweight="bold")
+if anova_target == "true_hgs":
+    ax.set_ylabel("Raw HGS", fontsize=30)
 elif anova_target == "hgs_corrected_predicted":
-    ax.set_ylabel("Adjusted HGS", fontsize=30, fontweight="bold")
+    ax.set_ylabel("Adjusted HGS", fontsize=30)
 elif anova_target == "hgs_predicted":
-    ax.set_ylabel("Predicted HGS", fontsize=30, fontweight="bold")
+    ax.set_ylabel("Predicted HGS", fontsize=30)
 elif anova_target == "hgs_corrected_delta":
-    ax.set_ylabel("Delta adjusted HGS", fontsize=30, fontweight="bold")
+    ax.set_ylabel("Delta adjusted HGS", fontsize=30)
 elif anova_target == "hgs_delta":
-    ax.set_ylabel("Delta HGS", fontsize=30, fontweight="bold")
+    ax.set_ylabel("Delta HGS", fontsize=30)
     
 xticks_positios_array = add_median_labels(ax)
 
@@ -248,29 +237,34 @@ x1 = xticks_positios_array[x_box_pos]
 x2 = xticks_positios_array[x_box_pos+1]
 y, h, col = df_yaxis_max.loc["interaction", f"{anova_target}_max_value"]+1, 2, 'k'
 ax.plot([x1, x1, x2, x2], [y, y+h, y+h, y], lw=2, c=col)
-ax.text((x1+x2)*.5, y+h, f"p={p_value_interaction:.3f}", ha='center', va='bottom', fontsize=18, weight='bold',  color=col)
+ax.text((x1+x2)*.5, y+h, f"p={p_value_interaction:.3f}", ha='center', va='bottom', fontsize=14,  color=col)
 
-if anova_target in ["hgs", "hgs_corrected_predicted"]:
+if anova_target in ["true_hgs", "hgs_corrected_predicted"]:
     ymin = round(ax.get_ylim()[0])
     ymax = round(ax.get_ylim()[1])
-    ax.set_yticks(range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+20, 5))
-    ax.set_yticklabels(ax.get_yticks(), size=20, weight='bold')
+    # ax.set_yticks(range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+10, 10))
+    ax.set_ylim(-80, 60)
+    ax.set_yticks(range(-80, 66, 20))
+    ax.set_yticklabels(ax.get_yticks(), size=14)
+    
 elif anova_target == "hgs_delta":
     ymin = round(ax.get_ylim()[0])
     ymax = round(ax.get_ylim()[1])
-    ax.set_yticks(range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+20, 5))
-    ax.set_yticklabels(ax.get_yticks(), size=20, weight='bold')
+    ax.set_yticks(range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10, 10))
+    ax.set_yticklabels(ax.get_yticks(), size=14)
 elif anova_target in ["hgs_corrected_delta", "hgs_predicted"]:
     ymin = round(ax.get_ylim()[0])
     ymax = round(ax.get_ylim()[1])
-    ax.set_yticks(range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+10, 5))
-    ax.set_yticklabels(ax.get_yticks(), size=20, weight='bold')
+    ax.set_ylim(-30, 30)
+    # ax.set_yticks(range(math.floor(ymin/5)*5, math.ceil(ymax/5)*5+5, 5))
+    ax.set_yticks(range(-30, 31, 10))
+    ax.set_yticklabels(ax.get_yticks(), size=14)
 # Adjust layout
 plt.tight_layout()
 
 # Show the plot
 plt.show()
-file_path = os.path.join(folder_path, f"{population}_{anova_target}_interaction.png")
+file_path = os.path.join(folder_path, f"{population}_{anova_target}_interaction_2.png")
 plt.savefig(file_path)
 plt.close()
 
