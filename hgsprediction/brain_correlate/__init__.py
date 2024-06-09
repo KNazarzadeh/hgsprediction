@@ -1,1 +1,2 @@
 from.remove_true_hgs_varaince_from_regions import remove_true_hgs_variance_from_regions
+from .calculate_brain_correlation_with_hgs import calculate_brain_correlation_with_hgs

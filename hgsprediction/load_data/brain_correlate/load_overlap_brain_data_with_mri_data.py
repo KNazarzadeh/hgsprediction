@@ -3,8 +3,7 @@ import pandas as pd
 import numpy as np
 
 
-def save_overlap_brain_data_with_mri_data(
-    df,
+def load_overlap_brain_data_with_mri_data(
     brain_data_type,
     schaefer,
     gender,
@@ -23,11 +22,12 @@ def save_overlap_brain_data_with_mri_data(
                 "barin_data_overlap_with_mri_healthy_data",
                 "session_2_and_3_ukb",
             )
-    if(not os.path.isdir(folder_path)):
-        os.makedirs(folder_path)
+
     # Define the csv file path to save
     file_path = os.path.join(
         folder_path,
         f"{gender}_brain_{brain_data_type}_Schaefer{schaefer}_overlap_with_mri_healthy_data.csv")
 
-    df.to_csv(file_path, sep=',', index=True)
+    df = pd.read_csv(file_path, sep=',', index_col=0)
+    
+    return df

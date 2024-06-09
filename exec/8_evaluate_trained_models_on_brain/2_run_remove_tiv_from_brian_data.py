@@ -15,9 +15,8 @@ from ptpython.repl import embed
 filename = sys.argv[0]
 population = sys.argv[1]
 mri_status = sys.argv[2]
-session =sys.argv[3]
-brain_data_type = sys.argv[4]
-schaefer = sys.argv[5]
+brain_data_type = sys.argv[3]
+schaefer = sys.argv[4]
 
 ###############################################################################
 df_brain = load_original_brain_data(brain_data_type, schaefer)
@@ -26,9 +25,22 @@ df_brain = load_original_brain_data(brain_data_type, schaefer)
 df_tiv_original = load_tiv_data()
 ##############################################################################
 
-df_tiv = df_tiv_original[df_tiv_original['Session'] == f'ses-{session}']['TIV']
+df_tiv_original_ses_2 = df_tiv_original[df_tiv_original['Session'] == f'ses-2']['TIV']
+df_tiv_original_ses_3 = df_tiv_original[df_tiv_original['Session'] == f'ses-3']['TIV']
 
-df_merged_gmv_tiv = pd.merge(df_brain, df_tiv , left_index=True, right_index=True, how='inner')
+df_tiv_ses_3 = df_tiv_original_ses_3[~df_tiv_original_ses_3.index.isin(df_tiv_original_ses_2.index)]
+
+if len(df_tiv_ses_3) > 0 :
+    df_tmp = pd.merge(df_brain, df_tiv_ses_3, left_index=True, right_index=True, how='inner')
+    if len(df_tmp) > 0:
+        df_tiv = pd.concat([df_tiv_original_ses_2, df_tiv_ses_3], axis=0)
+    else:
+        df_tiv = df_tiv_original_ses_2.copy()
+else:
+    df_tiv = df_tiv_original_ses_2.copy()
+
+##############################################################################
+df_merged_gmv_tiv = pd.merge(df_brain, df_tiv, left_index=True, right_index=True, how='inner')
 
 brain_regions = df_brain.columns
 ##############################################################################
@@ -62,7 +74,6 @@ print(df_residuals)
 ##############################################################################
 save_removed_tiv_from_brain_data(
     df_residuals,
-    session,
     brain_data_type,
     schaefer,   
 )

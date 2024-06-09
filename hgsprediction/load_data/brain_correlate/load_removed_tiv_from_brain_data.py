@@ -4,7 +4,6 @@ import numpy as np
 
 
 def load_removed_tiv_from_brain_data(
-    session,
     brain_data_type,
     schaefer,
 ):
@@ -20,7 +19,7 @@ def load_removed_tiv_from_brain_data(
                 f"{brain_data_type.upper()}_subcorticals_cerebellum",
                 f"schaefer{schaefer}",            
                 "brain_data_without_tiv",
-                f"{session}_session_ukb",
+                "session_2_and_3_ukb",
             )
     
     # Define the csv file path to save
