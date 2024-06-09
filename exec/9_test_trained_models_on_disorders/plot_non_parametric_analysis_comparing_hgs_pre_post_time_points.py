@@ -117,7 +117,7 @@ def add_median_labels(ax, fmt='.3f'):
         x, y = (data.mean() for data in median.get_data())
         # choose value depending on horizontal or vertical plot orientation
         value = x if (median.get_xdata()[1] - median.get_xdata()[0]) == 0 else y
-        text = ax.text(x, y, f'{value:{fmt}}', ha='center', va='center',  color='white', fontsize=16)
+        text = ax.text(x, y, f'{value:{fmt}}', ha='center', va='center',  color='white', fontsize=18)
         # create median-colored border around white text for contrast
         text.set_path_effects([
             path_effects.Stroke(linewidth=4, foreground=median.get_color()),
@@ -136,7 +136,7 @@ folder_path = os.path.join("plot_non_parametric_analysis", f"{population}", f"{f
 if(not os.path.isdir(folder_path)):
         os.makedirs(folder_path)
 ###############################################################################        
-xtick_labels = ['Pre-time_point', 'Post-time_point']
+xtick_labels = ['Pre time_point', 'Post time_point']
 
 palette_control = sns.color_palette("PuBuGn")
 palette_disorder = sns.color_palette("YlOrBr")
@@ -152,17 +152,17 @@ ax.legend().set_visible(False)
 ax.set_xlabel(" ")
 
 # Setting the xtick labels
-ax.set_xticklabels(xtick_labels, size=14)
+ax.set_xticklabels(xtick_labels, size=25)
 if anova_target == "true_hgs":
-    ax.set_ylabel("Raw HGS", fontsize=16)
+    ax.set_ylabel("Raw HGS", fontsize=25)
 elif anova_target == "hgs_corrected_predicted":
-    ax.set_ylabel("Adjusted HGS", fontsize=16)
+    ax.set_ylabel("Adjusted HGS", fontsize=25)
 elif anova_target == "hgs_predicted":
-    ax.set_ylabel("Predicted HGS", fontsize=16)
+    ax.set_ylabel("Predicted HGS", fontsize=25)
 elif anova_target == "hgs_corrected_delta":
-    ax.set_ylabel("Delta adjusted HGS", fontsize=16)
+    ax.set_ylabel("Delta adjusted HGS", fontsize=25)
 elif anova_target == "hgs_delta":
-    ax.set_ylabel("Delta HGS", fontsize=16)
+    ax.set_ylabel("Delta HGS", fontsize=25)
     
 xticks_positios_array = add_median_labels(ax)
 
@@ -175,7 +175,7 @@ for x_box_pos in np.arange(0,4,2):
     x2 = xticks_positios_array[x_box_pos+1]
     y, h, col = df_yaxis_max.loc[idx, f"{anova_target}_max_value"]+.5, 2, 'k'
     ax.plot([x1, x1, x2, x2], [y, y+h, y+h, y], lw=2, c=col)
-    ax.text((x1+x2)*.5, y+h, f"p={df_mannwhitneyu.loc[idx, f'{anova_target}_p_value']:.3f}", ha='center', va='bottom', fontsize=14,  color=col)
+    ax.text((x1+x2)*.5, y+h, f"p={df_mannwhitneyu.loc[idx, f'{anova_target}_p_value']:.3f}", ha='center', va='bottom', fontsize=18,  color=col)
 
 if anova_target in ["true_hgs", "hgs_predicted", "hgs_corrected_predicted"]:
     ymin = round(ax.get_ylim()[0])
@@ -183,7 +183,7 @@ if anova_target in ["true_hgs", "hgs_predicted", "hgs_corrected_predicted"]:
     # ax.set_yticks(range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+20, 20))
     ax.set_ylim(0, 140)
     ax.set_yticks(range(0, 141, 20))
-    ax.set_yticklabels(ax.get_yticks(), size=14)
+    ax.set_yticklabels(ax.get_yticks(), size=20)
     
 elif anova_target in ["hgs_delta", "hgs_corrected_delta"]:
     ymin = round(ax.get_ylim()[0])
@@ -191,7 +191,7 @@ elif anova_target in ["hgs_delta", "hgs_corrected_delta"]:
     # ax.set_yticks(range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+20, 20))
     ax.set_ylim(-30, 30)
     ax.set_yticks(range(-30, 31, 10))
-    ax.set_yticklabels(ax.get_yticks(), size=14)
+    ax.set_yticklabels(ax.get_yticks(), size=20)
 
 # Adjust layout
 plt.tight_layout()
@@ -220,15 +220,15 @@ ax.set_xticklabels("")
 
 # Setting the xtick labels
 if anova_target == "true_hgs":
-    ax.set_ylabel("Raw HGS", fontsize=30)
+    ax.set_ylabel("Raw HGS", fontsize=25)
 elif anova_target == "hgs_corrected_predicted":
-    ax.set_ylabel("Adjusted HGS", fontsize=30)
+    ax.set_ylabel("Adjusted HGS", fontsize=25)
 elif anova_target == "hgs_predicted":
-    ax.set_ylabel("Predicted HGS", fontsize=30)
+    ax.set_ylabel("Predicted HGS", fontsize=25)
 elif anova_target == "hgs_corrected_delta":
-    ax.set_ylabel("Delta adjusted HGS", fontsize=30)
+    ax.set_ylabel("Delta adjusted HGS", fontsize=25)
 elif anova_target == "hgs_delta":
-    ax.set_ylabel("Delta HGS", fontsize=30)
+    ax.set_ylabel("Delta HGS", fontsize=25)
     
 xticks_positios_array = add_median_labels(ax)
 
@@ -237,7 +237,7 @@ x1 = xticks_positios_array[x_box_pos]
 x2 = xticks_positios_array[x_box_pos+1]
 y, h, col = df_yaxis_max.loc["interaction", f"{anova_target}_max_value"]+1, 2, 'k'
 ax.plot([x1, x1, x2, x2], [y, y+h, y+h, y], lw=2, c=col)
-ax.text((x1+x2)*.5, y+h, f"p={p_value_interaction:.3f}", ha='center', va='bottom', fontsize=14,  color=col)
+ax.text((x1+x2)*.5, y+h, f"p={p_value_interaction:.3f}", ha='center', va='bottom', fontsize=18,  color=col)
 
 if anova_target in ["true_hgs", "hgs_corrected_predicted"]:
     ymin = round(ax.get_ylim()[0])
@@ -245,20 +245,20 @@ if anova_target in ["true_hgs", "hgs_corrected_predicted"]:
     # ax.set_yticks(range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10+10, 10))
     ax.set_ylim(-80, 60)
     ax.set_yticks(range(-80, 66, 20))
-    ax.set_yticklabels(ax.get_yticks(), size=14)
+    ax.set_yticklabels(ax.get_yticks(), size=20)
     
 elif anova_target == "hgs_delta":
     ymin = round(ax.get_ylim()[0])
     ymax = round(ax.get_ylim()[1])
     ax.set_yticks(range(math.floor(ymin/10)*10, math.ceil(ymax/10)*10, 10))
-    ax.set_yticklabels(ax.get_yticks(), size=14)
+    ax.set_yticklabels(ax.get_yticks(), size=20)
 elif anova_target in ["hgs_corrected_delta", "hgs_predicted"]:
     ymin = round(ax.get_ylim()[0])
     ymax = round(ax.get_ylim()[1])
     ax.set_ylim(-30, 30)
     # ax.set_yticks(range(math.floor(ymin/5)*5, math.ceil(ymax/5)*5+5, 5))
     ax.set_yticks(range(-30, 31, 10))
-    ax.set_yticklabels(ax.get_yticks(), size=14)
+    ax.set_yticklabels(ax.get_yticks(), size=20)
 # Adjust layout
 plt.tight_layout()
 
