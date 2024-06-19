@@ -36,15 +36,22 @@ df_male = load_healthy_data.load_extracted_data_by_feature_and_target(
     "male",
     data_set,
 )
+
 ###############################################################################
-whole_data_length = len(df_female)+len(df_male)
-print("\n Number of whole holdout test data N=", whole_data_length)
+df_both_gender = pd.concat([df_female, df_male], axis=0)
+print("\n Number of whole Training data N=", len(df_both_gender))
+
+print("\n Both gender Describe=\n", df_both_gender.describe().apply(lambda x: round(x, 2)))
+both_gender_right_handed = len(df_both_gender[df_both_gender['handedness-0.0']==1.0])
+
+print("'%' of both gender Right dominant hand =", "{:.2f}".format(both_gender_right_handed*100/len(df_both_gender)))
+
 
 print("\n Number of Female holdout test data N=", len(df_female))
-print("'%' of Female holdout test data N=%", "{:.2f}".format(len(df_female)*100/whole_data_length))
+print("'%' of Female holdout test data N=%", "{:.2f}".format(len(df_female)*100/len(df_both_gender)))
 
 print("\n Number of Male holdout test data N=", len(df_male))
-print("'%' of Male holdout test data N=%", "{:.2f}".format(len(df_male)*100/whole_data_length))
+print("'%' of Male holdout test data N=%", "{:.2f}".format(len(df_male)*100/len(df_both_gender)))
 
 print("\n Female Describe=\n", df_female.describe().apply(lambda x: round(x, 2)))
 
