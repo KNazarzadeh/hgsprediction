@@ -137,8 +137,11 @@ class HealthyDataPreprocessor:
         # Calculate Dominant and Non-Dominant HGS by
         # Calling the modules:
         df = self.calculate_dominant_nondominant_hgs(df)
+    
         hgs_dominant = f"hgs_dominant-{session}.0"
         hgs_nondominant = f"hgs_nondominant-{session}.0"
+        print("===== Done! =====")
+        embed(globals(), locals())
         # ------------------------------------
         # Exclude all subjects who had Dominant HGS < 4:
         # The condition is applied to "hgs_dominant" columns
