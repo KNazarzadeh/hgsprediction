@@ -38,7 +38,8 @@ if len(df_tiv_ses_3) > 0 :
         df_tiv = df_tiv_original_ses_2.copy()
 else:
     df_tiv = df_tiv_original_ses_2.copy()
-
+print("===== Done! =====")
+embed(globals(), locals())
 ##############################################################################
 df_merged_gmv_tiv = pd.merge(df_brain, df_tiv, left_index=True, right_index=True, how='inner')
 

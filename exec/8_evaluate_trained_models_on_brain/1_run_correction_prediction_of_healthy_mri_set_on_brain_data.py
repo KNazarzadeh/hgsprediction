@@ -65,6 +65,8 @@ if tiv_status == "without_tiv":
 df_merged = pd.merge(df_brain_without_tiv, df_mri, left_index=True, right_index=True, how='inner')
 
 print(df_merged)
+print("===== Done! =====")
+embed(globals(), locals())
 ##############################################################################
 save_overlap_brain_data_with_mri_data(
     df_merged,
