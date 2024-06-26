@@ -102,8 +102,8 @@ df_male_correlation_values, df_male_r2_values, df_male_mae_values = load_predict
     data_set,
 )
 
-# print("===== Done! =====")
-# embed(globals(), locals())
+print("===== Done! =====")
+embed(globals(), locals())
 ###############################################################################
 df = pd.concat([df_female, df_male], axis=0)
 #  Replace 0 with "Female" and 1 with "Male" in the gender column
@@ -123,23 +123,32 @@ color_male = palette_male[5]
 
 custom_palette = {"Female": color_female, "Male": color_male}
 ###############################################################################
+# Define columns
+x_col = f"{target}"
+y_cols = [f"{target}_predicted", f"{target}_corrected_predicted", f"{target}_delta(true-predicted)", f"{target}_corrected_delta(true-predicted)"]  # Replace 'another_y_column' with the actual column name
+hue_col = "gender"
+hue_order = ["Female", "Male"]
 
 sns.set_style("white")
 
-fig, ax = plt.subplots(2, 2, figsize=(15, 15))
-# Plot female and male data for target vs. predicted in the first subplot
-sns.jointplot(data=df, x=f"{target}", y=f"{target}_predicted", hue="gender", palette=custom_palette, ax=ax[0][0])
+fig = plt.figure()
 
-# Jointplot for target vs. corrected predicted in the second subplot
-sns.jointplot(data=df, x=f"{target}", y=f"{target}_corrected_predicted", hue="gender", palette=custom_palette, ax=ax[0][1])
+for y in y_cols:
+    # Plot female and male data for target vs. predicted in the first subplot
+    g = sns.jointplot(data=df, x=x_col, y=y, hue=hue_col, palette=custom_palette)
+    for _, gr in df.groupby(hue_col):
+        sns.regplot(x=x_col, y=y, data=gr, scatter=False, scatter_kws={'s': 50, 'edgecolor': 'black'}, line_kws={"color": custom_palette})
 
-# Jointplot for target vs. delta (true-predicted) in the third subplot
-sns.jointplot(data=df, x=f"{target}", y=f"{target}_delta(true-predicted)", hue="gender", palette=custom_palette, ax=ax[1][0])
+#-----------------------------------------------------------#
+plt.tight_layout()
+#-----------------------------------------------------------#
+plt.show()
+plt.savefig(plot_file)
+plt.close()
 
-# Jointplot for target vs. corrected delta (true-predicted) in the fourth subplot
-sns.jointplot(data=df, x=f"{target}", y=f"{target}_corrected_delta(true-predicted)", hue="gender", palette=custom_palette, ax=ax[1][1])
 print("===== Done! =====")
 embed(globals(), locals())
+# truncate=False,
 #-----------------------------------------------------------#
 ax[0][0].set_ylabel("Predicted HGS", fontsize=16)
 ax[1][0].set_ylabel("Delta HGS", fontsize=16)
