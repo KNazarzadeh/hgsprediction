@@ -102,8 +102,6 @@ df_male_correlation_values, df_male_r2_values, df_male_mae_values = load_predict
     data_set,
 )
 
-print("===== Done! =====")
-embed(globals(), locals())
 ###############################################################################
 df = pd.concat([df_female, df_male], axis=0)
 #  Replace 0 with "Female" and 1 with "Male" in the gender column
@@ -112,7 +110,6 @@ df['gender'] = df['gender'].replace({0: 'Female', 1: 'Male'})
 plot_folder = os.path.join(os.getcwd(), f"plots/with_vs_withou_bias_hgs/jointplot_scatterplot/{target}/{model_name}/{n_repeats}_repeats_{n_folds}_folds/{correlation_type}")
 if(not os.path.isdir(plot_folder)):
         os.makedirs(plot_folder)
-plot_file = os.path.join(plot_folder, f"comparing_with_vs_withou_bias_hgs_{target}.png")
 ###############################################################################
 # Create a custom color palette dictionary
 # Define custom palettes
@@ -122,6 +119,8 @@ color_female = palette_female[5]
 color_male = palette_male[5]
 
 custom_palette = {"Female": color_female, "Male": color_male}
+# print("===== Done! =====")
+# embed(globals(), locals())
 ###############################################################################
 # Define columns
 x_col = f"{target}"
@@ -129,22 +128,21 @@ y_cols = [f"{target}_predicted", f"{target}_corrected_predicted", f"{target}_del
 hue_col = "gender"
 hue_order = ["Female", "Male"]
 
-sns.set_style("white")
-
-fig = plt.figure()
-
 for y in y_cols:
+    fig = plt.figure()
+    sns.set_style("white")
     # Plot female and male data for target vs. predicted in the first subplot
     g = sns.jointplot(data=df, x=x_col, y=y, hue=hue_col, palette=custom_palette)
     for _, gr in df.groupby(hue_col):
-        sns.regplot(x=x_col, y=y, data=gr, scatter=False, scatter_kws={'s': 50, 'edgecolor': 'black'}, line_kws={"color": custom_palette})
+        sns.regplot(x=x_col, y=y, data=gr, scatter=False, scatter_kws={'s': 50, 'edgecolor': 'black'})
 
-#-----------------------------------------------------------#
-plt.tight_layout()
-#-----------------------------------------------------------#
-plt.show()
-plt.savefig(plot_file)
-plt.close()
+    #-----------------------------------------------------------#
+    plt.tight_layout()
+    #-----------------------------------------------------------#
+    plt.show()
+    plot_file = os.path.join(plot_folder, f"comparing_with_vs_withou_bias_hgs_{y}_{target}.png")
+    plt.savefig(plot_file)
+    plt.close()
 
 print("===== Done! =====")
 embed(globals(), locals())
