@@ -24,7 +24,6 @@ n_repeats = sys.argv[6]
 n_folds = sys.argv[7]
 data_set = sys.argv[8]
 score_type = sys.argv[9]
-preprocessing_condition = sys.argv[10]
 
 ###############################################################################
 session = "0"
