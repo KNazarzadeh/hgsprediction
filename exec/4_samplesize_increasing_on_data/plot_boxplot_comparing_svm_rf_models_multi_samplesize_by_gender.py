@@ -87,7 +87,7 @@ for model_name in ["linear_svm", "random_forest"]:
 print("===== Done! =====")
 embed(globals(), locals())
 ###############################################################################
-plot_folder = os.path.join(os.getcwd(), f"plots/boxplots/{preprocessing_condition}/{target}/{n_repeats}_repeats_{n_folds}_folds/{score_type}")
+plot_folder = os.path.join(os.getcwd(), f"plots/boxplots//{target}/{n_repeats}_repeats_{n_folds}_folds/{score_type}")
 if(not os.path.isdir(plot_folder)):
         os.makedirs(plot_folder)
 plot_file = os.path.join(plot_folder, f"comparing_SVM_RF_models_multi_samplesize_by_gender_{target}.png")
