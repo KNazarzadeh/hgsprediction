@@ -39,7 +39,8 @@ df = load_overlap_brain_data_with_mri_data(
     brain_data_type,
     schaefer,
     gender,)
-
+# print("===== Done! =====")
+# embed(globals(), locals())
 ##############################################################################
 if tiv_status == "without_tiv":
     df_brain_without_tiv = load_removed_tiv_from_brain_data(brain_data_type, schaefer)
@@ -47,8 +48,8 @@ if tiv_status == "without_tiv":
 ##############################################################################
 n_regions = df_brain_without_tiv.shape[1]
 x_axis = df_brain_without_tiv.columns
-print("===== Done! =====")
-embed(globals(), locals())
+# print("===== Done! =====")
+# embed(globals(), locals())
 if corr_target == "hgs_true":
     y_axis = f"{target}"
 elif corr_target == "hgs_predicted":

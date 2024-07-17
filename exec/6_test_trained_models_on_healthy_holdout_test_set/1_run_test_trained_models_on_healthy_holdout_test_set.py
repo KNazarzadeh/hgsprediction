@@ -61,8 +61,8 @@ df_extracted = load_healthy_data.load_extracted_data_by_feature_and_target(
     gender,
     data_set,
 )
-# print("===== Done! =====")
-# embed(globals(), locals())
+print("===== Done! =====")
+embed(globals(), locals())
 ##############################################################################
 # Predict Handgrip strength (HGS) on X and y in dataframe
 # With best trained model on non-MRI healthy controls data
