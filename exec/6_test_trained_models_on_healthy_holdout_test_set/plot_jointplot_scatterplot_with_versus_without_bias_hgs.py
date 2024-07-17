@@ -174,7 +174,8 @@ for y in y_cols:
     # Modify scatter plot markers after creating the jointplot
     for artist in g.ax_joint.collections:
         artist.set_edgecolor('black')
-        artist.set_sizes([50])
+        artist.set_sizes([60])
+        artist.set_linewidths([1.2])  # Set the width of the marker borders
         # for _, gr in df.groupby(hue_col):
     for gender in gender_order:
         gr = df[df[hue_col] == gender]        
@@ -187,6 +188,7 @@ for y in y_cols:
     if y in [f"{target}_delta(true-predicted)", f"{target}_corrected_delta(true-predicted)"]:
         plt.ylabel("Delta HGS", fontsize=14) 
         plt.yticks(yticks_range_delta, fontsize=14)
+        plt.ylim([-70, 70])
     #-----------------------------------------------------------#
     plt.xlabel("Raw HGS", fontsize=14)
     plt.xticks(fontsize=14)
@@ -222,14 +224,16 @@ for y in y_cols:
     #-----------------------------------------------------------#
     if y in [f"{target}_predicted", f"{target}_delta(true-predicted)"]:               
         plt.suptitle(f"Without bias-adjustment", fontsize=16, fontweight="bold")
+        # Get x and y limits for the first subplot first row
+        # ymin, ymax = plt.ylim()
+    #-----------------------------------------------------------#
+        # Plot a dark grey dashed line with width 3 from (xmin, ymin) to (xmax, ymax) on the first subplot
+        # plt.plot([xmin, xmax], [ymin, ymax], color='darkgrey', linestyle='--', linewidth=2)
+        
     if y in [f"{target}_corrected_predicted", f"{target}_corrected_delta(true-predicted)"]:
         plt.suptitle(f"With bias-adjustment", fontsize=16, fontweight="bold")
-    #-----------------------------------------------------------#      
-    # Get x and y limits for the first subplot first row
-    # ymin, ymax = plt.ylim()
-    #-----------------------------------------------------------#
-    # Plot a dark grey dashed line with width 3 from (xmin, ymin) to (xmax, ymax) on the first subplot
-    # plt.plot([xmin, xmax], [ymin, ymax], color='darkgrey', linestyle='--', linewidth=2)
+        # # Plot a dark grey dashed line with width 3 from (xmin, ymin) to (xmax, ymax) on the first subplot
+        # plt.plot([xmin, xmax], [0, 0], color='darkgrey', linestyle='--', linewidth=2)
     #-----------------------------------------------------------#
     plt.tight_layout()
     #-----------------------------------------------------------#
