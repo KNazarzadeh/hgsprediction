@@ -22,8 +22,8 @@ if mri_status == "nonmri":
         df_original = load_healthy_data.load_original_nonmri_test_data(population, mri_status)
 elif mri_status == "mri":
     df_original = load_healthy_data.load_original_data(population, mri_status)
-print("===== Done! =====")
-embed(globals(), locals())
+# print("===== Done! =====")
+# embed(globals(), locals())
 ###############################################################################
 data_processor = HealthyDataPreprocessor(df_original, mri_status, session)
 df = data_processor.define_handedness(df_original)
@@ -32,11 +32,11 @@ df = data_processor.define_handedness(df_original)
 df = data_processor.remove_missing_hgs(df)
 
 df = data_processor.validate_handgrips(df)
-print("===== Done! =====")
-embed(globals(), locals())
+
 # Remove all columns with all NaN values
 df = data_processor.remove_nan_columns(df)
-
+print("===== Done! =====")
+embed(globals(), locals())
 df_female = df[df["31-0.0"]==0.0]
 df_male = df[df["31-0.0"]==1.0]
 
