@@ -3,7 +3,7 @@ import sys
 import os
 import pandas as pd
 import numpy as np
-
+from sklearn.metrics import mean_absolute_error
 #--------------------------------------------------------------------------#
 from ptpython.repl import embed
 # print("===== Done! =====")
@@ -124,5 +124,23 @@ print(f"Concordance Correlation Coefficient: {ccc_value:.2f}")
 age_differ = df_session_1.loc[:, "age"] - df_session_0.loc[:, "age"]
 min_age = min(age_differ)
 max_age = max(age_differ)
+
+###############################################################################
+y_true_session_0 = df_session_0[f"{target}"]
+y_pred_session_0 = df_session_0[f"{target}_predicted"]
+mae_ses_0_predicted = mean_absolute_error(y_true_session_0, y_pred_session_0)
+
+y_true_session_1 = df_session_1[f"{target}"]
+y_pred_session_1 = df_session_1[f"{target}_predicted"]
+mae_ses_1_predicted = mean_absolute_error(y_true_session_1, y_pred_session_1)
+
+y_true_session_0 = df_session_0[f"{target}"]
+y_pred_session_0 = df_session_0[f"{target}_corrected_predicted"]
+mae_ses_0_corrected_predicted = mean_absolute_error(y_true_session_0, y_pred_session_0)
+
+y_true_session_1 = df_session_1[f"{target}"]
+y_pred_session_1 = df_session_1[f"{target}_corrected_predicted"]
+mae_ses_1_corrected_predicted = mean_absolute_error(y_true_session_1, y_pred_session_1)
+
 print("===== Done! =====")
 embed(globals(), locals())
