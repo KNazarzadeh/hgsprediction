@@ -61,29 +61,29 @@ for session in ["0", "1"]:
 ###############################################################################
 # Function to calculate the Concordance correlation coefficient (CCC):
 # CCC = 2⋅Cov(X,Y)/​Var(X)+Var(Y)+(Xˉ−Yˉ)^2
-def concordance_correlation_coefficient(y_true, y_pred):
+def concordance_correlation_coefficient(test_session_0, retest_session_1):
     """Concordance correlation coefficient."""
     # Raw data
     dct = {
-        'y_true': y_true,
-        'y_pred': y_pred
+        'test_session_0': test_session_0,
+        'retest_session_1': retest_session_1
     }
     df = pd.DataFrame(dct)
     # Remove NaNs
     df = df.dropna()
     # Pearson product-moment correlation coefficients
-    y_true = df['y_true']
-    y_pred = df['y_pred']
-    cor = np.corrcoef(y_true, y_pred)[0][1]
+    test_session_0 = df['test_session_0']
+    retest_session_1 = df['retest_session_1']
+    cor = np.corrcoef(test_session_0, retest_session_1)[0][1]
     # Means
-    mean_true = np.mean(y_true)
-    mean_pred = np.mean(y_pred)
+    mean_true = np.mean(test_session_0)
+    mean_pred = np.mean(retest_session_1)
     # Population variances
-    var_true = np.var(y_true)
-    var_pred = np.var(y_pred)
+    var_true = np.var(test_session_0)
+    var_pred = np.var(retest_session_1)
     # Population standard deviations
-    sd_true = np.std(y_true)
-    sd_pred = np.std(y_pred)
+    sd_true = np.std(test_session_0)
+    sd_pred = np.std(retest_session_1)
     # Calculate CCC
     numerator = 2 * cor * sd_true * sd_pred
     denominator = var_true + var_pred + (mean_true - mean_pred)**2
@@ -94,24 +94,35 @@ def concordance_correlation_coefficient(y_true, y_pred):
 
 ###############################################################################
 # Calculate CCC between corrected delta hgs and raw hgs for each session 0
-y_true_session_0 = df_session_0[f"{target}"]
-y_pred_session_0 = df_session_0[f"{target}_corrected_predicted"]
+test_session_0 = df_session_0[f"{target}_predicted"]
+retest_session_1 = df_session_1[f"{target}_predicted"]
 
-ccc_value = concordance_correlation_coefficient(y_true_session_0, y_pred_session_0)
+ccc_value = concordance_correlation_coefficient(test_session_0, retest_session_1)
 print(f"Concordance Correlation Coefficient: {ccc_value:.2f}")
 ###############################################################################
-# Calculate CCC between corrected delta hgs and raw hgs for each session 1
+# Calculate CCC between corrected delta hgs and raw hgs for each session 0
+test_session_0 = df_session_0[f"{target}_corrected_predicted"]
+retest_session_1 = df_session_1[f"{target}_corrected_predicted"]
 
-y_true_session_1 = df_session_1[f"{target}"]
-y_pred_session_1 = df_session_1[f"{target}_corrected_predicted"]
-
-ccc_value = concordance_correlation_coefficient(y_true_session_1, y_pred_session_1)
+ccc_value = concordance_correlation_coefficient(test_session_0, retest_session_1)
 print(f"Concordance Correlation Coefficient: {ccc_value:.2f}")
 ###############################################################################
+# Calculate CCC between corrected delta hgs and raw hgs for each session 0
+test_session_0 = df_session_0[f"{target}_delta(true-predicted)"]
+retest_session_1 = df_session_1[f"{target}_delta(true-predicted)"]
 
+ccc_value = concordance_correlation_coefficient(test_session_0, retest_session_1)
+print(f"Concordance Correlation Coefficient: {ccc_value:.2f}")
+###############################################################################
+# Calculate CCC between corrected delta hgs and raw hgs for each session 0
+test_session_0 = df_session_0[f"{target}_corrected_delta(true-predicted)"]
+retest_session_1 = df_session_1[f"{target}_corrected_delta(true-predicted)"]
 
-
-
-
+ccc_value = concordance_correlation_coefficient(test_session_0, retest_session_1)
+print(f"Concordance Correlation Coefficient: {ccc_value:.2f}")
+###############################################################################
+age_differ = df_session_1.loc[:, "age"] - df_session_0.loc[:, "age"]
+min_age = min(age_differ)
+max_age = max(age_differ)
 print("===== Done! =====")
 embed(globals(), locals())

@@ -61,8 +61,8 @@ df_session_1 = df_corrected_hgs_session_1[df_corrected_hgs_session_1.index.isin(
 ###############################################################################
 # Reorder the index of df1 to match the index order of df2
 df_session_0 = df_session_0.reindex(df_session_1.index)
-# print("===== Done! =====")
-# embed(globals(), locals())
+print("===== Done! =====")
+embed(globals(), locals())
 ###############################################################################
 for session in ["0", "1"]:
     folder_path = os.path.join(
