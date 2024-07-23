@@ -22,12 +22,12 @@ if mri_status == "nonmri":
         df_original = load_healthy_data.load_original_nonmri_test_data(population, mri_status)
 elif mri_status == "mri":
     df_original = load_healthy_data.load_original_data(population, mri_status)
-# print("===== Done! =====")
-# embed(globals(), locals())
+
 ###############################################################################
 data_processor = HealthyDataPreprocessor(df_original, mri_status, session)
 df = data_processor.define_handedness(df_original)
-
+print("===== Done xxx! =====")
+embed(globals(), locals())
 # CHECK HGS AVAILABILITY
 df = data_processor.remove_missing_hgs(df)
 
@@ -35,13 +35,15 @@ df = data_processor.validate_handgrips(df)
 
 # Remove all columns with all NaN values
 df = data_processor.remove_nan_columns(df)
-print("===== Done! =====")
-embed(globals(), locals())
+# print("===== Done yyy! =====")
+# embed(globals(), locals())
 df_female = df[df["31-0.0"]==0.0]
 df_male = df[df["31-0.0"]==1.0]
 
 print(df[f'hgs_dominant-{session}.0'].isna().sum())
 print(df[f'hgs_nondominant-{session}.0'].isna().sum())
+# print("===== Done yyy! =====")
+# embed(globals(), locals())
 
 save_healthy_data.save_validate_hgs_data(df_female, population, mri_status, session, "female", data_set)
 save_healthy_data.save_validate_hgs_data(df_male, population, mri_status, session, "male", data_set)

@@ -36,7 +36,7 @@ best_model_trained = load_trained_model_results.load_best_model_trained(
     "linear_svm",
     n_repeats,
     n_folds,
-    session,
+    "0",
     "training_set",
 )
 
@@ -61,8 +61,8 @@ df_extracted = load_healthy_data.load_extracted_data_by_feature_and_target(
     gender,
     data_set,
 )
-print("===== Done! =====")
-embed(globals(), locals())
+# print("===== Done! =====")
+# embed(globals(), locals())
 ##############################################################################
 # Predict Handgrip strength (HGS) on X and y in dataframe
 # With best trained model on non-MRI healthy controls data

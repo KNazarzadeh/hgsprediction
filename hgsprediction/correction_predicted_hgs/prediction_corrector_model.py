@@ -37,8 +37,6 @@ def prediction_corrector_model(
         session,
         data_set,
         )
-    print("===== Done! =====")
-    embed(globals(), locals())
 
     model = LinearRegression()
 

@@ -35,8 +35,8 @@ features, extend_features = define_features(feature_type)
 ##############################################################################
 
 df = load_healthy_data.load_preprocessed_data(population, mri_status, session, gender, data_set)
-print("===== Done! =====")
-embed(globals(), locals())
+# print("===== Done! =====")
+# embed(globals(), locals())
 df_extracted = healthy_extract_data.extract_data(df, features, extend_features, feature_type, target, mri_status, session)
 
 print(df_extracted)

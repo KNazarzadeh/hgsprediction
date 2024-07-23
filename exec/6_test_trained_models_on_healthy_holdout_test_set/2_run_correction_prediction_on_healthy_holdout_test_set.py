@@ -49,8 +49,8 @@ slope, intercept = prediction_corrector_model(
 
 print(slope)
 print(intercept)
-print("===== Done! =====")
-embed(globals(), locals())
+# print("===== Done! =====")
+# embed(globals(), locals())
 ###############################################################################
 # Assuming that you have already trained and instantiated the model as `model`
 df = load_hgs_predicted_results(

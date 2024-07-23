@@ -72,10 +72,14 @@ class HealthyDataPreprocessor:
         # Find indices with NaN in the first column of original_handedness
         # Step 1: Identify rows where "1707-0.0" is NaN ,3 or -3
         index_unavailable = original_handedness[(original_handedness.loc[:, "1707-0.0"].isna())].index
-
+        # print("===== Done! =====")
+        # embed(globals(), locals())
         # Replace NaN in the first column with the max of the corresponding row
-        original_handedness.loc[index_unavailable, "1707-0.0"] = np.nanmax(original_handedness.loc[index_unavailable, :], axis=1)           
-        
+        # original_handedness.loc[index_unavailable, "1707-0.0"] = np.nanmax(original_handedness.loc[index_unavailable, :], axis=1)           
+        # Replace NaN in "1707-0.0" with the maximum value from the corresponding row (ignoring NaNs)
+        original_handedness.loc[index_unavailable, "1707-0.0"] = original_handedness.loc[index_unavailable].apply(
+            lambda row: np.nan if row.isna().all() else np.nanmax(row),
+            axis=1)
         # Find indices where the first column equals -3 and set them to NaN
         index_no_answer = original_handedness[original_handedness.loc[:, "1707-0.0"] == -3].index
         original_handedness.loc[index_no_answer, "1707-0.0"] = np.nan
@@ -140,8 +144,6 @@ class HealthyDataPreprocessor:
     
         hgs_dominant = f"hgs_dominant-{session}.0"
         hgs_nondominant = f"hgs_nondominant-{session}.0"
-        print("===== Done! =====")
-        embed(globals(), locals())
         # ------------------------------------
         # Exclude all subjects who had Dominant HGS < 4:
         # The condition is applied to "hgs_dominant" columns
