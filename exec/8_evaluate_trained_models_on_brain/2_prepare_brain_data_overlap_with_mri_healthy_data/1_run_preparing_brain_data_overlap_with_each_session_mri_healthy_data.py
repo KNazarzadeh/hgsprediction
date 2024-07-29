@@ -72,6 +72,7 @@ save_overlap_brain_data_with_mri_data(
     df_merged,
     brain_data_type,
     schaefer,
+    session,
     gender,
 )
 

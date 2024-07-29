@@ -7,6 +7,7 @@ def save_overlap_brain_data_with_mri_data(
     df,
     brain_data_type,
     schaefer,
+    session,
     gender,
 ):
     
@@ -21,7 +22,7 @@ def save_overlap_brain_data_with_mri_data(
                 f"{brain_data_type.upper()}_subcorticals_cerebellum",
                 f"schaefer{schaefer}",            
                 "barin_data_overlap_with_mri_healthy_data",
-                "session_2_and_3_ukb",
+                f"{session}_session_ukb",
             )
     if(not os.path.isdir(folder_path)):
         os.makedirs(folder_path)

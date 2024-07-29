@@ -6,6 +6,7 @@ import numpy as np
 def load_overlap_brain_data_with_mri_data(
     brain_data_type,
     schaefer,
+    session,
     gender,
 ):
     
@@ -20,7 +21,7 @@ def load_overlap_brain_data_with_mri_data(
                 f"{brain_data_type.upper()}_subcorticals_cerebellum",
                 f"schaefer{schaefer}",            
                 "barin_data_overlap_with_mri_healthy_data",
-                "session_2_and_3_ukb",
+                f"{session}_session_ukb",
             )
 
     # Define the csv file path to save

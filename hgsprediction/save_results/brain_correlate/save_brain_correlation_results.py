@@ -11,6 +11,7 @@ def save_hgs_correlation_with_brain_regions_results(
     df,
     brain_data_type,
     schaefer,
+    session,
     gender,
     corr_target,
 ):
@@ -27,6 +28,7 @@ def save_hgs_correlation_with_brain_regions_results(
             f"{brain_data_type.upper()}_subcorticals_cerebellum",
             f"schaefer{schaefer}",
             "hgs_correlation_with_brain_regions_results",
+            f"{session}_session_ukb",
             f"{corr_target}", 
         )
     
