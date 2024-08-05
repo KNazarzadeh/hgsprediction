@@ -18,8 +18,8 @@ first_event = sys.argv[3]
 
 df_original = load_disorder_data.load_original_data(population, mri_status)
 
-# print("===== Done! =====")
-# embed(globals(), locals())
+print("===== Done! =====")
+embed(globals(), locals())
 ###############################################################################
 
 data_processor = disorder_data_preprocessor.DisorderMainDataPreprocessor(df_original, population)    

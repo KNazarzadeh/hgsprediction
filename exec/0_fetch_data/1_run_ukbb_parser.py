@@ -72,8 +72,8 @@ ukbb_params = UkbbParams(motor, ishealthy, population, mri)
 
 data_field_list = ukbb_params.get_ukbb_parser_cmd()
 
-# print("===== Done! =====")
-# embed(globals(), locals())
+print("===== Done! =====")
+embed(globals(), locals())
 ###############################################################################
 #Create folders and file names to save the fetched data on Juseless
 # ----------- On Juseless ----------#
