@@ -50,7 +50,9 @@ features, extend_features = define_features(feature_type)
 X = features
 y = target
 ##############################################################################
-for session in ["0", "1", "2", "3"]: 
+# for session in ["0", "1", "2", "3"]: 
+for session in ["2"]: 
+
     # load data
     # load data # Extract data based on main features, extra features, target for each session and mri status:
     data_extracted = load_healthy_data.load_extracted_data_by_feature_and_target(
@@ -71,7 +73,8 @@ for session in ["0", "1", "2", "3"]:
     ##############################################################################
     # Print the final dataframe after adding predicted and delta HGS columns
     print(df)
-
+    print("===== END Done! =====")
+    embed(globals(), locals())
     ##############################################################################
     # Save dataframe in the specific location
     save_hgs_predicted_results(

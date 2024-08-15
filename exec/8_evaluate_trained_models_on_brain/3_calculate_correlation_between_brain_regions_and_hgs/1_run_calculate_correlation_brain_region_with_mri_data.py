@@ -65,8 +65,8 @@ elif corr_target == "hgs_corrected_delta":
 ##############################################################################
 # Correlation with True HGS
 df_corr, df_corr_significant, df_n_regions_survived = calculate_brain_correlation_with_hgs(df, y_axis, x_axis, stats_correlation_type)
-print("===== Done! =====")
-embed(globals(), locals())
+# print("===== Done! =====")
+# embed(globals(), locals())
 ##############################################################################
 
 save_hgs_correlation_with_brain_regions_results(
