@@ -59,22 +59,27 @@ df_mri = load_corrected_prediction_results(
 
 ###############################################################################
 if tiv_status == "without_tiv":
-    df_brain_without_tiv = load_removed_tiv_from_brain_data(brain_data_type, schaefer)
+    
+    df_brain_without_tiv = load_removed_tiv_from_brain_data(session, brain_data_type, schaefer)
 
 ##############################################################################
-df_merged = pd.merge(df_brain_without_tiv, df_mri, left_index=True, right_index=True, how='inner')
+    if len(df_brain_without_tiv) > 0:
+        df_merged = pd.merge(df_brain_without_tiv, df_mri, left_index=True, right_index=True, how='inner')
 
-print(df_merged)
-print("===== Done! =====")
-embed(globals(), locals())
+        print(df_merged)
+        # print("===== Done! =====")
+        # embed(globals(), locals())
 ##############################################################################
-save_overlap_brain_data_with_mri_data(
-    df_merged,
-    brain_data_type,
-    schaefer,
-    session,
-    gender,
-)
+        save_overlap_brain_data_with_mri_data(
+            df_merged,
+            brain_data_type,
+            schaefer,
+            session,
+            gender,
+        )
+    else: 
+        print("There is no subject with brain data for this session")
+
 
 print("===== Done! =====")
 embed(globals(), locals())

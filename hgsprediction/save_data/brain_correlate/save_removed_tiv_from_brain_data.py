@@ -5,6 +5,7 @@ import numpy as np
 
 def save_removed_tiv_from_brain_data(
     df,
+    session,
     brain_data_type,
     schaefer,
 ):
@@ -20,7 +21,7 @@ def save_removed_tiv_from_brain_data(
                 f"{brain_data_type.upper()}_subcorticals_cerebellum",
                 f"schaefer{schaefer}",            
                 "brain_data_without_tiv",
-                f"session_2_and_3_ukb",
+                f"{session}_session_ukb",
             )
     if(not os.path.isdir(folder_path)):
         os.makedirs(folder_path)

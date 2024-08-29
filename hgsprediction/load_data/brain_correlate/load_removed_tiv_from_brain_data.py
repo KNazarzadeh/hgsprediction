@@ -4,6 +4,7 @@ import numpy as np
 
 
 def load_removed_tiv_from_brain_data(
+    session,
     brain_data_type,
     schaefer,
 ):
@@ -19,14 +20,18 @@ def load_removed_tiv_from_brain_data(
                 f"{brain_data_type.upper()}_subcorticals_cerebellum",
                 f"schaefer{schaefer}",            
                 "brain_data_without_tiv",
-                "session_2_and_3_ukb",
+                f"{session}_session_ukb",
             )
     
-    # Define the csv file path to save
-    file_path = os.path.join(
-        folder_path,
-        f"brain_{brain_data_type}_Schaefer{schaefer}_without_tiv_data.csv")
+    if(os.path.isdir(folder_path)):
+        # Define the csv file path to save
+        file_path = os.path.join(
+            folder_path,
+            f"brain_{brain_data_type}_Schaefer{schaefer}_without_tiv_data.csv")
 
-    df = pd.read_csv(file_path, sep=',', index_col=0)
+        df = pd.read_csv(file_path, sep=',', index_col=0)
     
+    else:
+        df = pd.DataFrame()
+        
     return df

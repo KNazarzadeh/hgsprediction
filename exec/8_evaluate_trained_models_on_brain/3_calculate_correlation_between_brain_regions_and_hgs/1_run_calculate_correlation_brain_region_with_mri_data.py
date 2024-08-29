@@ -28,26 +28,32 @@ data_set =sys.argv[9]
 brain_data_type = sys.argv[10]
 tiv_status = sys.argv[11]
 schaefer = sys.argv[12]
-session = sys.argv[13]
-gender = sys.argv[14]
-stats_correlation_type = sys.argv[15]
-corr_target = sys.argv[16]
+gender = sys.argv[13]
+stats_correlation_type = sys.argv[14]
+corr_target = sys.argv[15]
 # print("===== Done! =====")
 # embed(globals(), locals())
 ###############################################################################
-df = load_overlap_brain_data_with_mri_data(
+df_session_2 = load_overlap_brain_data_with_mri_data(
     brain_data_type,
     schaefer,
-    session,
+    "2",
     gender,)
 
-##############################################################################
-if tiv_status == "without_tiv":
-    df_brain_without_tiv = load_removed_tiv_from_brain_data(brain_data_type, schaefer)
+df_session_3 = load_overlap_brain_data_with_mri_data(
+    brain_data_type,
+    schaefer,
+    "3",
+    gender,)
+print(df_session_3)
+###############################################################################
+if len(df_session_3) > 0:
+    df = pd.concat([df_session_2, df_session_3], axis=0)
+else:
+    df = df_session_2.copy()
 
 ##############################################################################
-n_regions = df_brain_without_tiv.shape[1]
-x_axis = df_brain_without_tiv.columns
+x_axis = df.iloc[:,:1088].columns
 # print("===== Done! =====")
 # embed(globals(), locals())
 ##############################################################################
@@ -64,11 +70,11 @@ elif corr_target == "hgs_corrected_delta":
 
 ##############################################################################
 # Correlation with True HGS
-df_corr, df_corr_significant, df_n_regions_survived = calculate_brain_correlation_with_hgs(df, y_axis, x_axis, stats_correlation_type)
+df_corr, df_corr_significant, n_regions_survived = calculate_brain_correlation_with_hgs(df, y_axis, x_axis, stats_correlation_type)
 # print("===== Done! =====")
 # embed(globals(), locals())
 ##############################################################################
-
+session = '2_and_3'
 save_hgs_correlation_with_brain_regions_results(
     df_corr,
     brain_data_type,
@@ -78,5 +84,8 @@ save_hgs_correlation_with_brain_regions_results(
     corr_target,
 )
 
+
+print("n_regions_survived=", n_regions_survived)
+print(x_axis)
 print("===== Done! =====")
 embed(globals(), locals())
