@@ -31,10 +31,6 @@ def load_hgs_correlation_with_brain_regions_results(
             f"{corr_target}", 
         )
     
-    
-    if(not os.path.isdir(folder_path)):
-        os.makedirs(folder_path)
-
     # Define the csv file path to save
     file_path = os.path.join(
         folder_path,

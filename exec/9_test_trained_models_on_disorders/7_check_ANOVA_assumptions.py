@@ -81,6 +81,7 @@ female_post_patients = df_female[df_female["time_point"]==f"post-{population}"][
 #     p-value > α: If the p-value is greater than the significance level, you fail to reject the null hypothesis. 
 # This indicates that there is no sufficient evidence to suggest the variances are different, supporting the assumption of equal variances among the groups.
 ######################
+print("Check Homogeneity of Variance to use gender as a main factor in ANOVA")
 # Between male controls and female controls (pre-time_point)
 stat_male_female_pre_controls, p_value_male_female_pre_controls = levene(male_pre_controls, female_pre_controls)
 if p_value_male_female_pre_controls < .05:
@@ -181,21 +182,21 @@ if len(df_disorder[df_disorder['time_point']==f'pre-{population}']) < 30:
     # For male controls (pre-time_point)
     stat_male_pre_controls, p_value_male_pre_controls = shapiro(male_pre_controls)
     if p_value <= .05:
-        print(f"Shapiro-Wilk test for male controls (pre-time_point) is rejected (The data does not look normal): (p-value = {p_value_male_pre_controls:.6f}")    
+        print(f"Shapiro-Wilk test for male controls (pre-time_point) is rejected (The data does not look normal): (p-value = {p_value_male_pre_controls:.6f})")    
     else:
-        print(f"Shapiro-Wilk test for male controls (pre-time_point) is met (The data looks normal): (p-value = {p_value_male_pre_controls:.6f}")
+        print(f"Shapiro-Wilk test for male controls (pre-time_point) is met (The data looks normal): (p-value = {p_value_male_pre_controls:.6f})")
 
     # For male controls (post-time_point)
     stat_male_post_controls, p_value_male_post_controls = shapiro(male_post_controls)
     if p_value <= .05:
-        print(f"Shapiro-Wilk test for male controls (post-time_point) is rejected (The data does not look normal): (p-value = {p_value_male_post_controls:.6f}")    
+        print(f"Shapiro-Wilk test for male controls (post-time_point) is rejected (The data does not look normal): (p-value = {p_value_male_post_controls:.6f})")    
     else:
-        print(f"Shapiro-Wilk test for male controls (post-time_point) is met (The data looks normal): (p-value = {p_value_male_post_controls:.6f}")
+        print(f"Shapiro-Wilk test for male controls (post-time_point) is met (The data looks normal): (p-value = {p_value_male_post_controls:.6f})")
 
     # For female controls (pre-time_point)
     stat_female_pre_controls, p_value_female_pre_controls = shapiro(female_pre_controls)
     if p_value <= .05:
-        print(f"Shapiro-Wilk test for female controls (pre-time_point) is rejected (The data does not look normal): (p-value = {p_value_female_pre_controls:.6f}")    
+        print(f"Shapiro-Wilk test for female controls (pre-time_point) is rejected (The data does not look normal): (p-value = {p_value_female_pre_controls:.6f})")    
     else:
         print(f"Shapiro-Wilk test for female controls (pre-time_point) is met (The data looks normal): (p-value = {p_value_female_pre_controls:.6f}")
         
@@ -205,36 +206,36 @@ if len(df_disorder[df_disorder['time_point']==f'pre-{population}']) < 30:
         print(f"Shapiro-Wilk test for female controls (post-time_point) is rejected (The data does not look normal): (p-value = {p_value_female_post_controls:.6f}")
         
     else:
-        print(f"Shapiro-Wilk test for female controls (post-time_point) is met (The data looks normal): (p-value = {p_value_female_post_controls:.6f}")
+        print(f"Shapiro-Wilk test for female controls (post-time_point) is met (The data looks normal): (p-value = {p_value_female_post_controls:.6f})")
 
     # For male patients (pre-time_point)
     stat_male_pre_patients, p_value_male_pre_patients = shapiro(male_pre_patients)
     if p_value <= .05:
-        print(f"Shapiro-Wilk test for male patients (pre-time_point) is rejected (The data does not look normal): (p-value = {p_value_male_pre_patients:.6f}")    
+        print(f"Shapiro-Wilk test for male patients (pre-time_point) is rejected (The data does not look normal): (p-value = {p_value_male_pre_patients:.6f})")    
     else:
-        print(f"Shapiro-Wilk test for male patients (pre-time_point) is met (The data looks normal): (p-value = {p_value_male_pre_patients:.6f}")
+        print(f"Shapiro-Wilk test for male patients (pre-time_point) is met (The data looks normal): (p-value = {p_value_male_pre_patients:.6f})")
         
     # For male patients (post-time_point)
     stat_male_post_patients, p_value_male_post_patients = shapiro(male_post_patients)
     if p_value <= .05:
-        print(f"Shapiro-Wilk test for male patients (post-time_point) is rejected (The data does not look normal): (p-value = {p_value_male_post_patients:.6f}")    
+        print(f"Shapiro-Wilk test for male patients (post-time_point) is rejected (The data does not look normal): (p-value = {p_value_male_post_patients:.6f})")    
     else:
-        print(f"Shapiro-Wilk test for male patients (post-time_point) is met (The data looks normal): (p-value = {p_value_male_post_patients:.6f}")
+        print(f"Shapiro-Wilk test for male patients (post-time_point) is met (The data looks normal): (p-value = {p_value_male_post_patients:.6f})")
 
     # For female patients (pre-time_point)
     stat_female_pre_patients, p_value_female_pre_patients = shapiro(female_pre_patients)
     if p_value <= .05:
-        print(f"Shapiro-Wilk test for male patients (pre-time_point) is rejected (The data does not look normal): (p-value = {p_value_female_pre_patients:.6f}")    
+        print(f"Shapiro-Wilk test for male patients (pre-time_point) is rejected (The data does not look normal): (p-value = {p_value_female_pre_patients:.6f})")    
     else:
-        print(f"Shapiro-Wilk test for female patients (pre-time_point) is met (The data looks normal): (p-value = {p_value_female_pre_patients:.6f}")
+        print(f"Shapiro-Wilk test for female patients (pre-time_point) is met (The data looks normal): (p-value = {p_value_female_pre_patients:.6f})")
 
     # For female patients (post-time_point)
 
     stat_female_post_patients, p_value_female_post_patients = shapiro(female_post_patients)
     if p_value <= .05:
-        print(f"Shapiro-Wilk test for female patients (post-time_point) is rejected (The data does not look normal): (p-value = {p_value_female_post_patients:.6f}")
+        print(f"Shapiro-Wilk test for female patients (post-time_point) is rejected (The data does not look normal): (p-value = {p_value_female_post_patients:.6f})")
     else:
-        print(f"Shapiro-Wilk test for female patients (post-time_point) is met (The data looks normal): (p-value = {p_value_female_post_patients:.6f}")
+        print(f"Shapiro-Wilk test for female patients (post-time_point) is met (The data looks normal): (p-value = {p_value_female_post_patients:.6f})")
         
     ####################
     if (p_value_male_pre_controls <= .05 or p_value_male_post_controls <= .05 or p_value_male_pre_patients <= .05 or p_value_male_post_patients <= .05 or
@@ -274,59 +275,59 @@ elif len(df_disorder[df_disorder['time_point']==f'pre-{population}']) > 30:
 
     stat_male_pre_controls, p_value_male_pre_controls = kstest(male_pre_controls, "norm")
     if p_value <= .05:
-        print(f"Kolmogorov-Smirnov test for male controls (pre-time_point) is rejected (The data does not look normal): (p-value = {p_value_male_pre_controls:.6f}")    
+        print(f"Kolmogorov-Smirnov test for male controls (pre-time_point) is rejected (The data does not look normal): (p-value = {p_value_male_pre_controls:.6f})")    
     else:
-        print(f"Kolmogorov-Smirnov test for male controls (pre-time_point) is met (The data looks normal): (p-value = {p_value_male_pre_controls:.6f}")
+        print(f"Kolmogorov-Smirnov test for male controls (pre-time_point) is met (The data looks normal): (p-value = {p_value_male_pre_controls:.6f})")
 
     # For male controls (post-time_point)
     stat_male_post_controls, p_value_male_post_controls = kstest(male_post_controls, "norm")
     if p_value <= .05:
-        print(f"Kolmogorov-Smirnov test for male controls (post-time_point) is rejected (The data does not look normal): (p-value = {p_value_male_post_controls:.6f}")    
+        print(f"Kolmogorov-Smirnov test for male controls (post-time_point) is rejected (The data does not look normal): (p-value = {p_value_male_post_controls:.6f})")    
     else:
-        print(f"Kolmogorov-Smirnov test for male controls (post-time_point) is met (The data looks normal): (p-value = {p_value_male_post_controls:.6f}")
+        print(f"Kolmogorov-Smirnov test for male controls (post-time_point) is met (The data looks normal): (p-value = {p_value_male_post_controls:.6f})")
 
     # For female controls (pre-time_point)
     stat_female_pre_controls, p_value_female_pre_controls = kstest(female_pre_controls, "norm")
     if p_value <= .05:
-        print(f"Kolmogorov-Smirnov test for female controls (pre-time_point) is rejected (The data does not look normal): (p-value = {p_value_female_pre_controls:.6f}")    
+        print(f"Kolmogorov-Smirnov test for female controls (pre-time_point) is rejected (The data does not look normal): (p-value = {p_value_female_pre_controls:.6f})")    
     else:
-        print(f"Kolmogorov-Smirnov test for female controls (pre-time_point) is met (The data looks normal): (p-value = {p_value_female_pre_controls:.6f}")
+        print(f"Kolmogorov-Smirnov test for female controls (pre-time_point) is met (The data looks normal): (p-value = {p_value_female_pre_controls:.6f})")
         
     # For female controls (post-time_point)
     stat_female_post_controls, p_value_female_post_controls = kstest(female_post_controls, "norm")
     if p_value <= .05:
-        print(f"Kolmogorov-Smirnov test for female controls (post-time_point) is rejected (The data does not look normal): (p-value = {p_value_female_post_controls:.6f}")
+        print(f"Kolmogorov-Smirnov test for female controls (post-time_point) is rejected (The data does not look normal): (p-value = {p_value_female_post_controls:.6f})")
         
     else:
-        print(f"Kolmogorov-Smirnov test for female controls (post-time_point) is met (The data looks normal): (p-value = {p_value_female_post_controls:.6f}")
+        print(f"Kolmogorov-Smirnov test for female controls (post-time_point) is met (The data looks normal): (p-value = {p_value_female_post_controls:.6f})")
 
     # For male patients (pre-time_point)
     stat_male_pre_patients, p_value_male_pre_patients = kstest(male_pre_patients, "norm")
     if p_value <= .05:
-        print(f"Kolmogorov-Smirnov test for male patients (pre-time_point) is rejected (The data does not look normal): (p-value = {p_value_male_pre_patients:.6f}")    
+        print(f"Kolmogorov-Smirnov test for male patients (pre-time_point) is rejected (The data does not look normal): (p-value = {p_value_male_pre_patients:.6f})")    
     else:
-        print(f"Kolmogorov-Smirnov test for male patients (pre-time_point) is met (The data looks normal): (p-value = {p_value_male_pre_patients:.6f}")
+        print(f"Kolmogorov-Smirnov test for male patients (pre-time_point) is met (The data looks normal): (p-value = {p_value_male_pre_patients:.6f})")
         
     # For male patients (post-time_point)
     stat_male_post_patients, p_value_male_post_patients = kstest(male_post_patients, "norm")
     if p_value <= .05:
-        print(f"Kolmogorov-Smirnov test for male patients (post-time_point) is rejected (The data does not look normal): (p-value = {p_value_male_post_patients:.6f}")    
+        print(f"Kolmogorov-Smirnov test for male patients (post-time_point) is rejected (The data does not look normal): (p-value = {p_value_male_post_patients:.6f})")    
     else:
-        print(f"Kolmogorov-Smirnov test for male patients (post-time_point) is met (The data looks normal): (p-value = {p_value_male_post_patients:.6f}")
+        print(f"Kolmogorov-Smirnov test for male patients (post-time_point) is met (The data looks normal): (p-value = {p_value_male_post_patients:.6f})")
 
     # For female patients (pre-time_point)
     stat_female_pre_patients, p_value_female_pre_patients = kstest(female_pre_patients, "norm")
     if p_value <= .05:
-        print(f"Kolmogorov-Smirnov test for male patients (pre-time_point) is rejected (The data does not look normal): (p-value = {p_value_female_pre_patients:.6f}")    
+        print(f"Kolmogorov-Smirnov test for male patients (pre-time_point) is rejected (The data does not look normal): (p-value = {p_value_female_pre_patients:.6f})")    
     else:
         print(f"Kolmogorov-Smirnov test for female patients (pre-time_point) is met (The data looks normal): (p-value = {p_value_female_pre_patients:.6f}")
 
     # For female patients (post-time_point)
     stat_female_post_patients, p_value_female_post_patients = shapiro(female_post_patients)
     if p_value <= .05:
-        print(f"Kolmogorov-Smirnov test for female patients (post-time_point) is rejected (The data does not look normal): (p-value = {p_value_female_post_patients:.6f}")
+        print(f"Kolmogorov-Smirnov test for female patients (post-time_point) is rejected (The data does not look normal): (p-value = {p_value_female_post_patients:.6f})")
     else:
-        print(f"Kolmogorov-Smirnov test for female patients (post-time_point) is met (The data looks normal): (p-value = {p_value_female_post_patients:.6f}")
+        print(f"Kolmogorov-Smirnov test for female patients (post-time_point) is met (The data looks normal): (p-value = {p_value_female_post_patients:.6f})")
         
         
     ####################
@@ -360,6 +361,7 @@ print("#########################################################################
 ###############################################################################
 ##############################################################################
 # Check Homogeneity of Variance to use ANOVA without Gender factor:
+print("Check Homogeneity of Variance to use ANOVA for both gender together")
 # Controls (pre-time_point) and (post-time_point):
 df_control_pre = df_control[df_control['time_point']=='pre-control'][anova_target]
 df_control_post = df_control[df_control['time_point']=='post-control'][anova_target]
@@ -421,29 +423,29 @@ if len(df_disorder[df_disorder['time_point']==f'pre-{population}']) < 30:
     # For Controls (pre-time_point):
     stat_control_pre, p_value_control_pre = shapiro(df_control_pre)
     if p_value <= 0.05:
-        print(f"Shapiro-Wilk test for controls (pre-time_point) is rejected (The data does not look normal): (p-value = {p_value_control_pre:.6f}")
+        print(f"Shapiro-Wilk test for controls (pre-time_point) is rejected (The data does not look normal): (p-value = {p_value_control_pre:.6f})")
     else:
-        print(f"Shapiro-Wilk test for controls (pre-time_point) is met (The data looks normal): (p-value = {p_value_control_pre:.6f}")
+        print(f"Shapiro-Wilk test for controls (pre-time_point) is met (The data looks normal): (p-value = {p_value_control_pre:.6f})")
         
     # For Controls (post-time_point):
     stat_control_post, p_value_control_post = shapiro(df_control_post)
     if p_value <= 0.05:
-        print(f"Shapiro-Wilk test for controls (post-time_point) is rejected (The data does not look normal): (p-value = {p_value_control_post:.6f}")
+        print(f"Shapiro-Wilk test for controls (post-time_point) is rejected (The data does not look normal): (p-value = {p_value_control_post:.6f})")
     else:
-        print(f"Shapiro-Wilk test for controls (post-time_point) is met (The data looks normal): (p-value = {p_value_control_post:.6f}")
+        print(f"Shapiro-Wilk test for controls (post-time_point) is met (The data looks normal): (p-value = {p_value_control_post:.6f})")
     
     # For Controls (post-time_point):
     stat_disorder_pre, p_value_disorder_pre = shapiro(df_disorder_pre)
     if p_value <= 0.05:
-        print(f"Shapiro-Wilk test for patients (pre-time_point) is rejected (The data does not look normal): (p-value = {p_value_disorder_pre:.6f}")
+        print(f"Shapiro-Wilk test for patients (pre-time_point) is rejected (The data does not look normal): (p-value = {p_value_disorder_pre:.6f})")
     else:
-        print(f"Shapiro-Wilk test for patients (pre-time_point) is met (The data looks normal): (p-value = {p_value_disorder_pre:.6f}")
+        print(f"Shapiro-Wilk test for patients (pre-time_point) is met (The data looks normal): (p-value = {p_value_disorder_pre:.6f})")
 
     stat_disorder_post, p_value_disorder_post = shapiro(df_disorder_post)
     if p_value <= .05:
-            print(f"Shapiro-Wilk test for patients (post-time_point) is rejected (The data does not look normal): (p-value = {p_value_disorder_post:.6f}")
+            print(f"Shapiro-Wilk test for patients (post-time_point) is rejected (The data does not look normal): (p-value = {p_value_disorder_post:.6f})")
     else:
-        print(f"Shapiro-Wilk test for patients (post-time_point) is met (The data looks normal): (p-value = {p_value_disorder_post:.6f}")
+        print(f"Shapiro-Wilk test for patients (post-time_point) is met (The data looks normal): (p-value = {p_value_disorder_post:.6f})")
     
     ####################
     if (p_value_male_pre_controls <= .05 or p_value_male_post_controls <= .05 or p_value_male_pre_patients <= .05 or p_value_male_post_patients <= .05 or

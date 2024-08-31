@@ -75,6 +75,8 @@ df_corr, df_corr_significant, n_regions_survived = calculate_brain_correlation_w
 # embed(globals(), locals())
 ##############################################################################
 session = '2_and_3'
+# print("===== Done! =====")
+# embed(globals(), locals())
 save_hgs_correlation_with_brain_regions_results(
     df_corr,
     brain_data_type,
