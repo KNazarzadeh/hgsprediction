@@ -98,8 +98,6 @@ df_female = df_female_corr[["regions", "correlations_values"]]
 df_male_corr.loc[~df_male_corr['regions'].isin(filtered_rows_male['regions']), 'correlations_values'] = 0
 df_male = df_male_corr[["regions", "correlations_values"]]
 ###############################################################################
-print("===== Done! =====")
-embed(globals(), locals())
 df_both_gender_corr_intersected = df_both_gender_corr[df_both_gender_corr['average_correlations']!=0]
 df_female_corr_not_intersected = df_female[df_female['correlations_values']!=0]
 df_male_corr_not_intersected = df_male[df_male['correlations_values']!=0]
@@ -118,11 +116,16 @@ df_sorted_female = df_female_corr_not_intersected.sort_values(by='correlations_v
 df_sorted_male = df_male_corr_not_intersected.sort_values(by='correlations_values', key=abs, ascending=False)
 
 ###############################################################################
-# Select the top 30 regions
-top_corr_both_gender = df_sorted_both_gender.head(int(n_top_regions))
-top_corr_female = df_sorted_female.head(int(n_top_regions))
-top_corr_male = df_sorted_male.head(int(n_top_regions))
+# Subset the data for top 30 and bottom 30 regions
+n_top_regions = int(n_top_regions)
+top_both = df_sorted_both_gender.head(n_top_regions)
+bottom_both = df_sorted_both_gender.tail(n_top_regions)
 
+top_male = df_sorted_male.head(n_top_regions)
+bottom_male = df_sorted_male.tail(n_top_regions)
+
+top_female = df_sorted_female.head(n_top_regions)
+bottom_female = df_sorted_female.tail(n_top_regions)
 ###############################################################################
 # Apply the custom colormap
 cmap_custom = plt.cm.RdBu_r
@@ -131,86 +134,77 @@ norm = Normalize(vmin=-0.32, vmax=0.32)
 ###############################################################################
 # Normalize the 'Correlation' values to the range [-0.32, 0.32] for coloring
 # Ensure that all values are within the range [-0.32, 0.32] before applying normalization
-top_corr_both_gender['Normalized_Correlation'] = top_corr_both_gender['average_correlations'].clip(lower=-0.32, upper=0.32)
-normalized_values_both_gender = norm(top_corr_both_gender['Normalized_Correlation'])
+# Create color maps for each subset
+colors_top_30_both = cmap_custom(norm(top_both['average_correlations'].clip(lower=-0.32, upper=0.32)))
+colors_bottom_30_both = cmap_custom(norm(bottom_both['average_correlations'].clip(lower=-0.32, upper=0.32)))
 
-top_corr_female['Normalized_Correlation'] = top_corr_female['correlations_values'].clip(lower=-0.32, upper=0.32)
-normalized_values_female = norm(top_corr_female['Normalized_Correlation'])
+colors_top_30_male = cmap_custom(norm(top_male['correlations_values'].clip(lower=-0.32, upper=0.32)))
+colors_bottom_30_male = cmap_custom(norm(bottom_male['correlations_values'].clip(lower=-0.32, upper=0.32)))
 
-top_corr_male['Normalized_Correlation'] = top_corr_male['correlations_values'].clip(lower=-0.32, upper=0.32)
-normalized_values_male = norm(top_corr_male['Normalized_Correlation'])
+colors_top_30_female = cmap_custom(norm(top_female['correlations_values'].clip(lower=-0.32, upper=0.32)))
+colors_bottom_30_female = cmap_custom(norm(bottom_female['correlations_values'].clip(lower=-0.32, upper=0.32)))
 
-# Plot the barplot
-# Create a color map for the bar colors based on normalized values
-colors_both_gender = cmap_custom(normalized_values_both_gender)
-colors_female = cmap_custom(normalized_values_female)
-colors_male = cmap_custom(normalized_values_male)
-
+print("===== Done! =====")
+embed(globals(), locals())
 ###############################################################################
 # Plot the barplot
-fig, ax = plt.subplots(3,1, figsize=(50, 18))
+fig, ax = plt.subplots(3,1, figsize=(60, 30))
 sns.set_style("white")
-sns.barplot(x='regions', y='average_correlations', data=top_corr_both_gender, palette=colors_both_gender, ax=ax[0])
-sns.barplot(x='regions', y='correlations_values', data=top_corr_male, palette=colors_male, ax=ax[1])
-sns.barplot(x='regions', y='correlations_values', data=top_corr_female, palette=colors_female, ax=ax[2])
+# Plotting the top 30 and bottom 30 for both genders
+sns.barplot(x='regions', y='average_correlations', data=top_both, palette=colors_top_30_both, ax=ax[0])
+sns.barplot(x='regions', y='average_correlations', data=bottom_both, palette=colors_bottom_30_both, ax=ax[0])
 
-# Adjust the bar width manually
-bar_width = 0.3  # Decrease bar width
-for bar in ax[0].patches:
-    bar.set_width(bar_width)
-for bar in ax[1].patches:
-    bar.set_width(bar_width)
-for bar in ax[1].patches:
-    bar.set_width(bar_width)
+# Plotting the top 30 and bottom 30 for male
+sns.barplot(x='regions', y='correlations_values', data=top_male, palette=colors_top_30_male, ax=ax[1])
+sns.barplot(x='regions', y='correlations_values', data=bottom_male, palette=colors_bottom_30_male, ax=ax[1])
 
-# Adjust x-tick positions and labels
-x_positions_0 = np.arange(len(top_corr_both_gender))
-ax[0].set_xticks(x_positions_0)
-ax[0].set_xticklabels(top_corr_both_gender['regions'], rotation=45, ha='right', fontsize=18)
+# Plotting the top 30 and bottom 30 for female
+sns.barplot(x='regions', y='correlations_values', data=top_female, palette=colors_top_30_female, ax=ax[2])
+sns.barplot(x='regions', y='correlations_values', data=bottom_female, palette=colors_bottom_30_female, ax=ax[2])
 
-# Adjust x-tick positions and labels
-x_positions_1 = np.arange(len(top_corr_male))
-ax[1].set_xticks(x_positions_1)
-ax[1].set_xticklabels(top_corr_male['regions'], rotation=45, ha='right', fontsize=18)
+# Adjust bar width and recenter for all plots
+bar_width = 0.3
+for i in range(3):
+    for j in range(2):
+        for bar in ax[i, j].patches:
+            bar.set_width(bar_width)
+            bar.set_x(bar.get_x() + (1 - bar_width) / 2)
 
-# Adjust x-tick positions and labels
-x_positions_2 = np.arange(len(top_corr_female))
-ax[2].set_xticks(x_positions_2)
-ax[2].set_xticklabels(top_corr_female['regions'], rotation=45, ha='right', fontsize=18)
+# Adjust x-tick positions and labels for each subplot
+for i in range(3):
+    ax[i, 0].set_xticks(np.arange(len(top_both)) + bar_width / 2)
+    ax[i, 0].set_xticklabels(top_both['regions'], rotation=45, ha='right', fontsize=24)
+    ax[i, 1].set_xticks(np.arange(len(bottom_both)) + bar_width / 2)
+    ax[i, 1].set_xticklabels(bottom_both['regions'], rotation=45, ha='right', fontsize=24)
 
-# Set y-axis limits (you can adjust these values based on your data)
-ymin = -0.32  # Example minimum value
-ymax = 0  # Example maximum value
-ystep = 0.08
-ax[0].set_ylim(ymin, ymax)
-ax[1].set_ylim(ymin, ymax)
-ax[2].set_ylim(ymin, ymax)
+# Set y-axis limits to be from -0.32 to 0.32
+ymin, ymax, ystep = -0.32, 0.32, 0.08
 
-# Set specific y-axis ticks
-ax[0].set_yticks(np.arange(ymin, ymax+0.08, ystep))
-ax[1].set_yticks(np.arange(ymin, ymax+0.08, ystep))
-ax[2].set_yticks(np.arange(ymin, ymax+0.08, ystep))
+for i in range(3):
+    ax[i, 0].set_ylim(ymin, ymax)
+    ax[i, 1].set_ylim(ymin, ymax)
+    ax[i, 0].set_yticks(np.arange(ymin, ymax + ystep, ystep))
+    ax[i, 1].set_yticks(np.arange(ymin, ymax + ystep, ystep))
+    ax[i, 0].yaxis.set_tick_params(labelsize=24)
+    ax[i, 1].yaxis.set_tick_params(labelsize=24)
 
-# Set y-tick labels font size
-ax[0].yaxis.set_tick_params(labelsize=18)
-ax[1].yaxis.set_tick_params(labelsize=18)
-ax[2].yaxis.set_tick_params(labelsize=18)
+# Set y-axis labels for all rows
+for i in range(3):
+    ax[i, 0].set_ylabel('correlations', fontsize=28)
+    ax[i, 1].set_ylabel('correlations', fontsize=28)
 
-# Add labels and title
-ax[0].set_xlabel('')
-ax[1].set_xlabel('')
-ax[2].set_xlabel('')
+# Remove x-axis labels
+for i in range(3):
+    ax[i, 0].set_xlabel('')
+    ax[i, 1].set_xlabel('')
 
-ax[0].set_ylabel('correlations', fontsize=20)
-ax[1].set_ylabel('correlations', fontsize=20)
-ax[2].set_ylabel('correlations', fontsize=20)
-
-plt.title(f'Top {n_top_regions} Regions with Highest Absolute Correlations')
+# Add title
+plt.suptitle(f'Top 30 and Bottom 30 Regions with Highest and Lowest Absolute Correlations', fontsize=32)
 
 plt.tight_layout()
 # Show the plot
 plt.show()
-plt.savefig(f"all_genders_data_regions_{corr_target}_{n_top_regions}_top_regions.png")
+plt.savefig(f"xxxxx.png")
 
 print("===== Done! =====")
 embed(globals(), locals())
