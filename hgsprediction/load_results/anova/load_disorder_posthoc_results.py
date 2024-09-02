@@ -6,7 +6,7 @@ from ptpython.repl import embed
 # print("===== Done! =====")
 # embed(globals(), locals())
 
-def load_anova_results(
+def load_disorder_posthoc_results(
     population,
     mri_status,
     session_column,
@@ -20,6 +20,7 @@ def load_anova_results(
     anova_target,
     gender,
     anova_type,
+    first_event,
 ):
     if confound_status == "0":
         confound = "without_confound_removal"
@@ -34,6 +35,7 @@ def load_anova_results(
             "project_hgsprediction",  
             "results_hgsprediction",
             f"{population}",
+            f"{first_event}",
             f"{mri_status}",
             f"{session_column}",
             f"{feature_type}",
@@ -47,32 +49,18 @@ def load_anova_results(
             f"{anova_target}",
             f"{anova_type}",
         )
-        
-    if(not os.path.isdir(folder_path)):
-        os.makedirs(folder_path)
+    file_path = os.path.join(
+            folder_path,
+            f"{gender}_pairwise_posthoc_result_table.pkl")
+            
+    with open(file_path, 'rb') as f:
+        df_pairwise_posthoc = pickle.load(f)
 
-    # Define the csv file path to save
     file_path = os.path.join(
         folder_path,
-        "anova_contact_control_disorder_data.csv")
-    
-    df = pd.read_csv(file_path, sep=',', index_col=0)
-    
-    # Define the csv file path to save
-    if anova_type == "mixedlm_both_gender":
-        file_path = os.path.join(
-        folder_path,
-        f"anova_table.pkl")
+        f"{gender}_tukeyhsd_posthoc_result_table.pkl")
         
-        # Load the model
-        with open(file_path, 'rb') as f:
-            df_anova_result = pickle.load(f)
-    
-    elif anova_type == "pingouin":
-        file_path = os.path.join(
-            folder_path,
-            f"anova_table_{gender}.pkl")
+    with open(file_path, 'rb') as f:
+        df_posthoc_summary = pickle.load(f)
         
-        # Load the model
-        with open(file_path, 'rb') as f:
-            df_anova_result = pickle.load(f)
+    return df_pairwise_posthoc, df_posthoc_summary

@@ -6,7 +6,7 @@ from ptpython.repl import embed
 # print("===== Done! =====")
 # embed(globals(), locals())
 
-def save_posthoc_results(
+def save_disorder_posthoc_results(
     df_pairwise_posthoc,
     df_posthoc_summary,
     population,
@@ -58,8 +58,9 @@ def save_posthoc_results(
     file_path = os.path.join(
         folder_path,
         f"{gender}_pairwise_posthoc_result_table.pkl")
-        
-    df_pairwise_posthoc.to_csv(file_path, sep=',', index=True)
+    
+    with open(file_path, 'wb') as f:
+        pickle.dump(df_pairwise_posthoc, f)
 
     file_path = os.path.join(
         folder_path,

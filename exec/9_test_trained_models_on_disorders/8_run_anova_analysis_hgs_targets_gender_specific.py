@@ -5,8 +5,8 @@ import numpy as np
 import pandas as pd
 
 from hgsprediction.load_results.anova.load_prepared_data_for_anova import load_prepare_data_for_anova
-from hgsprediction.save_results.anova.save_anova_results import save_anova_results
-from hgsprediction.save_results.anova.save_posthoc_results import save_posthoc_results
+from hgsprediction.save_results.anova.save_disorder_anova_results import save_disorder_anova_results
+from hgsprediction.save_results.anova.save_disorder_posthoc_results import save_disorder_posthoc_results
 
 import pingouin
 from pingouin import mixed_anova
@@ -61,7 +61,8 @@ df["Subject"] = df.index
 
 df_female = df[df["gender"]=="female"]
 df_male = df[df["gender"]=="male"]
-
+# print("===== Done! End =====")
+# embed(globals(), locals())
 ###############################################################################
 # Scenario (A):
 # In order to account for gender as a factor in ANOVA, individual analyses of variance (ANOVA) 
@@ -74,7 +75,7 @@ df_male = df[df["gender"]=="male"]
 aov_female = mixed_anova(dv=anova_target, between='group', within='time_point', subject='Subject', data=df_female)
 aov_male = mixed_anova(dv=anova_target, between='group', within='time_point', subject='Subject', data=df_male)
 
-save_anova_results(
+save_disorder_anova_results(
     df_female,
     aov_female,
     population,
@@ -93,7 +94,7 @@ save_anova_results(
     first_event,    
 )
 
-save_anova_results(
+save_disorder_anova_results(
     df_male,
     aov_male,
     population,
@@ -129,18 +130,17 @@ print("=========================================================================
 ################################################################################
 # Perform post-hoc tests if the ANOVA is significant
 interaction_female = aov_female[aov_female['Source'] == "Interaction"]
-if interaction_female['p-unc'].iloc[0] < 0.05:
-    # Perform post-hoc tests
-    df_pairwise_posthoc_female = pingouin.pairwise_ttests(dv=anova_target, between='group', within='time_point', subject='Subject', data=df_female, padjust='bonf')
-    print(df_pairwise_posthoc_female)
-    print("#-----------------------------------------------------------#")
-    interaction_female =  df_female.group.astype(str) + " | " + df_female.time_point.astype(str)
-    comp_female = mc.MultiComparison(df_female[f"{anova_target}"], interaction_female)
-    df_posthoc_summary_female = comp_female.tukeyhsd()
-    print("\n Female Post-Hoc Result:\n")
-    print(df_posthoc_summary_female.summary())
-    #-----------------------------------------------------------#
-    save_posthoc_results(
+# Perform post-hoc tests
+df_pairwise_posthoc_female = pingouin.pairwise_ttests(dv=anova_target, between='group', within='time_point', subject='Subject', data=df_female, padjust='bonf')
+print(df_pairwise_posthoc_female)
+print("#-----------------------------------------------------------#")
+interaction_female_posthoc =  df_female.group.astype(str) + " | " + df_female.time_point.astype(str)
+comp_female = mc.MultiComparison(df_female[f"{anova_target}"], interaction_female_posthoc)
+df_posthoc_summary_female = comp_female.tukeyhsd()
+print("\n Female Post-Hoc Result:\n")
+print(df_posthoc_summary_female.summary())
+#-----------------------------------------------------------#
+save_disorder_posthoc_results(
     df_pairwise_posthoc_female,
     df_posthoc_summary_female,
     population,
@@ -157,24 +157,26 @@ if interaction_female['p-unc'].iloc[0] < 0.05:
     "female",
     "pingouin",
     first_event,)
+if interaction_female['p-unc'].iloc[0] < 0.05:
+    print(f"There are significant interactions for female {anova_target}")
 else:
     print(f"Not significant interactions for {anova_target}")
     
 print("=================================================================================")
 
 interaction_male = aov_male[aov_male['Source'] == "Interaction"]
-if interaction_male['p-unc'].iloc[0] < 0.05:
-    # Perform post-hoc tests
-    df_pairwise_posthoc_male = pingouin.pairwise_ttests(dv=anova_target, between='group', within='time_point', subject='Subject', data=df_male, padjust='bonf')
-    print(df_pairwise_posthoc_male)
-    print("#-----------------------------------------------------------#")
-    interaction_male =  df_male.group.astype(str) + " | " + df_male.time_point.astype(str)
-    comp_male = mc.MultiComparison(df_male[f"{anova_target}"], interaction_male)
-    df_posthoc_summary_male = comp_male.tukeyhsd()
-    print("\n Male Post-Hoc Result:\n")
-    print(df_posthoc_summary_male.summary())
-    #-----------------------------------------------------------#
-    save_posthoc_results(
+
+# Perform post-hoc tests
+df_pairwise_posthoc_male = pingouin.pairwise_ttests(dv=anova_target, between='group', within='time_point', subject='Subject', data=df_male, padjust='bonf')
+print(df_pairwise_posthoc_male)
+print("#-----------------------------------------------------------#")
+interaction_male_posthoc =  df_male.group.astype(str) + " | " + df_male.time_point.astype(str)
+comp_male = mc.MultiComparison(df_male[f"{anova_target}"], interaction_male_posthoc)
+df_posthoc_summary_male = comp_male.tukeyhsd()
+print("\n Male Post-Hoc Result:\n")
+print(df_posthoc_summary_male.summary())
+#-----------------------------------------------------------#
+save_disorder_posthoc_results(
     df_pairwise_posthoc_male,
     df_posthoc_summary_male,
     population,
@@ -191,6 +193,8 @@ if interaction_male['p-unc'].iloc[0] < 0.05:
     "male",
     "pingouin",
     first_event,)
+if interaction_male['p-unc'].iloc[0] < 0.05:
+    print(f"There are significant interactions for males {anova_target}")
 else:
     print(f"Not significant interactions for {anova_target}")
 

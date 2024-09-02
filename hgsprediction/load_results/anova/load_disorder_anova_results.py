@@ -18,6 +18,9 @@ def load_disorder_anova_results(
     n_folds,
     n_samples,
     anova_target,
+    gender,
+    anova_type,
+    first_event,
 ):
     if confound_status == "0":
         confound = "without_confound_removal"
@@ -32,6 +35,7 @@ def load_disorder_anova_results(
             "project_hgsprediction",  
             "results_hgsprediction",
             f"{population}",
+            f"{first_event}",
             f"{mri_status}",
             f"{session_column}",
             f"{feature_type}",
@@ -43,38 +47,22 @@ def load_disorder_anova_results(
             f"1_to_{n_samples}_samples",
             "ANOVA_results",
             f"{anova_target}",
+            f"{anova_type}",
         )
-        
-    if(not os.path.isdir(folder_path)):
-        os.makedirs(folder_path)
 
     # Define the csv file path to save
     file_path = os.path.join(
         folder_path,
-        "anova_contact_control_disorder_data.csv")
+        f"{gender}_anova_contact_control_disorder_data.csv")
     
     df = pd.read_csv(file_path, sep=',', index_col=0)
-    
-    # Define the csv file path to save
-    file_path = os.path.join(
-        folder_path,
-        "anova_table.csv")
-    
-    df_anova_result = pd.read_csv(file_path, sep=',', index_col=0)
-    
-    # Define the csv file path to save
-    file_path = os.path.join(
-        folder_path,
-        "post_hoc_table_without_gender.pkl")
-    
-    df_post_hoc_result_without_gender = pd.read_pickle(file_path)
 
-    
-    # Define the csv file path to save
     file_path = os.path.join(
         folder_path,
-        "post_hoc_table_with_gender.pkl")
+        f"{gender}_anova_result_table.pkl")
+        
+    # Load the model
+    with open(file_path, 'rb') as f:
+        df_anova_result = pickle.load(f)
     
-    df_post_hoc_result_with_gender = pd.read_pickle(file_path)
-  
-    return  df, df_anova_result, df_post_hoc_result_without_gender, df_post_hoc_result_with_gender
+    return df, df_anova_result

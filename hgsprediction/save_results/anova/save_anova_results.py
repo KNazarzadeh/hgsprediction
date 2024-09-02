@@ -9,6 +9,8 @@ from ptpython.repl import embed
 def save_anova_results(
     df,
     df_anova_result,
+    df_post_hoc_result_without_gender,
+    df_post_hoc_result_with_gender,
     population,
     mri_status,
     session_column,
@@ -20,9 +22,6 @@ def save_anova_results(
     n_folds,
     n_samples,
     anova_target,
-    gender,
-    anova_type,
-    first_event,
 ):
     if confound_status == "0":
         confound = "without_confound_removal"
@@ -37,7 +36,6 @@ def save_anova_results(
             "project_hgsprediction",  
             "results_hgsprediction",
             f"{population}",
-            f"{first_event}",
             f"{mri_status}",
             f"{session_column}",
             f"{feature_type}",
@@ -49,7 +47,6 @@ def save_anova_results(
             f"1_to_{n_samples}_samples",
             "ANOVA_results",
             f"{anova_target}",
-            f"{anova_type}",
         )
         
     if(not os.path.isdir(folder_path)):
@@ -58,13 +55,29 @@ def save_anova_results(
     # Define the csv file path to save
     file_path = os.path.join(
         folder_path,
-        f"{gender}_anova_contact_control_disorder_data.csv")
+        "anova_contact_control_disorder_data.csv")
     
     df.to_csv(file_path, sep=',', index=True)
-
+    
+    # Define the csv file path to save
     file_path = os.path.join(
         folder_path,
-        f"{gender}_anova_result_table.pkl")
-        
+        "anova_table.csv")
+    
+    df_anova_result.to_csv(file_path, sep=',', index=False)
+    
+    # Define the csv file path to save
+    file_path = os.path.join(
+        folder_path,
+        "post_hoc_table_without_gender.pkl")
+    
     with open(file_path, 'wb') as f:
-        pickle.dump(df_anova_result, f)
+        pickle.dump(df_post_hoc_result_without_gender, f)
+    
+    # Define the csv file path to save
+    file_path = os.path.join(
+        folder_path,
+        "post_hoc_table_with_gender.pkl")
+    
+    with open(file_path, 'wb') as f:
+        pickle.dump(df_post_hoc_result_with_gender, f)

@@ -5,4 +5,4 @@ from .load_disorder_prediction_correlation_results import load_disorder_predicti
 
 from .load_disorder_matched_samples_results import load_disorder_matched_samples_results
 
-from .load_disorder_anova_results import load_disorder_anova_results
+from ..anova.load_disorder_anova_results import load_disorder_anova_results

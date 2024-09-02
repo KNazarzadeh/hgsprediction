@@ -79,8 +79,8 @@ from .save_results.disorder.save_disorder_matched_samples_results import save_di
 
 from .load_results.disorder.load_disorder_matched_samples_results import load_disorder_matched_samples_results
 from .save_results.disorder.save_disorder_matched_samples_correlation_results import save_disorder_matched_control_samples_correlation_results
-from .save_results.anova.save_disorder_anova_results import save_disorder_anova_results
-from .load_results.disorder.load_disorder_anova_results import load_disorder_anova_results
+from .save_results.anova.save_anova_results import save_anova_results
+from .load_results.anova.load_disorder_anova_results import load_disorder_anova_results
 
 from .save_results.healthy.save_brain_correlation_results import save_brain_correlation_overlap_data_with_mri, save_brain_hgs_correlation_results, save_brain_hgs_correlation_results_for_plot
 
@@ -90,9 +90,9 @@ from .save_results.anova.save_prepared_data_for_anova import save_prepare_data_f
 
 from .load_results.anova.load_prepared_data_for_anova import load_prepare_data_for_anova
 
-from .save_results.anova.save_anova_results import save_anova_results
+from .save_results.anova.save_disorder_anova_results import save_disorder_anova_results
 
-from .load_results.anova.load_anova_results import load_anova_results
+from .load_results.anova.load_disorder_anova_results import load_disorder_anova_results
 
 from .save_results.disorder.save_disorder_extracted_data_by_feature_and_target import save_disorder_extracted_data_by_feature_and_target
 
@@ -107,7 +107,7 @@ from .correction_predicted_hgs.correction_beheshti_method import beheshti_correc
 
 from .save_results.disorder.save_disorder_comparison_matched_samples_disorder_vs_healthy_result import save_disorder_comparison_matched_samples_disorder_vs_healthy_result
 
-from .save_results.anova.save_posthoc_results import save_posthoc_results
+from .save_results.anova.save_disorder_posthoc_results import save_disorder_posthoc_results
 from .save_results.anova.save_prepared_data_for_jamovi_software import save_prepared_data_for_jamovi_software
 
 
@@ -122,3 +122,5 @@ from .load_data.brain_correlate.load_overlap_brain_data_with_mri_data import loa
 from .save_results.brain_correlate.save_brain_correlation_results import save_hgs_correlation_with_brain_regions_results
 
 from .load_results.brain_correlate.load_brain_correlation_results import load_hgs_correlation_with_brain_regions_results
+
+from .load_results.anova.load_disorder_posthoc_results import load_disorder_posthoc_results

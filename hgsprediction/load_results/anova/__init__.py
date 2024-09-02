@@ -1,2 +1,3 @@
-from .load_anova_results import load_anova_results
 from .load_prepared_data_for_anova import load_prepare_data_for_anova
+from .load_disorder_anova_results import load_disorder_anova_results
+from .load_disorder_posthoc_results import load_disorder_posthoc_results
