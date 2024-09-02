@@ -134,15 +134,19 @@ interaction_female = aov_female[aov_female['Source'] == "Interaction"]
 df_pairwise_posthoc_female = pingouin.pairwise_ttests(dv=anova_target, between='group', within='time_point', subject='Subject', data=df_female, padjust='bonf')
 print(df_pairwise_posthoc_female)
 print("#-----------------------------------------------------------#")
-interaction_female_posthoc =  df_female.group.astype(str) + " | " + df_female.time_point.astype(str)
+interaction_female_posthoc =  df_female.time_point.astype(str) + " | " + df_female.group.astype(str)
 comp_female = mc.MultiComparison(df_female[f"{anova_target}"], interaction_female_posthoc)
 df_posthoc_summary_female = comp_female.tukeyhsd()
 print("\n Female Post-Hoc Result:\n")
 print(df_posthoc_summary_female.summary())
+# Convert the Tukey HSD summary to a DataFrame
+df_posthoc_female = pd.DataFrame(data=df_posthoc_summary_female._results_table.data[1:], 
+                               columns=df_posthoc_summary_female._results_table.data[0])
+
 #-----------------------------------------------------------#
 save_disorder_posthoc_results(
     df_pairwise_posthoc_female,
-    df_posthoc_summary_female,
+    df_posthoc_female,
     population,
     mri_status,
     session_column,
@@ -170,15 +174,19 @@ interaction_male = aov_male[aov_male['Source'] == "Interaction"]
 df_pairwise_posthoc_male = pingouin.pairwise_ttests(dv=anova_target, between='group', within='time_point', subject='Subject', data=df_male, padjust='bonf')
 print(df_pairwise_posthoc_male)
 print("#-----------------------------------------------------------#")
-interaction_male_posthoc =  df_male.group.astype(str) + " | " + df_male.time_point.astype(str)
+interaction_male_posthoc =  df_male.time_point.astype(str) + " | " +  df_male.group.astype(str)
 comp_male = mc.MultiComparison(df_male[f"{anova_target}"], interaction_male_posthoc)
 df_posthoc_summary_male = comp_male.tukeyhsd()
 print("\n Male Post-Hoc Result:\n")
 print(df_posthoc_summary_male.summary())
+# Convert the Tukey HSD summary to a DataFrame
+df_posthoc_male = pd.DataFrame(data=df_posthoc_summary_male._results_table.data[1:], 
+                               columns=df_posthoc_summary_male._results_table.data[0])
+
 #-----------------------------------------------------------#
 save_disorder_posthoc_results(
     df_pairwise_posthoc_male,
-    df_posthoc_summary_male,
+    df_posthoc_male,
     population,
     mri_status,
     session_column,

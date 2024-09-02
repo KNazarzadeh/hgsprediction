@@ -81,6 +81,8 @@ for disorder_cohort in [f"pre-{population}", f"post-{population}"]:
             df_validated = data_processor.validate_handgrips(df_extracted, population, session_column)
             save_disorder_data.save_primary_extracted_data(df_extracted, population, mri_status, session_column, disorder_cohort, first_event)
             save_disorder_data.save_validated_hgs_data(df_validated, population, mri_status, session_column, disorder_cohort, first_event)
+# print("===== Done! =====")
+# embed(globals(), locals())
 # ###############################################################################
 disorder_cohort = f"post-{population}"
 df_post = data_processor.extract_post_disorder_df(df_preprocessed, mri_status)
@@ -132,8 +134,8 @@ for visit_session in visit_range:
     save_disorder_data.save_subgroups_only_validated_hgs_data(df_validated, population, mri_status, session_column, disorder_cohort=f"pre-{population}", first_event=f"{first_event}")
 
 ###############################################################################
-print("===== Done! =====")
-embed(globals(), locals())
+# print("===== Done! =====")
+# embed(globals(), locals())
 disorder_cohort = f"longitudinal-{population}"
 df_longitudinal = data_processor.extract_longitudinal_disorder_df(df_preprocessed, mri_status)
 save_disorder_data.save_main_preprocessed_data(df_longitudinal, population, mri_status, disorder_cohort=f"longitudinal-{population}", first_event=f"{first_event}")

@@ -58,9 +58,9 @@ def load_disorder_posthoc_results(
 
     file_path = os.path.join(
         folder_path,
-        f"{gender}_tukeyhsd_posthoc_result_table.pkl")
+        f"{gender}_tukeyhsd_posthoc_result_table.csv")
         
-    with open(file_path, 'rb') as f:
-        df_posthoc_summary = pickle.load(f)
+   
+    df_posthoc_summary = pd.read_csv(file_path)
         
     return df_pairwise_posthoc, df_posthoc_summary

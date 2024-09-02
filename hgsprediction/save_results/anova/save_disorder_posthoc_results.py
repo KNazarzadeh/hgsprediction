@@ -64,7 +64,6 @@ def save_disorder_posthoc_results(
 
     file_path = os.path.join(
         folder_path,
-        f"{gender}_tukeyhsd_posthoc_result_table.pkl")
+        f"{gender}_tukeyhsd_posthoc_result_table.csv")
         
-    with open(file_path, 'wb') as f:
-        pickle.dump(df_posthoc_summary, f)
+    df_posthoc_summary.to_csv(file_path, index=False)

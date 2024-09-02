@@ -41,7 +41,7 @@ def extract_data(df, population, features, extend_features, target, disorder_sub
     if population == "stroke":
         extend_features = extend_features + ["stroke_subtype", "42006-0.0", "first_diagnoses_date_I63", "first_diagnoses_date_I63", "stroke_diagnoses_date"]
     elif population == "parkinson":
-        extend_features = extend_features + ["131022-0.0", "first_diagnoses_date_G20", "parkinson_diagnoses_date"]
+        extend_features = extend_features + ["42032-0.0", "first_diagnoses_date_G20", "parkinson_diagnoses_date"]
     if population == "depression":
         extend_features = extend_features + ["130894-0.0", "130896-0.0", "first_diagnoses_date_F32", "first_diagnoses_date_F33", "depression_diagnoses_date" ]
         

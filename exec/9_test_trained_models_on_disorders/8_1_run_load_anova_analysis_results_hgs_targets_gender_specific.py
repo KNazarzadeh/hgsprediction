@@ -74,15 +74,15 @@ df_male, anova_male = load_disorder_anova_results(
 print("=================================================================================")
 print("\n Female Pinguin ANOVA Result:")
 # Applying 2 decimal format to the DataFrame
-aov_female_df = anova_female.applymap(lambda x: "{:.3f}".format(x) if isinstance(x, (int, float)) else x)
-print(anova_female)
+anova_female_df = anova_female.applymap(lambda x: "{:.3f}".format(x) if isinstance(x, (int, float)) else x)
+print(anova_female_df)
 
 print("#-----------------------------------------------------------#")
 
 print("\n Male Pinguin ANOVA Result:")
 # Applying 2 decimal format to the DataFrame
-aov_male_df = anova_male.applymap(lambda x: "{:.3f}".format(x) if isinstance(x, (int, float)) else x)
-print(anova_male)
+anova_male_df = anova_male.applymap(lambda x: "{:.3f}".format(x) if isinstance(x, (int, float)) else x)
+print(anova_male_df)
 
 print("=================================================================================")
 ################################################################################
@@ -102,7 +102,10 @@ df_pairwise_posthoc_female, df_posthoc_summary_female = load_disorder_posthoc_re
     "female",
     "pingouin",
     first_event,)
-
+print("\n df_pairwise_posthoc_female:\n")
+print(df_pairwise_posthoc_female)
+print("\n df_posthoc_summary_female:\n")
+print(df_posthoc_summary_female)
 print("=================================================================================")
 print("\n Male Post-Hoc ANOVA Result:")
 df_pairwise_posthoc_male, df_posthoc_summary_male = load_disorder_posthoc_results(
@@ -120,6 +123,10 @@ df_pairwise_posthoc_male, df_posthoc_summary_male = load_disorder_posthoc_result
     "male",
     "pingouin",
     first_event,)
+print("\n df_pairwise_posthoc_male:\n")
+print(df_pairwise_posthoc_male)
+print("\n df_posthoc_summary_male:\n")
+print(df_posthoc_summary_male)
 ################################################################################
 print("===== Done! End =====")
 embed(globals(), locals())
