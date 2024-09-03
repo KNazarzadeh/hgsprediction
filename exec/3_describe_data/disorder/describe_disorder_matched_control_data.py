@@ -77,6 +77,8 @@ df_post = df_post[interested_columns]
 # print("===== Done! =====")
 # embed(globals(), locals())
 ###############################################################################
+print("Gender:", gender)
+
 print("\n Number of Pre data N=", len(df_pre))
 print("\n Number of Post data N=", len(df_post))
 
@@ -85,10 +87,13 @@ summary_stats_pre = df_pre.describe().apply(lambda x: round(x, 2))
 summary_stats_post = df_post.describe().apply(lambda x: round(x, 2))
 
 print("summary_stats_pre:\n", summary_stats_pre)
+print("###############################################################################")
 print("summary_stats_post:\n", summary_stats_post)
 
 pre_right_handed = len(df_pre[df_pre['handedness']==1.0])
 post_right_handed = len(df_post[df_post['handedness']==1.0])
+
+print("###############################################################################")
 
 print("N of Pre Right dominant handed =", pre_right_handed)
 print("N of Pre Right dominant handed =", post_right_handed)
