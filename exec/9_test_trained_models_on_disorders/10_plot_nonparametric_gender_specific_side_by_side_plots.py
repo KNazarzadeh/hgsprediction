@@ -51,34 +51,34 @@ data = load_prepare_data_for_anova(
     n_samples,
     firts_event,
 )
-# print("===== Done! =====")
-# embed(globals(), locals())
 
 df = data[["gender", "group", "time_point", anova_target]]
 
-df_disorder = df[df["group"] == f"{population}"]
-df_control = df[df["group"] == "control"]
+data_female = df[df['gender'] == 0]
+data_male = df[df['gender'] == 1]
 
-df_pre_disorder = df_disorder[df_disorder['time_point']==f"pre-{population}"]
-df_post_disorder = df_disorder[df_disorder['time_point']==f"post-{population}"]
+df_female_pre_control = data_female[data_female['time_point']=="pre-control"]
+df_female_post_control = data_female[data_female['time_point']=="post-control"]
+df_female_pre_control = df_female_pre_control.reindex(df_female_post_control.index)
 
-df_pre_control = df_control[df_control['time_point']=="pre-control"]
-df_post_control= df_control[df_control['time_point']=="post-control"]
+df_female_pre_disorder = data_female[data_female['time_point']==f"pre-{population}"]
+df_female_post_disorder = data_female[data_female['time_point']==f"post-{population}"]
+df_female_pre_disorder = df_female_pre_disorder.reindex(df_female_post_disorder.index)
 
-df_female_pre_control = df_pre_control[df_pre_control['gender']==0]
-df_female_post_control = df_post_control[df_post_control['gender']==0]
-df_female_pre_disorder = df_pre_disorder[df_pre_disorder['gender']==0]
-df_female_post_disorder = df_post_disorder[df_post_disorder['gender']==0]
-df_male_pre_control = df_pre_control[df_pre_control['gender']==1]
-df_male_post_control = df_post_control[df_post_control['gender']==1]
-df_male_pre_disorder = df_pre_disorder[df_pre_disorder['gender']==1]
-df_male_post_disorder = df_post_disorder[df_post_disorder['gender']==1]
+df_male_pre_control = data_male[data_male['time_point']=="pre-control"]
+df_male_post_control = data_male[data_male['time_point']=="post-control"]
+df_male_pre_control = df_male_pre_control.reindex(df_male_post_control.index)
+
+df_male_pre_disorder = data_male[data_male['time_point']==f"pre-{population}"]
+df_male_post_disorder = data_male[data_male['time_point']==f"post-{population}"]
+df_male_pre_disorder = df_male_pre_disorder.reindex(df_male_post_disorder.index)
 
 # Assuming df_post_control and df_pre_control are defined elsewhere
-df_female_interaction_control = pd.DataFrame()
-df_female_interaction_disorder = pd.DataFrame()
-df_male_interaction_control = pd.DataFrame()
-df_male_interaction_disorder = pd.DataFrame()
+df_female_interaction_control = pd.DataFrame(index=df_female_pre_control.index)
+df_female_interaction_disorder = pd.DataFrame(index=df_female_pre_disorder.index)
+
+df_male_interaction_control = pd.DataFrame(index=df_male_pre_control.index)
+df_male_interaction_disorder = pd.DataFrame(index=df_male_pre_disorder.index)
 # Assuming df_post_control and df_pre_control have the same indices
 df_female_interaction_control[f"interaction_{anova_target}"] = df_female_post_control[f"{anova_target}"].values - df_female_pre_control[f"{anova_target}"].values
 df_female_interaction_control["group"] = "control"
@@ -101,8 +101,7 @@ df_male_interaction_disorder[f"interaction_{anova_target}"] = df_male_post_disor
 df_male_interaction_disorder["group"] = f"{population}"
 df_male_interaction_disorder["time_point"] = "Interaction"
 df_male_interaction_disorder["gender"] = "male"
-# Concatenating the two DataFrames
-df_interaction = pd.concat([df_female_interaction_control, df_female_interaction_disorder, df_male_interaction_control, df_male_interaction_disorder], axis=0)
+
 # print("===== Done! =====")
 # embed(globals(), locals())
 ###############################################################################
@@ -166,25 +165,29 @@ def add_median_labels(ax, fmt='.2f'):
 # embed(globals(), locals())
 ###############################################################################
 # Replace values based on time_points
-df_pre = pd.concat([df_female_pre_control, df_female_pre_disorder, df_male_pre_control, df_male_pre_disorder], axis=0)
-df_post = pd.concat([df_female_post_control, df_female_post_disorder, df_male_post_control, df_male_post_disorder], axis=0)
+df_pre_female = pd.concat([df_female_pre_control, df_female_pre_disorder], axis=0)
+df_post_female = pd.concat([df_female_post_control, df_female_post_disorder], axis=0)
 
-df_pre.loc[df_pre['gender'] == 0, 'gender'] = 'female'
-df_pre.loc[df_pre['gender'] == 1, 'gender'] = 'male'
-df_post.loc[df_post['gender'] == 0, 'gender'] = 'female'
-df_post.loc[df_post['gender'] == 1, 'gender'] = 'male'
+df_pre_male = pd.concat([df_male_pre_control, df_male_pre_disorder], axis=0)
+df_post_male = pd.concat([df_male_post_control, df_male_post_disorder], axis=0)
 
-df_pre.loc[df_pre['time_point'].str.contains('pre-'), 'time_point'] = 'Pre-time_point'
-df_post.loc[df_post['time_point'].str.contains('post-'), 'time_point'] = 'Post-time_point'
+df_pre_female.loc[df_pre_female['gender'] == 0, 'gender'] = 'female'
+df_pre_male.loc[df_pre_male['gender'] == 1, 'gender'] = 'male'
 
-df_both = pd.concat([df_pre, df_post])
-df_both.loc[:, 'gender_group_time_point'] = df_both.loc[:, 'gender'] + "-" + df_both.loc[:,'group'] + "-" + df_both.loc[:, 'time_point']
+df_post_female.loc[df_post_female['gender'] == 0, 'gender'] = 'female'
+df_post_male.loc[df_post_male['gender'] == 1, 'gender'] = 'male'
 
-# Example DataFrame preprocessing if necessary
-df_both['gender_group'] = df_both['gender'] + '-' + df_both['group']
+df_pre_female.loc[df_pre_female['time_point'].str.contains('pre-'), 'time_point'] = 'pre-time_point'
+df_post_female.loc[df_post_female['time_point'].str.contains('post-'), 'time_point'] = 'post-time_point'
 
-df_female = df_both[df_both['gender']=='female']
-df_male = df_both[df_both['gender']=='male']
+df_pre_male.loc[df_pre_male['time_point'].str.contains('pre-'), 'time_point'] = 'pre-time_point'
+df_post_male.loc[df_post_male['time_point'].str.contains('post-'), 'time_point'] = 'post-time_point'
+
+df_female = pd.concat([df_pre_female, df_post_female])
+df_male = pd.concat([df_pre_male, df_post_male])
+
+df_female.loc[:, 'gender_group_time_point'] = df_female.loc[:,'gender'] + "-" + df_female.loc[:,'group'] + "-" + df_female.loc[:, 'time_point']
+df_male.loc[:, 'gender_group_time_point'] = df_male.loc[:,'gender'] + "-" + df_male.loc[:,'group'] + "-" + df_male.loc[:, 'time_point']
 
 # print("===== Done! =====")
 # embed(globals(), locals())
@@ -201,15 +204,16 @@ palette_dark = sns.color_palette("dark")
 
 # Map each gender-group combination to a specific color
 custom_palette = {
-    'male-control-Pre-time_point': palette_pastel[2],
-    'male-control-Post-time_point': palette_deep[2],
-    'male-depression-Pre-time_point': palette_pastel[0],
-    'male-depression-Post-time_point': palette_deep[0],
-    'female-control-Pre-time_point': palette_pastel[2],
-    'female-control-Post-time_point': palette_deep[2],
-    'female-depression-Pre-time_point': palette_pastel[6],
-    'female-depression-Post-time_point': palette_dark[6],
+    'male-control-pre-time_point': palette_pastel[2],
+    'male-control-post-time_point': palette_deep[2],
+    f'male-{population}-pre-time_point': palette_pastel[0],
+    f'male-{population}-post-time_point': palette_deep[0],
+    'female-control-pre-time_point': palette_pastel[2],
+    'female-control-post-time_point': palette_deep[2],
+    f'female-{population}-pre-time_point': palette_pastel[6],
+    f'female-{population}-post-time_point': palette_dark[6],
 }
+
 ###############################################################################
 # Set the style of seaborn
 sns.set_style("whitegrid")
@@ -278,12 +282,12 @@ for x_box_pos in np.arange(0,3,2):
         idx = "post-time_point"    
     x1 = xticks_positios_array[x_box_pos]
     x2 = xticks_positios_array[x_box_pos+1]
-    y, h, col = df_yaxis_max.loc[idx, 'male']+2, 1, 'k'
-    ax[0].plot([x1, x1, x2, x2], [y, y+h, y+h, y], lw=2, c=col)
+    y, h, col = df_yaxis_max.loc[idx, 'male']+3, 1, 'k'
+    ax[0].plot([x1, x1, x2, x2], [y, y+h, y+h, y], lw=1, c=col)
     ax[0].text((x1+x2)*.5, y+h, f"$p$={df_mannwhitneyu.loc[idx, 'male']:.3f}", ha='center', va='bottom', fontsize=10, color=col)
     
-    y, h, col = df_yaxis_max.loc[idx, 'female']+2, 1, 'k'
-    ax[1].plot([x1, x1, x2, x2], [y, y+h, y+h, y], lw=2, c=col)
+    y, h, col = df_yaxis_max.loc[idx, 'female']+3, 1, 'k'
+    ax[1].plot([x1, x1, x2, x2], [y, y+h, y+h, y], lw=1, c=col)
     ax[1].text((x1+x2)*.5, y+h, f"$p$={df_mannwhitneyu.loc[idx, 'female']:.3f}", ha='center', va='bottom', fontsize=10, color=col)
 #-----------------------------------------------------------#
 # Format y-tick labels to one decimal place if they are round
@@ -294,14 +298,24 @@ ymin1, ymax1 = ax[1].get_ylim()
 # Find the common y-axis limits
 ymin = min(ymin0, ymin1)
 ymax = max(ymax0, ymax1)
-ystep_value = 5
-
-yticks_range = np.arange(math.floor(ymin / 10) * 10, math.ceil(ymax / 10) * 10+ystep_value, ystep_value)
+#-----------------------------------------------------------#
+if anova_target == "true_hgs":
+    ystep_value = 20
+    # yticks_range = np.arange(math.floor(ymin / 10) * 10, math.ceil(ymax / 10) * 10+5, ystep_value)
+    yticks_range = np.arange(0, 145, ystep_value)
+    ax[0].set_ylim([0, 140])
+    ax[1].set_ylim([0, 140])
+    
+elif anova_target == "hgs_corrected_delta":
+    ystep_value = 5
+    # yticks_range = np.arange(math.floor(ymin / 10) * 10, math.ceil(ymax / 10) * 10+5, ystep_value)
+    yticks_range = np.arange(-30, 35, ystep_value)
+    ax[0].set_ylim([0, 30])
+    ax[1].set_ylim([0, 30])
 #-----------------------------------------------------------#
 # Set the y-ticks for both subplots
 ax[0].set_yticks(yticks_range)
 ax[1].set_yticks(yticks_range)
-
 #-----------------------------------------------------------#
 # Adjust layout
 plt.tight_layout()
@@ -320,6 +334,12 @@ folder_path = os.path.join("plot_nonparametric_gender_specific_side_by_side_plot
 if(not os.path.isdir(folder_path)):
         os.makedirs(folder_path)
 ##############################################################################
+# Concatenating the two DataFrames
+df_female_interaction = pd.concat([df_female_interaction_control, df_female_interaction_disorder], axis=0)
+df_male_interaction = pd.concat([df_male_interaction_control, df_male_interaction_disorder], axis=0)
+
+df_interaction = pd.concat([df_male_interaction_control, df_male_interaction_disorder, df_female_interaction_control, df_female_interaction_disorder], axis=0)
+
 # Example DataFrame preprocessing if necessary
 df_interaction['gender_group'] = df_interaction['gender'] + '-' + df_interaction['group']
 
@@ -334,11 +354,11 @@ custom_palette = {
     f'female-{population}': palette_hls[7]
 }
 ##############################################################################
-xtick_labels = ["Females", "Males"]
+xtick_labels = ["Males", "Females"]
 # Set the style of seaborn
 sns.set_style("whitegrid")
 # Create the boxplot
-fig, ax = plt.subplots(figsize=(5, 5))
+fig, ax = plt.subplots(figsize=(5, 4.5))
 sns.boxplot(data=df_interaction, x='gender', y=f"interaction_{anova_target}", hue='gender_group', palette=custom_palette, width=2)
 #-----------------------------------------------------------#
 # Remove legends from individual plots
@@ -371,31 +391,37 @@ xticks_positios_array = add_median_labels(ax)
 for x_box_pos in np.arange(0,3,2):
     if x_box_pos == 0:
         idx = "interaction"
-        colx = "female"
+        colx = "male"
     if x_box_pos == 2:
         idx = "interaction"
-        colx = "male"      
+        colx = "female"      
     x1 = xticks_positios_array[x_box_pos]
     x2 = xticks_positios_array[x_box_pos+1]
-    y, h, col = df_yaxis_max.loc[idx, colx]+1, .5, 'k'
-    ax.plot([x1, x1, x2, x2], [y, y+h, y+h, y], lw=2, c=col)
+    y, h, col = df_yaxis_max.loc[idx, colx]+3, 1, 'k'
+    ax.plot([x1, x1, x2, x2], [y, y+h, y+h, y], lw=1, c=col)
     ax.text((x1+x2)*.5, y+h, f"$p$={df_mannwhitneyu.loc[idx, colx]:.3f}", ha='center', va='bottom', fontsize=10,  color=col)
     
 #-----------------------------------------------------------#
 if anova_target == "true_hgs":
-    ymin = ax.get_yticks().min()-10
-    ymax = ax.get_yticks().max()+5
-    ystep_value = 10
+    ystep_value = 20
+    if population == "parkinson":
+        yticks_range = np.arange(-80, 65, ystep_value)
+        ax.set_ylim([-80, 60])
+    else:
+        ymin = ax.get_yticks().min()
+        ymax = ax.get_yticks().max()
+        yticks_range = np.arange(math.floor(ymin / 10) * 10, math.ceil(ymax / 10) * 10+5, ystep_value)
+    
 else:
-    ymin = ax.get_yticks().min()-10
-    ymax = ax.get_yticks().max()+10
+    ymin = ax.get_yticks().min()
+    ymax = ax.get_yticks().max()
     ystep_value = 5
-yticks_range = np.arange(ymin, ymax, ystep_value)
+    yticks_range = np.arange(math.floor(ymin / 10) * 10, math.ceil(ymax / 10) * 10+5, ystep_value)
+    
 # Set the y-ticks for both subplots
 ax.set_yticks(yticks_range)
 # Convert y-tick labels to integers to avoid decimals
 ax.set_yticklabels([int(y) for y in yticks_range])
-
 #-----------------------------------------------------------#
 # Iterate over each subplot to change the font size for tick labels
 ax.tick_params(axis='both', labelsize=12, direction='out', length=5)
