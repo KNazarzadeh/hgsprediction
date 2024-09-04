@@ -103,30 +103,56 @@ df_male_posthoc = pd.DataFrame(list(male_mean_values.items()), columns=["time_po
 df_male_posthoc[['group', 'time']] = df_male_posthoc['time_point'].str.split('_', n=1, expand=True)
 
 ##############################################################################
-palette_Paired = sns.color_palette("Paired")
-palette_hls =sns.color_palette("hls", 8)
+# palette_Paired = sns.color_palette("Paired")
+# palette_hls =sns.color_palette("hls", 8)
 # Map each gender-group combination to a specific color
 custom_palette_male = {
-    'control': palette_Paired[3],
-    f'{population}': palette_Paired[1],
+    'control': 'black',
+    f'{population}': 'black',
 }
 custom_palette_female = {
-    'control': palette_Paired[3],
-    f'{population}': palette_hls[7]
+    'control': 'black',
+    f'{population}': 'black',
 }
+
+custom_markers = {
+    'control': '^',
+    f'{population}': 'o',
+}
+
+custom_linestyle = {
+    'control': '--',
+    f'{population}': '-',
+}
+# print("===== Done! End =====")
+# embed(globals(), locals())
 ##############################################################################
 xtick_labels = ['Pre time-point', 'Post time-point']
 # Set the style of seaborn
 sns.set_style("whitegrid")
 # Create the boxplot
 fig, ax = plt.subplots(1,2, figsize=(10, 5))
-sns.pointplot(data=df_male_posthoc, x='time', y='mean_value', hue='group', markers='o', linestyles='-', palette=custom_palette_male, ax=ax[0])
-sns.pointplot(data=df_female_posthoc, x='time', y='mean_value', hue='group', markers='o', linestyles='-', palette=custom_palette_female, ax=ax[1])
+sns.pointplot(data=df_male_posthoc, x='time', y='mean_value', hue='group', 
+              markers=[custom_markers[g] for g in df_male_posthoc['group'].unique()], 
+              linestyles=[custom_linestyle[g] for g in df_male_posthoc['group'].unique()], 
+              palette=custom_palette_male, 
+              ax=ax[0])
+sns.pointplot(data=df_female_posthoc, x='time', y='mean_value', hue='group', 
+              markers=[custom_markers[g] for g in df_male_posthoc['group'].unique()], 
+              linestyles=[custom_linestyle[g] for g in df_male_posthoc['group'].unique()], 
+              palette=custom_palette_female, 
+              ax=ax[1])
 
 #-----------------------------------------------------------#
 # Remove legends from individual plots
 ax[0].legend().set_visible(False)
 ax[1].legend().set_visible(False)
+# Add legend outside the second plot (ax[1] only)
+# ax[1].legend(
+#     title="Group",
+#     bbox_to_anchor=(1.02, 1),  # Adjust these values to position the legend outside ax[1]
+#     loc='upper left',
+#     borderaxespad=0.)
 #-----------------------------------------------------------#
 # Set x-labels for both plots
 ax[0].set_xlabel(" ")
