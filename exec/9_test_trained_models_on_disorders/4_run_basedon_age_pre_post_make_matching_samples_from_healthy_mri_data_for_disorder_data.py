@@ -33,11 +33,12 @@ first_event = sys.argv[13]
 # Define features and target for matching
 features, extend_features = define_features(feature_type)
 
-X = features
-# X = ['pre_age', 'post_age', 'pre_bmi', 'pre_height', 'pre_waist_to_hip_ratio']
+# X = features
+X_pre = ['pre_age', 'pre_bmi', 'pre_height', 'pre_waist_to_hip_ratio']
+X_post = ['post_age']
 y = "disorder"
 
-extract_columns = X + [y] + [target]
+extract_columns = X_pre + X_post + [y] + [target]
 ###############################################################################
 disorder_cohort = f"{disorder_cohort}-{population}"
 if visit_session == "1":
@@ -59,8 +60,7 @@ df_disorder = load_disorder_corrected_prediction_results(
 # Assign 'disorder' column with a value of 1 (indicating disorder/disease)    
 df_disorder.loc[:, "disorder"] = 1
 # Rename columns by removing "1st_" and "-disorder"
-# df_disorder.columns = df_disorder.columns.str.replace('1st_', '').str.replace(f'-{population}', '')
-
+df_disorder.columns = df_disorder.columns.str.replace('1st_', '').str.replace(f'-{population}', '')
 ###############################################################################
 ########################## ***** Load MRI Data ***** ##########################
 ###############################################################################
@@ -92,12 +92,12 @@ for session in ["0", "1", "2", "3"]:
 ###############################################################################
 # Define prefix for pre- and post- columns
 disorder_pre_subgroup = f"pre-{population}"
-if visit_session == "1":
-    pre_prefix = f"1st_{disorder_pre_subgroup}_"
+# if visit_session == "1":
+pre_prefix = "pre_"
 
-disorder_post_subgroup = f"post-{population}"
-if visit_session == "1":
-    post_prefix = f"1st_{disorder_post_subgroup}_"
+# disorder_post_subgroup = f"post-{population}"
+# if visit_session == "1":
+post_prefix = "post_"
 ###############################################################################
 # Step 1: Calculate propensity scores for each patient
 # Assuming you have a column named 'propensity_scores' in patient_df representing propensity scores
@@ -138,18 +138,26 @@ for pre_ses in range(pre_ses_min, pre_ses_max+1):
                 else:
                     print("The indices are not in the same order.")
 
+                df_control_pre.columns = ['pre_' + col if col != 'disorder' else col for col in df_control_pre.columns]
+                
+                df_control_post.columns = ['post_' + col if col != 'disorder' else col for col in df_control_post.columns]
+
+                # Adding column 'post_age' from df_control_post to df_control_pre based on the same indexes
+                df_control_extracted = df_control_pre[X_pre].join(df_control_post[X_post+['disorder']])
+                
                 df_disorder_extract = df_disorder_pre_sessions[df_disorder_pre_sessions.index.isin(df_disorder_post_sessions.index)]
-                df_disorder_pre = df_disorder_extract[[col for col in df_disorder_extract.columns if f"post-{population}" not in col]].copy()
+                df_disorder_extract = df_disorder_extract[X_pre + X_post + ['disorder']]
+                
+                # df_disorder_pre = df_disorder_extract[[col for col in df_disorder_extract.columns if f"post-{population}" not in col]].copy()
 
-                features_columns = [col for col in df_disorder_pre.columns for item in extract_columns if item in col]
+                # features_columns = [col for col in df_disorder_pre.columns for item in extract_columns if item in col]
 
-                # Remove the prefix from selected column names
-                for col in features_columns:
-                    new_col_name = col.replace(pre_prefix, "")
-                    df_disorder_pre.rename(columns={col: new_col_name}, inplace=True)
+                # # Remove the prefix from selected column names
+                # for col in features_columns:
+                #     new_col_name = col.replace(pre_prefix, "")
+                #     df_disorder_pre.rename(columns={col: new_col_name}, inplace=True)
         
-                df = pd.concat([df_control_pre.loc[:, extract_columns], df_disorder_pre.loc[:, extract_columns]], axis=0)
-                df.index.name = "SubjectID"
+                df = pd.concat([df_control_extracted, df_disorder_extract], axis=0)
                 print("===== Done! =====")
                 embed(globals(), locals())
                 ###############################################################################
@@ -159,6 +167,7 @@ for pre_ses in range(pre_ses_min, pre_ses_max+1):
                 ])
                 
                 # Initialize logistic regression model
+                X = X_pre + X_post
                 propensity_model = pipe.fit(df.loc[:, X], df.loc[:, y])
 
                 # Prediction
