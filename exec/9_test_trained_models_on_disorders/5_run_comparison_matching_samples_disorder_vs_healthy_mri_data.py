@@ -42,8 +42,8 @@ df_disorder, df_control = load_disorder_matched_samples_results(
     n_samples,
     first_event,
 )
-print("===== Done! End =====")
-embed(globals(), locals())
+# print("===== Done! End =====")
+# embed(globals(), locals())
 ###############################################################################
 # Initialize an empty DataFrame
 df = pd.DataFrame()
@@ -64,6 +64,8 @@ for episode in ["pre", "post"]:
         df.loc[f"{metric}_mean", f"difference_{episode}_time_point"] = difference
 
 print(df)
+# print("===== Done! End =====")
+# embed(globals(), locals())
 ###############################################################################
 save_disorder_comparison_matched_samples_disorder_vs_healthy_result(
     df,

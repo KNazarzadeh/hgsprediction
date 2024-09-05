@@ -29,20 +29,22 @@ visit_session = sys.argv[10]
 gender = sys.argv[11]
 n_samples = sys.argv[12]
 first_event = sys.argv[13]
-##############################################################################
-# Define features and target for matching
-features, extend_features = define_features(feature_type)
-
-# X = features
-X_pre = ['pre_age', 'pre_bmi', 'pre_height', 'pre_waist_to_hip_ratio']
-X_post = ['post_age']
-y = "disorder"
-
-extract_columns = X_pre + X_post + [y] + [target]
 ###############################################################################
 disorder_cohort = f"{disorder_cohort}-{population}"
 if visit_session == "1":
     session_column = f"1st_{disorder_cohort}_session"
+
+    pre_prefix = f"1st_pre-{population}_"
+    post_prefix = f"1st_post-{population}_"
+
+###############################################################################
+# Define features and target for matching
+    X_pre = [f"1st_pre-{population}_age", f"1st_pre-{population}_bmi", f"1st_pre-{population}_height", f"1st_pre-{population}_waist_to_hip_ratio"]
+    X_post = [f"1st_post-{population}_age"]
+    
+y = "disorder"
+extract_columns = X_pre + X_post + [y] + [target]
+##############################################################################
 ###############################################################################
 df_disorder = load_disorder_corrected_prediction_results(
     population,
@@ -88,17 +90,6 @@ for session in ["0", "1", "2", "3"]:
 # print("===== Done! =====")
 # embed(globals(), locals())
 ###############################################################################
-# Define prefix for pre- and post- columns
-disorder_pre_subgroup = f"pre-{population}"
-pre_prefix = "pre_"
-
-disorder_post_subgroup = f"post-{population}"
-# if visit_session == "1":
-post_prefix = "post_"
-
-# Rename columns by removing "1st_" and "-disorder"
-df_disorder.columns = df_disorder.columns.str.replace('1st_', '').str.replace(f'-{population}', '')
-###############################################################################
 # Step 1: Calculate propensity scores for each patient
 # Assuming you have a column named 'propensity_scores' in patient_df representing propensity scores
 df_control_before_matched = []
@@ -138,9 +129,9 @@ for pre_ses in range(pre_ses_min, pre_ses_max+1):
                 else:
                     print("The indices are not in the same order.")
 
-                df_control_pre.columns = ['pre_' + col if (col != 'disorder') and (col != 'gender') else col for col in df_control_pre.columns]
+                df_control_pre.columns = [pre_prefix + col if (col != 'disorder') and (col != 'gender') else col for col in df_control_pre.columns]
                 
-                df_control_post.columns = ['post_' + col if (col != 'disorder') and (col != 'gender') else col for col in df_control_post.columns]
+                df_control_post.columns = [post_prefix + col if (col != 'disorder') and (col != 'gender') else col for col in df_control_post.columns]
                 # print("===== Done! =====")
                 # embed(globals(), locals())
                 # Adding column 'post_age' from df_control_post to df_control_pre based on the same indexes
@@ -213,7 +204,7 @@ for pre_ses in range(pre_ses_min, pre_ses_max+1):
                     df_matched = pd.concat([df_matched, df_matched_tmp], axis=0)
                     df_control_pre_tmp.drop(index=matches, inplace=True)
                     
-                df_matched.loc[:, "time_point"] = disorder_pre_subgroup
+                df_matched.loc[:, f"{pre_prefix}time_point"] = f"pre-{population}"
 
                 df_control_pre_matched = pd.concat([df_control_pre_matched, df_matched], axis=0)
 
@@ -228,7 +219,7 @@ for pre_ses in range(pre_ses_min, pre_ses_max+1):
                 
                 ###############################################################################
                 df_control_post_matched = df_control_post[df_control_post.index.isin(df_control_pre_matched.index)].copy()
-                df_control_post_matched.loc[:, "time_point"] = f"post-{population}"
+                df_control_post_matched.loc[:, f"{post_prefix}time_point"] = f"post-{population}"
                 # Reindex the dataframes to have the same order of indices
                 df_control_post_matched = df_control_post_matched.reindex(index=df_control_pre_matched.index)
                 df_control_post_matched.loc[:, "patient_id"] = df_control_pre_matched.loc[:, "patient_id"].astype(int)
@@ -242,14 +233,8 @@ for pre_ses in range(pre_ses_min, pre_ses_max+1):
                 # embed(globals(), locals())
                 ###############################################################################
                 # Add prefix to column names
-                # df_control_pre_matched.columns = [pre_prefix + col if col != 'gender' else col for col in df_control_pre_matched.columns]
-                # # Add the prefix to the column names excluding the gender column(s)
-                # df_control_post_matched.columns = [post_prefix + col if col != 'gender' else col for col in df_control_post_matched.columns]
-                
-                # Add 'pre_' to the specific column 'A'
-                df_control_pre_matched = df_control_pre_matched.rename(columns={'patient_id': 'pre_patient_id'})
-                # Add 'pre_' to the specific column 'A'
-                df_control_post_matched = df_control_post_matched.rename(columns={'patient_id': 'post_patient_id'})
+                df_control_pre_matched = df_control_pre_matched.rename(columns={"patient_id": f"{pre_prefix}patient_id"})
+                df_control_post_matched = df_control_post_matched.rename(columns={"patient_id": f"{post_prefix}patient_id"})
                 
                 df_control_matched_pre_post = pd.concat([df_control_pre_matched, df_control_post_matched], axis=1)
                 # Drop duplicate columns by keeping the first occurrence
@@ -269,7 +254,7 @@ for pre_ses in range(pre_ses_min, pre_ses_max+1):
                 
                 df_control_pre.drop(index=df_control_matched_tmp.index, inplace=True, errors='ignore')
                 # Remove 'pre_' from column names if they contain it at the beginning
-                df_control_pre.columns = df_control_pre.columns.str.replace('^pre_', '', regex=True)
+                df_control_pre.columns = df_control_pre.columns.str.replace(f"{pre_prefix}", '', regex=True)
                 print(len(df_control_pre))
                 print(pre_ses)
                 print(len(df_control_post))
@@ -284,7 +269,7 @@ for pre_ses in range(pre_ses_min, pre_ses_max+1):
 # print("===== END Done End! =====")
 # embed(globals(), locals())
 df_control_matched = df_control_matched[~df_control_matched.index.duplicated()]
-not_same_values = df_control_matched[df_control_matched['pre_patient_id'] != df_control_matched['post_patient_id']]
+not_same_values = df_control_matched[df_control_matched[f"{pre_prefix}patient_id"] != df_control_matched[f"{post_prefix}patient_id"]]
 
 if not_same_values.empty:
     print("pre and post controls are for the same paitent id")
@@ -294,15 +279,15 @@ print(df_disorder)
 if df_control_matched[df_control_matched.index.duplicated()].empty:
     print("No Duplicated controls")
 
-print("disorder_pre_age=", df_disorder['pre_age'].mean())
+print("disorder_pre_age=", df_disorder[f"{pre_prefix}age"].mean())
 
-print("control_pre_age=", df_control_matched['pre_age'].mean())
+print("control_pre_age=", df_control_matched[f"{pre_prefix}age"].mean())
 
-print("disorder_post_age=", df_disorder['post_age'].mean())
+print("disorder_post_age=", df_disorder[f"{post_prefix}age"].mean())
 
-print("control_post_age=", df_control_matched['post_age'].mean())
-print("===== END Done End! =====")
-embed(globals(), locals())
+print("control_post_age=", df_control_matched[f"{post_prefix}age"].mean())
+# print("===== END Done End! =====")
+# embed(globals(), locals())
 ##############################################################################
 ###############################################################################
 save_disorder_matched_samples_results(

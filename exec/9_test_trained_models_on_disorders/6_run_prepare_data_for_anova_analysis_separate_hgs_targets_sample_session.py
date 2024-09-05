@@ -91,11 +91,11 @@ df_disorder_tmp = pd.concat([df_disorder_matched_female, df_disorder_matched_mal
 df_control_tmp = pd.concat([df_mathced_controls_female, df_mathced_controls_male], axis=0)
 #-----------------------------------------------------------#
 # Replace values in the column
-prefix_pre = f"1st_pre-{population}"
-df_control_tmp.loc[:, f"{prefix_pre}_time_point"] = df_control_tmp.loc[:, f"{prefix_pre}_time_point"].replace({f"pre-{population}": "pre-control"})
+pre_prefix = f"1st_pre-{population}"
+df_control_tmp.loc[:, f"{pre_prefix}_time_point"] = df_control_tmp.loc[:, f"{pre_prefix}_time_point"].replace({f"pre-{population}": "pre-control"})
 
-prefix_post = f"1st_post-{population}"
-df_control_tmp.loc[:, f"{prefix_post}_time_point"] = df_control_tmp.loc[:, f"{prefix_post}_time_point"].replace({f"post-{population}": "post-control"})
+post_prefix = f"1st_post-{population}"
+df_control_tmp.loc[:, f"{post_prefix}_time_point"] = df_control_tmp.loc[:, f"{post_prefix}_time_point"].replace({f"post-{population}": "post-control"})
 #-----------------------------------------------------------#
 df_control_tmp.rename(columns=lambda x: x.replace("delta(true-predicted)", "delta") if "delta(true-predicted)" in x else x, inplace=True)
 df_disorder_tmp.rename(columns=lambda x: x.replace("delta(true-predicted)", "delta") if "delta(true-predicted)" in x else x, inplace=True)
