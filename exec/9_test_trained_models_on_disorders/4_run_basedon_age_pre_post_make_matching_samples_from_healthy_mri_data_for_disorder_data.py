@@ -59,8 +59,6 @@ df_disorder = load_disorder_corrected_prediction_results(
 )
 # Assign 'disorder' column with a value of 1 (indicating disorder/disease)    
 df_disorder.loc[:, "disorder"] = 1
-# Rename columns by removing "1st_" and "-disorder"
-df_disorder.columns = df_disorder.columns.str.replace('1st_', '').str.replace(f'-{population}', '')
 ###############################################################################
 ########################## ***** Load MRI Data ***** ##########################
 ###############################################################################
@@ -92,12 +90,14 @@ for session in ["0", "1", "2", "3"]:
 ###############################################################################
 # Define prefix for pre- and post- columns
 disorder_pre_subgroup = f"pre-{population}"
-# if visit_session == "1":
 pre_prefix = "pre_"
 
-# disorder_post_subgroup = f"post-{population}"
+disorder_post_subgroup = f"post-{population}"
 # if visit_session == "1":
 post_prefix = "post_"
+
+# Rename columns by removing "1st_" and "-disorder"
+df_disorder.columns = df_disorder.columns.str.replace('1st_', '').str.replace(f'-{population}', '')
 ###############################################################################
 # Step 1: Calculate propensity scores for each patient
 # Assuming you have a column named 'propensity_scores' in patient_df representing propensity scores
@@ -138,10 +138,11 @@ for pre_ses in range(pre_ses_min, pre_ses_max+1):
                 else:
                     print("The indices are not in the same order.")
 
-                df_control_pre.columns = ['pre_' + col if col != 'disorder' else col for col in df_control_pre.columns]
+                df_control_pre.columns = ['pre_' + col if (col != 'disorder') and (col != 'gender') else col for col in df_control_pre.columns]
                 
-                df_control_post.columns = ['post_' + col if col != 'disorder' else col for col in df_control_post.columns]
-
+                df_control_post.columns = ['post_' + col if (col != 'disorder') and (col != 'gender') else col for col in df_control_post.columns]
+                # print("===== Done! =====")
+                # embed(globals(), locals())
                 # Adding column 'post_age' from df_control_post to df_control_pre based on the same indexes
                 df_control_extracted = df_control_pre[X_pre].join(df_control_post[X_post+['disorder']])
                 
@@ -158,8 +159,8 @@ for pre_ses in range(pre_ses_min, pre_ses_max+1):
                 #     df_disorder_pre.rename(columns={col: new_col_name}, inplace=True)
         
                 df = pd.concat([df_control_extracted, df_disorder_extract], axis=0)
-                print("===== Done! =====")
-                embed(globals(), locals())
+                # print("===== Done! =====")
+                # embed(globals(), locals())
                 ###############################################################################
                 pipe = Pipeline([
                     ('scaler', StandardScaler()),
@@ -237,27 +238,38 @@ for pre_ses in range(pre_ses_min, pre_ses_max+1):
                     print("The indices are in the same order.")
                 else:
                     print("The indices are not in the same order.")    
-    
+                # print("===== END Done End! =====")
+                # embed(globals(), locals())
                 ###############################################################################
                 # Add prefix to column names
-                df_control_pre_matched.columns = [pre_prefix + col if col != 'gender' else col for col in df_control_pre_matched.columns]
-                # Add the prefix to the column names excluding the gender column(s)
-                df_control_post_matched.columns = [post_prefix + col if col != 'gender' else col for col in df_control_post_matched.columns]
+                # df_control_pre_matched.columns = [pre_prefix + col if col != 'gender' else col for col in df_control_pre_matched.columns]
+                # # Add the prefix to the column names excluding the gender column(s)
+                # df_control_post_matched.columns = [post_prefix + col if col != 'gender' else col for col in df_control_post_matched.columns]
+                
+                # Add 'pre_' to the specific column 'A'
+                df_control_pre_matched = df_control_pre_matched.rename(columns={'patient_id': 'pre_patient_id'})
+                # Add 'pre_' to the specific column 'A'
+                df_control_post_matched = df_control_post_matched.rename(columns={'patient_id': 'post_patient_id'})
                 
                 df_control_matched_pre_post = pd.concat([df_control_pre_matched, df_control_post_matched], axis=1)
+                # Drop duplicate columns by keeping the first occurrence
+                df_control_matched_pre_post = df_control_matched_pre_post.loc[:, ~df_control_matched_pre_post.columns.duplicated()]
                 
                 # Check if the indices are in the same order
                 if df_control_matched_pre_post.index.equals(df_control_pre_matched.index):
                     print("The indices are in the same order.")
                 else:
                     print("The indices are not in the same order.")
-        
+                # print("===== END Done End! =====")
+                # embed(globals(), locals())
                 # Remove the specified suffixes from the column names in df1
                 df_control_matched_pre_post.columns = df_control_matched_pre_post.columns.str.replace(r'-[0-3]\.0$', '', regex=True)
 
                 df_control_matched_tmp = pd.concat([df_control_matched_tmp, df_control_matched_pre_post], axis=0)
                 
                 df_control_pre.drop(index=df_control_matched_tmp.index, inplace=True, errors='ignore')
+                # Remove 'pre_' from column names if they contain it at the beginning
+                df_control_pre.columns = df_control_pre.columns.str.replace('^pre_', '', regex=True)
                 print(len(df_control_pre))
                 print(pre_ses)
                 print(len(df_control_post))
@@ -269,9 +281,10 @@ for pre_ses in range(pre_ses_min, pre_ses_max+1):
                 remove_indices_from_dataframes(control_dataframes, df_control_matched_tmp.index.to_list())    
     
     df_control_matched = pd.concat([df_control_matched, df_control_matched_tmp], axis=0)
-
+# print("===== END Done End! =====")
+# embed(globals(), locals())
 df_control_matched = df_control_matched[~df_control_matched.index.duplicated()]
-not_same_values = df_control_matched[df_control_matched[f'1st_pre-{population}_patient_id'] != df_control_matched[f'1st_post-{population}_patient_id']]
+not_same_values = df_control_matched[df_control_matched['pre_patient_id'] != df_control_matched['post_patient_id']]
 
 if not_same_values.empty:
     print("pre and post controls are for the same paitent id")
@@ -280,7 +293,16 @@ print(df_control_matched)
 print(df_disorder)
 if df_control_matched[df_control_matched.index.duplicated()].empty:
     print("No Duplicated controls")
-    
+
+print("disorder_pre_age=", df_disorder['pre_age'].mean())
+
+print("control_pre_age=", df_control_matched['pre_age'].mean())
+
+print("disorder_post_age=", df_disorder['post_age'].mean())
+
+print("control_post_age=", df_control_matched['post_age'].mean())
+print("===== END Done End! =====")
+embed(globals(), locals())
 ##############################################################################
 ###############################################################################
 save_disorder_matched_samples_results(
