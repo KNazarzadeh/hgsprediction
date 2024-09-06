@@ -30,7 +30,7 @@ main_extracted_columns = ["gender", "handedness", "hgs_dominant", "hgs_dominant_
                           "age", "bmi", "height", "waist_to_hip_ratio", 
                           "group", "time_point", "hgs_target", 
                           "true_hgs", "hgs_predicted", "hgs_delta", "hgs_corrected_predicted", "hgs_corrected_delta", 
-                          "patient_id"]
+                          "patient_id", f"1st_pre-post_{population}_days_diff"]
 ##############################################################################
 df_disorder = pd.DataFrame()
 df_control = pd.DataFrame()
@@ -39,7 +39,7 @@ disorder_cohort = f"{disorder_cohort}-{population}"
 if visit_session == "1":
     session_column = f"1st_{disorder_cohort}_session"
 ##############################################################################
-df_disorder_matched_female, df_mathced_controls_female = load_disorder_matched_samples_results(
+df_disorder_matched_female, df_mathced_control_female = load_disorder_matched_samples_results(
     population,
     mri_status,
     session_column,
@@ -54,7 +54,7 @@ df_disorder_matched_female, df_mathced_controls_female = load_disorder_matched_s
     first_event,
 )
 
-df_disorder_matched_male, df_mathced_controls_male = load_disorder_matched_samples_results(
+df_disorder_matched_male, df_mathced_control_male = load_disorder_matched_samples_results(
     population,
     mri_status,
     session_column,
@@ -68,27 +68,27 @@ df_disorder_matched_male, df_mathced_controls_male = load_disorder_matched_sampl
     n_samples,
     first_event,    
 )
-print("===== Done! =====")
-embed(globals(), locals())
+# print("===== Done! =====")
+# embed(globals(), locals())
 ##############################################################################
 df_disorder_matched_female.loc[:, "group"] = f"{population}"
-df_mathced_controls_female.loc[:, "group"] = "control"
+df_mathced_control_female.loc[:, "group"] = "control"
 
 df_disorder_matched_female.loc[:, "hgs_target"] = target
-df_mathced_controls_female.loc[:, "hgs_target"] = target
+df_mathced_control_female.loc[:, "hgs_target"] = target
 
 df_disorder_matched_female.loc[:, "patient_id"] = df_disorder_matched_female.index
 #-----------------------------------------------------------#
 df_disorder_matched_male.loc[:, "group"] = f"{population}"
-df_mathced_controls_male.loc[:, "group"] = "control"
+df_mathced_control_male.loc[:, "group"] = "control"
 
 df_disorder_matched_male.loc[:, "hgs_target"] = target
-df_mathced_controls_male.loc[:, "hgs_target"] = target
+df_mathced_control_male.loc[:, "hgs_target"] = target
 
 df_disorder_matched_male.loc[:, "patient_id"] = df_disorder_matched_male.index
 #-----------------------------------------------------------#
 df_disorder_tmp = pd.concat([df_disorder_matched_female, df_disorder_matched_male], axis=0)
-df_control_tmp = pd.concat([df_mathced_controls_female, df_mathced_controls_male], axis=0)
+df_control_tmp = pd.concat([df_mathced_control_female, df_mathced_control_male], axis=0)
 #-----------------------------------------------------------#
 # Replace values in the column
 pre_prefix = f"1st_pre-{population}"
@@ -100,6 +100,8 @@ df_control_tmp.loc[:, f"{post_prefix}_time_point"] = df_control_tmp.loc[:, f"{po
 df_control_tmp.rename(columns=lambda x: x.replace("delta(true-predicted)", "delta") if "delta(true-predicted)" in x else x, inplace=True)
 df_disorder_tmp.rename(columns=lambda x: x.replace("delta(true-predicted)", "delta") if "delta(true-predicted)" in x else x, inplace=True)
 
+# print("===== Done! =====")
+# embed(globals(), locals())
 ##############################################################################
 for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
     if visit_session == "1":
@@ -143,6 +145,7 @@ if df_control_extracted_pre.index.equals(df_control_extracted_post.index):
 else:
     print("The indices are not in the same order.")
 ##############################################################################
+
 dataframes = [df_disorder_extracted_pre, 
               df_disorder_extracted_post, 
               df_control_extracted_pre, 
