@@ -68,8 +68,8 @@ df_disorder_matched_male, df_mathced_controls_male = load_disorder_matched_sampl
     n_samples,
     first_event,    
 )
-# print("===== Done! =====")
-# embed(globals(), locals())
+print("===== Done! =====")
+embed(globals(), locals())
 ##############################################################################
 df_disorder_matched_female.loc[:, "group"] = f"{population}"
 df_mathced_controls_female.loc[:, "group"] = "control"
