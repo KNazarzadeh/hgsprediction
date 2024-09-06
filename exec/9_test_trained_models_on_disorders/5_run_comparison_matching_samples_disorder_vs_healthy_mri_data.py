@@ -58,11 +58,14 @@ for episode in ["pre", "post"]:
         mean_disorder = df_disorder[f"1st_{episode}-{population}_{metric}"].mean()
         mean_control = df_control[f"1st_{episode}-{population}_{metric}"].mean()
         difference = mean_disorder - mean_control
-        
+
         df.loc[f"{metric}_mean", f"{population}_{episode}_time_point"] = mean_disorder
         df.loc[f"{metric}_mean", f"controls_{episode}_time_point"] = mean_control
         df.loc[f"{metric}_mean", f"difference_{episode}_time_point"] = difference
 
+
+df.loc[:, "pre-post_days_difference"] = "-"
+df.loc["pre-post_days_difference_mean", "pre-post_days_difference"] = df_disorder[f"1st_pre-post_{population}_days_diff"].mean() - df_control[f"1st_pre-post_{population}_days_diff"].mean()
 print(df)
 # print("===== Done! End =====")
 # embed(globals(), locals())

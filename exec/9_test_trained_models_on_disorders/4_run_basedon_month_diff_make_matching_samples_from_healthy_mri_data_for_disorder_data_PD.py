@@ -64,6 +64,12 @@ df_disorder = load_disorder_corrected_prediction_results(
 )
 # Assign 'disorder' column with a value of 1 (indicating disorder/disease)    
 df_disorder.loc[:, "disorder"] = 1
+pre_days = df_disorder.loc[:, f"{pre_prefix}days"]
+post_days = df_disorder.loc[:, f"{post_prefix}days"]
+
+pre_post_days_diff = post_days-pre_days
+
+df_disorder.loc[:, f"1st_pre-post_{population}_days_diff"] = pre_post_days_diff
 ###############################################################################
 ########################## ***** Load MRI Data ***** ##########################
 ###############################################################################
@@ -135,9 +141,9 @@ for pre_ses in range(pre_ses_min, pre_ses_max+1):
                 # print("===== Done! =====")
                 # embed(globals(), locals())
 
-                df_control_pre.columns = [pre_prefix + col if (col != 'disorder') and (col != 'gender') else col for col in df_control_pre.columns]
+                df_control_pre.columns = [pre_prefix + col if (col != 'disorder') and (col != 'gender') and (col != f"1st_pre-post_{population}_days_diff") else col for col in df_control_pre.columns]
                 
-                df_control_post.columns = [post_prefix + col if (col != 'disorder') and (col != 'gender') else col for col in df_control_post.columns]
+                df_control_post.columns = [post_prefix + col if (col != 'disorder') and (col != 'gender') and (col != f"1st_pre-post_{population}_days_diff") else col for col in df_control_post.columns]
                 
                 pre_date = pd.to_datetime(df_control_pre.loc[:, f"{pre_prefix}53-{pre_ses}.0"])
                 post_date = pd.to_datetime(df_control_post.loc[:, f"{post_prefix}53-{post_ses}.0"])
@@ -148,16 +154,8 @@ for pre_ses in range(pre_ses_min, pre_ses_max+1):
                 
                 # Adding column 'post_age' from df_control_post to df_control_pre based on the same indexes
                 df_control_extracted = df_control_pre[extract_columns]
-                
-                df_disorder_extract = df_disorder_pre_sessions[df_disorder_pre_sessions.index.isin(df_disorder_post_sessions.index)]
-                
-                pre_date = df_disorder_extract.loc[:, f"followup_days-{pre_ses}.0"]
-                post_date = df_disorder_extract.loc[:, f"followup_days-{post_ses}.0"]
-
-                pre_post_days_diff = post_date-pre_date
-
-                df_disorder_extract.loc[:, f"1st_pre-post_{population}_days_diff"] = pre_post_days_diff
-                
+                ###############################################################################
+                df_disorder_extract = df_disorder_pre_sessions[df_disorder_pre_sessions.index.isin(df_disorder_post_sessions.index)]                
                 df_disorder_extract = df_disorder_extract[extract_columns]
         
                 df = pd.concat([df_control_extracted, df_disorder_extract], axis=0)
@@ -182,7 +180,7 @@ for pre_ses in range(pre_ses_min, pre_ses_max+1):
                 df_control_pre_tmp = df[df['disorder'] == 0].copy()
                 df_disorder_tmp = df[df['disorder'] == 1].copy()
                 ###############################################################################
-                df_disorder[f"{pre_prefix}propensity_scores"] = df_disorder_tmp.loc[df_disorder.index, "propensity_scores"]
+                df_disorder.loc[df_disorder_extract.index, f"{pre_prefix}propensity_scores"] = df_disorder_tmp.loc[:, "propensity_scores"]
                 ###############################################################################
                 # Dictionary to store matched samples for each subject
                 matched_samples = {}
@@ -194,7 +192,7 @@ for pre_ses in range(pre_ses_min, pre_ses_max+1):
                     df_matched_tmp = pd.DataFrame()
                     propensity_score = row['propensity_scores']
                     # Fit nearest neighbors model on control_pre group using propensity scores
-                    caliper = np.std(df_control_pre_tmp.propensity_scores) * 0.05
+                    caliper = np.std(df_control_pre_tmp.propensity_scores) * 0.01
                     nn_model = NearestNeighbors(n_neighbors=int(n_samples),radius=caliper)
                     nn_model.fit(df_control_pre_tmp['propensity_scores'].values.reshape(-1, 1))
                     
@@ -260,7 +258,9 @@ for pre_ses in range(pre_ses_min, pre_ses_max+1):
                 # embed(globals(), locals())
                 # Remove the specified suffixes from the column names in df1
                 df_control_matched_pre_post.columns = df_control_matched_pre_post.columns.str.replace(r'-[0-3]\.0$', '', regex=True)
-
+                # if post_ses == 2:
+                #     print("===== END Done End! =====")
+                #     embed(globals(), locals())
                 df_control_matched_tmp = pd.concat([df_control_matched_tmp, df_control_matched_pre_post], axis=0)
                 
                 df_control_pre.drop(index=df_control_matched_tmp.index, inplace=True, errors='ignore')
@@ -277,8 +277,7 @@ for pre_ses in range(pre_ses_min, pre_ses_max+1):
                 remove_indices_from_dataframes(control_dataframes, df_control_matched_tmp.index.to_list())    
     
     df_control_matched = pd.concat([df_control_matched, df_control_matched_tmp], axis=0)
-# print("===== END Done End! =====")
-# embed(globals(), locals())
+
 df_control_matched = df_control_matched[~df_control_matched.index.duplicated()]
 not_same_values = df_control_matched[df_control_matched[f"{pre_prefix}patient_id"] != df_control_matched[f"{post_prefix}patient_id"]]
 
@@ -291,14 +290,15 @@ if df_control_matched[df_control_matched.index.duplicated()].empty:
     print("No Duplicated controls")
 
 print("disorder_pre_age=", df_disorder[f"{pre_prefix}age"].mean())
-
 print("control_pre_age=", df_control_matched[f"{pre_prefix}age"].mean())
 
 print("disorder_post_age=", df_disorder[f"{post_prefix}age"].mean())
-
 print("control_post_age=", df_control_matched[f"{post_prefix}age"].mean())
-print("===== END Done End! =====")
-embed(globals(), locals())
+
+print("disorder_days_diff=", df_disorder[f"1st_pre-post_{population}_days_diff"].mean())
+print("control_days_diff=", df_control_matched[f"1st_pre-post_{population}_days_diff"].mean())
+# print("===== END Done End! =====")
+# embed(globals(), locals())
 ##############################################################################
 ###############################################################################
 save_disorder_matched_samples_results(
