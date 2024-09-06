@@ -161,8 +161,8 @@ for pre_ses in range(pre_ses_min, pre_ses_max+1):
                 df_disorder_extract = df_disorder_extract[extract_columns]
         
                 df = pd.concat([df_control_extracted, df_disorder_extract], axis=0)
-                print("===== Done! =====")
-                embed(globals(), locals())
+                # print("===== Done! =====")
+                # embed(globals(), locals())
                 ###############################################################################
                 pipe = Pipeline([
                     ('scaler', StandardScaler()),
@@ -182,7 +182,6 @@ for pre_ses in range(pre_ses_min, pre_ses_max+1):
                 df_control_pre_tmp = df[df['disorder'] == 0].copy()
                 df_disorder_tmp = df[df['disorder'] == 1].copy()
                 ###############################################################################
-                df_disorder.update(df_disorder_tmp[f"propensity_scores"])
                 df_disorder[f"{pre_prefix}propensity_scores"] = df_disorder_tmp.loc[df_disorder.index, "propensity_scores"]
                 ###############################################################################
                 # Dictionary to store matched samples for each subject
@@ -298,8 +297,8 @@ print("control_pre_age=", df_control_matched[f"{pre_prefix}age"].mean())
 print("disorder_post_age=", df_disorder[f"{post_prefix}age"].mean())
 
 print("control_post_age=", df_control_matched[f"{post_prefix}age"].mean())
-# print("===== END Done End! =====")
-# embed(globals(), locals())
+print("===== END Done End! =====")
+embed(globals(), locals())
 ##############################################################################
 ###############################################################################
 save_disorder_matched_samples_results(
