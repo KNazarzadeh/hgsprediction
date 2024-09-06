@@ -65,7 +65,11 @@ for episode in ["pre", "post"]:
 
 
 df.loc[:, "pre-post_days_difference"] = "-"
+for col in df.columns:
+    df.loc["pre-post_days_difference_mean", col] = "-"
+    
 df.loc["pre-post_days_difference_mean", "pre-post_days_difference"] = df_disorder[f"1st_pre-post_{population}_days_diff"].mean() - df_control[f"1st_pre-post_{population}_days_diff"].mean()
+
 print(df)
 # print("===== Done! End =====")
 # embed(globals(), locals())
