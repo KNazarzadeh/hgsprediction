@@ -42,7 +42,7 @@ for disorder_cohort in [f"pre-{population}", f"post-{population}", f"longitudina
                     session_column = f"3rd_{disorder_cohort}_session"
                     if population == "parkinson":
                         break
-            elif first_event == "first_diagnoses":
+            elif first_event == "first_diagnosis":
                 if visit_session == 1:
                     session_column = f"1st_{disorder_cohort}_session"
                         

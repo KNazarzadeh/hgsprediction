@@ -74,7 +74,7 @@ df_male_post_disorder = data_male[data_male['time_point']==f"post-{population}"]
 df_male_pre_disorder = df_male_pre_disorder.reindex(df_male_post_disorder.index)
 
 ###############################################################################
-folder_path = os.path.join("plot_posthoc_gender_specific_side_by_side_plots", f"{population}", f"{target}", f"{n_samples}_matched", "interaction")
+folder_path = os.path.join(f"{firts_event}_plot_posthoc_gender_specific_side_by_side_plots", f"{population}", f"{target}", f"{n_samples}_matched", "interaction")
 if(not os.path.isdir(folder_path)):
         os.makedirs(folder_path)
 ##############################################################################
