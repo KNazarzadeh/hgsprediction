@@ -42,8 +42,8 @@ df_disorder, df_control = load_disorder_matched_samples_results(
     n_samples,
     first_event,
 )
-print("===== Done! End =====")
-embed(globals(), locals())
+# print("===== Done! End =====")
+# embed(globals(), locals())
 ###############################################################################
 # Initialize an empty DataFrame
 df = pd.DataFrame()
