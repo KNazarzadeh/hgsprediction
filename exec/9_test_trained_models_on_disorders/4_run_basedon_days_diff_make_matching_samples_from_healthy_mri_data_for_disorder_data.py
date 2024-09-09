@@ -11,6 +11,9 @@ from hgsprediction.load_results.disorder.load_disorder_corrected_prediction_resu
 from hgsprediction.load_results.healthy.load_zscore_results import load_zscore_results
 from hgsprediction.save_results.disorder.save_disorder_matched_samples_results import save_disorder_matched_samples_results
 
+
+from scipy.stats import zscore
+
 from ptpython.repl import embed
 # print("===== Done! =====")
 # embed(globals(), locals())
@@ -62,6 +65,43 @@ df_disorder = load_disorder_corrected_prediction_results(
     n_folds,
     first_event,
 )
+###############################################################################
+##############################################################################
+# Define main features and extra features:
+features, extend_features = define_features(feature_type)
+##############################################################################
+# Define feature columns including the target
+feature_columns = features + [target]
+##############################################################################
+# load data
+threshold = 2.5
+outliers_index = []
+# Iterate over the disorder subgroups
+for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
+    # Set the prefix for columns based on visit session    
+    if visit_session == "1":
+        prefix = f"1st_{disorder_subgroup}_"
+    # --------------------------------------- #
+    # Add prefix to feature columns:
+    features_items = [prefix + item for item in feature_columns]
+    # Calculate z-scores for the selected features
+    df_z_scores = zscore(df_disorder.loc[:, features_items])
+
+    # Identify outliers based on z-scores exceeding the threshold
+    outliers = (df_z_scores > threshold) | (df_z_scores < -threshold)
+    # Remove outliers
+    df_no_outliers = df_z_scores[~outliers.any(axis=1)]
+    df_outliers = df_z_scores[outliers.any(axis=1)]
+
+    outliers_index.append(df_outliers.index[0])
+    # --------------------------------------- #
+
+df_disorder = df_disorder[~df_disorder.index.isin(outliers_index)]
+print(df_disorder)
+
+# print("===== Done! =====")
+# embed(globals(), locals())
+###############################################################################
 # Assign 'disorder' column with a value of 1 (indicating disorder/disease)    
 df_disorder.loc[:, "disorder"] = 1
 pre_days = df_disorder.loc[:, f"{pre_prefix}days"]

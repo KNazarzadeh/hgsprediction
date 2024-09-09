@@ -52,7 +52,8 @@ df_male = df[df["gender"]=="male"]
 
 df_control = df[df['group']=='control']
 df_disorder = df[df['group']==f'{population}']
-
+# print("===== Done! End =====")
+# embed(globals(), locals())
 ##############################################################################
 male_pre_controls = df_male[df_male["time_point"]=="pre-control"][anova_target]
 
@@ -69,6 +70,7 @@ female_pre_patients = df_female[df_female["time_point"]==f"pre-{population}"][an
 male_post_patients = df_male[df_male["time_point"]==f"post-{population}"][anova_target]
 
 female_post_patients = df_female[df_female["time_point"]==f"post-{population}"][anova_target]
+
 ##############################################################################
 # Check Homogeneity of Variance to use gender as a main factor in ANOVA:
 # Null and Alternative Hypotheses:
