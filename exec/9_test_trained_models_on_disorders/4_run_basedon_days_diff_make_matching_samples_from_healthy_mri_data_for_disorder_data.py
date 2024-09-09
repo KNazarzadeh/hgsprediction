@@ -74,7 +74,7 @@ features, extend_features = define_features(feature_type)
 feature_columns = features + [target]
 ##############################################################################
 # load data
-threshold = 2.5
+threshold = 2.2
 outliers_index = []
 # Iterate over the disorder subgroups
 for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
@@ -93,7 +93,7 @@ for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
     df_no_outliers = df_z_scores[~outliers.any(axis=1)]
     df_outliers = df_z_scores[outliers.any(axis=1)]
 
-    outliers_index.append(df_outliers.index[0])
+    outliers_index.extend(df_outliers.index.to_list())
     # --------------------------------------- #
 
 df_disorder = df_disorder[~df_disorder.index.isin(outliers_index)]

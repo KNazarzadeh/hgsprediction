@@ -50,7 +50,7 @@ df_extracted = load_disorder_data.load_extracted_data_by_feature_and_target(
 # print("===== Done! End =====")
 # embed(globals(), locals())
 ##############################################################################
-threshold = 2.5
+threshold = 2.3
 outliers_index = []
 # Iterate over the disorder subgroups
 for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
@@ -69,8 +69,8 @@ for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
     df_no_outliers = df_z_scores[~outliers.any(axis=1)]
     df_outliers = df_z_scores[outliers.any(axis=1)]
 
-    outliers_index.append(df_outliers.index[0])
-    # --------------------------------------- #
+    outliers_index.extend(df_outliers.index.to_list())
+    # # --------------------------------------- #
     print(outliers_index)
 
 df = df_extracted[~df_extracted.index.isin(outliers_index)]
