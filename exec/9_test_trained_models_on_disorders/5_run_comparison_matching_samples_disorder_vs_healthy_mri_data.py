@@ -70,9 +70,11 @@ for col in df.columns:
     
 df.loc["pre-post_days_difference_mean", "pre-post_days_difference"] = df_disorder[f"1st_pre-post_{population}_days_diff"].mean() - df_control[f"1st_pre-post_{population}_days_diff"].mean()
 
+# Set display precision to 2 decimal points
+pd.set_option('display.float_format', '{:.2f}'.format)
 print(df)
-# print("===== Done! End =====")
-# embed(globals(), locals())
+print("===== Done! End =====")
+embed(globals(), locals())
 ###############################################################################
 save_disorder_comparison_matched_samples_disorder_vs_healthy_result(
     df,

@@ -102,6 +102,9 @@ print("N of Pre Right dominant handed =", post_right_handed)
 print("'%' of Pre Right dominant handed =", "{:.2f}".format(pre_right_handed*100/len(df_pre)))
 print("'%' of Post Right dominant handed =", "{:.2f}".format(post_right_handed*100/len(df_post)))
 
+print("###############################################################################")
+
+print(" Interval days between pre- and post- time-points =", df[f'1st_pre-post_{population}_days_diff'].mean())
 
 print("===== Done! =====")
 embed(globals(), locals())

@@ -46,21 +46,21 @@ for session in ["0", "1", "2", "3"]:
         data_set,
     )
     print(df)
-    # # Set the threshold for outlier detection
-    # threshold = 2
+    # Set the threshold for outlier detection
+    threshold = 3.2
 
-    # # Calculate z-scores for the selected features
-    # df_z_scores = zscore(df.loc[:, feature_columns])
+    # Calculate z-scores for the selected features
+    df_z_scores = zscore(df.loc[:, feature_columns])
 
-    # # Identify outliers based on z-scores exceeding the threshold
-    # outliers = (df_z_scores > threshold) | (df_z_scores < -threshold)
-    # # Remove outliers
-    # df_no_outliers = df_z_scores[~outliers.any(axis=1)]
-    # df_outliers = df_z_scores[outliers.any(axis=1)]
+    # Identify outliers based on z-scores exceeding the threshold
+    outliers = (df_z_scores > threshold) | (df_z_scores < -threshold)
+    # Remove outliers
+    df_no_outliers = df_z_scores[~outliers.any(axis=1)]
+    df_outliers = df_z_scores[outliers.any(axis=1)]
 
-    # df = df[df.index.isin(df_no_outliers.index)]
+    df = df[df.index.isin(df_no_outliers.index)]
 
-    # print(df)
+    print(df)
 
     # save_zscore_results(
     #     df,

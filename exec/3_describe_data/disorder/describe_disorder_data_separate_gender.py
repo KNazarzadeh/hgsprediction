@@ -4,7 +4,7 @@ import numpy as np
 import sys
 
 from hgsprediction.define_features import define_features
-from hgsprediction.load_data.disorder import load_disorder_data
+from hgsprediction.load_results.disorder import load_disorder_matched_samples_results
 from ptpython.repl import embed
 # print("===== Done! =====")
 # embed(globals(), locals())
@@ -13,12 +13,17 @@ from ptpython.repl import embed
 filename = sys.argv[0]
 population = sys.argv[1]
 mri_status = sys.argv[2]
-disorder_cohort = sys.argv[3]
-visit_session = sys.argv[4]
-feature_type = sys.argv[5]
-target = sys.argv[6]
-gender = sys.argv[7]
-first_event = sys.argv[8]
+feature_type = sys.argv[3]
+target = sys.argv[4]
+model_name = sys.argv[5]
+confound_status = sys.argv[6]
+n_repeats = sys.argv[7]
+n_folds = sys.argv[8]
+disorder_cohort = sys.argv[9]
+visit_session = sys.argv[10]
+gender = sys.argv[11]
+n_samples = sys.argv[12]
+first_event = sys.argv[13]
 
 ##############################################################################
 # Define main features and extra features:
@@ -35,15 +40,20 @@ if visit_session == "1":
     session_column = f"1st_{disorder_cohort}_session"
 ###############################################################################
 
-df = load_disorder_data.load_extracted_data_by_feature_and_target(
-        population,
-        mri_status,
-        session_column,
-        feature_type,
-        target,
-        gender,
-        first_event,
-    )
+df, df_control = load_disorder_matched_samples_results(
+    population,
+    mri_status,
+    session_column,
+    model_name,
+    feature_type,
+    target,
+    gender,
+    confound_status,
+    n_repeats,
+    n_folds,
+    n_samples,
+    first_event,
+)
 
 ###############################################################################
 pre_subcohort = f"1st_pre-{population}_"
@@ -89,6 +99,9 @@ print("N of Pre Right dominant handed =", post_right_handed)
 
 print("'%' of Pre Right dominant handed =", "{:.2f}".format(pre_right_handed*100/len(df_pre)))
 print("'%' of Post Right dominant handed =", "{:.2f}".format(post_right_handed*100/len(df_post)))
+
+print("###############################################################################")
+print(" Interval days between pre- and post- time-points =", df[f'1st_pre-post_{population}_days_diff'].mean())
 
 print("===== Done! =====")
 embed(globals(), locals())
