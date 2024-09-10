@@ -47,7 +47,7 @@ for session in ["0", "1", "2", "3"]:
     )
     print(df)
     # Set the threshold for outlier detection
-    threshold = 2.2
+    threshold = 2
 
     # Calculate z-scores for the selected features
     df_z_scores = zscore(df.loc[:, feature_columns])

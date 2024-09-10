@@ -3,7 +3,7 @@ import os
 import numpy as np
 import pandas as pd
 import math
-from scipy.stats import mannwhitneyu
+from scipy.stats import mannwhitneyu, ttest_ind
 import matplotlib.pyplot as plt
 import seaborn as sns
 import matplotlib.patheffects as path_effects
@@ -102,8 +102,8 @@ df_male_interaction_disorder["group"] = f"{population}"
 df_male_interaction_disorder["time_point"] = "Interaction"
 df_male_interaction_disorder["gender"] = "male"
 
-# print("===== Done! =====")
-# embed(globals(), locals())
+print("===== Done! =====")
+embed(globals(), locals())
 ###############################################################################
 df_mannwhitneyu = pd.DataFrame(index=["pre-time_point", "post-time_point", "interaction"], columns=["female", "male"])
 df_yaxis_max = pd.DataFrame(index=["pre-time_point", "post-time_point", "interaction"], columns=["female", "male"])
