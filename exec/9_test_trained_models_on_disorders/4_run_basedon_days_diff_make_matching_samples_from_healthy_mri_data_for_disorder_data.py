@@ -70,43 +70,6 @@ df_disorder = load_disorder_corrected_prediction_results(
 # print("===== Done! =====")
 # embed(globals(), locals())
 ###############################################################################
-##############################################################################
-# Define main features and extra features:
-# features, extend_features = define_features(feature_type)
-# # ##############################################################################
-# # # Define feature columns including the target
-# feature_columns = features + [target]
-# # ##############################################################################
-# # # load data
-# threshold = 2
-# outliers_index = []
-# # Iterate over the disorder subgroups
-# for disorder_subgroup in [f"pre-{population}", f"post-{population}"]:
-#     # Set the prefix for columns based on visit session    
-#     if visit_session == "1":
-#         prefix = f"1st_{disorder_subgroup}_"
-#     # --------------------------------------- #
-#     # Add prefix to feature columns:
-#     features_items = [prefix + item for item in feature_columns]
-#     # Calculate z-scores for the selected features
-#     df_z_scores = zscore(df_disorder.loc[:, features_items])
-
-#     # Identify outliers based on z-scores exceeding the threshold
-#     outliers = (df_z_scores > threshold) | (df_z_scores < -threshold)
-#     # Remove outliers
-#     df_no_outliers = df_z_scores[~outliers.any(axis=1)]
-#     df_outliers = df_z_scores[outliers.any(axis=1)]
-
-#     outliers_index.extend(df_outliers.index.to_list())
-#     print(outliers_index)
-#     # --------------------------------------- #
-
-# df_disorder = df_disorder[~df_disorder.index.isin(outliers_index)]
-# print(df_disorder)
-
-# print("===== Done! =====")
-# embed(globals(), locals())
-###############################################################################
 # Assign 'disorder' column with a value of 1 (indicating disorder/disease)    
 df_disorder.loc[:, "disorder"] = 1
 pre_days = df_disorder.loc[:, f"{pre_prefix}days"]
@@ -123,18 +86,6 @@ control_dataframes = []
 # Loop through session numbers 0 to 3
 for session in ["0", "1", "2", "3"]:
     # Load the z-score results for the current session
-    # df_control_by_session = load_zscore_results(
-    #     "healthy",
-    #     "mri",
-    #     model_name,
-    #     feature_type,
-    #     target,
-    #     gender,
-    #     session,
-    #     confound_status,
-    #     n_repeats,
-    #     n_folds,
-    # )
     df_control_by_session = load_corrected_prediction_results(
         "healthy",
         "mri",
