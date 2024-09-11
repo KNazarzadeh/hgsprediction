@@ -126,7 +126,7 @@ if len(df_disorder[df_disorder['time_point']==f'pre-{population}']) < 30:
     print("#----------------------------------------------------------------------------------------------------------------------")
     print("Patient male group pre-time_point):") 
     stat_male_pre_patients, p_value_male_pre_patients = shapiro(male_pre_patients)
-    if p_value <= .05:
+    if p_value_male_pre_patients <= .05:
         print(f"Shapiro-Wilk test for male patients (pre-time_point) is rejected (The data does not look normal): (p-value = {p_value_male_pre_patients:.6f})")    
     else:
         print(f"Shapiro-Wilk test for male patients (pre-time_point) is met (The data looks normal): (p-value = {p_value_male_pre_patients:.6f})")
