@@ -181,16 +181,34 @@ for y in y_cols:
         gr = df[df[hue_col] == gender]        
         line_color = custom_palette[gender]        
         sns.regplot(x=x_col, y=y, data=gr, truncate=False, scatter=False, line_kws={'color': line_color})
-    #-----------------------------------------------------------#
+    
+    # Add a dashed red line for y = x
     if y in [f"{target}_predicted", f"{target}_corrected_predicted"]:
-        plt.ylabel("Predicted HGS", fontsize=14)      
-        plt.yticks(yticks_range_pred, fontsize=14)  
+        x_values = np.linspace(yticks_range_pred.min(), 159, 100)
+        g.ax_joint.plot(x_values, x_values, color='darkgrey', linestyle='--', linewidth=2)
+
+    # Add a dashed red line at y=0
     if y in [f"{target}_delta(true-predicted)", f"{target}_corrected_delta(true-predicted)"]:
+        g.ax_joint.axhline(0, color='darkgrey', linestyle='--', linewidth=2)
+    # print("===== Done! =====")
+    # embed(globals(), locals())
+    #-----------------------------------------------------------#
+    if y == f"{target}_predicted":
+        plt.ylabel("Predicted HGS", fontsize=14)      
+        plt.yticks(yticks_range_pred, fontsize=14)
+    if y == f"{target}_corrected_predicted":
+        plt.ylabel("Corrected predicted HGS", fontsize=14)      
+        plt.yticks(yticks_range_pred, fontsize=14)  
+    if y == f"{target}_delta(true-predicted)":
         plt.ylabel("Delta HGS", fontsize=14) 
         plt.yticks(yticks_range_delta, fontsize=14)
         plt.ylim([-70, 70])
+    if y == f"{target}_corrected_delta(true-predicted)":
+        plt.ylabel("Delta corrected predicted HGS", fontsize=14) 
+        plt.yticks(yticks_range_delta, fontsize=14)
+        plt.ylim([-70, 70])
     #-----------------------------------------------------------#
-    plt.xlabel("Raw HGS", fontsize=14)
+    plt.xlabel("True HGS", fontsize=14)
     plt.xticks(fontsize=14)
     #-----------------------------------------------------------#            
     # Annotation for female data in the first subplot
