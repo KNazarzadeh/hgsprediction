@@ -56,7 +56,8 @@ df_mri = load_corrected_prediction_results(
     n_folds,
     data_set,
 )
-
+print("===== Done! =====")
+embed(globals(), locals())
 ###############################################################################
 if tiv_status == "without_tiv":
     
