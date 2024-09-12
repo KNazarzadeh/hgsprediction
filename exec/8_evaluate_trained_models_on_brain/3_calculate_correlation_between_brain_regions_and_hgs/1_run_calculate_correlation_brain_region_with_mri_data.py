@@ -54,8 +54,8 @@ else:
 
 ##############################################################################
 x_axis = df.iloc[:,:1088].columns
-# print("===== Done! =====")
-# embed(globals(), locals())
+print("===== Done! =====")
+embed(globals(), locals())
 ##############################################################################
 if corr_target == "hgs_true":
     y_axis = f"{target}"
