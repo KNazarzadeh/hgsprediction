@@ -120,5 +120,21 @@ df_ttest.loc["interaction", "male"] = p_value_interaction_male
 
 ###############################################################################
 print(df_ttest)
+
+print("Female\n MEAN")
+print("control= {:.2f}".format(df_female_interaction_control[f'interaction_{anova_target}'].mean()))
+print("disease= {:.2f}".format(df_female_interaction_disorder[f'interaction_{anova_target}'].mean()))
+print("Female\n SD")
+print("control= {:.2f}".format(df_female_interaction_control[f'interaction_{anova_target}'].std()))
+print("disease= {:.2f}".format(df_female_interaction_disorder[f'interaction_{anova_target}'].std()))
+
+
+print("Male\n MEAN")
+print("control= {:.2f}".format(df_male_interaction_control[f'interaction_{anova_target}'].mean()))
+print("disease= {:.2f}".format(df_male_interaction_disorder[f'interaction_{anova_target}'].mean()))
+print("Male\n SD")
+print("control= {:.2f}".format(df_male_interaction_control[f'interaction_{anova_target}'].std()))
+print("disease= {:.2f}".format(df_male_interaction_disorder[f'interaction_{anova_target}'].std()))
+
 print("===== Done! End =====")
 embed(globals(), locals())
