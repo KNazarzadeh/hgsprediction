@@ -108,20 +108,25 @@ df = pd.concat([df_female, df_male], axis=0)
 df['gender'] = df['gender'].replace({0: 'Female', 1: 'Male'})
 
 ###############################################################################
-plot_folder = os.path.join(os.getcwd(), f"plots/with_vs_withou_bias_hgs/jointplot_scatterplot/{target}/{model_name}/{n_repeats}_repeats_{n_folds}_folds/{correlation_type}")
+plot_folder = os.path.join(os.getcwd(), f"plots_2/with_vs_withou_bias_hgs/jointplot_scatterplot/{target}/{model_name}/{n_repeats}_repeats_{n_folds}_folds/{correlation_type}")
 if(not os.path.isdir(plot_folder)):
         os.makedirs(plot_folder)
 ###############################################################################
 # Create a custom color palette dictionary
 # Define custom palettes
-palette_male = sns.color_palette("Blues")
-palette_female = sns.color_palette("Reds")
-color_female = palette_female[5]
-color_male = palette_male[5]
+# palette_male = sns.color_palette("Blues")
+# palette_female = sns.color_palette("Reds")
+# color_female = palette_female[5]
+# color_male = palette_male[5]
+
+palette_male = sns.color_palette("dark")
+palette_female = sns.color_palette("flare")
+color_female = palette_female[2]
+color_male = palette_male[9]
 
 custom_palette = {"Male": color_male, "Female": color_female}
-print("===== Done! =====")
-embed(globals(), locals())
+# print("===== Done! =====")
+# embed(globals(), locals())
 ###############################################################################
 # Define columns
 x_col = f"{target}"
@@ -146,7 +151,7 @@ for y in [f"{target}_predicted", f"{target}_corrected_predicted"]:
 # Set the y-ticks step value
 ystep_value_pred = 20
 # Calculate the range for y-ticks
-yticks_range_pred = np.arange(math.floor(ymin_pred / 10) * 10, math.ceil(ymax_pred / 10) * 10 + 30, ystep_value_pred)
+yticks_range_pred = np.arange(math.floor(ymin_pred / 10) * 10, math.ceil(ymax_pred / 10) * 10 + 10, ystep_value_pred)
 #-----------------------------------------------------------#  
 ymin_delta = 0
 ymax_delta = 0
@@ -165,17 +170,19 @@ yticks_range_delta = np.arange(math.floor(ymin_delta / 10) * 10, math.ceil(ymax_
 for y in y_cols:
     fig = plt.figure()
     sns.set_style("white")
-    # Iterate over each subplot to change the font size for tick labels
-    plt.tick_params(axis='both', direction='out')
     # Plot female and male data for target vs. predicted in the first subplot
     g = sns.jointplot(data=df, x=x_col, y=y, hue=hue_col, hue_order=gender_order, palette=custom_palette)
+    # Modify the tick parameters for the main joint plot (scatter plot)
+    g.ax_joint.tick_params(axis='both', direction='out')
     # Remove the legend
     g.ax_joint.legend_.remove()
     # Modify scatter plot markers after creating the jointplot
     for artist in g.ax_joint.collections:
+        # face_color = artist.get_facecolor()  # Get the face color of the markers
+        # artist.set_edgecolor(face_color)  # Set the edge color to match the face color
         artist.set_edgecolor('black')
         artist.set_sizes([60])
-        artist.set_linewidths([1.2])  # Set the width of the marker borders
+        artist.set_linewidths([1.1])  # Set the width of the marker borders
         # for _, gr in df.groupby(hue_col):
     for gender in gender_order:
         gr = df[df[hue_col] == gender]        
@@ -184,29 +191,33 @@ for y in y_cols:
     
     # Add a dashed red line for y = x
     if y in [f"{target}_predicted", f"{target}_corrected_predicted"]:
-        x_values = np.linspace(yticks_range_pred.min(), 159, 100)
-        g.ax_joint.plot(x_values, x_values, color='darkgrey', linestyle='--', linewidth=2)
+        # Define the x and y coordinates for the line
+        x_values = [0, 160]
+        y_values = [0, 160]
+        g.ax_joint.plot(x_values, y_values, color='silver', linestyle='--', linewidth=2)
 
     # Add a dashed red line at y=0
     if y in [f"{target}_delta(true-predicted)", f"{target}_corrected_delta(true-predicted)"]:
-        g.ax_joint.axhline(0, color='darkgrey', linestyle='--', linewidth=2)
+        g.ax_joint.axhline(0, color='silver', linestyle='--', linewidth=2)
     # print("===== Done! =====")
     # embed(globals(), locals())
     #-----------------------------------------------------------#
     if y == f"{target}_predicted":
         plt.ylabel("Predicted HGS", fontsize=14)      
         plt.yticks(yticks_range_pred, fontsize=14)
+        # plt.ylim([yticks_range_pred.min(),yticks_range_pred.max()])
     if y == f"{target}_corrected_predicted":
         plt.ylabel("Corrected predicted HGS", fontsize=14)      
-        plt.yticks(yticks_range_pred, fontsize=14)  
+        plt.yticks(yticks_range_pred, fontsize=14) 
+        # plt.ylim([yticks_range_pred.min(),yticks_range_pred.max()]) 
     if y == f"{target}_delta(true-predicted)":
         plt.ylabel("Delta HGS", fontsize=14) 
         plt.yticks(yticks_range_delta, fontsize=14)
-        plt.ylim([-70, 70])
+        plt.ylim([yticks_range_delta.min(),yticks_range_delta.max()]) 
     if y == f"{target}_corrected_delta(true-predicted)":
         plt.ylabel("Delta corrected predicted HGS", fontsize=14) 
         plt.yticks(yticks_range_delta, fontsize=14)
-        plt.ylim([-70, 70])
+        plt.ylim([yticks_range_delta.min(),yticks_range_delta.max()]) 
     #-----------------------------------------------------------#
     plt.xlabel("True HGS", fontsize=14)
     plt.xticks(fontsize=14)
@@ -245,13 +256,9 @@ for y in y_cols:
         # Get x and y limits for the first subplot first row
         # ymin, ymax = plt.ylim()
     #-----------------------------------------------------------#
-        # Plot a dark grey dashed line with width 3 from (xmin, ymin) to (xmax, ymax) on the first subplot
-        # plt.plot([xmin, xmax], [ymin, ymax], color='darkgrey', linestyle='--', linewidth=2)
-        
     if y in [f"{target}_corrected_predicted", f"{target}_corrected_delta(true-predicted)"]:
         plt.suptitle(f"With bias-adjustment", fontsize=16, fontweight="bold")
-        # # Plot a dark grey dashed line with width 3 from (xmin, ymin) to (xmax, ymax) on the first subplot
-        # plt.plot([xmin, xmax], [0, 0], color='darkgrey', linestyle='--', linewidth=2)
+
     #-----------------------------------------------------------#
     plt.tight_layout()
     #-----------------------------------------------------------#
