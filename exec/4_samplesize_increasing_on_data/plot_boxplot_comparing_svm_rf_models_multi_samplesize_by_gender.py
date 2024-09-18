@@ -84,23 +84,26 @@ for model_name in ["linear_svm", "random_forest"]:
         df_linear_svm = df_scores
     elif model_name == "random_forest":
         df_random_forest = df_scores
-print("===== Done! =====")
-embed(globals(), locals())
+# print("===== Done! =====")
+# embed(globals(), locals())
 ###############################################################################
-plot_folder = os.path.join(os.getcwd(), f"plots/boxplots//{target}/{n_repeats}_repeats_{n_folds}_folds/{score_type}")
+plot_folder = os.path.join(os.getcwd(), f"plots2/boxplots//{target}/{n_repeats}_repeats_{n_folds}_folds/{score_type}")
 if(not os.path.isdir(plot_folder)):
         os.makedirs(plot_folder)
 plot_file = os.path.join(plot_folder, f"comparing_SVM_RF_models_multi_samplesize_by_gender_{target}.png")
 ###############################################################################
 # Create a custom color palette dictionary
 # Define custom palettes
-palette_male = sns.color_palette("Blues")
-palette_female = sns.color_palette("Reds")
-custom_palette = {'Female': palette_female[5], 'Male': palette_male[5]}
-
 # palette_male = sns.color_palette("Blues")
-# palette_female = sns.cubehelix_palette()
-# custom_palette = {'Female': palette_female[1], 'Male': palette_male[2]}
+# palette_female = sns.color_palette("Reds")
+# custom_palette = {'Female': palette_female[5], 'Male': palette_male[5]}
+
+palette_male = sns.color_palette("dark")
+palette_female = sns.color_palette("flare")
+color_female = palette_female[2]
+color_male = palette_male[9]
+custom_palette = {"Male": color_male, "Female": color_female}
+
 ###############################################################################
 # Set the style once for all plots
 sns.set_style("whitegrid")
@@ -201,23 +204,28 @@ plt.tight_layout()  # Adjust layout to fit x-label
 plt.show()
 plt.savefig(plot_file)
 plt.close()
-
+print("===== Done! =====")
+embed(globals(), locals())
 ###############################################################################
 ###############################################################################
-plot_folder = os.path.join(os.getcwd(), f"plots/violinplots/{target}/{n_repeats}_repeats_{n_folds}_folds/{score_type}")
+plot_folder = os.path.join(os.getcwd(), f"plots2/violinplots/{target}/{n_repeats}_repeats_{n_folds}_folds/{score_type}")
 if(not os.path.isdir(plot_folder)):
         os.makedirs(plot_folder)
 plot_file = os.path.join(plot_folder, f"comparing_SVM_RF_models_multi_samplesize_by_gender_{target}.png")
 ###############################################################################
 # Create a custom color palette dictionary
 # Define custom palettes
-palette_male = sns.color_palette("Blues")
-palette_female = sns.color_palette("Reds")
-custom_palette = {'Female': palette_female[5], 'Male': palette_male[5]}
-
 # palette_male = sns.color_palette("Blues")
-# palette_female = sns.cubehelix_palette()
-# custom_palette = {'Female': palette_female[1], 'Male': palette_male[2]}
+# palette_female = sns.color_palette("Reds")
+# custom_palette = {'Female': palette_female[5], 'Male': palette_male[5]}
+
+
+palette_male = sns.color_palette("dark")
+palette_female = sns.color_palette("flare")
+color_female = palette_female[2]
+color_male = palette_male[9]
+
+custom_palette = {"Male": color_male, "Female": color_female}
 ###############################################################################
 # Set the style once for all plots
 sns.set_style("whitegrid")
