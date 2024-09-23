@@ -84,26 +84,25 @@ for model_name in ["linear_svm", "random_forest"]:
         df_linear_svm = df_scores
     elif model_name == "random_forest":
         df_random_forest = df_scores
-# print("===== Done! =====")
-# embed(globals(), locals())
+print("===== Done! =====")
+embed(globals(), locals())
 ###############################################################################
-plot_folder = os.path.join(os.getcwd(), f"plots2/boxplots//{target}/{n_repeats}_repeats_{n_folds}_folds/{score_type}")
+plot_folder = os.path.join(os.getcwd(), f"plots3/boxplots//{target}/{n_repeats}_repeats_{n_folds}_folds/{score_type}")
 if(not os.path.isdir(plot_folder)):
         os.makedirs(plot_folder)
 plot_file = os.path.join(plot_folder, f"comparing_SVM_RF_models_multi_samplesize_by_gender_{target}.png")
 ###############################################################################
 # Create a custom color palette dictionary
 # Define custom palettes
-# palette_male = sns.color_palette("Blues")
-# palette_female = sns.color_palette("Reds")
-# custom_palette = {'Female': palette_female[5], 'Male': palette_male[5]}
-
-palette_male = sns.color_palette("dark")
+# palette_male = sns.color_palette("dark")
+palette_male = sns.color_palette("PuBuGn")
 palette_female = sns.color_palette("flare")
 color_female = palette_female[2]
 color_male = palette_male[9]
-custom_palette = {"Male": color_male, "Female": color_female}
 
+custom_palette = {"Male": color_male, "Female": color_female}
+print("===== Done! =====")
+embed(globals(), locals())
 ###############################################################################
 # Set the style once for all plots
 sns.set_style("whitegrid")
@@ -207,128 +206,3 @@ plt.close()
 print("===== Done! =====")
 embed(globals(), locals())
 ###############################################################################
-###############################################################################
-plot_folder = os.path.join(os.getcwd(), f"plots2/violinplots/{target}/{n_repeats}_repeats_{n_folds}_folds/{score_type}")
-if(not os.path.isdir(plot_folder)):
-        os.makedirs(plot_folder)
-plot_file = os.path.join(plot_folder, f"comparing_SVM_RF_models_multi_samplesize_by_gender_{target}.png")
-###############################################################################
-# Create a custom color palette dictionary
-# Define custom palettes
-# palette_male = sns.color_palette("Blues")
-# palette_female = sns.color_palette("Reds")
-# custom_palette = {'Female': palette_female[5], 'Male': palette_male[5]}
-
-
-palette_male = sns.color_palette("dark")
-palette_female = sns.color_palette("flare")
-color_female = palette_female[2]
-color_male = palette_male[9]
-
-custom_palette = {"Male": color_male, "Female": color_female}
-###############################################################################
-# Set the style once for all plots
-sns.set_style("whitegrid")
-fig, ax = plt.subplots(1, 2, figsize=(10, 6))
-# Plot the first boxplot on ax[0]
-# Plot the first violinplot on ax[0]
-sns.violinplot(data=df_linear_svm,
-            x="samplesize_percent",
-            y=test_score,  # Ensure y is passed as a string if it is a column name
-            hue="gender",
-            palette=custom_palette,
-            # linewidth=7,
-            # inner="box",
-            ax=ax[0],
-           )
-
-# Plot the second violinplot on ax[1]
-sns.violinplot(data=df_random_forest,
-            x="samplesize_percent",
-            y=test_score,  # Ensure y is passed as a string if it is a column name
-            hue="gender",
-            palette=custom_palette,
-            # linewidth=7,
-            # inner="box",
-            ax=ax[1],
-           )
-#-----------------------------------------------------------#
-# Format y-tick labels to one decimal place if they are round
-# Get x and y limits for the first subplot first row
-xmin0, xmax0 = ax[0].get_xlim()
-ymin0, ymax0 = ax[0].get_ylim()
-# Get x and y limits for the second subplot first row
-xmin1, xmax1 = ax[1].get_xlim()
-ymin1, ymax1 = ax[1].get_ylim()
-# Find the common y-axis limits
-ymin = min(ymin0, ymin1)
-ymax = max(ymax0, ymax1)
-
-# Set y-label based on score type
-# Set the y-ticks step value
-if score_type == "r2_score":
-    ystep_value = 0.025
-    # Calculate the range for y-ticks
-    yticks_range = np.arange(math.floor(ymin / 0.01) * 0.01, math.ceil(ymax / 0.01) * 0.01 , ystep_value)
-    y_lable = "R² (CV)"
-elif score_type == "r_score":
-    ystep_value = 0.05
-    # Calculate the range for y-ticks
-    yticks_range = np.arange(math.floor(ymin / 0.05) * 0.05, math.ceil(ymax / 0.05) * 0.05, ystep_value)
-    y_lable = "r (CV)"
-#-----------------------------------------------------------#
-# Set the y-ticks for both subplots
-ax[0].set_yticks(yticks_range)
-ax[1].set_yticks(yticks_range)
-#-----------------------------------------------------------#
-# Set the y-axis label with specified properties
-ax[0].set_ylabel(y_lable, fontsize=16)    
-ax[1].set_ylabel("")
-#-----------------------------------------------------------#    
-# Hide x-labels on the second subplot (using ax[1].set_yticklabels([]) to keep the style)
-ax[0].set_xlabel("")
-ax[1].set_xlabel("")
-#-----------------------------------------------------------#
-# Iterate over each subplot to change the font size for tick labels
-for axis in ax.flatten():
-    axis.tick_params(axis='both', labelsize=12, direction='out', length=5)
-#-----------------------------------------------------------#
-# set style for the axes
-new_xticks = ["10", "20", "40", "60", "80", "100"]
-for axes in [ax[0], ax[1]]:
-    axes.set_xticks(range(len(new_xticks)))  # Set tick positions
-    axes.set_xticklabels(new_xticks, fontsize=14)  # Set tick labels
-#-----------------------------------------------------------#
-# Axes titles
-ax[0].set_title("Linear SVM", fontsize=16, fontweight="bold")            
-ax[1].set_title("Random Forest", fontsize=16, fontweight="bold")
-#-----------------------------------------------------------#
-# Set the color of the plot's spines to black for both subplots
-for ax_subplot in ax:
-    for spine in ax_subplot.spines.values():
-        spine.set_color('black')
-#-----------------------------------------------------------#
-# Place legend outside the plot
-legend = fig.legend(title="Gender", title_fontsize='12', fontsize='10', bbox_to_anchor=(1.05, 1), loc='upper left')
-#-----------------------------------------------------------#
-# Remove legend from the axes
-for ax_subplot in ax:
-    ax_subplot.legend().remove()
-#-----------------------------------------------------------#
-# Set a common x-label
-fig.text(0.5, 0.04, 'Sample size (%)', ha='center', fontsize=16)
-#-----------------------------------------------------------#
-ax[0].set_box_aspect(1)
-ax[1].set_box_aspect(1)
-# Hide y-ticks on the second subplot (using ax[1].set_yticklabels([]) to keep the style)
-ax[1].set_yticklabels([])
-#-----------------------------------------------------------#
-plt.tight_layout()  # Adjust layout to fit x-label
-
-plt.show()
-plt.savefig(plot_file)
-plt.close()
-
-print("===== Done! =====")
-embed(globals(), locals())
-
