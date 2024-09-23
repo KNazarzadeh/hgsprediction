@@ -35,7 +35,7 @@ if mri_status == "mri+nonmri":
     df_longitudinal_nonmri = load_disorder_data.load_preprocessed_data(population, "nonmri", session_column, disorder_cohort, first_event)
     df_longitudinal = pd.concat([df_longitudinal_mri, df_longitudinal_nonmri]).dropna(axis=1, how='all')
 else:
-    df_longitudinal = load_disorder_data.load_preprocessed_data(population, mri_status, session_column, disorder_cohort, first_event)
+    df_longitudinal = load_disorder_data.load_preprocessed_data(population, mri_status, session_column, disorder_cohort, first_event)   
 ##############################################################################
 if gender == "female":
     df = df_longitudinal[df_longitudinal['gender'] == 0]
@@ -79,7 +79,8 @@ df_merged = pd.merge(df_pre.drop(columns=common_cols), df_post, left_index=True,
 
 df_merged = df_merged.drop(columns="handedness")
 print(df_merged)
-
+print("===== Done! =====")
+embed(globals(), locals())
 save_disorder_extracted_data_by_feature_and_target(
     df_merged,
     population,
