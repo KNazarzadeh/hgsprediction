@@ -25,6 +25,7 @@ n_repeats = sys.argv[7]
 n_folds = sys.argv[8]
 data_set = sys.argv[9]
 gender = sys.argv[10]
+session = sys.argv[11]
 ###############################################################################
 best_model_trained = load_trained_model_results.load_best_model_trained(
                                 "healthy",
@@ -51,46 +52,46 @@ X = features
 y = target
 ##############################################################################
 # for session in ["0", "1", "2", "3"]: 
-for session in ["2"]: 
+# for session in ["2"]: 
 
-    # load data
-    # load data # Extract data based on main features, extra features, target for each session and mri status:
-    data_extracted = load_healthy_data.load_extracted_data_by_feature_and_target(
-        population,
-        mri_status,
-        feature_type,
-        target,
-        session,
-        gender,
-        data_set,
-    )
-    
-    ##############################################################################
-    # Predict Handgrip strength (HGS) on X and y in dataframe
-    # With best trained model on non-MRI healthy controls data
-    df = predict_hgs(data_extracted.copy(), X, y, best_model_trained, target)
+# load data
+# load data # Extract data based on main features, extra features, target for each session and mri status:
+data_extracted = load_healthy_data.load_extracted_data_by_feature_and_target(
+    population,
+    mri_status,
+    feature_type,
+    target,
+    session,
+    gender,
+    data_set,
+)
 
-    ##############################################################################
-    # Print the final dataframe after adding predicted and delta HGS columns
-    print(df)
-    print("===== END Done! =====")
-    embed(globals(), locals())
-    ##############################################################################
-    # Save dataframe in the specific location
-    save_hgs_predicted_results(
-        df,
-        population,
-        mri_status,
-        model_name,
-        feature_type,
-        target,
-        gender,
-        session,
-        confound_status,
-        n_repeats,
-        n_folds,
-        data_set,
-    )
+##############################################################################
+# Predict Handgrip strength (HGS) on X and y in dataframe
+# With best trained model on non-MRI healthy controls data
+df = predict_hgs(data_extracted.copy(), X, y, best_model_trained, target)
+
+##############################################################################
+# Print the final dataframe after adding predicted and delta HGS columns
+print(df)
+print("===== END Done! =====")
+embed(globals(), locals())
+##############################################################################
+# Save dataframe in the specific location
+save_hgs_predicted_results(
+    df,
+    population,
+    mri_status,
+    model_name,
+    feature_type,
+    target,
+    gender,
+    session,
+    confound_status,
+    n_repeats,
+    n_folds,
+    data_set,
+)
 
 print("===== END Done! =====")
 embed(globals(), locals())

@@ -36,7 +36,7 @@ n_repeats = sys.argv[7]
 n_folds = sys.argv[8]
 data_set = sys.argv[9]
 gender = sys.argv[10]
-
+session = sys.argv[11]
 ###############################################################################
 slope, intercept = prediction_corrector_model(
     model_name,
@@ -49,50 +49,52 @@ slope, intercept = prediction_corrector_model(
 print(slope)
 print(intercept)
 ###############################################################################
-for session in ["0", "1", "2", "3"]:
-    df = load_hgs_predicted_results(
-        population,
-        mri_status,
-        model_name,
-        feature_type,
-        target,
-        gender,
-        session,
-        confound_status,
-        n_repeats,
-        n_folds,
-        data_set,
-    )
-    print(df)
-    ###############################################################################
-    #Beheshti Method:
-    true_hgs = df.loc[:, f"{target}"]
-    predicted_hgs = df.loc[:, f"{target}_predicted"]
+# for session in ["0", "1", "2", "3"]:
+df = load_hgs_predicted_results(
+    population,
+    mri_status,
+    model_name,
+    feature_type,
+    target,
+    gender,
+    session,
+    confound_status,
+    n_repeats,
+    n_folds,
+    data_set,
+)
+print(df)
+###############################################################################
+#Beheshti Method:
+true_hgs = df.loc[:, f"{target}"]
+predicted_hgs = df.loc[:, f"{target}_predicted"]
 
-    df_corrected_hgs = beheshti_correction_method(
-        df.copy(),
-        target,
-        true_hgs,
-        predicted_hgs,
-        slope, 
-        intercept,
-    )
-    print(df_corrected_hgs)
-    ###############################################################################
-    save_corrected_prediction_results(
-        df_corrected_hgs,
-        population,
-        mri_status,
-        model_name,
-        feature_type,
-        target,
-        gender,
-        session,
-        confound_status,
-        n_repeats,
-        n_folds,
-        data_set,
-    )
+df_corrected_hgs = beheshti_correction_method(
+    df.copy(),
+    target,
+    true_hgs,
+    predicted_hgs,
+    slope, 
+    intercept,
+)
+print(df_corrected_hgs)
+print("===== Done! =====")
+embed(globals(), locals())
+###############################################################################
+save_corrected_prediction_results(
+    df_corrected_hgs,
+    population,
+    mri_status,
+    model_name,
+    feature_type,
+    target,
+    gender,
+    session,
+    confound_status,
+    n_repeats,
+    n_folds,
+    data_set,
+)
 
 print("===== Done! =====")
 embed(globals(), locals())
