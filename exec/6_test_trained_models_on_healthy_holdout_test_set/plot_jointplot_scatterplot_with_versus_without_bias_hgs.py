@@ -108,7 +108,7 @@ df = pd.concat([df_female, df_male], axis=0)
 df['gender'] = df['gender'].replace({0: 'Female', 1: 'Male'})
 
 ###############################################################################
-plot_folder = os.path.join(os.getcwd(), f"plots_2/with_vs_withou_bias_hgs/jointplot_scatterplot/{target}/{model_name}/{n_repeats}_repeats_{n_folds}_folds/{correlation_type}")
+plot_folder = os.path.join(os.getcwd(), f"plots_2/with_vs_withou_bias_hgs/jointplot_scatterplot/{feature_type}/{target}/{model_name}/{n_repeats}_repeats_{n_folds}_folds/{correlation_type}")
 if(not os.path.isdir(plot_folder)):
         os.makedirs(plot_folder)
 ###############################################################################
