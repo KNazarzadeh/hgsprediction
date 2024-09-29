@@ -5,6 +5,7 @@ import numpy as np
 
 def save_overlap_brain_data_with_mri_data(
     df,
+    feature_type,
     brain_data_type,
     schaefer,
     session,
@@ -23,6 +24,7 @@ def save_overlap_brain_data_with_mri_data(
                 f"schaefer{schaefer}",            
                 "barin_data_overlap_with_mri_healthy_data",
                 f"{session}_session_ukb",
+                f"{feature_type}",
             )
     if(not os.path.isdir(folder_path)):
         os.makedirs(folder_path)

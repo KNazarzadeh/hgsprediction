@@ -4,6 +4,7 @@ import numpy as np
 
 
 def load_overlap_brain_data_with_mri_data(
+    feature_type,
     brain_data_type,
     schaefer,
     session,
@@ -22,6 +23,7 @@ def load_overlap_brain_data_with_mri_data(
                 f"schaefer{schaefer}",            
                 "barin_data_overlap_with_mri_healthy_data",
                 f"{session}_session_ukb",
+                f"{feature_type}",
             )
     if(os.path.isdir(folder_path)):
         # Define the csv file path to load

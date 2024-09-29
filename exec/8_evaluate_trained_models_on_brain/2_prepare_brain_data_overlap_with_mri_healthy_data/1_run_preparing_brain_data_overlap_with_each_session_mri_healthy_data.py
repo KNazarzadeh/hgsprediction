@@ -56,8 +56,8 @@ df_mri = load_corrected_prediction_results(
     n_folds,
     data_set,
 )
-print("===== Done! =====")
-embed(globals(), locals())
+# print("===== Done! =====")
+# embed(globals(), locals())
 ###############################################################################
 if tiv_status == "without_tiv":
     
@@ -73,6 +73,7 @@ if tiv_status == "without_tiv":
 ##############################################################################
         save_overlap_brain_data_with_mri_data(
             df_merged,
+            feature_type,
             brain_data_type,
             schaefer,
             session,

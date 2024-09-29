@@ -35,12 +35,14 @@ corr_target = sys.argv[15]
 # embed(globals(), locals())
 ###############################################################################
 df_session_2 = load_overlap_brain_data_with_mri_data(
+    feature_type,
     brain_data_type,
     schaefer,
     "2",
     gender,)
 
 df_session_3 = load_overlap_brain_data_with_mri_data(
+    feature_type,
     brain_data_type,
     schaefer,
     "3",
@@ -54,8 +56,8 @@ else:
 
 ##############################################################################
 x_axis = df.iloc[:,:1088].columns
-print("===== Done! =====")
-embed(globals(), locals())
+# print("===== Done! =====")
+# embed(globals(), locals())
 ##############################################################################
 if corr_target == "hgs_true":
     y_axis = f"{target}"
@@ -79,6 +81,7 @@ session = '2_and_3'
 # embed(globals(), locals())
 save_hgs_correlation_with_brain_regions_results(
     df_corr,
+    feature_type,
     brain_data_type,
     schaefer,
     session,

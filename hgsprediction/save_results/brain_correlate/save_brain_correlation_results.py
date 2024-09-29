@@ -9,6 +9,7 @@ from ptpython.repl import embed
 ###############################################################################
 def save_hgs_correlation_with_brain_regions_results(
     df,
+    feature_type,
     brain_data_type,
     schaefer,
     session,
@@ -29,6 +30,7 @@ def save_hgs_correlation_with_brain_regions_results(
             f"schaefer{schaefer}",
             "hgs_correlation_with_brain_regions_results",
             f"{session}_session_ukb",
+            f"{feature_type}",
             f"{corr_target}", 
         )
     
