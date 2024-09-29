@@ -112,6 +112,7 @@ def load_validate_hgs_data(
 def load_preprocessed_data(
     population,
     mri_status,
+    feature_type,
     session,
     gender,
     data_set,
@@ -143,6 +144,7 @@ def load_preprocessed_data(
             f"{mri_status}_{population}",
             f"{data_set}",
             "preprocessed_data",
+            f"{feature_type}",
             f"{session}_session_ukb"
             )
     else:
@@ -157,6 +159,7 @@ def load_preprocessed_data(
             "preprocessed_data",
             f"{mri_status}_{population}",
             "preprocessed_data",
+            f"{feature_type}",
             f"{session}_session_ukb",
             )
 

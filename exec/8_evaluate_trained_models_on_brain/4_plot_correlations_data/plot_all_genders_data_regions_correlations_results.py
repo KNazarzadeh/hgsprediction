@@ -9,7 +9,7 @@ from matplotlib.colors import ListedColormap, BoundaryNorm
 from matplotlib.colors import Normalize
 from brokenaxes import brokenaxes
 from matplotlib.gridspec import GridSpec
-
+from matplotlib import colors
 from hgsprediction.load_results.brain_correlate.load_brain_correlation_results import load_hgs_correlation_with_brain_regions_results
 #--------------------------------------------------------------------------#
 from ptpython.repl import embed
@@ -54,6 +54,8 @@ df_male_corr = load_hgs_correlation_with_brain_regions_results(
     "male",
     corr_target,
 )
+# print("===== Done! =====")
+# embed(globals(), locals())
 ###############################################################################
 df_female_corr.loc[:, "correlations_values"] = df_female_corr.loc[:, "correlations"]
 df_male_corr.loc[:, "correlations_values"] = df_male_corr.loc[:, "correlations"]
@@ -145,13 +147,85 @@ colors_female = cmap_custom(normalized_values_female)
 colors_male = cmap_custom(normalized_values_male)
 
 ###############################################################################
+# Define the colormap
+cmap_custom = plt.cm.Spectral_r
+###############################################################################
 # Plot the barplot
 fig, ax = plt.subplots(3,1, figsize=(40, 32))
 sns.set_style("white")
-sns.barplot(x='regions', y='average_correlations', data=top_corr_both_gender, palette=colors_both_gender, ax=ax[0])
-sns.barplot(x='regions', y='correlations_values', data=top_corr_male, palette=colors_male, ax=ax[1])
-sns.barplot(x='regions', y='correlations_values', data=top_corr_female, palette=colors_female, ax=ax[2])
+###############################################################################
+# sns.scatterplot(x='regions', y='average_correlations', data=top_corr_both_gender, color='orange', zorder=5, s=100, ax=ax[0])
+vmin = -0.3
+vmax = -0.1
+threshold = vmax
+custom_ticks = [-0.3, -0.25, -0.2, -0.15, -0.1]
+# Normalize the color values based on vmin and vmax
+norm = colors.BoundaryNorm(boundaries=custom_ticks, ncolors=cmap_custom.N)
+ax[0].scatter(
+    x=top_corr_both_gender['regions'], 
+    y=top_corr_both_gender['average_correlations'], 
+    c=top_corr_both_gender['average_correlations'],  # Use correlation values for coloring
+    cmap=cmap_custom,                        # Apply the custom colormap
+    norm=norm,                               # Normalize between vmin and vmax
+    zorder=5, 
+    s=200
+)
+# Draw vertical lines from each scatter point down to the x-axis
+ax[0].vlines(x=top_corr_both_gender['regions'], 
+          ymin=0,                          # From the x-axis (y=0)
+          ymax=top_corr_both_gender['average_correlations'], 
+          color='darkgrey', 
+          linewidth=4)
 
+# sns.scatterplot(x='regions', y='correlations_values', data=top_corr_male, color='darkblue', zorder=5, s=100, ax=ax[1])
+###############################################################################
+vmin = -0.3
+vmax = -0.1
+threshold = vmax
+custom_ticks = [-0.3, -0.25, -0.2, -0.15, -0.1]
+# Normalize the color values based on vmin and vmax
+norm = colors.BoundaryNorm(boundaries=custom_ticks, ncolors=cmap_custom.N)
+# Scatter plot with colors based on the colormap and normalized values
+ax[1].scatter(
+    x=top_corr_male['regions'], 
+    y=top_corr_male['correlations_values'], 
+    c=top_corr_male['correlations_values'],  # Use correlation values for coloring
+    cmap=cmap_custom,                        # Apply the custom colormap
+    norm=norm,                               # Normalize between vmin and vmax
+    zorder=5, 
+    s=200
+)
+# Draw vertical lines from each scatter point down to the x-axis
+ax[1].vlines(x=top_corr_male['regions'], 
+          ymin=0,                          # From the x-axis (y=0)
+          ymax=top_corr_male['correlations_values'], 
+          color='darkgrey', 
+          linewidth=4)
+###############################################################################
+# sns.scatterplot(x='regions', y='correlations_values', data=top_corr_female, color='red', zorder=5, s=100, ax=ax[2])
+vmin = -0.32
+vmax = -0.16
+threshold = vmax
+custom_ticks = [-0.3, -0.2, -0.08, 0.04, 0.16]
+# Normalize the color values based on vmin and vmax
+norm = colors.BoundaryNorm(boundaries=custom_ticks, ncolors=cmap_custom.N)
+ax[2].scatter(
+    x=top_corr_female['regions'], 
+    y=top_corr_female['correlations_values'], 
+    c=top_corr_female['correlations_values'],  # Use correlation values for coloring
+    cmap=cmap_custom,                        # Apply the custom colormap
+    norm=norm,                               # Normalize between vmin and vmax
+    zorder=5, 
+    s=200
+)
+# Draw vertical lines from each scatter point down to the x-axis
+ax[2].vlines(x=top_corr_female['regions'], 
+          ymin=0,                          # From the x-axis (y=0)
+          ymax=top_corr_female['correlations_values'], 
+          color='darkgrey', 
+          linewidth=4)
+
+###############################################################################
 # Adjust the bar width manually
 bar_width = 0.4  # Decrease bar width
 for bar in ax[0].patches:
@@ -216,7 +290,7 @@ fig.suptitle(f'Top {n_top_regions} Regions with Highest Absolute Correlations', 
 plt.tight_layout()
 # Show the plot
 plt.show()
-plt.savefig(f"all_genders_data_regions_{corr_target}_{n_top_regions}_top_regions.png")
+plt.savefig(f"all_genders_data_regions_{corr_target}_{n_top_regions}_top_regions_1.png")
 
 print("===== Done! =====")
 embed(globals(), locals())

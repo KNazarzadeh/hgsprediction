@@ -34,11 +34,12 @@ gender = sys.argv[7]
 features, extend_features = define_features(feature_type)
 ##############################################################################
 
-df = load_healthy_data.load_preprocessed_data(population, mri_status, session, gender, data_set)
+df = load_healthy_data.load_preprocessed_data(population, mri_status, feature_type, session, gender, data_set)
 print("===== Done! =====")
 embed(globals(), locals())
 df_extracted = healthy_extract_data.extract_data(df, features, extend_features, feature_type, target, mri_status, session)
-
+print("===== Done! =====")
+embed(globals(), locals())
 print(df_extracted)
 
 save_extracted_data_by_feature_and_target(
@@ -51,6 +52,8 @@ save_extracted_data_by_feature_and_target(
     gender,
     data_set,
 )
+print("===== Done! =====")
+embed(globals(), locals())
 # Test removed missed features and target
 print(len(df))
 print(df[[f"bmi-{session}.0", f"height-{session}.0", f"waist_to_hip_ratio-{session}.0", f"hgs_L+R-{session}.0"]].isna().sum())

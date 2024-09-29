@@ -18,11 +18,12 @@ gender = sys.argv[6]
 
 
 df = load_healthy_data.load_validate_hgs_data(population, mri_status, session, gender, data_set)
+# print("===== Done! =====")
+# embed(globals(), locals())
 
-# df = healthy_compute_features.compute_features(df, mri_status, feature_type, session)
 df = healthy_compute_features.compute_features(df, feature_type, mri_status, session)
 
-save_healthy_data.save_preprocessed_data(df, population, mri_status, session, gender, data_set)
+save_healthy_data.save_preprocessed_data(df, population, mri_status, feature_type, session, gender, data_set)
 
 print(df)
 print("===== Done! =====")

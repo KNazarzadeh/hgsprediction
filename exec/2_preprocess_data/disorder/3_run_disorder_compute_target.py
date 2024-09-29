@@ -12,7 +12,8 @@ from ptpython.repl import embed
 filename = sys.argv[0]
 population = sys.argv[1]
 mri_status = sys.argv[2]
-first_event =sys.argv[3]
+feature_type = sys.argv[3]
+first_event =sys.argv[4]
 
 
 if mri_status == "mri":

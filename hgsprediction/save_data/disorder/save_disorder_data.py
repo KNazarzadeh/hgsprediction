@@ -181,7 +181,7 @@ def save_preprocessed_data(
         f"{mri_status}_{population}",
         f"{disorder_cohort}_data",
         f"{session_column}_data",
-        "preprocessed_data"
+        "preprocessed_data",
     )
 
     if(not os.path.isdir(folder_path)):

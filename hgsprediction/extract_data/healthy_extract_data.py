@@ -7,7 +7,8 @@ def extract_data(df, features, extend_features, feature_type, target, mri_status
     
     # Convert target and features for specific session
     target_tmp = f"{target}-{session}.0"
-    
+    print("===== Done! =====")
+    embed(globals(), locals())
     if mri_status == "nonmri":
         if feature_type == "behavioral":
             feature_list = [f"{item}-{session}.0" if item not in ['anxiety_score', 'depression_score', 'CIDI_score', 'neuroticism_score'] else item for item in features]

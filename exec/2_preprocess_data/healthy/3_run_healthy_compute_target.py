@@ -10,17 +10,19 @@ from ptpython.repl import embed
 filename = sys.argv[0]
 population = sys.argv[1]
 mri_status = sys.argv[2]
-session = sys.argv[3]
-data_set = sys.argv[4]
-gender = sys.argv[5]
+feature_type = sys.argv[3]
+session = sys.argv[4]
+data_set = sys.argv[5]
+gender = sys.argv[6]
 # target = sys.argv[6]
 
-df = load_healthy_data.load_preprocessed_data(population, mri_status, session, gender, data_set)
-
+df = load_healthy_data.load_preprocessed_data(population, mri_status, feature_type, session, gender, data_set)
+# print("===== Done! =====")
+# embed(globals(), locals())
 for target in ["hgs_L+R", "hgs_left", "hgs_right", "hgs_LI", "hgs_L-R"]:  
     df = healthy_compute_target.compute_target(df, mri_status, session, target)
 
-save_healthy_data.save_preprocessed_data(df, population, mri_status, session, gender, data_set)
+save_healthy_data.save_preprocessed_data(df, population, mri_status, feature_type, session, gender, data_set)
 
 print(df)
 print("===== Done! =====")

@@ -69,6 +69,7 @@ def save_preprocessed_data(
     df,
     population,
     mri_status,
+    feature_type,
     session,
     gender,
     data_set,
@@ -100,6 +101,7 @@ def save_preprocessed_data(
         f"{mri_status}_{population}",
         f"{data_set}",
         "preprocessed_data",
+        f"{feature_type}",
         f"{session}_session_ukb",
         )
     else:   
@@ -114,6 +116,7 @@ def save_preprocessed_data(
             "preprocessed_data",
             f"{mri_status}_{population}",
             "preprocessed_data",
+            f"{feature_type}",            
             f"{session}_session_ukb",
             )
 
