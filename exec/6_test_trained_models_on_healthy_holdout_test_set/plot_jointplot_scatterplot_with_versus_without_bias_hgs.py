@@ -192,8 +192,8 @@ for y in y_cols:
     # Add a dashed red line for y = x
     if y in [f"{target}_predicted", f"{target}_corrected_predicted"]:
         # Define the x and y coordinates for the line
-        x_values = [0, 160]
-        y_values = [0, 160]
+        x_values = [0, 140]
+        y_values = [0, 140]
         g.ax_joint.plot(x_values, y_values, color='silver', linestyle='--', linewidth=2)
 
     # Add a dashed red line at y=0
