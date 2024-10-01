@@ -234,15 +234,15 @@ for bar in ax[2].patches:
 # Adjust x-tick positions and labels for all subplots
 ax[0].set_xticks(np.arange(len(top_corr_both_gender)))
 ax[0].set_xticklabels(top_corr_both_gender['regions'], rotation=45, ha='right', fontsize=24)
-ax[0].set_xlim(0.5, len(top_corr_both_gender) + 0.5)
+ax[0].set_xlim(-0.5, len(top_corr_both_gender) - 0.5)
 
 ax[1].set_xticks(np.arange(len(top_corr_male)))
 ax[1].set_xticklabels(top_corr_male['regions'], rotation=45, ha='right', fontsize=24)
-ax[1].set_xlim(0.5, len(top_corr_male) + 0.5)
+ax[0].set_xlim(-0.5, len(top_corr_male) - 0.5)
 
 ax[2].set_xticks(np.arange(len(top_corr_female)))
 ax[2].set_xticklabels(top_corr_female['regions'], rotation=45, ha='right', fontsize=24)
-ax[2].set_xlim(0.5, len(top_corr_female) + 0.5)
+ax[0].set_xlim(-0.5, len(top_corr_female) - 0.5)
 
 ###############################################################################
 if corr_target == "hgs_true":
