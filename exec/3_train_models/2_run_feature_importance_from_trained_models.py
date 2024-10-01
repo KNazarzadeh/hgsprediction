@@ -66,7 +66,7 @@ feature_importance = dict(zip(feature_names, importances))
 
 # Display the feature importances
 for feature, importance in feature_importance.items():
-    print(f"Feature: {feature}, Importance: {importance}")
+    print(f"Feature: {feature}, Importance: {importance:.2f}")
 
 print("===== Done! =====")
 embed(globals(), locals())
