@@ -125,8 +125,8 @@ color_female = palette_female[2]
 color_male = palette_male[9]
 
 custom_palette = {"Male": color_male, "Female": color_female}
-# print("===== Done! =====")
-# embed(globals(), locals())
+print("===== Done! =====")
+embed(globals(), locals())
 ###############################################################################
 # Define columns
 x_col = f"{target}"
