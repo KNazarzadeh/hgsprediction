@@ -99,34 +99,77 @@ for i, feat in enumerate(features):
     df_significant.loc[i, "feature_name"]=feat
     df_significant.loc[i,"corr-values"]= corr_value
     df_significant.loc[i,"p-values"]= p_value
-
-print("===== Done! =====")
-embed(globals(), locals())
+###############################################################################
+# print("===== Done! =====")
+# embed(globals(), locals())
 df_sorted = df_significant.sort_values(by='corr-values', ascending=False)
 ###############################################################################
-custom_paltte = ["#eb0917", "#86AD21", "#5ACACA", "#B382D6"]
+cognitive_features = ["Fluid intelligence",
+                    "Reaction time",
+                    "Numeric memory",
+                    "Trail making: part A",
+                    "Trail making: part B",
+                    "Pairs matching 1: error made",
+                    "Pairs matching 2: error made",
+                    "Pairs matching 1: time",
+                    "Pairs matching 2: time",
+                    "Prospective memory",
+                    "Symbol-digit matching: corrected",
+                    "Symbol-digit matching: attempted",
+                    ]
+
+depression_anxiety_features = [
+                    "Neuroticism", 
+                    "Anxiety symptom", 
+                    "Depression symptom",
+                    "CIDI-depression",
+                    ]
+
+life_satisfaction_features = [
+                    "Happiness",
+                    "Satisfaction: family relationship",
+                    "Satisfaction: job/work",
+                    "Satisfaction: health",
+                    "Satisfaction:friendship",
+                    "Satisfaction: financial situation",
+                    ]
+
+well_being_features = [
+                    "Happiness: general",
+                    "Happiness with own health",
+                    "Belief that life is meaningful"
+                    ]
+###############################################################################
+if gender == "female":
+    custom_paltte = sns.color_palette("Reds_r")
+elif gender == "male":
+    custom_paltte = sns.color_palette("Blues_r")    
+###############################################################################
 # Plot the significance values using Seaborn
-plt.figure(figsize=(20,30))
+plt.figure(figsize=(40,50))
 plt.rcParams.update({"font.weight": "bold", 
                     "axes.labelweight": "bold",
                     "ytick.labelsize": 25,
                     "xtick.labelsize": 25})
-ax = sns.barplot(x='significance', y='feature_name', data=df_sorted, hue="cognitive_type", palette=custom_paltte, width=0.5)
+ax = sns.barplot(x='corr-values', y='feature_name', data=df_sorted, hue="feature_name", palette=custom_paltte, width=0.5)
 # Add bar labels
 for container in ax.containers:
     ax.bar_label(container, fmt='%.1f', padding=3, fontsize=25, color='black')
 
-plt.xlabel('-log(p-value)', weight="bold", fontsize=30)
+plt.xlabel('Correlations', weight="bold", fontsize=30)
 plt.ylabel('')
 plt.xticks(range(0, 25, 5))
 
-plt.title(f'non-MRI Controls (N={len(df)})', weight="bold", fontsize=30)
+plt.title(f'MRI Controls (N={len(df)})', weight="bold", fontsize=30)
 
 # Place legend outside the plot
-plt.legend(fontsize='20', bbox_to_anchor=(1.05, 1), loc='upper left')
-
+# plt.legend(fontsize='20', bbox_to_anchor=(1.05, 1), loc='upper left')
+plt.legend().remove()
 plt.tight_layout()
 
 plt.show()
-plt.savefig(f"both_gender_cognitive_{target}.png")
+plt.savefig(f"{gender}_behavioural_correlation_with_{target}.png")
 plt.close()
+
+print("===== Done! =====")
+embed(globals(), locals())
