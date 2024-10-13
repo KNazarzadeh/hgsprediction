@@ -130,7 +130,8 @@ if corr_target == "hgs_corrected_delta":
     vmax = 0
     threshold = vmax
     # Apply the custom colormap
-    cmap_custom = plt.cm.YlGnBu_r
+    # cmap_custom = plt.cm.YlGnBu_r
+    cmap_custom = plt.cm.Spectral_r
     ##########################################################
     # Define the levels (bins) you want within the colormap
     levels = MaxNLocator(nbins=10).tick_values(vmin, vmax)  # Specify your bin edges
@@ -242,6 +243,11 @@ ax[0].set_xticklabels(top_corr_both_gender['regions'], rotation=45, ha='right', 
 # Step 3: Adjust the x-axis limits to start closer to the y-axis
 # Set the x-axis limits to start from 0.5 and end at len(regions) - 0.5
 ax[0].set_xlim(-0.5, len(top_corr_both_gender) - 0.5)
+# Move x-ticks to the top and set the label on top
+# Move ticks to the top
+# ax[0].xaxis.set_ticks_position('top')  
+# Show ticks only at the top 
+# ax[0].tick_params(axis='x', which='both', labeltop=False, labelbottom=True)    
 
 ax[1].set_xticks(np.arange(len(top_corr_male)))
 ax[1].set_xticklabels(top_corr_male['regions'], rotation=45, ha='right', fontsize=24)
@@ -254,9 +260,9 @@ ax[2].set_xlim(-0.5, len(top_corr_female) - 0.5)
 ###############################################################################
 if corr_target == "hgs_corrected_delta":
     # Set y-axis limits (you can adjust these values based on your data)
-    ymin = -0.32  # Example minimum value
-    ymax = 0  # Example maximum value
-    ystep = 0.04
+    ymin = -0.3  # Example minimum value
+    ymax = -0.1  # Example maximum value
+    ystep = 0.05
     # Remove the top and right spines (borders)
     # Move x-ticks to the top and set the label on top
     # ax[0].xaxis.set_ticks_position('top')  # Move ticks to the top
@@ -264,8 +270,8 @@ if corr_target == "hgs_corrected_delta":
 
 ############################################################################### 
 for i in range(3): 
-    ax[i].set_yticks(np.arange(ymin, ymax+0.04, ystep))
-    ax[i].set_ylim(ymin, ymax)
+    ax[i].set_yticks(np.arange(ymin, ymax+0.05, ystep))
+    ax[i].set_ylim(ymin-0.01, ymax)
     # Set y-tick labels font size
     ax[i].yaxis.set_tick_params(labelsize=24)
     # Add labels and title
@@ -285,7 +291,7 @@ fig.suptitle(f'Top {n_top_regions} Regions with Highest Absolute Correlations', 
 plt.tight_layout()
 # Show the plot
 plt.show()
-plt.savefig(f"all_genders_delta_hgs_regions_{corr_target}_{n_top_regions}_top_regions.png")
+plt.savefig(f"all_genders_{corr_target}_{n_top_regions}_top_regions.png")
 
 print("===== Done! =====")
 embed(globals(), locals())

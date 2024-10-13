@@ -127,11 +127,12 @@ top_corr_male = df_sorted_male.head(int(n_top_regions))
 ###############################################################################
 if corr_target == "hgs_true":
     vmin = 0.1
-    vmax = 0.18
+    vmax = 0.15
     threshold = vmin
     ##########################################################
     # Apply the custom colormap
-    cmap_custom = plt.cm.YlOrRd
+    # cmap_custom = plt.cm.YlOrRd
+    cmap_custom = plt.cm.Spectral_r    
     # Define the levels (bins) you want within the colormap
     levels = MaxNLocator(nbins=9).tick_values(vmin, vmax)  # Specify your bin edges
     # Create a BoundaryNorm object
@@ -247,13 +248,13 @@ ax[0].set_xlim(-0.5, len(top_corr_female) - 0.5)
 ###############################################################################
 if corr_target == "hgs_true":
     # Set y-axis limits (you can adjust these values based on your data)
-    ymin = 0  # Example minimum value
-    ymax = 0.18  # Example maximum value
-    ystep = 0.03
+    ymin = 0.1  # Example minimum value
+    ymax = 0.15  # Example maximum value
+    ystep = 0.01
     # Set specific y-axis ticks
-    ax[0].set_yticks(np.arange(ymin, ymax+0.03, ystep))
-    ax[1].set_yticks(np.arange(ymin, ymax+0.03, ystep))
-    ax[2].set_yticks(np.arange(ymin, ymax+0.03, ystep))
+    ax[0].set_yticks(np.arange(ymin, ymax+0.01, ystep))
+    ax[1].set_yticks(np.arange(ymin, ymax+0.01, ystep))
+    ax[2].set_yticks(np.arange(ymin, ymax+0.01, ystep))
     # Remove the top and right spines (borders)
     for i in range(3):
         # ax[i].spines['top'].set_visible(False)
@@ -265,7 +266,7 @@ if corr_target == "hgs_true":
         ax[i].spines['bottom'].set_color('lightgrey')
 ############################################################################### 
 for i in range(3):   
-    ax[i].set_ylim(ymin, ymax)
+    ax[i].set_ylim(ymin, ymax+.001)
     # Set y-tick labels font size
     ax[i].yaxis.set_tick_params(labelsize=24)
     # Add labels and title
@@ -277,7 +278,7 @@ fig.suptitle(f'Top {n_top_regions} Regions with Highest Absolute Correlations', 
 plt.tight_layout()
 # Show the plot
 plt.show()
-plt.savefig(f"all_genders_true_hgs_regions_{corr_target}_{n_top_regions}_top_regions.png")
+plt.savefig(f"all_genders_{corr_target}_{n_top_regions}_top_regions.png")
 
 print("===== Done! =====")
 embed(globals(), locals())
