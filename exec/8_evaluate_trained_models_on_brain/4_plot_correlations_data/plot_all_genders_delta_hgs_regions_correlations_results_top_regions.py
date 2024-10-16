@@ -130,19 +130,19 @@ if corr_target == "hgs_corrected_delta":
     vmax = 0
     threshold = vmax
     # Apply the custom colormap
-    # cmap_custom = plt.cm.YlGnBu_r
-    cmap_custom = plt.cm.Spectral_r
+    cmap_custom = plt.cm.YlGnBu_r
+    # cmap_custom = plt.cm.Spectral_r
     ##########################################################
     # Define the levels (bins) you want within the colormap
     levels = MaxNLocator(nbins=10).tick_values(vmin, vmax)  # Specify your bin edges
     # Create a BoundaryNorm object
     norm = colors.BoundaryNorm(boundaries=levels, ncolors=cmap_custom.N)
     ##########################################################
-    vmin_female = -0.32
-    vmax_female = 0.16
-    threshold_female = 0
-    # Apply the custom colormap
-    cmap_custom_female = plt.cm.Spectral_r
+    # vmin_female = -0.32
+    # vmax_female = 0.16
+    # threshold_female = 0
+    # # Apply the custom colormap
+    # cmap_custom_female = plt.cm.Spectral_r
 ###############################################################################
 # Normalize the 'Correlation' values to the range [-0.32, 0.32] for coloring
 # Ensure that all values are within the range [-0.32, 0.32] before applying normalization
@@ -162,7 +162,7 @@ colors_male = cmap_custom(normalized_values_male)
 
 ###############################################################################
 # Plot the barplot
-fig, ax = plt.subplots(3,1, figsize=(40, 32))
+fig, ax = plt.subplots(3,1, figsize=(40, 25))
 sns.set_style("white")
 ###############################################################################
 # custom_ticks = levels
@@ -239,7 +239,7 @@ for bar in ax[2].patches:
 ###############################################################################
 # Adjust x-tick positions and labels for all subplots
 ax[0].set_xticks(np.arange(len(top_corr_both_gender)))
-ax[0].set_xticklabels(top_corr_both_gender['regions'], rotation=45, ha='right', fontsize=24)
+ax[0].set_xticklabels(top_corr_both_gender['regions'], rotation=45, ha='right', fontsize=28)
 # Step 3: Adjust the x-axis limits to start closer to the y-axis
 # Set the x-axis limits to start from 0.5 and end at len(regions) - 0.5
 ax[0].set_xlim(-0.5, len(top_corr_both_gender) - 0.5)
@@ -250,11 +250,11 @@ ax[0].set_xlim(-0.5, len(top_corr_both_gender) - 0.5)
 # ax[0].tick_params(axis='x', which='both', labeltop=False, labelbottom=True)    
 
 ax[1].set_xticks(np.arange(len(top_corr_male)))
-ax[1].set_xticklabels(top_corr_male['regions'], rotation=45, ha='right', fontsize=24)
+ax[1].set_xticklabels(top_corr_male['regions'], rotation=45, ha='right', fontsize=26)
 ax[0].set_xlim(-0.5, len(top_corr_male) - 0.5)
 
 ax[2].set_xticks(np.arange(len(top_corr_female)))
-ax[2].set_xticklabels(top_corr_female['regions'], rotation=45, ha='right', fontsize=24)
+ax[2].set_xticklabels(top_corr_female['regions'], rotation=45, ha='right', fontsize=26)
 ax[2].set_xlim(-0.5, len(top_corr_female) - 0.5)
 
 ###############################################################################
@@ -262,7 +262,7 @@ if corr_target == "hgs_corrected_delta":
     # Set y-axis limits (you can adjust these values based on your data)
     ymin = -0.3  # Example minimum value
     ymax = -0.1  # Example maximum value
-    ystep = 0.05
+    ystep = 0.1
     # Remove the top and right spines (borders)
     # Move x-ticks to the top and set the label on top
     # ax[0].xaxis.set_ticks_position('top')  # Move ticks to the top
@@ -270,13 +270,13 @@ if corr_target == "hgs_corrected_delta":
 
 ############################################################################### 
 for i in range(3): 
-    ax[i].set_yticks(np.arange(ymin, ymax+0.05, ystep))
+    ax[i].set_yticks(np.arange(ymin, ymax+0.1, ystep))
     ax[i].set_ylim(ymin-0.01, ymax)
     # Set y-tick labels font size
-    ax[i].yaxis.set_tick_params(labelsize=24)
+    ax[i].yaxis.set_tick_params(labelsize=28)
     # Add labels and title
     ax[i].set_xlabel('')
-    ax[i].set_ylabel('correlations', fontsize=28)
+    ax[i].set_ylabel('correlations', fontsize=34)
     
     # ax[i].spines['bottom'].set_visible(False)
     # ax[i].spines['right'].set_visible(False)

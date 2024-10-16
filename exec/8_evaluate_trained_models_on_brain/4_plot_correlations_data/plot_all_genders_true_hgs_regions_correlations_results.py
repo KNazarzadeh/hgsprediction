@@ -127,14 +127,14 @@ top_corr_male = df_sorted_male.head(int(n_top_regions))
 ###############################################################################
 if corr_target == "hgs_true":
     vmin = 0.1
-    vmax = 0.15
+    vmax = 0.18
     threshold = vmin
     ##########################################################
     # Apply the custom colormap
-    # cmap_custom = plt.cm.YlOrRd
-    cmap_custom = plt.cm.Spectral_r    
+    cmap_custom = plt.cm.YlOrRd
+    # cmap_custom = plt.cm.Spectral_r    
     # Define the levels (bins) you want within the colormap
-    levels = MaxNLocator(nbins=9).tick_values(vmin, vmax)  # Specify your bin edges
+    levels = MaxNLocator(nbins=10).tick_values(vmin, vmax)  # Specify your bin edges
     # Create a BoundaryNorm object
     norm = colors.BoundaryNorm(boundaries=levels, ncolors=cmap_custom.N)
 ###############################################################################
@@ -157,7 +157,7 @@ colors_male = cmap_custom(normalized_values_male)
 
 ###############################################################################
 # Plot the barplot
-fig, ax = plt.subplots(3,1, figsize=(40, 32))
+fig, ax = plt.subplots(3,1, figsize=(40, 25))
 sns.set_style("white")
 ###############################################################################
 # custom_ticks = levels
@@ -234,11 +234,11 @@ for bar in ax[2].patches:
 ###############################################################################
 # Adjust x-tick positions and labels for all subplots
 ax[0].set_xticks(np.arange(len(top_corr_both_gender)))
-ax[0].set_xticklabels(top_corr_both_gender['regions'], rotation=45, ha='right', fontsize=24)
+ax[0].set_xticklabels(top_corr_both_gender['regions'], rotation=45, ha='right', fontsize=28)
 ax[0].set_xlim(-0.5, len(top_corr_both_gender) - 0.5)
 
 ax[1].set_xticks(np.arange(len(top_corr_male)))
-ax[1].set_xticklabels(top_corr_male['regions'], rotation=45, ha='right', fontsize=24)
+ax[1].set_xticklabels(top_corr_male['regions'], rotation=45, ha='right', fontsize=30)
 ax[0].set_xlim(-0.5, len(top_corr_male) - 0.5)
 
 ax[2].set_xticks(np.arange(len(top_corr_female)))
@@ -249,10 +249,10 @@ ax[0].set_xlim(-0.5, len(top_corr_female) - 0.5)
 if corr_target == "hgs_true":
     # Set y-axis limits (you can adjust these values based on your data)
     ymin = 0.1  # Example minimum value
-    ymax = 0.15  # Example maximum value
-    ystep = 0.01
+    ymax = 0.18  # Example maximum value
+    ystep = 0.04
     # Set specific y-axis ticks
-    ax[0].set_yticks(np.arange(ymin, ymax+0.01, ystep))
+    ax[0].set_yticks(np.arange(ymin, ymax+0.04, ystep))
     ax[1].set_yticks(np.arange(ymin, ymax+0.01, ystep))
     ax[2].set_yticks(np.arange(ymin, ymax+0.01, ystep))
     # Remove the top and right spines (borders)
@@ -266,12 +266,12 @@ if corr_target == "hgs_true":
         ax[i].spines['bottom'].set_color('lightgrey')
 ############################################################################### 
 for i in range(3):   
-    ax[i].set_ylim(ymin, ymax+.001)
+    ax[i].set_ylim(ymin, ymax+.004)
     # Set y-tick labels font size
-    ax[i].yaxis.set_tick_params(labelsize=24)
+    ax[i].yaxis.set_tick_params(labelsize=28)
     # Add labels and title
     ax[i].set_xlabel('')
-    ax[i].set_ylabel('correlations', fontsize=28)
+    ax[i].set_ylabel('correlations', fontsize=34)
 ###############################################################################
 fig.suptitle(f'Top {n_top_regions} Regions with Highest Absolute Correlations', fontsize=24, y=1)
 ###############################################################################
