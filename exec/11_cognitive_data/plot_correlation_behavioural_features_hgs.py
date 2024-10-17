@@ -21,7 +21,7 @@ from hgsprediction.load_results.healthy.load_prediction_correlation_results impo
 ####### Features Extraction #######
 from hgsprediction.define_features import define_features
 
-from scipy.stats import pearsonr
+from scipy.stats import pearsonr, spearmanr
 from statsmodels.stats.multitest import fdrcorrection
 #--------------------------------------------------------------------------#
 from ptpython.repl import embed
@@ -62,23 +62,6 @@ df = load_corrected_prediction_results(
     n_folds,
     data_set,
 )
-
-###############################################################################
-df_correlation_values, df_r2_values, df_mae_values = load_prediction_correlation_results(
-    population,
-    mri_status,
-    model_name,
-    feature_type,
-    target,
-    gender,
-    session,
-    confound_status,
-    n_repeats,
-    n_folds,    
-    correlation_type,
-    data_set,
-)
-
 ##############################################################################
 # Define main features and extra features:
 features, extend_features = define_features(feature_type)
@@ -95,7 +78,10 @@ elif corr_target == "hgs_corrected_delta":
 df_significant = pd.DataFrame(columns=["feature_name", "corr-values", "p-values"])
 
 for i, feat in enumerate(features):
-    corr_value, p_value = pearsonr(df[feat], df[y])
+    if correlation_type == "pearson":
+        corr_value, p_value = pearsonr(df[feat], df[y])
+    elif correlation_type == "spearman":
+        corr_value, p_value = spearmanr(df[feat], df[y])
     df_significant.loc[i, "feature_name"]=feat
     df_significant.loc[i,"corr-values"]= corr_value
     df_significant.loc[i,"p-values"]= p_value
@@ -180,7 +166,7 @@ df_sorted = df_significant.sort_values(by='corr-values', ascending=False)
 custom_paltte = ["#eb0917", "#86AD21", "#5ACACA", "#B382D6"]
 ###############################################################################
 # Specify the path of the new folder
-folder_path = os.path.join("plots", f"{data_set}")
+folder_path = os.path.join("plots", correlation_type , f"{data_set}")
 # Check if the directory already exists
 if(not os.path.isdir(folder_path)):
         os.makedirs(folder_path)
