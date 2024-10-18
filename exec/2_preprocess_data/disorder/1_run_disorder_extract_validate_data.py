@@ -137,8 +137,8 @@ for visit_session in visit_range:
     df_validated = data_processor.validate_handgrips(df_extracted, population, session_column)
     # save_disorder_data.save_subgroups_only_extracted_data(df_extracted, population, mri_status, session_column, disorder_cohort=f"pre-{population}", first_event=f"{first_event}")
     # save_disorder_data.save_subgroups_only_validated_hgs_data(df_validated, population, mri_status, session_column, disorder_cohort=f"pre-{population}", first_event=f"{first_event}")
-print("===== Done! =====")
-embed(globals(), locals())  
+# print("===== Done! =====")
+# embed(globals(), locals())  
 ###############################################################################
 # print("===== Done! =====")
 # embed(globals(), locals())

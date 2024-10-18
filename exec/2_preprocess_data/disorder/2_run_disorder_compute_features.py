@@ -17,6 +17,8 @@ if mri_status == "mri":
     visit_range = range(1, 4)
 elif mri_status == "nonmri":
     visit_range = range(1, 3)
+print("===== Done! =====")
+embed(globals(), locals())
 # for all session pre- and -post disorder together (all in one):
 for disorder_cohort in [f"pre-{population}", f"post-{population}", f"longitudinal-{population}"]:
     if disorder_cohort == f"longitudinal-{population}":
@@ -29,7 +31,7 @@ for disorder_cohort in [f"pre-{population}", f"post-{population}", f"longitudina
                     subgroup_session_column = f"1st_{disorder_subgroup}_session"
                 df = disorder_compute_features.compute_features(df, subgroup_session_column, feature_type, mri_status)
                 print(df)
-            save_disorder_data.save_preprocessed_data(df, population, mri_status, session_column, disorder_cohort, first_event)
+            # save_disorder_data.save_preprocessed_data(df, population, mri_status, session_column, disorder_cohort, first_event)
             print(disorder_cohort)
     else:
         for visit_session in visit_range:
@@ -49,7 +51,7 @@ for disorder_cohort in [f"pre-{population}", f"post-{population}", f"longitudina
             df = load_disorder_data.load_validated_hgs_data(population, mri_status, session_column, disorder_cohort, first_event)
             df = disorder_compute_features.compute_features(df, session_column, feature_type, mri_status)
         
-            save_disorder_data.save_preprocessed_data(df, population, mri_status, session_column, disorder_cohort, first_event)
+            # save_disorder_data.save_preprocessed_data(df, population, mri_status, session_column, disorder_cohort, first_event)
             print(disorder_cohort)
             print(df)
 
