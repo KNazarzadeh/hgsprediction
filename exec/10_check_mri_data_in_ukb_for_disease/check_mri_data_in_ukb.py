@@ -1,51 +1,53 @@
+import sys
 import os
 import pandas as pd
-import tempfile
-import datalad.api as dl
-import shutil
-from ptpython.repl import embed
-from hgsprediction.data_preprocessing import stroke_data_preprocessor
+from hgsprediction.load_data.disorder import load_disorder_data
+from datalad.api import get, drop
 
+from ptpython.repl import embed
 # print("===== Done! =====")
 # embed(globals(), locals())
-
-
-stroke_folder = "/data/project/stroke_ukb/knazarzadeh/project_hgsprediction/data_hgs/stroke/original_data/mri_stroke/mri_stroke.csv"
-longitudinal_folder = "/data/project/stroke_ukb/knazarzadeh/project_hgsprediction/data_hgs/stroke/preprocessed_data/mri_stroke/longitudinal-stroke_data/1st_longitudinal-stroke_session_data/preprocessed_data/1st_longitudinal-stroke_session_preprocessed_data.csv"
-post_only = "/data/project/stroke_ukb/knazarzadeh/project_hgsprediction/data_hgs/stroke/preprocessed_data/mri_stroke/post-stroke_data/1st_post-stroke_session_data/preprocessed_data/1st_post-stroke_session_preprocessed_data.csv"
-pre_only = "/data/project/stroke_ukb/knazarzadeh/project_hgsprediction/data_hgs/stroke/preprocessed_data/mri_stroke/pre-stroke_data/1st_pre-stroke_session_data/preprocessed_data/1st_pre-stroke_session_preprocessed_data.csv"
-
-df_all = pd.read_csv(stroke_folder, sep=',', index_col=0)
-df_longitudinal = pd.read_csv(longitudinal_folder, sep=',', index_col=0)
-df_post_only = pd.read_csv(post_only, sep=',', index_col=0)
-df_pre_only = pd.read_csv(pre_only, sep=',', index_col=0)
-
-df_longitudinal = df_longitudinal[~df_longitudinal['1st_post-stroke_bmi'].isna()]
-print("===== Done! =====")
-embed(globals(), locals())
-# data_processor = stroke_data_preprocessor.StrokeMainDataPreprocessor(df_longitudinal)
-# df_preprocessed = data_processor.calculate_dominant_nondominant_hgs(df_longitudinal)
-
-
- 
-subjects_long = [str(idx) for idx in df_longitudinal[df_longitudinal['1st_post-stroke_session']==2.0].index]
-subjects_post = [str(idx) for idx in df_post_only.index]
-subjects_pre = [str(idx) for idx in df_pre_only.index]
-
-df = df_pre_only[df_pre_only.index.isin(df_longitudinal.index)]
-pre_ses_2_index = df[df['1st_pre-stroke_session']==2.0].index
-
-df_longitudinal_without_pre = df_longitudinal[~df_longitudinal.index.isin(pre_ses_2_index)]
-
-subjects = [str(idx) for idx in df_longitudinal_without_pre[df_longitudinal_without_pre['1st_post-stroke_session']==2.0].index]
+###############################################################################
+filename = sys.argv[0]
+population = sys.argv[1]
+mri_status = sys.argv[2]
+disorder_cohort = sys.argv[3]
+visit_session = sys.argv[4]
+feature_type = sys.argv[5]
+target = sys.argv[6]
+model_name = sys.argv[7]
+confound_status = sys.argv[8]
+n_repeats = sys.argv[9]
+n_folds = sys.argv[10]
+gender = sys.argv[11]
+first_event = sys.argv[12]
+session = sys.argv[13]
+##################################################
+# for all session pre- and -post disorder together (all in one):
+if visit_session == "1":
+    session_column = f"1st_{disorder_cohort}_session"
+##################################################
+# Load the extracted data based on various parameters
+df = load_disorder_data.load_extracted_data_by_feature_and_target(
+        population,
+        mri_status,
+        session_column,
+        feature_type,
+        target,
+        gender,
+        first_event,
+    )
+##################################################
+subjects_long = [str(idx) for idx in df[df['1st_post-stroke_session']== float(f"{session}.0")].index]
 
 # print("===== Done! =====")
 # embed(globals(), locals()) 
+
 # -----------------------------------------------------
 # -- Define the list of subjects
 # -----------------------------------------------------
 # subj_IDs = ["11", "12", "13", "14", "15", "16", "17", "18", "19", "20"]
-subj_IDs = ["sub-" + item for item in subjects]
+subj_IDs = ["sub-" + item for item in subjects_long]
 # subj_IDs = subjects
 i=0
 # -----------------------------------------------------
@@ -56,60 +58,65 @@ i=0
 # dl.install(database_folder, source=repo)
 # dataset = dl.Dataset(database_folder)
 
-database_folder = "/data/project/stroke_ukb/knazarzadeh/data_ukk/tmp/mri_bids"
+database_folder = "/data/project/stroke_ukb/knazarzadeh/ukb_original_data/new_version_ukb_bids_2024/ukb_bids/"
 os.chdir(database_folder)
 
 # List of folder names to check for
 folder_names = 'anat'
+# print("===== Done! =====")
+# embed(globals(), locals()) 
 # -----------------------------------------------------
 # -- Loop over the subjects
 # -----------------------------------------------------
 subjs_with_mri = []
 for subj_ID in subj_IDs:
-    subj_folder = os.path.join(
-        database_folder, subj_ID)
+    subj_folder = os.path.join(database_folder, subj_ID)
+    print(f"i={i}, subj_ID={subj_ID}")
     # Check if the folder exists
     if os.path.exists(subj_folder):
         # Change the current working directory to the specified folder
         # -----------------------------------------------------
         # -- Get the data for the subject
         # ----------------------------------------------------- 
-        dl.get(subj_folder, get_data=False)
-        mri_folder = os.path.join(subj_folder, "ses-2")
-        os.chdir(mri_folder)
-           
-        # ----- Get a single rsfMRI dataset for further analysis
-        # Check if any of the specified folders exist in the directory
-        if os.path.exists(os.path.join(mri_folder, 'anat')):
-            anat_folder = os.path.join(mri_folder, 'anat')
-            os.chdir(anat_folder)
-            # Specify the name of the file you want to find
-            file_to_find = f"{subj_ID}_ses-2_T1w.nii.gz"
-            # Use os.listdir() to list all items in the directory
-            items = os.listdir(anat_folder)
-            # Check if the file exists in the directory
-            if file_to_find in items:
-                subjs_with_mri.append(subj_ID)
-                # dl.get(file_to_find)
-                # t1_folder_path = os.path.join(anat_folder, file_to_find)
-                # mri_stroke_folder = "/data/project/stroke_ukb/knazarzadeh/data_ukk/tmp/mri_stroke/longitudinal-stroke_FLAIR/"
-                # shutil.copy(t1_folder_path, mri_stroke_folder)
-                # dl.drop(file_to_find)
+        get(subj_folder, get_data=False)       
+        # print("===== Done! =====")
+        # embed(globals(), locals())  
+        if os.path.exists(os.path.join(subj_folder, f"ses-{session}")):
+            mri_folder = os.path.join(subj_folder, f"ses-{session}")
+            os.chdir(mri_folder)
+            # ----- Get a single rsfMRI dataset for further analysis
+            # Check if any of the specified folders exist in the directory
+            if os.path.exists(os.path.join(mri_folder, 'anat')):
+                anat_folder = os.path.join(mri_folder, 'anat')
+                os.chdir(anat_folder)
+                # Specify the name of the file you want to find
+                file_to_find = f"{subj_ID}_ses-{session}_T1w.nii.gz"
+                # Use os.listdir() to list all items in the directory
+                items = os.listdir(anat_folder)
+                # Check if the file exists in the directory
+                if file_to_find in items:
+                    subjs_with_mri.append(subj_ID)
+                    # get(file_to_find)
+                    # t1_folder_path = os.path.join(anat_folder, file_to_find)
+                    # mri_stroke_folder = "/data/project/stroke_ukb/knazarzadeh/data_ukk/tmp/mri_stroke/longitudinal-stroke_T1w/"
+                    # shutil.copy(t1_folder_path, mri_stroke_folder)
+                    # dl.drop(file_to_find)
+                else:
+                    print(f"{file_to_find} was not found in the directory.")
+                    
             else:
-                print(f"{file_to_find} was not found in the directory.")
-                
-        else:
-            print(f"The folder anat was not found in the directory.")
+                print(f"The anat was not found in the {mri_folder}.")
 
-        os.chdir(database_folder)
-    else:
-        print(f"The folder '{subj_ID}' does not exist.")
-        i=i+1
-        print(i)
-        print(subj_ID)
+            os.chdir(database_folder)
+            drop(subj_folder)
+        else:
+            print(f"The folder '{subj_ID}' does not exist.")
+        
+    i = i+1
 
 modified_list = [s.replace("sub-", "") for s in subjs_with_mri]
 int_list = [int(item) for item in modified_list]
+
 print("===== Done! =====")
 embed(globals(), locals())    
 

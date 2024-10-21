@@ -138,7 +138,7 @@ def load_validated_hgs_data(
 
 ###############################################################################
 # Load preprocessed data
-def load_preprocessed_data(population, mri_status, feature_type, session_column, disorder_cohort, first_event):
+def load_preprocessed_data(population, mri_status, session_column, disorder_cohort, first_event):
     """Get data from the preprocessed csv file.
     Parameters
     ----------
@@ -168,7 +168,6 @@ def load_preprocessed_data(population, mri_status, feature_type, session_column,
     f"{disorder_cohort}_data",
     f"{session_column}_data",
     "preprocessed_data",
-    f"{feature_type}",
 )
 
     file_path = os.path.join(
