@@ -3,6 +3,7 @@ import os
 import pandas as pd
 from hgsprediction.load_data.disorder import load_disorder_data
 from datalad.api import get, drop
+import shutil
 
 from ptpython.repl import embed
 # print("===== Done! =====")
@@ -58,7 +59,8 @@ i=0
 # dl.install(database_folder, source=repo)
 # dataset = dl.Dataset(database_folder)
 
-database_folder = "/data/project/stroke_ukb/knazarzadeh/ukb_original_data/new_version_ukb_bids_2024/ukb_bids/"
+# database_folder = "/data/project/stroke_ukb/knazarzadeh/ukb_original_data/mri_bids/"
+database_folder = "/data/project/stroke_ukb/knazarzadeh/ukb_original_data/new_version_ukb_bids_2024/ukb_bids"
 os.chdir(database_folder)
 
 # List of folder names to check for
@@ -91,16 +93,19 @@ for subj_ID in subj_IDs:
                 os.chdir(anat_folder)
                 # Specify the name of the file you want to find
                 file_to_find = f"{subj_ID}_ses-{session}_T1w.nii.gz"
+                # file_to_find = f"{subj_ID}_ses-{session}_acq-AP_dwi.nii.gz"
                 # Use os.listdir() to list all items in the directory
+                # file_to_find = f"{subj_ID}_ses-{session}_acq-AP_dwi.json"
+                
                 items = os.listdir(anat_folder)
                 # Check if the file exists in the directory
                 if file_to_find in items:
                     subjs_with_mri.append(subj_ID)
                     # get(file_to_find)
-                    # t1_folder_path = os.path.join(anat_folder, file_to_find)
-                    # mri_stroke_folder = "/data/project/stroke_ukb/knazarzadeh/data_ukk/tmp/mri_stroke/longitudinal-stroke_T1w/"
-                    # shutil.copy(t1_folder_path, mri_stroke_folder)
-                    # dl.drop(file_to_find)
+                    # dwi_folder_path = os.path.join(anat_folder, file_to_find)
+                    # mri_stroke_folder = "/data/project/stroke_ukb/knazarzadeh/ukb_original_data/mri_stroke/longitudinal-stroke_T1w/"
+                    # shutil.copy(dwi_folder_path, mri_stroke_folder)
+                    # drop(file_to_find)
                 else:
                     print(f"{file_to_find} was not found in the directory.")
                     
