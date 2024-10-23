@@ -105,6 +105,8 @@ print("'%' of Post Right dominant handed =", "{:.2f}".format(post_right_handed*1
 print("###############################################################################")
 
 print(" Interval days between pre- and post- time-points =", df[f'1st_pre-post_{population}_days_diff'].mean())
+print(" Min Interval days between pre- and post- time-points =", df[f'1st_pre-post_{population}_days_diff'].min())
+print(" Max Interval days between pre- and post- time-points =", df[f'1st_pre-post_{population}_days_diff'].max())
 
 print("===== Done! =====")
 embed(globals(), locals())
