@@ -247,8 +247,8 @@ for pre_ses in range(pre_ses_min, pre_ses_max+1):
                     print("The indices are in the same order.")
                 else:
                     print("The indices are not in the same order.")    
-                print("===== END Done End! =====")
-                embed(globals(), locals())
+                # print("===== END Done End! =====")
+                # embed(globals(), locals())
                 ###############################################################################
                 # Add prefix to column names
                 df_control_pre_matched = df_control_pre_matched.rename(columns={"patient_id": f"{pre_prefix}patient_id"})
@@ -267,9 +267,9 @@ for pre_ses in range(pre_ses_min, pre_ses_max+1):
                 # embed(globals(), locals())
                 # Remove the specified suffixes from the column names in df1
                 df_control_matched_pre_post.columns = df_control_matched_pre_post.columns.str.replace(r'-[0-3]\.0$', '', regex=True)
-                if post_ses == 2:
-                    print("===== END Done End! =====")
-                    embed(globals(), locals())
+                # if post_ses == 2:
+                    # print("===== END Done End! =====")
+                    # embed(globals(), locals())
                 df_control_matched_tmp = pd.concat([df_control_matched_tmp, df_control_matched_pre_post], axis=0)
                 
                 df_control_pre.drop(index=df_control_matched_tmp.index, inplace=True, errors='ignore')
@@ -306,8 +306,8 @@ print("control_post_age=", df_control_matched[f"{post_prefix}age"].mean())
 
 print("disorder_days_diff=", df_disorder[f"1st_pre-post_{population}_days_diff"].mean())
 print("control_days_diff=", df_control_matched[f"1st_pre-post_{population}_days_diff"].mean())
-print("===== END Done End! =====")
-embed(globals(), locals())
+# print("===== END Done End! =====")
+# embed(globals(), locals())
 ##############################################################################
 ###############################################################################
 save_disorder_matched_samples_results(

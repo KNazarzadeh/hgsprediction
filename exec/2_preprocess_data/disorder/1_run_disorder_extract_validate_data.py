@@ -17,7 +17,8 @@ mri_status = sys.argv[2]
 first_event = sys.argv[3]
 
 df_original = load_disorder_data.load_original_data(population, mri_status)
-
+# print("===== Done! =====")
+# embed(globals(), locals())
 ###############################################################################
 
 data_processor = disorder_data_preprocessor.DisorderMainDataPreprocessor(df_original, population)    
@@ -135,9 +136,9 @@ for visit_session in visit_range:
 
     df_extracted = data_processor.extract_data(df_pre, session_column)
     df_validated = data_processor.validate_handgrips(df_extracted, population, session_column)
-    # save_disorder_data.save_subgroups_only_extracted_data(df_extracted, population, mri_status, session_column, disorder_cohort=f"pre-{population}", first_event=f"{first_event}")
-    # save_disorder_data.save_subgroups_only_validated_hgs_data(df_validated, population, mri_status, session_column, disorder_cohort=f"pre-{population}", first_event=f"{first_event}")
-# print("===== Done! =====")
+#     save_disorder_data.save_subgroups_only_extracted_data(df_extracted, population, mri_status, session_column, disorder_cohort=f"pre-{population}", first_event=f"{first_event}")
+#     save_disorder_data.save_subgroups_only_validated_hgs_data(df_validated, population, mri_status, session_column, disorder_cohort=f"pre-{population}", first_event=f"{first_event}")
+# # print("===== Done! =====")
 # embed(globals(), locals())  
 ###############################################################################
 # print("===== Done! =====")

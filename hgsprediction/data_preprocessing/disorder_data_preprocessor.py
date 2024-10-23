@@ -574,7 +574,9 @@ class DisorderMainDataPreprocessor:
                 df = df[~df.loc[:, hgs_dominant].isna()]
                 df = df[~df.loc[:, hgs_nondominant].isna()]   
                 df = df[(df.loc[:, hgs_dominant] >= 4.0) & (df.loc[:, hgs_dominant] >= df.loc[:, hgs_nondominant])]
-                # df = df[(df.loc[:, hgs_nondominant] >= 4) & (~df.loc[:, hgs_nondominant].isna())]
+                # df = df[(df.loc[:, hgs_dominant] >= 4) & (~df.loc[:, hgs_dominant].isna()) & (df.loc[:, hgs_nondominant] >= 4) & (~df.loc[:, hgs_nondominant].isna())]
+                # df = df[(df.loc[:, hgs_dominant] >= 4) & (~df.loc[:, hgs_dominant].isna())]
+
             else:
                 # print("===== Done! =====")
                 # embed(globals(), locals())
