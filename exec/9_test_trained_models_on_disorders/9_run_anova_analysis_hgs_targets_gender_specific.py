@@ -50,6 +50,8 @@ df = load_prepare_data_for_anova(
     n_samples,
     first_event,
 )
+# print("===== Done! End =====")
+# embed(globals(), locals())
 #-----------------------------------------------------------#
 df["gender"].replace(0, "female", inplace=True)
 df["gender"].replace(1, "male", inplace=True)
@@ -75,43 +77,43 @@ df_male = df[df["gender"]=="male"]
 aov_female = mixed_anova(dv=anova_target, between='group', within='time_point', subject='Subject', data=df_female)
 aov_male = mixed_anova(dv=anova_target, between='group', within='time_point', subject='Subject', data=df_male)
 
-save_disorder_anova_results(
-    df_female,
-    aov_female,
-    population,
-    mri_status,
-    session_column,
-    model_name,
-    feature_type,
-    target,
-    confound_status,
-    n_repeats,
-    n_folds,
-    n_samples,
-    anova_target,
-    "female",
-    "pingouin",
-    first_event,    
-)
+# save_disorder_anova_results(
+#     df_female,
+#     aov_female,
+#     population,
+#     mri_status,
+#     session_column,
+#     model_name,
+#     feature_type,
+#     target,
+#     confound_status,
+#     n_repeats,
+#     n_folds,
+#     n_samples,
+#     anova_target,
+#     "female",
+#     "pingouin",
+#     first_event,    
+# )
 
-save_disorder_anova_results(
-    df_male,
-    aov_male,
-    population,
-    mri_status,
-    session_column,
-    model_name,
-    feature_type,
-    target,
-    confound_status,
-    n_repeats,
-    n_folds,
-    n_samples,
-    anova_target,
-    "male",
-    "pingouin",
-    first_event,
-)
+# save_disorder_anova_results(
+#     df_male,
+#     aov_male,
+#     population,
+#     mri_status,
+#     session_column,
+#     model_name,
+#     feature_type,
+#     target,
+#     confound_status,
+#     n_repeats,
+#     n_folds,
+#     n_samples,
+#     anova_target,
+#     "male",
+#     "pingouin",
+#     first_event,
+# )
 
 
 print("\n Female Pinguin ANOVA Result:")
@@ -144,23 +146,23 @@ df_posthoc_female = pd.DataFrame(data=df_posthoc_summary_female._results_table.d
                                columns=df_posthoc_summary_female._results_table.data[0])
 
 #-----------------------------------------------------------#
-save_disorder_posthoc_results(
-    df_pairwise_posthoc_female,
-    df_posthoc_female,
-    population,
-    mri_status,
-    session_column,
-    model_name,
-    feature_type,
-    target,
-    confound_status,
-    n_repeats,
-    n_folds,
-    n_samples,
-    anova_target,
-    "female",
-    "pingouin",
-    first_event,)
+# save_disorder_posthoc_results(
+#     df_pairwise_posthoc_female,
+#     df_posthoc_female,
+#     population,
+#     mri_status,
+#     session_column,
+#     model_name,
+#     feature_type,
+#     target,
+#     confound_status,
+#     n_repeats,
+#     n_folds,
+#     n_samples,
+#     anova_target,
+#     "female",
+#     "pingouin",
+#     first_event,)
 if interaction_female['p-unc'].iloc[0] < 0.05:
     print(f"There are significant interactions for female {anova_target}")
 else:
@@ -184,23 +186,23 @@ df_posthoc_male = pd.DataFrame(data=df_posthoc_summary_male._results_table.data[
                                columns=df_posthoc_summary_male._results_table.data[0])
 
 #-----------------------------------------------------------#
-save_disorder_posthoc_results(
-    df_pairwise_posthoc_male,
-    df_posthoc_male,
-    population,
-    mri_status,
-    session_column,
-    model_name,
-    feature_type,
-    target,
-    confound_status,
-    n_repeats,
-    n_folds,
-    n_samples,
-    anova_target,
-    "male",
-    "pingouin",
-    first_event,)
+# save_disorder_posthoc_results(
+#     df_pairwise_posthoc_male,
+#     df_posthoc_male,
+#     population,
+#     mri_status,
+#     session_column,
+#     model_name,
+#     feature_type,
+#     target,
+#     confound_status,
+#     n_repeats,
+#     n_folds,
+#     n_samples,
+#     anova_target,
+#     "male",
+#     "pingouin",
+#     first_event,)
 if interaction_male['p-unc'].iloc[0] < 0.05:
     print(f"There are significant interactions for males {anova_target}")
 else:
