@@ -43,8 +43,8 @@ df_preprocessed = data_processor.calculate_dominant_nondominant_hgs(df_preproces
 
 # Remove all columns with all NaN values
 df_preprocessed = data_processor.remove_nan_columns(df_preprocessed)
-# print("===== Done! =====")
-# embed(globals(), locals())
+print("===== Done! =====")
+embed(globals(), locals())
 # save_disorder_data.save_main_preprocessed_data(df_preprocessed, population, mri_status, disorder_cohort=f"all-{population}-subjects", first_event=f"{first_event}")
 
 ###############################################################################

@@ -32,9 +32,9 @@ for disorder_cohort in [f"pre-{population}", f"post-{population}", f"longitudina
                     subgroup_session_column = f"1st_{disorder_subgroup}_session"
                 df = disorder_compute_features.compute_features(df, subgroup_session_column, feature_type, mri_status)
                 print(df)
-            # print("===== Done! =====")
-            # embed(globals(), locals())                
-            save_disorder_data.save_preprocessed_data(df, population, mri_status, session_column, disorder_cohort, first_event)
+            print("===== Done! =====")
+            embed(globals(), locals())                
+            # save_disorder_data.save_preprocessed_data(df, population, mri_status, session_column, disorder_cohort, first_event)
             print(disorder_cohort)
     else:
         for visit_session in visit_range:
@@ -54,7 +54,7 @@ for disorder_cohort in [f"pre-{population}", f"post-{population}", f"longitudina
             df = load_disorder_data.load_validated_hgs_data(population, mri_status, session_column, disorder_cohort, first_event)
             df = disorder_compute_features.compute_features(df, session_column, feature_type, mri_status)
         
-            save_disorder_data.save_preprocessed_data(df, population, mri_status, session_column, disorder_cohort, first_event)
+            # save_disorder_data.save_preprocessed_data(df, population, mri_status, session_column, disorder_cohort, first_event)
             print(disorder_cohort)
             print(df)
 

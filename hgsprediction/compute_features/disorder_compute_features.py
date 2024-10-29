@@ -24,18 +24,15 @@ def compute_features(df, session_column, feature_type, mri_status):
         df = calculate_age(df, session_column)
         df = calculate_anthropometrics(df, session_column)
              
-    # elif feature_type == "behavioral":
-    #     df = calculate_behavioral(df, session_column)
+    if feature_type == "behavioral":
+        df = calculate_behavioral(df, session_column)
 
     # elif feature_type == "qualification":
     #     df = calculate_qualification(df, session_column)
         
     # elif feature_type == "socioeconomic_status":
     #     df = calculate_socioeconomic_status(df, session_column)
-
-    # elif feature_type == "behavioral":
-    #     features = ca()   
-                    
+          
     # elif feature_type == "anthropometrics_behavioral_gender":
     #     features = extract_anthropometric_features() + extract_behavioral_features() + extract_gender_features()
             
@@ -54,21 +51,21 @@ def calculate_anthropometrics(df, session_column):
 
     return df
 ###############################################################################
-# def calculate_behavioral(df, session_column):
-#     # Totally 25 fields:
-#     # (N=12)
-#     df = calculate_cognitive_functioning(df, session_column)
-#     # (N=4)
-#     df = calculate_depression_score(df, session_column)
-#     df = calculate_anxiety_score(df, session_column)
-#     df = calculate_cidi_score(df, session_column)
-#     df = calculate_neuroticism_score(df, session_column)
-#     # (N=6)
-#     df = calculate_life_satisfaction(df, session_column)
-#     # (N=3)
-#     df = calculate_well_being(df, session_column)
+def calculate_behavioral(df, session_column):
+    # Totally 25 fields:
+    # (N=12)
+    # df = calculate_cognitive_functioning(df, session_column)
+    # # (N=4)
+    # df = calculate_depression_score(df, session_column)
+    # df = calculate_anxiety_score(df, session_column)
+    # df = calculate_cidi_score(df, session_column)
+    df = calculate_neuroticism_score(df, session_column)
+    # # (N=6)
+    # df = calculate_life_satisfaction(df, session_column)
+    # # (N=3)
+    # df = calculate_well_being(df, session_column)
     
-#     return df
+    return df
 ###############################################################################
 ###############################################################################
 def calculate_bmi(df, session_column):
@@ -267,6 +264,7 @@ def calculate_gender(df, session_column):
         return df
 
 ###############################################################################
+###############################################################################
 def calculate_neuroticism_score(df, session_column):
     """Calculate neuroticism score
     and add "neuroticism_score" column to dataframe
@@ -286,6 +284,9 @@ def calculate_neuroticism_score(df, session_column):
     
     assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
     assert isinstance(session_column, str), "session_column must be a string!"
+    # -----------------------------------------------------------
+    substring_to_remove = "session"
+    neuroticism_score = session_column.replace(substring_to_remove, "neuroticism_score")
     # -----------------------------------------------------------
     # ------- Neuroticism Fields and Data-Codings -------
     # All Fields useing same Data-Coding (100349)
@@ -348,8 +349,93 @@ def calculate_neuroticism_score(df, session_column):
         # df.where is replacing all negative values with NaN
         # min_count=9, means calculate Sum if 
         # at leaset 9 of the fields are answered:
-        df.loc[idx, "neuroticism_score"] = \
-            df.loc[idx, neuroticism_fields_tmp].where(df.loc[idx, neuroticism_fields_tmp] >= 0.0).sum(axis=0, min_count=9)
+        df.loc[idx, neuroticism_score] = df.loc[idx, neuroticism_fields_tmp].where(df.loc[idx, neuroticism_fields_tmp] >= 0.0).sum(axis=0, min_count=9)
+
+    return df
+
+###############################################################################
+def calculate_depression_score(df, session_column):
+    """Calculate depression score
+    and add "depression_score" column to dataframe
+
+    Parameters
+    ----------
+    df : dataframe
+        The dataframe that desired to analysis
+
+    Return
+    ----------
+    df : dataframe
+        with extra column for: depression score
+    """
+    # Assign corresponding session number from the Class:
+    # The only aailable session for Depression is 0:
+    session = "0"
+
+    assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
+    assert isinstance(session, str), "session must be a str!"
+    # -----------------------------------------------------------
+    substring_to_remove = "session"
+    depression_score = session_column.replace(substring_to_remove, "depression_score")
+    # -----------------------------------------------------------    
+    # -----------------------------------------------------------
+    # ------- Depression Fields and Data-Codings -------
+    # All Fields useing same Data-Coding (504)
+    # Data-Coding: 504
+    #          -818	Prefer not to answer
+    #           1	Not at all
+    #           2	Several days
+    #           3	More than half the days
+    #           4	Nearly every day
+    # ------------------------------------
+    #  ------- Depression Fields:
+        # Recent feelings of inadequacy
+        # '20507',  Data-Coding 504
+        # trouble concentrating on things
+        # '20508',  Data-Coding 504
+        # Recent feelings of depression
+        # '20510',
+        # Recent poor appetite or overeating
+        # '20511',  Data-Coding 504
+        # Recent thoughts of suicide or self-harm
+        # '20513',  Data-Coding 504
+        # Recent lack of interest or pleasure in doing things
+        # '20514',  Data-Coding 504
+        # Trouble falling or staying asleep, or sleeping too much
+        # '20517',  Data-Coding 504
+        # Recent changes in speed/amount of moving or speaking
+        # '20518',  Data-Coding 504
+        # Recent feelings of tiredness or low energy
+        # '20519',  Data-Coding 504
+    # -----------------------------------------------------------
+    depression_fields = [
+        '20507',    # Data-Coding 504
+        '20508',    # Data-Coding 504
+        '20510',    # Data-Coding 504
+        '20511',    # Data-Coding 504
+        '20513',    # Data-Coding 504
+        '20514',    # Data-Coding 504
+        '20517',    # Data-Coding 504
+        '20518',    # Data-Coding 504
+        '20519',    # Data-Coding 504
+    ]
+    # Add corresponding intences/session that we are lookin for 
+    # to the list of fields:
+    for idx in df.index:
+        session = df.loc[idx, session_column]
+        # Add corresponding intences/session that we are looking for 
+        # to the list of fields as suffix:
+        depression_fields_tmp = [item + f"-{session}" for item in depression_fields]
+        # ------------------------------------
+        # Add new column "depression_score" by the following process: 
+        # Find core_fields answered greather than 0.0
+        # And Calculate Sum with min_count parameter=1:
+        # df.where is replacing all negative values with NaN
+        # min_count=1, means calculate Sum if 
+        # at leaset 1 of the fields are answered:
+        # df.loc[:, "depression_score"] = df.where(
+        #     df[depression_fields] > 0.0).sum(axis=1, min_count=1)
+        df.loc[idx, depression_score] = df.loc[idx,depression_fields_tmp].where(df[depression_fields_tmp] > 0.0).sum(axis=1, min_count=1)
 
     return df
 

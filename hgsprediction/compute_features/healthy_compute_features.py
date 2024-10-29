@@ -298,7 +298,7 @@ def calculate_depression_score(df, session):
         with extra column for: depression score
     """
     # Assign corresponding session number from the Class:
-    # The only aailable session for Depression is 0:
+    # The only available session for Depression is 0:
     session = "0"
 
     assert isinstance(df, pd.DataFrame), "df must be a dataframe!"
