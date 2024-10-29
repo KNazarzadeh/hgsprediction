@@ -25,14 +25,11 @@ def load_overlap_brain_data_with_mri_data(
                 f"{session}_session_ukb",
                 f"{feature_type}",
             )
-    if(os.path.isdir(folder_path)):
-        # Define the csv file path to load
-        file_path = os.path.join(
-            folder_path,
-            f"{gender}_brain_{brain_data_type}_Schaefer{schaefer}_overlap_with_mri_healthy_data.csv")
+    # Define the csv file path to load
+    file_path = os.path.join(
+        folder_path,
+        f"{gender}_brain_{brain_data_type}_Schaefer{schaefer}_overlap_with_mri_healthy_data.csv")
 
-        df = pd.read_csv(file_path, sep=',', index_col=0)
-    else:
-        df = pd.DataFrame()
-        
+    df = pd.read_csv(file_path, sep=',', index_col=0)
+
     return df

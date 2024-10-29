@@ -30,19 +30,20 @@ mri_status = sys.argv[2]
 feature_type = sys.argv[3]
 target = sys.argv[4]
 model_name = sys.argv[5]
-session = sys.argv[6]
-confound_status = sys.argv[7]
-n_repeats = sys.argv[8]
-n_folds = sys.argv[9]
-data_set =sys.argv[10]
-brain_data_type = sys.argv[11]
-tiv_status = sys.argv[12]
-schaefer = sys.argv[13]
-gender = sys.argv[14]
+confound_status = sys.argv[6]
+n_repeats = sys.argv[7]
+n_folds = sys.argv[8]
+data_set =sys.argv[9]
+brain_data_type = sys.argv[10]
+tiv_status = sys.argv[11]
+schaefer = sys.argv[12]
+gender = sys.argv[13]
 # print("===== Done! =====")
 # embed(globals(), locals())
 ###############################################################################
-
+# GMV is available only for session 2
+session = '2'
+###############################################################################
 df_mri = load_corrected_prediction_results(
     population,
     mri_status,
@@ -60,16 +61,12 @@ df_mri = load_corrected_prediction_results(
 # embed(globals(), locals())
 ###############################################################################
 if tiv_status == "without_tiv":
-    
     df_brain_without_tiv = load_removed_tiv_from_brain_data(session, brain_data_type, schaefer)
-
 ##############################################################################
     if len(df_brain_without_tiv) > 0:
         df_merged = pd.merge(df_brain_without_tiv, df_mri, left_index=True, right_index=True, how='inner')
 
         print(df_merged)
-        print("===== Done! =====")
-        embed(globals(), locals())
 ##############################################################################
         save_overlap_brain_data_with_mri_data(
             df_merged,
@@ -81,7 +78,6 @@ if tiv_status == "without_tiv":
         )
     else: 
         print("There is no subject with brain data for this session")
-
 
 print("===== Done! =====")
 embed(globals(), locals())

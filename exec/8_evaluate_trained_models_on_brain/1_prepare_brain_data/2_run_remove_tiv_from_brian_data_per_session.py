@@ -15,23 +15,18 @@ from ptpython.repl import embed
 filename = sys.argv[0]
 population = sys.argv[1]
 mri_status = sys.argv[2]
-session = sys.argv[3]
-brain_data_type = sys.argv[4]
-schaefer = sys.argv[5]
+brain_data_type = sys.argv[3]
+schaefer = sys.argv[4]
 
 ###############################################################################
 df_brain = load_original_brain_data(brain_data_type, schaefer)
 ###############################################################################
 df_tiv_original = load_tiv_data()
 ##############################################################################
-if session == '2':
-    df_tiv = df_tiv_original[df_tiv_original['Session'] == f'ses-2']['TIV']
-elif session == '3':
-    df_tiv_original_ses_2 = df_tiv_original[df_tiv_original['Session'] == f'ses-2']['TIV']
-    df_tiv_original_ses_3 = df_tiv_original[df_tiv_original['Session'] == f'ses-3']['TIV']
+# GMV availabel only for session 2
+session = '2'
 
-    df_tiv_ses_3 = df_tiv_original_ses_3[~df_tiv_original_ses_3.index.isin(df_tiv_original_ses_2.index)]
-    df_tiv = df_tiv_ses_3
+df_tiv = df_tiv_original[df_tiv_original['Session'] == f'ses-2']['TIV']
 ##############################################################################
 def calculate_residuals(df, brain_regions):
     df_residuals = pd.DataFrame(index=df.index, columns=brain_regions)
@@ -56,7 +51,8 @@ def calculate_residuals(df, brain_regions):
 ##############################################################################
     
 df_merged_gmv_tiv = pd.merge(df_brain, df_tiv, left_index=True, right_index=True, how='inner')
-
+print("===== Done! =====")
+embed(globals(), locals())
 if len(df_merged_gmv_tiv) > 0:
 
     brain_regions = df_brain.columns
